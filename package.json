@@ -1,42 +1,108 @@
 {
-	"name": "languagetool-linter",
-	"displayName": "LanguageTool Linter",
-	"description": "LanguageTool integration for VS Code.",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.38.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:extension.helloWorld"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "extension.helloWorld",
-				"title": "Hello World"
-			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^5.2.6",
-		"@types/node": "^10.12.21",
-		"@types/vscode": "^1.38.0",
-		"glob": "^7.1.4",
-		"mocha": "^6.1.4",
-		"typescript": "^3.3.1",
-		"tslint": "^5.12.1",
-		"vscode-test": "^1.2.0"
-	}
+  "name": "languagetool-linter",
+  "displayName": "LanguageTool Linter",
+  "description": "LanguageTool integration for VS Code.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.38.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.helloWorld"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "LanguageTool Language Server configuration",
+      "properties": {
+        "languageTool.motherTongue": {
+          "type": "string",
+          "default": "en-US",
+          "description": "The language LanguageTool should check against"
+        },
+        "languageTool.preferredVariants": {
+          "type": "string",
+          "default": "",
+          "description": ""
+        },
+        "languageTool.disabledCategories": {
+          "type": "string",
+          "default": "",
+          "description": ""
+        },
+        "languageTool.disabledRules": {
+          "type": "string",
+          "default": "",
+          "description": ""
+        },
+        "languageTool.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow to enable languageTool on specific workspaces"
+        },
+        "languageTool.publicFallback": {
+          "type": "boolean",
+          "default": false,
+          "description": "Fallback to the public LanguageTool API Service."
+        },
+        "languagetool.fallbackServerUrl": {
+          "type": "string",
+          "default": "https://languagetool.org/api/",
+          "description": "URL of public LanguageTool server to use in fallback mode."
+        },
+        "languageTool.serverUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL of LanguageTool server or the path to your local languagetool-server.jar."
+        },
+        "languageTool.localPort": {
+          "type": "integer",
+          "default": "8081",
+          "description": "Port for local LanguageTool service."
+        },
+        "languageTool.manageLocalServce": {
+          "type": "boolean",
+          "default": false,
+          "description": "Start and stop the LanguageTool service."
+        },
+        "languageTool.localConfig": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a config file for the local LanguageTool service."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "extension.helloWorld",
+        "title": "Hello World"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^10.12.21",
+    "@types/vscode": "^1.38.0",
+    "glob": "^7.1.4",
+    "mocha": "^6.1.4",
+    "typescript": "^3.3.1",
+    "tslint": "^5.12.1",
+    "vscode-test": "^1.2.0"
+  },
+  "dependencies": {
+    "@types/request-promise-native": "^1.0.16",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
+  }
 }
