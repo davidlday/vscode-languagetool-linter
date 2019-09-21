@@ -57,6 +57,79 @@ function resetDiagnostics() {
   });
 }
 
+interface Suggestion {
+  index: number;
+  offset: number;
+  reason: string;
+}
+
+interface LTResponse {
+  software: {
+    name: string;
+    version: string;
+    buildDate: string;
+    apiVersion: number;
+    premium: boolean;
+    premiumHint: string;
+    status: string;
+  };
+  warnings: {
+    incompleteResults: boolean;
+  };
+  language: {
+    name: string;
+    code: string;
+    detectedLanguage: {
+      name: string;
+      code: string;
+      confidence: number;
+    };
+  };
+  matches: LTMatch[];
+}
+
+interface LTMatch {
+  message: string;
+  shortMessage: string;
+  offset: number;
+  length: number;
+  replacements: Map<string, string>;
+  context: {
+    text: string;
+    offset: number;
+    length: number;
+  };
+  sentence: string;
+  type: {
+    typeName: string;
+  };
+  rule: {
+    id: string;
+    description: string;
+    issueType: string;
+    category: {
+      id: string;
+      name: string;
+    };
+  };
+  ignoreForIncompleteSentence: boolean;
+  contextForSureMatch: number;
+}
+
+function suggest(data: LTResponse) {
+  let matches = data.matches;
+  let diagnostics: vscode.Diagnostic[] = [];
+  // let lines = document.getText().split(/\r?\n/g);
+  matches.forEach( function (match: LTMatch) {
+    let offset: number = match.offset;
+    let length: number = match.length;
+    // Need to calculate lineCount. Blech.
+    let start = new vscode.Position(0, match.offset);
+    let end = new vscode.Position(0, match.offset + match.length);
+    diagnostics.push(new vscode.Diagnostic(new vscode.Range(start, end), match.message, vscode.DiagnosticSeverity.Warning));
+  });
+}
+
 function doLint(document: vscode.TextDocument) {
 
   let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languagetool-linter");
@@ -91,18 +164,8 @@ function doLint(document: vscode.TextDocument) {
       console.log(err);
     });
 
-  // let lines = document.getText().split(/\r?\n/g);
-  // lines.forEach((line, lineCount) => {
-  //     let suggestions : Suggestion[] = WriteGood(line, ltConfig);
-  //     suggestions.forEach((suggestion, si) => {
-  //         let start = new vscode.Position(lineCount, suggestion.index);
-  //         let end = new vscode.Position(lineCount, suggestion.index + suggestion.offset);
-  //         diagnostics.push(new vscode.Diagnostic(new vscode.Range(start, end), suggestion.reason, vscode.DiagnosticSeverity.Warning));
-  //     });
-  // });
-
   diagnosticMap.set(document.uri.toString(), diagnostics);
-  // resetDiagnostics();
+  resetDiagnostics();
   console.log(document.getText());
   console.log(document.languageId);
 }
