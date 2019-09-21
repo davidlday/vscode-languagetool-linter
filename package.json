@@ -71,7 +71,7 @@
         "languagetool-linter.url": {
           "type": "string",
           "default": "http://localhost:8081",
-          "description": "URL of LanguageTool server or the path to your local languagetool-server.jar."
+          "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         }
       }
     }
