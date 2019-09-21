@@ -67,7 +67,7 @@ function doLint(document: vscode.TextDocument) {
   console.log(editorContent);
 
   let post_data_dict = {
-    "language": ltLanguage,
+    "language": ltConfig.get("language"),
     "text": editorContent,
     // "motherTongue": ltConfig.get("motherTongue"),
     // "preferredVariants": ltConfig.get("preferredVariants"),
