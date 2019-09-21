@@ -7,80 +7,79 @@
     "vscode": "^1.38.0"
   },
   "categories": [
-    "Other"
+    "Linters"
   ],
   "activationEvents": [
-    "onCommand:extension.helloWorld"
+    "*"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "LanguageTool Language Server configuration",
+      "title": "languagetool-linter",
       "properties": {
-        "languageTool.motherTongue": {
+        "languagetool-linter.language": {
+          "type": "string",
+          "default": "auto",
+          "description": "The language LanguageTool should check against"
+        },
+        "languagetool-linter.motherTongue": {
           "type": "string",
           "default": "en-US",
           "description": "The language LanguageTool should check against"
         },
-        "languageTool.preferredVariants": {
+        "languagetool-linter.preferredVariants": {
           "type": "string",
           "default": "",
           "description": ""
         },
-        "languageTool.disabledCategories": {
+        "languagetool-linter.disabledCategories": {
           "type": "string",
           "default": "",
           "description": ""
         },
-        "languageTool.disabledRules": {
+        "languagetool-linter.disabledRules": {
           "type": "string",
           "default": "",
           "description": ""
         },
-        "languageTool.enabled": {
+        "languagetool-linter.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Allow to enable languageTool on specific workspaces"
         },
-        "languageTool.publicFallback": {
+        "languagetool-linter.publicFallback": {
           "type": "boolean",
           "default": false,
           "description": "Fallback to the public LanguageTool API Service."
         },
-        "languagetool.fallbackServerUrl": {
+        "languagetool-linter.fallbackServerUrl": {
           "type": "string",
           "default": "https://languagetool.org/api/",
           "description": "URL of public LanguageTool server to use in fallback mode."
         },
-        "languageTool.serverUrl": {
+        "languagetool-linter.serverUrl": {
           "type": "string",
           "default": "",
           "description": "URL of LanguageTool server or the path to your local languagetool-server.jar."
         },
-        "languageTool.localPort": {
+        "languagetool-linter.localPort": {
           "type": "integer",
           "default": "8081",
           "description": "Port for local LanguageTool service."
         },
-        "languageTool.manageLocalServce": {
+        "languagetool-linter.manageLocalServce": {
           "type": "boolean",
           "default": false,
           "description": "Start and stop the LanguageTool service."
         },
-        "languageTool.localConfig": {
+        "languagetool-linter.localConfig": {
           "type": "string",
           "default": "",
           "description": "Path to a config file for the local LanguageTool service."
         }
       }
-    },
-    "commands": [
-      {
-        "command": "extension.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
