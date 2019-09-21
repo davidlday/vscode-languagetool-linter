@@ -116,11 +116,13 @@ interface LTMatch {
   contextForSureMatch: number;
 }
 
-function suggest(data: LTResponse) {
-  let matches = data.matches;
+function suggest(response: LTResponse) {
+  console.log("Suggestions");
+  let matches = response.matches;
   let diagnostics: vscode.Diagnostic[] = [];
   // let lines = document.getText().split(/\r?\n/g);
   matches.forEach( function (match: LTMatch) {
+    console.log(match);
     let offset: number = match.offset;
     let length: number = match.length;
     // Need to calculate lineCount. Blech.
@@ -158,7 +160,7 @@ function doLint(document: vscode.TextDocument) {
 
   rp.post(ltUrl, options)
     .then( function (data) {
-      console.log(data);
+      suggest(data);
     })
     .catch( function (err) {
       console.log(err);
