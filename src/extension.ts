@@ -5,9 +5,9 @@ import * as rp from 'request-promise-native';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
-const ltDocumentLanguage: string[] = ["markdown", "html", "plaintext"];
-const ltPublicUrl: string = "https://languagetool.org/api/";
-const ltOptionalConfigs: string[] = ["motherTongue", "preferredVariants", "disabledCategories", "disabledRules"];
+const LT_DOCUMENT_LANGUAGES: string[] = ["markdown", "html", "plaintext"];
+const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
+const LT_OPTIONAL_CONFIGS: string[] = ["motherTongue", "preferredVariants", "disabledCategories", "disabledRules"];
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
   diagnosticMap = new Map();
 
   function isWriteGoodLanguage(languageId: string) {
-    return (ltDocumentLanguage.indexOf(languageId) > -1);
+    return (LT_DOCUMENT_LANGUAGES.indexOf(languageId) > -1);
   }
 
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   context.subscriptions.push(diagnosticCollection);
-  ltDocumentLanguage.forEach(function (id) {
+  LT_DOCUMENT_LANGUAGES.forEach(function (id) {
     context.subscriptions.push(
       vscode.languages.registerCodeActionsProvider({ scheme: '*', language: id }, new LTCodeActionProvider()));
   });
@@ -54,7 +54,7 @@ function getCheckUrl(): string {
   if (ltUrl && typeof ltUrl === "string") {
     return ltUrl + checkPath;
   } else if (ltConfig.get("publicFallback") === true) {
-    return ltPublicUrl + checkPath;
+    return LT_PUBLIC_URL + checkPath;
   } else {
     // Need a much nicer way of handling this.
     console.log("No URL configured and using the public URL as a fallback is disabled!");
@@ -68,7 +68,7 @@ function getPostDataDict(): any {
   let ltPostDataDict: any = {
     "language": ltConfig.get("lt.language")
   };
-  ltOptionalConfigs.forEach(function (ltConfigString) {
+  LT_OPTIONAL_CONFIGS.forEach(function (ltConfigString) {
     let configItem = "lt." + ltConfigString;
     if (ltConfig.get(configItem)) {
       ltPostDataDict[configItem] = ltConfig.get(configItem);
