@@ -18,65 +18,60 @@
       "type": "object",
       "title": "languagetool-linter",
       "properties": {
-        "languagetool-linter.language": {
-          "type": "string",
-          "default": "auto",
-          "description": "The language LanguageTool should check against"
-        },
-        "languagetool-linter.motherTongue": {
-          "type": "string",
-          "default": "",
-          "description": "The language LanguageTool should check against"
-        },
-        "languagetool-linter.preferredVariants": {
-          "type": "string",
-          "default": "",
-          "description": ""
-        },
-        "languagetool-linter.disabledCategories": {
-          "type": "string",
-          "default": "",
-          "description": ""
-        },
-        "languagetool-linter.disabledRules": {
-          "type": "string",
-          "default": "-",
-          "description": ""
-        },
         "languagetool-linter.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Allow to enable languageTool on specific workspaces"
+        },
+        "languagetool-linter.lt.language": {
+          "type": "string",
+          "default": "auto",
+          "description": "A language code like en-US, de-DE, fr, or auto to guess the language automatically (see preferredVariants below). For languages with variants (English, German, Portuguese) spell checking will only be activated when you specify the variant, e.g. en-GB instead of just en."
+        },
+        "languagetool-linter.lt.motherTongue": {
+          "type": "string",
+          "default": "",
+          "description": "A language code of the user's native language, enabling false friends checks for some language pairs."
+        },
+        "languagetool-linter.lt.preferredVariants": {
+          "type": "string",
+          "default": "",
+          "description": "Comma-separated list of preferred language variants. The language detector used with language=auto can detect e.g. English, but it cannot decide whether British English or American English is used. Thus this parameter can be used to specify the preferred variants like en-GB and de-AT. Only available with language=auto."
+        },
+        "languagetool-linter.lt.enabledRules": {
+          "type": "string",
+          "default": "",
+          "description": "Not implemented."
+        },
+        "languagetool-linter.lt.disabledRules": {
+          "type": "string",
+          "default": "",
+          "description": "Not implemented"
+        },
+        "languagetool-linter.lt.enabledCategories": {
+          "type": "string",
+          "default": "",
+          "description": "Not implemented"
+        },
+        "languagetool-linter.lt.disabledCategories": {
+          "type": "string",
+          "default": "",
+          "description": "Not implemented"
+        },
+        "languagetool-linter.lt.enabledOnly": {
+          "type": "boolean",
+          "default": "false",
+          "description": "If true, only the rules and categories whose IDs are specified with enabledRules or enabledCategories are enabled."
         },
         "languagetool-linter.publicFallback": {
           "type": "boolean",
           "default": false,
           "description": "Fallback to the public LanguageTool API Service."
         },
-        "languagetool-linter.fallbackServerUrl": {
+        "languagetool-linter.url": {
           "type": "string",
-          "default": "https://languagetool.org/api/",
-          "description": "URL of public LanguageTool server to use in fallback mode."
-        },
-        "languagetool-linter.serverUrl": {
-          "type": "string",
-          "default": "",
+          "default": "http://localhost:8081",
           "description": "URL of LanguageTool server or the path to your local languagetool-server.jar."
-        },
-        "languagetool-linter.localPort": {
-          "type": "integer",
-          "default": "8081",
-          "description": "Port for local LanguageTool service."
-        },
-        "languagetool-linter.manageLocalServce": {
-          "type": "boolean",
-          "default": false,
-          "description": "Start and stop the LanguageTool service."
-        },
-        "languagetool-linter.localConfig": {
-          "type": "string",
-          "default": "",
-          "description": "Path to a config file for the local LanguageTool service."
         }
       }
     }
@@ -101,6 +96,7 @@
   },
   "dependencies": {
     "@types/request-promise-native": "^1.0.16",
+    "annotatedtext-rehype": "^0.1.0",
     "annotatedtext-remark": "^0.1.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5"
