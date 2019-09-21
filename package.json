@@ -25,7 +25,7 @@
         },
         "languagetool-linter.motherTongue": {
           "type": "string",
-          "default": "en-US",
+          "default": "",
           "description": "The language LanguageTool should check against"
         },
         "languagetool-linter.preferredVariants": {
@@ -40,7 +40,7 @@
         },
         "languagetool-linter.disabledRules": {
           "type": "string",
-          "default": "",
+          "default": "-",
           "description": ""
         },
         "languagetool-linter.enabled": {

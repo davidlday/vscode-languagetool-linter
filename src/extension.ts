@@ -66,12 +66,13 @@ function doLint(document: vscode.TextDocument) {
   let editorContent: string = document.getText();
   console.log(editorContent);
 
-  // let motherTongue: string = (isNullOrUndefined(ltConfig.get("languageTool.motherTongue"))) ? "" : ltConfig.get("languageTool.motherTongue");
-
   let post_data_dict = {
-    "language": ltConfig.get("language"),
+    "language": ltLanguage,
     "text": editorContent,
-    "motherTongue": "en-US"
+    // "motherTongue": ltConfig.get("motherTongue"),
+    // "preferredVariants": ltConfig.get("preferredVariants"),
+    // "disabledCategories": ltConfig.get("disabledCategories"),
+    // "disabledRules": ltConfig.get("disabledRules")
   };
   console.log(post_data_dict);
 
