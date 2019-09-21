@@ -42,5 +42,4 @@ I used several examples from other projects to get this one going. Check them ou
 * [Atom Linter LanguageTool](https://github.com/wysiib/linter-languagetool/)
 * [VSCode Write Good Extension](https://github.com/TravisTheTechie/vscode-write-good/)
 * [Fall: Not Yet Another Parser Generator](https://github.com/matklad/fall)
-
-**Enjoy!**
+* [LaguageTool](https://languagetool.org) (of course!)
