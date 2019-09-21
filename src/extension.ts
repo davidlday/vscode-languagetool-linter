@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
-import { isNullOrUndefined } from 'util';
+import * as remarkBuilder from 'annotatedtext-remark';
 import * as rp from 'request-promise-native';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
-let ltDocumentLanguage: string[] = [ "markdown", "plaintext" ];
-let ltUrl: string = "https://languagetool.org/api/v2/check";
+let ltDocumentLanguage: string[] = ["markdown", "plaintext"];
+// let ltUrl: string = "https://languagetool.org/api/v2/check";
+let ltUrl: string = "http://localhost:9999/v2/check";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -20,47 +21,61 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
     if (isWriteGoodLanguage(event.document.languageId)) {
-        doLint(event.document);
+      if (event.document.languageId === "markdown") {
+        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(event.document.getText()));
+        lintAnnotatedText(event.document, annotatedMarkdown);
+      } else {
+        lintPlaintext(event.document);
+      }
     }
   }));
 
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(event => {
     if (diagnosticMap.has(event.uri.toString())) {
-        diagnosticMap.delete(event.uri.toString());
+      diagnosticMap.delete(event.uri.toString());
     }
     resetDiagnostics();
   }));
 
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vscode-languagetool-linter" is now active!');
+  context.subscriptions.push(diagnosticCollection);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
+  console.log('Congratulations, your extension "vscode-languagetool-linter" is now active!');
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
-	});
+  // // The command has been defined in the package.json file
+  // // Now provide the implementation of the command with registerCommand
+  // // The commandId parameter must match the command field in package.json
+  // let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
+  // 	// The code you place here will be executed every time your command is executed
 
-	context.subscriptions.push(disposable);
+  // 	// Display a message box to the user
+  // 	vscode.window.showInformationMessage('Hello World!');
+  // });
+
+  // context.subscriptions.push(disposable);
+
+}
+
+class LTCodeActionProvider implements vscode.CodeActionProvider {
+  provideCodeActions(
+    document: vscode.TextDocument,
+    range: vscode.Range,
+    context: vscode.CodeActionContext,
+    token: vscode.CancellationToken
+  ): vscode.CodeAction[] {
+    let actions: vscode.CodeAction[] = [];
+    let action = new vscode.CodeAction("test");
+    actions.push(action);
+    return actions;
+  }
 }
 
 function resetDiagnostics() {
-  console.log("Resetting Diagnostics...");
+  // console.log("Resetting Diagnostics...");
   diagnosticCollection.clear();
 
   diagnosticMap.forEach((diags, file) => {
-      diagnosticCollection.set(vscode.Uri.parse(file), diags);
+    diagnosticCollection.set(vscode.Uri.parse(file), diags);
   });
-}
-
-interface Suggestion {
-  index: number;
-  offset: number;
-  reason: string;
 }
 
 interface LTResponse {
@@ -93,7 +108,7 @@ interface LTMatch {
   shortMessage: string;
   offset: number;
   length: number;
-  replacements: Map<string, string>;
+  replacements: LTReplacement[];
   context: {
     text: string;
     offset: number;
@@ -116,34 +131,78 @@ interface LTMatch {
   contextForSureMatch: number;
 }
 
-function suggest(response: LTResponse) {
-  console.log("Suggestions");
+interface LTReplacement {
+  value: string;
+  shortDescription: string;
+}
+
+function suggest(document: vscode.TextDocument, response: LTResponse) {
   let matches = response.matches;
   let diagnostics: vscode.Diagnostic[] = [];
   // let lines = document.getText().split(/\r?\n/g);
-  matches.forEach( function (match: LTMatch) {
-    console.log(match);
-    let offset: number = match.offset;
-    let length: number = match.length;
-    // Need to calculate lineCount. Blech.
-    let start = new vscode.Position(0, match.offset);
-    let end = new vscode.Position(0, match.offset + match.length);
-    diagnostics.push(new vscode.Diagnostic(new vscode.Range(start, end), match.message, vscode.DiagnosticSeverity.Warning));
+  matches.forEach(function (match: LTMatch) {
+    // console.log(match);
+    let start = document.positionAt(match.offset);
+    let end = document.positionAt(match.offset + match.length);
+    let diagnosticRange: vscode.Range = new vscode.Range(start, end);
+    let daignosticMessage: string = match.rule.id + ": " + match.message;
+    let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(diagnosticRange, daignosticMessage, vscode.DiagnosticSeverity.Warning);
+    let relatedInformation: vscode.DiagnosticRelatedInformation[] = new Array<vscode.DiagnosticRelatedInformation>();
+    diagnostic.source = "LanguageTool";
+    // match.replacements.forEach(function (replacement: LTReplacement) {
+    //   let location: vscode.Location = new vscode.Location(document.uri, diagnosticRange);
+    //   let related: vscode.DiagnosticRelatedInformation = new vscode.DiagnosticRelatedInformation(location, replacement.value);
+    //   relatedInformation.push(related);
+    // });
+    diagnostic.relatedInformation = relatedInformation;
+    diagnostics.push(diagnostic);
   });
+  diagnosticMap.set(document.uri.toString(), diagnostics);
+  resetDiagnostics();
 }
 
-function doLint(document: vscode.TextDocument) {
+function lintPlaintext(document: vscode.TextDocument) {
 
   let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languagetool-linter");
-  console.log(ltConfig);
+  // console.log(ltConfig);
   let diagnostics: vscode.Diagnostic[] = [];
 
   let editorContent: string = document.getText();
-  console.log(editorContent);
+  // console.log(editorContent);
 
   let post_data_dict = {
     "language": ltConfig.get("language"),
     "text": editorContent,
+    // "motherTongue": ltConfig.get("motherTongue"),
+    // "preferredVariants": ltConfig.get("preferredVariants"),
+    // "disabledCategories": ltConfig.get("disabledCategories"),
+    // "disabledRules": ltConfig.get("disabledRules")
+  };
+  // console.log(post_data_dict);
+
+  let options: object = {
+    "method": "POST",
+    "form": post_data_dict,
+    "json": true
+  };
+  // console.log(options);
+
+
+  rp.post(ltUrl, options)
+    .then(function (data) {
+      suggest(document, data);
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+}
+
+function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string) {
+  let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languagetool-linter");
+
+  let post_data_dict = {
+    "language": ltConfig.get("language"),
+    "data": annotatedText,
     // "motherTongue": ltConfig.get("motherTongue"),
     // "preferredVariants": ltConfig.get("preferredVariants"),
     // "disabledCategories": ltConfig.get("disabledCategories"),
@@ -156,21 +215,16 @@ function doLint(document: vscode.TextDocument) {
     "form": post_data_dict,
     "json": true
   };
-  console.log(options);
 
   rp.post(ltUrl, options)
-    .then( function (data) {
-      suggest(data);
+    .then(function (data) {
+      suggest(document, data);
     })
-    .catch( function (err) {
+    .catch(function (err) {
       console.log(err);
     });
 
-  diagnosticMap.set(document.uri.toString(), diagnostics);
-  resetDiagnostics();
-  console.log(document.getText());
-  console.log(document.languageId);
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
