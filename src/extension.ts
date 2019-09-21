@@ -1,16 +1,14 @@
 import * as vscode from 'vscode';
 import * as remarkBuilder from 'annotatedtext-remark';
+import * as rehypeBuilder from 'annotatedtext-rehype';
 import * as rp from 'request-promise-native';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
-// let codeActionProvider: vscode.languages.registerCodeActionsProvider;
-let ltDocumentLanguage: string[] = ["markdown", "plaintext"];
-// let ltUrl: string = "https://languagetool.org/api/v2/check";
-let ltUrl: string = "http://localhost:9999/v2/check";
+const ltDocumentLanguage: string[] = ["markdown", "html", "plaintext"];
+const ltPublicUrl: string = "https://languagetool.org/api/";
+const ltOptionalConfigs: string[] = ["motherTongue", "preferredVariants", "disabledCategories", "disabledRules"];
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
   diagnosticCollection = vscode.languages.createDiagnosticCollection("languagetool-linter");
@@ -25,6 +23,9 @@ export function activate(context: vscode.ExtensionContext) {
       if (event.document.languageId === "markdown") {
         let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(event.document.getText()));
         lintAnnotatedText(event.document, annotatedMarkdown);
+      } else if (event.document.languageId === "html") {
+        let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(event.document.getText()));
+        lintAnnotatedText(event.document, annotatedHTML);
       } else {
         lintPlaintext(event.document);
       }
@@ -39,25 +40,41 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   context.subscriptions.push(diagnosticCollection);
-  context.subscriptions.push(
-    vscode.languages.registerCodeActionsProvider({ scheme: '*', language: 'plaintext' }, new LTCodeActionProvider()));
-  context.subscriptions.push(
-    vscode.languages.registerCodeActionsProvider({ scheme: '*', language: 'markdown' }, new LTCodeActionProvider()));
+  ltDocumentLanguage.forEach(function (id) {
+    context.subscriptions.push(
+      vscode.languages.registerCodeActionsProvider({ scheme: '*', language: id }, new LTCodeActionProvider()));
+  });
 
-  console.log('Congratulations, your extension "vscode-languagetool-linter" is now active!');
+}
 
-  // // The command has been defined in the package.json file
-  // // Now provide the implementation of the command with registerCommand
-  // // The commandId parameter must match the command field in package.json
-  // let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-  // 	// The code you place here will be executed every time your command is executed
+function getCheckUrl(): string {
+  let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languagetool-linter");
+  let checkPath = "/v2/check";
+  let ltUrl = ltConfig.get("url");
+  if (ltUrl && typeof ltUrl === "string") {
+    return ltUrl + checkPath;
+  } else if (ltConfig.get("publicFallback") === true) {
+    return ltPublicUrl + checkPath;
+  } else {
+    // Need a much nicer way of handling this.
+    console.log("No URL configured and using the public URL as a fallback is disabled!");
+    return "";
+  }
+}
 
-  // 	// Display a message box to the user
-  // 	vscode.window.showInformationMessage('Hello World!');
-  // });
+function getPostDataDict(): any {
+  let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languagetool-linter");
 
-  // context.subscriptions.push(disposable);
-
+  let ltPostDataDict: any = {
+    "language": ltConfig.get("lt.language")
+  };
+  ltOptionalConfigs.forEach(function (ltConfigString) {
+    let configItem = "lt." + ltConfigString;
+    if (ltConfig.get(configItem)) {
+      ltPostDataDict[configItem] = ltConfig.get(configItem);
+    }
+  });
+  return ltPostDataDict;
 }
 
 class LTCodeActionProvider implements vscode.CodeActionProvider {
@@ -68,9 +85,9 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
     token: vscode.CancellationToken
   ): vscode.CodeAction[] {
     let actions: vscode.CodeAction[] = [];
-    context.diagnostics.forEach( function (diagnostic: vscode.Diagnostic) {
+    context.diagnostics.forEach(function (diagnostic: vscode.Diagnostic) {
       if (diagnostic.relatedInformation) {
-        diagnostic.relatedInformation.forEach( function (related: vscode.DiagnosticRelatedInformation) {
+        diagnostic.relatedInformation.forEach(function (related: vscode.DiagnosticRelatedInformation) {
           let action = new vscode.CodeAction(related.message, vscode.CodeActionKind.QuickFix);
           action.edit = new vscode.WorkspaceEdit();
           action.edit.replace(related.location.uri, related.location.range, related.message);
@@ -177,32 +194,18 @@ function suggest(document: vscode.TextDocument, response: LTResponse) {
 
 function lintPlaintext(document: vscode.TextDocument) {
 
-  let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languagetool-linter");
-  // console.log(ltConfig);
-  let diagnostics: vscode.Diagnostic[] = [];
-
   let editorContent: string = document.getText();
-  // console.log(editorContent);
 
-  let post_data_dict = {
-    "language": ltConfig.get("language"),
-    "text": editorContent,
-    // "motherTongue": ltConfig.get("motherTongue"),
-    // "preferredVariants": ltConfig.get("preferredVariants"),
-    // "disabledCategories": ltConfig.get("disabledCategories"),
-    // "disabledRules": ltConfig.get("disabledRules")
-  };
-  // console.log(post_data_dict);
+  let ltPostDataDict: any = getPostDataDict();
+  ltPostDataDict["text"] = editorContent;
 
   let options: object = {
     "method": "POST",
-    "form": post_data_dict,
+    "form": ltPostDataDict,
     "json": true
   };
-  // console.log(options);
 
-
-  rp.post(ltUrl, options)
+  rp.post(getCheckUrl(), options)
     .then(function (data) {
       suggest(document, data);
     })
@@ -212,25 +215,17 @@ function lintPlaintext(document: vscode.TextDocument) {
 }
 
 function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string) {
-  let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languagetool-linter");
 
-  let post_data_dict = {
-    "language": ltConfig.get("language"),
-    "data": annotatedText,
-    // "motherTongue": ltConfig.get("motherTongue"),
-    // "preferredVariants": ltConfig.get("preferredVariants"),
-    // "disabledCategories": ltConfig.get("disabledCategories"),
-    // "disabledRules": ltConfig.get("disabledRules")
-  };
-  console.log(post_data_dict);
+  let ltPostDataDict: any = getPostDataDict();
+  ltPostDataDict["data"] = annotatedText;
 
   let options: object = {
     "method": "POST",
-    "form": post_data_dict,
+    "form": ltPostDataDict,
     "json": true
   };
 
-  rp.post(ltUrl, options)
+  rp.post(getCheckUrl(), options)
     .then(function (data) {
       suggest(document, data);
     })
