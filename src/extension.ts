@@ -4,6 +4,7 @@ import * as rp from 'request-promise-native';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
+// let codeActionProvider: vscode.languages.registerCodeActionsProvider;
 let ltDocumentLanguage: string[] = ["markdown", "plaintext"];
 // let ltUrl: string = "https://languagetool.org/api/v2/check";
 let ltUrl: string = "http://localhost:9999/v2/check";
@@ -12,7 +13,7 @@ let ltUrl: string = "http://localhost:9999/v2/check";
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-  diagnosticCollection = vscode.languages.createDiagnosticCollection("LanguageTool Linter");
+  diagnosticCollection = vscode.languages.createDiagnosticCollection("languagetool-linter");
   diagnosticMap = new Map();
 
   function isWriteGoodLanguage(languageId: string) {
@@ -38,6 +39,10 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   context.subscriptions.push(diagnosticCollection);
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider({ scheme: '*', language: 'plaintext' }, new LTCodeActionProvider()));
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider({ scheme: '*', language: 'markdown' }, new LTCodeActionProvider()));
 
   console.log('Congratulations, your extension "vscode-languagetool-linter" is now active!');
 
@@ -63,8 +68,16 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
     token: vscode.CancellationToken
   ): vscode.CodeAction[] {
     let actions: vscode.CodeAction[] = [];
-    let action = new vscode.CodeAction("test");
-    actions.push(action);
+    context.diagnostics.forEach( function (diagnostic: vscode.Diagnostic) {
+      if (diagnostic.relatedInformation) {
+        diagnostic.relatedInformation.forEach( function (related: vscode.DiagnosticRelatedInformation) {
+          let action = new vscode.CodeAction(related.message, vscode.CodeActionKind.QuickFix);
+          action.edit = new vscode.WorkspaceEdit();
+          action.edit.replace(related.location.uri, related.location.range, related.message);
+          actions.push(action);
+        });
+      }
+    });
     return actions;
   }
 }
@@ -147,14 +160,15 @@ function suggest(document: vscode.TextDocument, response: LTResponse) {
     let diagnosticRange: vscode.Range = new vscode.Range(start, end);
     let daignosticMessage: string = match.rule.id + ": " + match.message;
     let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(diagnosticRange, daignosticMessage, vscode.DiagnosticSeverity.Warning);
-    let relatedInformation: vscode.DiagnosticRelatedInformation[] = new Array<vscode.DiagnosticRelatedInformation>();
+    let diagnosticRelatedInformation: vscode.DiagnosticRelatedInformation[] = [];
+    match.replacements.forEach(function (replacement: LTReplacement) {
+      let action: vscode.CodeAction = new vscode.CodeAction("replacement.value", vscode.CodeActionKind.QuickFix);
+      let location: vscode.Location = new vscode.Location(document.uri, diagnosticRange);
+      let related: vscode.DiagnosticRelatedInformation = new vscode.DiagnosticRelatedInformation(location, replacement.value);
+      diagnosticRelatedInformation.push(related);
+    });
+    diagnostic.relatedInformation = diagnosticRelatedInformation;
     diagnostic.source = "LanguageTool";
-    // match.replacements.forEach(function (replacement: LTReplacement) {
-    //   let location: vscode.Location = new vscode.Location(document.uri, diagnosticRange);
-    //   let related: vscode.DiagnosticRelatedInformation = new vscode.DiagnosticRelatedInformation(location, replacement.value);
-    //   relatedInformation.push(related);
-    // });
-    diagnostic.relatedInformation = relatedInformation;
     diagnostics.push(diagnostic);
   });
   diagnosticMap.set(document.uri.toString(), diagnostics);
