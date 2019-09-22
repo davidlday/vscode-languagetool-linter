@@ -5,6 +5,7 @@ import * as rp from 'request-promise-native';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
+let codeActionMap: Map<string, vscode.CodeAction[]>;
 let codeActions: vscode.CodeAction[];
 
 const LT_DOCUMENT_LANGUAGES: string[] = ["markdown", "html", "plaintext"];
@@ -86,8 +87,23 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
     context: vscode.CodeActionContext,
     token: vscode.CancellationToken
   ): vscode.CodeAction[] {
-    // Code Actions get created in suggest()
-    return codeActions;
+    let documentUri: string = document.uri.toString();
+    if (codeActionMap.has(documentUri) && codeActionMap.get(documentUri)) {
+      let documentCodeActions: vscode.CodeAction[] = codeActionMap.get(documentUri) || [];
+      let actions: vscode.CodeAction[] = [];
+      // Code Actions get created in suggest()
+      documentCodeActions.forEach( function (action) {
+        if (action.diagnostics && context.diagnostics) {
+          let actionDiagnostic: vscode.Diagnostic = action.diagnostics[0];
+          if (range.contains(actionDiagnostic.range)) {
+            actions.push(action);
+          }
+        }
+      });
+      return actions;
+    } else {
+      return [];
+    }
   }
 }
 
@@ -97,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   diagnosticCollection = vscode.languages.createDiagnosticCollection("languagetool-linter");
   diagnosticMap = new Map();
-  codeActions = [];
+  codeActionMap = new Map();
 
   function isWriteGoodLanguage(languageId: string) {
     return (LT_DOCUMENT_LANGUAGES.indexOf(languageId) > -1);
@@ -139,10 +155,11 @@ function getCheckUrl(): string {
   let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
   let checkPath = "/v2/check";
   let ltUrl = ltConfig.get("url");
-  if (ltUrl && typeof ltUrl === "string") {
-    return ltUrl + checkPath;
-  } else if (ltConfig.get("publicFallback") === true) {
+
+  if (ltConfig.get("publicApi") === true) {
     return LT_PUBLIC_URL + checkPath;
+  } else if (ltUrl && typeof ltUrl === "string") {
+    return ltUrl + checkPath;
   } else {
     // Need a much nicer way of handling this.
     console.log("No URL configured and using the public URL as a fallback is disabled!");
@@ -180,23 +197,26 @@ function suggest(document: vscode.TextDocument, response: LTResponse) {
   let actions: vscode.CodeAction[] = [];
 
   matches.forEach(function (match: LTMatch) {
-    let start: vscode.Position = document.positionAt(match.context.offset);
-    let end: vscode.Position = document.positionAt(match.context.offset + match.context.length);
+    let start: vscode.Position = document.positionAt(match.offset);
+    let end: vscode.Position = document.positionAt(match.offset + match.length);
     let diagnosticRange: vscode.Range = new vscode.Range(start, end);
     let diagnosticMessage: string = match.rule.id + ": " + match.message;
     let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(diagnosticRange, diagnosticMessage, vscode.DiagnosticSeverity.Warning);
     match.replacements.forEach(function (replacement: LTReplacement) {
       let action: vscode.CodeAction = new vscode.CodeAction(replacement.value, vscode.CodeActionKind.QuickFix);
       let location: vscode.Location = new vscode.Location(document.uri, diagnosticRange);
-      action.edit = new vscode.WorkspaceEdit();
-      action.edit.replace(document.uri, location.range, replacement.value);
+      let edit: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
+      edit.replace(document.uri, location.range, replacement.value);
+      action.edit = edit;
+      action.diagnostics = [];
+      action.diagnostics.push(diagnostic);
       actions.push(action);
     });
     diagnostic.source = LT_DIAGNOSTIC_SOURCE;
     diagnostics.push(diagnostic);
   });
   // Update Global Code Actions.
-  codeActions = actions;
+  codeActionMap.set(document.uri.toString(), actions);
   diagnosticMap.set(document.uri.toString(), diagnostics);
   resetDiagnostics();
 }
