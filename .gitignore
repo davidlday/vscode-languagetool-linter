@@ -65,3 +65,6 @@ typings/
 
 # TypeScript
 out
+
+# VS Code - Add project directory
+!.vscode
