@@ -9,66 +9,60 @@
   "categories": [
     "Linters"
   ],
+  "keywords": [
+    "languagetool",
+    "grammar",
+    "spelling",
+    "markdown",
+    "html"
+  ],
   "activationEvents": [
-    "*"
+    "onLanguage:plaintext",
+    "onLanguage:markdown",
+    "onLanguage:plaintext"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "languagetool-linter",
+      "title": "LanguageTool Linter Configuration",
       "properties": {
-        "languagetool-linter.enabled": {
+        "languageToolLinter.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Allow to enable languageTool on specific workspaces"
         },
-        "languagetool-linter.lt.language": {
+        "languageToolLinter.languageTool.language": {
           "type": "string",
           "default": "auto",
           "description": "A language code like en-US, de-DE, fr, or auto to guess the language automatically (see preferredVariants below). For languages with variants (English, German, Portuguese) spell checking will only be activated when you specify the variant, e.g. en-GB instead of just en."
         },
-        "languagetool-linter.lt.motherTongue": {
+        "languageToolLinter.languageTool.motherTongue": {
           "type": "string",
           "default": "",
           "description": "A language code of the user's native language, enabling false friends checks for some language pairs."
         },
-        "languagetool-linter.lt.preferredVariants": {
+        "languageToolLinter.languageTool.preferredVariants": {
           "type": "string",
           "default": "",
           "description": "Comma-separated list of preferred language variants. The language detector used with language=auto can detect e.g. English, but it cannot decide whether British English or American English is used. Thus this parameter can be used to specify the preferred variants like en-GB and de-AT. Only available with language=auto."
         },
-        "languagetool-linter.lt.enabledRules": {
+        "languageToolLinter.languageTool.disabledRules": {
           "type": "string",
           "default": "",
-          "description": "Not implemented."
+          "description": "IDs of rules to be disabled, comma-separated."
         },
-        "languagetool-linter.lt.disabledRules": {
+        "languageToolLinter.languageTool.disabledCategories": {
           "type": "string",
           "default": "",
-          "description": "Not implemented"
+          "description": "IDs of categories to be disabled, comma-separated."
         },
-        "languagetool-linter.lt.enabledCategories": {
-          "type": "string",
-          "default": "",
-          "description": "Not implemented"
-        },
-        "languagetool-linter.lt.disabledCategories": {
-          "type": "string",
-          "default": "",
-          "description": "Not implemented"
-        },
-        "languagetool-linter.lt.enabledOnly": {
-          "type": "boolean",
-          "default": "false",
-          "description": "If true, only the rules and categories whose IDs are specified with enabledRules or enabledCategories are enabled."
-        },
-        "languagetool-linter.publicFallback": {
+        "languageToolLinter.publicFallback": {
           "type": "boolean",
           "default": false,
           "description": "Fallback to the public LanguageTool API Service."
         },
-        "languagetool-linter.url": {
+        "languageToolLinter.url": {
           "type": "string",
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
