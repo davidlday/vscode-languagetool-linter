@@ -18,7 +18,7 @@ Make sure you read and understand [LanguageTool's Public API](http://wiki.langua
 
 In Settings, search for “LanguageTool”, and enable the "Language Tool Linter: Public Api" option.
 
-![Use Publice API](./images/public_api.jpg)
+![Public API](./images/public_api.jpg)
 
 ### Option 2: Use a locally installed LanguageTool HTTP Server
 
