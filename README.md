@@ -25,13 +25,13 @@ In Settings, search for “LanguageTool”, and enable the "Language Tool Linter
 This is how I'm configured since I use both VSCode and Atom and don't want them each managing their own services.
 
 1. Install [LanguageTool](https://languagetool.org).
-  1. On Mac, use [HomeBrew](https://brew.sh): `brew install languagetool`
-  1. On Ubuntu, use [LinuxBrew](https://linuxbrew.sh): `brew install languagetool`
-  1. On Windows, use [Scoop](https://scoop.sh): `scoop install languagetool`
+   * On Mac, use [HomeBrew](https://brew.sh): `brew install languagetool`
+   * On Ubuntu, use [LinuxBrew](https://linuxbrew.sh): `brew install languagetool`
+   * On Windows, use [Scoop](https://scoop.sh): `scoop install languagetool`
 1. Start the service on Login
-  1. On Mac, create a [Login Item](http://www.macinstruct.com/node/427) that points to `/opt/bin/languagetool-server`
-  1. On Ubuntu, create a [Startup Application](https://askubuntu.com/questions/48321/how-do-i-start-applications-automatically-on-login) that points to `/home/linuxbrew/.linuxbrew/bin/languagetool-server`
-  1. On Windows, I don't know yet, but I'll post an option once I have one.
+   * On Mac, create a [Login Item](http://www.macinstruct.com/node/427) that points to `/opt/bin/languagetool-server`
+   * On Ubuntu, create a [Startup Application](https://askubuntu.com/questions/48321/how-do-i-start-applications-automatically-on-login) that points to `/home/linuxbrew/.linuxbrew/bin/languagetool-server`
+   * On Windows, I don't know yet, but I'll post an option once I have one.
 
 That should get you working.
 
