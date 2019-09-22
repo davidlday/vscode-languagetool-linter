@@ -57,10 +57,10 @@
           "default": "",
           "description": "IDs of categories to be disabled, comma-separated."
         },
-        "languageToolLinter.publicFallback": {
+        "languageToolLinter.publicApi": {
           "type": "boolean",
           "default": false,
-          "description": "Fallback to the public LanguageTool API Service."
+          "description": "Use the public LanguageTool API Service."
         },
         "languageToolLinter.url": {
           "type": "string",
