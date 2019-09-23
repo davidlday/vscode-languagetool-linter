@@ -1,31 +1,23 @@
-sudo: false
-
 language: node_js
-node_js:
-- "node"
-
-matrix:
-  include:
-    - os: linux
-      dist: bionic
-    - os: osx
-
-before_install:
-- if [ $TRAVIS_OS_NAME == "linux" ]; then
-      export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
-      sh -e /etc/init.d/xvfb start;
-      sleep 3;
-    fi
-- npm install -g typescript
+os:
+  - osx
+  - linux
+    dist: bionic
+node_js: 8
 
 install:
-- npm install
-- npm run compile
-- npm run vscode:prepublish
-- npm install -g vsce
-- vsce package
-- ls -ll *vsix
+  - |
+    if [ $TRAVIS_OS_NAME == "linux" ]; then
+      export DISPLAY=':99.0'
+      /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    fi
+  - npm install -g typescript tslint vsce
+  - npm install
+  - npm run compile
+  - npm run vscode:prepublish
+  - vsce package
+  - ls -ll *vsix
 
 script:
-- npm run tslint
-- npm test --silent
+  - npm run tslint
+  - npm test --silent
