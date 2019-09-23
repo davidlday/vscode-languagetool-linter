@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.38.0"
   },
@@ -16,6 +16,17 @@
     "markdown",
     "html"
   ],
+  "author": "David L. Day <david@davidlday.com> (https://www.davidlday.com)",
+  "publisher": "davidlday",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidlday/vscode-languagetool-linter"
+  },
+  "bugs": {
+    "url": "https://github.com/davidlday/vscode-languagetool-linter/issues"
+  },
+  "homepage": "https://github.com/davidlday/vscode-languagetool-linter#readme",
   "activationEvents": [
     "onLanguage:plaintext",
     "onLanguage:markdown",
@@ -92,7 +103,7 @@
     "@types/request-promise-native": "^1.0.16",
     "annotatedtext-rehype": "^0.1.0",
     "annotatedtext-remark": "^0.1.0",
-    "request": "^2.83.0",
+    "request": "^2.88.0",
     "request-promise-native": "^1.0.5"
   }
 }
