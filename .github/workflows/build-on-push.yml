@@ -16,17 +16,22 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: fix display issue on ubuntu
+    - name: npm install, build, and test on ${{ matrix.os }}
       if: matrix.os == 'ubuntu-latest'
-      shell: bash
       run: |
-        if [ $CI_OS == "ubuntu-latest" ]; then
-          export DISPLAY=':99.0'
-          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        fi
+        export DISPLAY=':99.0'
+        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        npm install -g typescript vsce
+        npm install
+        npm run compile
+        npm run vscode:prepublish
+        vsce package
+        npm test
       env:
         CI: true
-    - name: npm install, build, and test
+        DISPLAY: :99.0
+    - name: npm install, build, and test on ${{ matrix.os }}
+      if: matrix.os != 'ubuntu-latest'
       run: |
         npm install -g typescript vsce
         npm install
