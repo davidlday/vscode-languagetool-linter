@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         node-version: [8.x, 10.x, 12.x]
-        
+
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -19,12 +19,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
       run: |
-        npm install -g typescript tslint vsce
+        npm install -g typescript vsce
         npm install
         npm run compile
         npm run vscode:prepublish
         vsce package
-        npm run tslint
         npm test
       env:
         CI: true
