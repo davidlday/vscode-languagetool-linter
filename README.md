@@ -39,7 +39,7 @@ That should get you working.
 
 ### Option 3: Have this Extension Manage a Local LanguageTool HTTP Server
 
-This option is coming. It's how [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) behaves by default.
+This option is coming. It's how the [Atom Linter LanguageTool](https://github.com/wysiib/linter-languagetool/) package behaves by default.
 
 ### Option 4: Use LanguageTool API Running Somewhere Else
 
