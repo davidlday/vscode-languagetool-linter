@@ -23,7 +23,6 @@ import * as rp from 'request-promise-native';
 let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
-let codeActions: vscode.CodeAction[];
 
 const LT_DOCUMENT_LANGUAGES: string[] = ["markdown", "html", "plaintext"];
 const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
