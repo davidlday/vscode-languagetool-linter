@@ -19,10 +19,10 @@ jobs:
     - name: set display on ubuntu-latest
       if: matrix.os == 'ubuntu-latest'
       run: |
+        export DISPLAY=':99.0'
         /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       env:
         CI: true
-        DISPLAY: :99.0
     - name: npm install, build, and test on ${{ matrix.os }}
       run: |
         npm install -g typescript vsce
