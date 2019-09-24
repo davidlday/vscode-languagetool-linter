@@ -135,18 +135,27 @@ export function activate(context: vscode.ExtensionContext) {
     return (LT_DOCUMENT_LANGUAGES.indexOf(languageId) > -1);
   }
 
-  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    if (isWriteGoodLanguage(event.document.languageId)) {
-      if (event.document.languageId === "markdown") {
-        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(event.document.getText()));
-        lintAnnotatedText(event.document, annotatedMarkdown);
-      } else if (event.document.languageId === "html") {
-        let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(event.document.getText()));
-        lintAnnotatedText(event.document, annotatedHTML);
+  function lintDocument(document: vscode.TextDocument): void {
+    if (isWriteGoodLanguage(document.languageId)) {
+      if (document.languageId === "markdown") {
+        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
+        lintAnnotatedText(document, annotatedMarkdown);
+      } else if (document.languageId === "html") {
+        let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(document.getText()));
+        lintAnnotatedText(document, annotatedHTML);
       } else {
-        lintPlaintext(event.document);
+        lintPlaintext(document);
       }
     }
+  }
+
+  context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
+    lintDocument(document);
+  }));
+
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+    // Need to cancel all prior lint events
+    lintDocument(event.document);
   }));
 
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(event => {
