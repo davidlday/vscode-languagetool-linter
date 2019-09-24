@@ -14,7 +14,6 @@
  *   limitations under the License.
  */
 
-
 import * as vscode from 'vscode';
 import * as remarkBuilder from 'annotatedtext-remark';
 import * as rehypeBuilder from 'annotatedtext-rehype';
@@ -24,13 +23,13 @@ let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 
-const LT_DOCUMENT_LANGUAGES: string[] = ["markdown", "html", "plaintext"];
+const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
+const LT_DOCUMENT_SCHEMES: string[] = ['file','untitled'];
 const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
 const LT_OPTIONAL_CONFIGS: string[] = [
   "motherTongue",
   "preferredVariants",
   "disabledCategories",
-  "disabledRules",
   "disabledRules",
   "disabledCategories"
 ];
@@ -123,7 +122,6 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
   }
 }
 
-
 // Exported Functions
 export function activate(context: vscode.ExtensionContext) {
 
@@ -132,7 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
   codeActionMap = new Map();
 
   function isWriteGoodLanguage(languageId: string) {
-    return (LT_DOCUMENT_LANGUAGES.indexOf(languageId) > -1);
+    return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
   }
 
   function lintDocument(document: vscode.TextDocument): void {
@@ -154,8 +152,10 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    // Need to cancel all prior lint events
-    lintDocument(event.document);
+    let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
+    if (ltConfig.get('lintOnChange')) {
+      lintDocument(event.document);
+    }
   }));
 
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(event => {
@@ -166,9 +166,11 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   context.subscriptions.push(diagnosticCollection);
-  LT_DOCUMENT_LANGUAGES.forEach(function (id) {
-    context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider({ scheme: '*', language: id }, new LTCodeActionProvider()));
+  LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
+    LT_DOCUMENT_SCHEMES.forEach(function(documentScheme) {
+      context.subscriptions.push(
+        vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider()));
+    });
   });
 
 }
