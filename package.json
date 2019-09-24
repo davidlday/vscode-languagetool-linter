@@ -43,6 +43,22 @@
           "default": true,
           "description": "Allow to enable languageTool on specific workspaces"
         },
+        "languageToolLinter.lintOnChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Lint every time the document changes. Use with caution."
+        },
+        "languageToolLinter.publicApi": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use the public LanguageTool API Service."
+        },
+        "languageToolLinter.url": {
+          "type": "string",
+          "default": "http://localhost:8081",
+          "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
+        },
+
         "languageToolLinter.languageTool.language": {
           "type": "string",
           "default": "auto",
@@ -67,16 +83,6 @@
           "type": "string",
           "default": "",
           "description": "IDs of categories to be disabled, comma-separated."
-        },
-        "languageToolLinter.publicApi": {
-          "type": "boolean",
-          "default": false,
-          "description": "Use the public LanguageTool API Service."
-        },
-        "languageToolLinter.url": {
-          "type": "string",
-          "default": "http://localhost:8081",
-          "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         }
       }
     }
