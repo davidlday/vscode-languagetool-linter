@@ -246,45 +246,38 @@ function suggest(document: vscode.TextDocument, response: LTResponse) {
   resetDiagnostics();
 }
 
-function lintPlaintext(document: vscode.TextDocument) {
+function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any) {
 
+  let options: object = {
+    "method": "POST",
+    "form": ltPostDataDict,
+    "json": true
+  };
+
+  rp.post(getCheckUrl(), options)
+    .then(function (data) {
+      suggest(document, data);
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+
+}
+
+function lintPlaintext(document: vscode.TextDocument): void {
   let editorContent: string = document.getText();
 
   let ltPostDataDict: any = getPostDataDict();
   ltPostDataDict["text"] = editorContent;
 
-  let options: object = {
-    "method": "POST",
-    "form": ltPostDataDict,
-    "json": true
-  };
-
-  rp.post(getCheckUrl(), options)
-    .then(function (data) {
-      suggest(document, data);
-    })
-    .catch(function (err) {
-      console.log(err);
-    });
+  callLanguageTool(document, ltPostDataDict);
 }
 
-function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string) {
+function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
 
   let ltPostDataDict: any = getPostDataDict();
   ltPostDataDict["data"] = annotatedText;
 
-  let options: object = {
-    "method": "POST",
-    "form": ltPostDataDict,
-    "json": true
-  };
-
-  rp.post(getCheckUrl(), options)
-    .then(function (data) {
-      suggest(document, data);
-    })
-    .catch(function (err) {
-      console.log(err);
-    });
+  callLanguageTool(document, ltPostDataDict);
 
 }
