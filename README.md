@@ -49,12 +49,36 @@ In Settings, search for “LanguageTool”, and set the "Language Tool Linter: U
 
 ## Configuration
 
+Most configuration items should be safe, but there are three you should pay particular attention to:
+
+1. *Public Api*: This will use [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api) service. If you violate their conditions, they'll block your IP address.
+1. *Lint on Change*: This will make a call to the LanguageTool API on every change. If you mix this with the *Public Api*, you're more likely to violate their conditions and get your IP address blocked. I prefer to set VS Code's [Auto Save](https://code.visualstudio.com/docs/editor/codebasics#_save-auto-save) to `afterDelay`, set for 1000ms (default).
+1. *Language Tool: Preferred Variants*: If you set this, then *Language Tool: Language* must be set to `auto`. If it isn't, the service will throw an error.
+
+Below is the full configuration for reference:
+
 ```JSON
         "languageToolLinter.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Allow to enable languageTool on specific workspaces"
         },
+        "languageToolLinter.lintOnChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Lint every time the document changes. Use with caution."
+        },
+        "languageToolLinter.publicApi": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use the public LanguageTool API Service."
+        },
+        "languageToolLinter.url": {
+          "type": "string",
+          "default": "http://localhost:8081",
+          "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
+        },
+
         "languageToolLinter.languageTool.language": {
           "type": "string",
           "default": "auto",
@@ -79,16 +103,6 @@ In Settings, search for “LanguageTool”, and set the "Language Tool Linter: U
           "type": "string",
           "default": "",
           "description": "IDs of categories to be disabled, comma-separated."
-        },
-        "languageToolLinter.publicApi": {
-          "type": "boolean",
-          "default": false,
-          "description": "Use the public LanguageTool API Service."
-        },
-        "languageToolLinter.url": {
-          "type": "string",
-          "default": "http://localhost:8081",
-          "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         }
 ```
 
@@ -96,7 +110,9 @@ In Settings, search for “LanguageTool”, and set the "Language Tool Linter: U
 
 The following projects provided excellent guidance on creating this project.
 
+* [LaguageTool](https://languagetool.org) (of course!)
 * [Atom Linter LanguageTool](https://github.com/wysiib/linter-languagetool/)
+* [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) - now defunct. RIP, @adamvoss.
+* [LT<sub>e</sub>X](https://github.com/valentjn/vscode-ltex) - a fork of LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool)
 * [VSCode Write Good Extension](https://github.com/TravisTheTechie/vscode-write-good/)
 * [Fall: Not Yet Another Parser Generator](https://github.com/matklad/fall)
-* [LaguageTool](https://languagetool.org) (of course!)
