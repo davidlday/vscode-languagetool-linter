@@ -3,7 +3,7 @@ language: node_js
 os:
   - osx
   - linux
-  - windows
+  # - windows
 node_js: 8
 
 install:
