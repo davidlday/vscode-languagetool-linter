@@ -10,12 +10,21 @@
     "Linters"
   ],
   "keywords": [
-    "languagetool",
+    "checker",
+    "grammar-checker",
     "grammar",
-    "spelling",
+    "html",
+    "languagetool",
     "markdown",
-    "html"
+    "proofread",
+    "spell",
+    "spelling"
   ],
+  "icon": "images/LanguageTool-Icon.png",
+  "galleryBanner": {
+    "color": "#6565f6",
+    "theme": "dark"
+  },
   "author": "David L. Day <david@davidlday.com> (https://www.davidlday.com)",
   "publisher": "davidlday",
   "license": "Apache-2.0",
