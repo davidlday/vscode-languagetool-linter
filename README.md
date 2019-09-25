@@ -1,18 +1,26 @@
-# VS Code LanguageTool Linter
+# LanguageTool Linter for Visual Studio Code
 
 [![Build Status](https://travis-ci.org/davidlday/vscode-languagetool-linter.svg?branch=master)](https://travis-ci.org/davidlday/vscode-languagetool-linter)
 
 Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://languagetool.org). Support Markdown, HTML, and plain text files.
 
+## Features
+
+* Issue highlighting with hover description.
+* Replacement suggestions.
+* Checks `plaintext`, `markdown`, and `html`.
+
 ## Setup
 
-The defaults are probably not going to work for you, but they are there to make sure using [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api) is done by choice. See [this issue](https://github.com/wysiib/linter-languagetool/issues/33) on the [Atom LanguageTool Linter](https://atom.io/packages/linter-languagetool) for details.
+The defaults are probably not going to work for you, but they are there to make sure using [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api) is done by choice. See [this issue](https://github.com/wysiib/linter-languagetool/issues/33) on the [Atom LanguageTool Linter](https://atom.io/packages/linter-languagetool) for an explanation why.
 
 The defaults assume the following:
 
 1. You do not want to use the [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api)
 1. You're running [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) on your machine using the default port of 8081.
 1. You do not want to have this extension manage your local [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) service.
+
+If this doesn't work for you, here are your options.
 
 ### Option 1: Public API
 
@@ -30,7 +38,7 @@ This is how I'm configured since I use both VSCode and Atom and don't want them 
    * On Mac, use [HomeBrew](https://brew.sh): `brew install languagetool`
    * On Ubuntu, use [LinuxBrew](https://linuxbrew.sh): `brew install languagetool`
    * On Windows, use [Scoop](https://scoop.sh): `scoop install languagetool`
-1. Start the service on Login
+2. Start the service on Login
    * On Mac, create a LaunchAgent that points to `/opt/bin/languagetool-server`. See [my plist](https://github.com/davidlday/dotfiles/blob/master/LaunchAgents/org.languagetool.server.HTTPServer.plist).
    * On Ubuntu, create a [Startup Application](https://askubuntu.com/questions/48321/how-do-i-start-applications-automatically-on-login) that points to `/home/linuxbrew/.linuxbrew/bin/languagetool-server`
    * On Windows, I don't know yet, but I'll post an option once I have one.
