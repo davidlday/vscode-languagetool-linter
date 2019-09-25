@@ -125,7 +125,16 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
 // Exported Functions
 export function activate(context: vscode.ExtensionContext) {
 
+  LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
+    LT_DOCUMENT_SCHEMES.forEach(function(documentScheme) {
+      context.subscriptions.push(
+        vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider()));
+    });
+  });
+
   diagnosticCollection = vscode.languages.createDiagnosticCollection("languagetool-linter");
+  context.subscriptions.push(diagnosticCollection);
+
   diagnosticMap = new Map();
   codeActionMap = new Map();
 
@@ -165,13 +174,15 @@ export function activate(context: vscode.ExtensionContext) {
     resetDiagnostics();
   }));
 
-  context.subscriptions.push(diagnosticCollection);
-  LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
-    LT_DOCUMENT_SCHEMES.forEach(function(documentScheme) {
-      context.subscriptions.push(
-        vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider()));
-    });
+  let lintCommand = vscode.commands.registerCommand('languagetoolLinter.lintCurrentDocument', () => {
+    if (vscode.window.activeTextEditor) {
+      let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+      lintDocument(editor.document);
+    }
   });
+
+  context.subscriptions.push(lintCommand);
+
 
 }
 

@@ -30,10 +30,17 @@
   "activationEvents": [
     "onLanguage:plaintext",
     "onLanguage:markdown",
-    "onLanguage:plaintext"
+    "onLanguage:html",
+    "onCommand:languagetoolLinter.lintCurrentDocument"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "languagetoolLinter.lintCurrentDocument",
+        "title": "LanguageTool Linter: Lint Current Document"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "LanguageTool Linter",
