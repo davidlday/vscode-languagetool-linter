@@ -74,7 +74,6 @@
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
-
         "languageToolLinter.languageTool.language": {
           "type": "string",
           "default": "auto",
@@ -125,8 +124,7 @@
             "ta-IN",
             "uk-UA"
           ],
-          "enumDescriptions":
-          [
+          "enumDescriptions": [
             "Auto Select",
             "Asturian",
             "Belarusian",
@@ -223,8 +221,7 @@
             "ta-IN",
             "uk-UA"
           ],
-          "enumDescriptions":
-          [
+          "enumDescriptions": [
             "No Language Selected",
             "Asturian",
             "Belarusian",
