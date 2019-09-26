@@ -22,7 +22,7 @@ import * as rp from 'request-promise-native';
 let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
-let throttleMap: Map<string, NodeJS.Timeout>;
+let timeoutMap: Map<string, NodeJS.Timeout>;
 
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
 const LT_DOCUMENT_SCHEMES: string[] = ['file', 'untitled'];
@@ -35,7 +35,7 @@ const LT_OPTIONAL_CONFIGS: string[] = [
   "disabledCategories"
 ];
 const LT_DIAGNOSTIC_SOURCE = "LanguageTool";
-const LT_THROTTLE = 500;
+const LT_TIMEOUT_MS = 500;
 
 // Interfaces
 interface Throttle {
@@ -135,31 +135,31 @@ export function activate(context: vscode.ExtensionContext) {
 
   diagnosticMap = new Map();
   codeActionMap = new Map();
-  throttleMap = new Map();
+  timeoutMap = new Map();
 
   function isWriteGoodLanguage(languageId: string) {
     return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
   }
 
   // Cancel lint
-  function suppressLint(document: vscode.TextDocument) {
+  function cancelLint(document: vscode.TextDocument) {
     let uriString = document.uri.toString();
-    let timeout = throttleMap.get(uriString);
+    let timeout = timeoutMap.get(uriString);
     if (timeout) {
       clearTimeout(timeout);
-      throttleMap.delete(uriString);
+      timeoutMap.delete(uriString);
     }
   }
 
   // Request lint
-  function requestLint(document: vscode.TextDocument) {
-    suppressLint(document);
+  function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS) {
+    cancelLint(document);
     let uriString = document.uri.toString();
     let timeout = setTimeout(() => {
       lintDocument(document);
-      suppressLint(document);
-    }, LT_THROTTLE);
-    throttleMap.set(uriString, timeout);
+      cancelLint(document);
+    }, timeoutDuration);
+    timeoutMap.set(uriString, timeout);
   }
 
   // Actual Linter
@@ -180,7 +180,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Get URL of the LanguageTool service
   function getCheckUrl(): string {
     let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
-    let checkPath = "/v2/check";
+    const checkPath = "/v2/check";
     let ltUrl = ltConfig.get("url");
     if (ltConfig.get("publicApi") === true) {
       return LT_PUBLIC_URL + checkPath;
@@ -233,8 +233,6 @@ export function activate(context: vscode.ExtensionContext) {
         let edit: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
         edit.replace(document.uri, location.range, replacement.value);
         action.edit = edit;
-        // let command: vscode.Command = lintDocument(document);
-        // action.command = command;
         action.diagnostics = [];
         action.diagnostics.push(diagnostic);
         actions.push(action);
@@ -280,7 +278,25 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidSaveTextDocument event
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestLint(document);
+    requestLint(document, 0);
+  }));
+
+  // Register onDidChangeTextDocument event - request lint with default timeout
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+    let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
+    if (ltConfig.get('lintOnChange')) {
+      requestLint(event.document);
+    }
+  }));
+
+  // Register onDidCloseTextDocument event - cancel any pending lint
+  context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(document => {
+    cancelLint(document);
+  }));
+
+  // Register onDidSaveTextDocument event - request immediate lint
+  context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
+    requestLint(document, 0);
   }));
 
   // Register Code Actions Provider for supported languages
@@ -290,14 +306,6 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider()));
     });
   });
-
-  // Register onDidChangeTextDocument event
-  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
-    if (ltConfig.get('lintOnChange')) {
-      requestLint(event.document);
-    }
-  }));
 
   // Register onDidCloseTextDocument event
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(event => {
