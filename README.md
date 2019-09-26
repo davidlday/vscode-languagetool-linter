@@ -39,7 +39,7 @@ This is how I'm configured since I use both VSCode and Atom and don't want them 
    * On Ubuntu, use [LinuxBrew](https://linuxbrew.sh): `brew install languagetool`
    * On Windows, use [Scoop](https://scoop.sh): `scoop install languagetool`
 2. Start the service on Login
-   * On Mac, create a LaunchAgent that points to `/opt/bin/languagetool-server`. See [my plist](https://github.com/davidlday/dotfiles/blob/master/LaunchAgents/org.languagetool.server.HTTPServer.plist).
+   * On Mac, create a [LaunchAgent](https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html) that points to `/opt/bin/languagetool-server`. See [my plist](https://github.com/davidlday/dotfiles/blob/master/LaunchAgents/org.languagetool.server.HTTPServer.plist).
    * On Ubuntu, create a [Startup Application](https://askubuntu.com/questions/48321/how-do-i-start-applications-automatically-on-login) that points to `/home/linuxbrew/.linuxbrew/bin/languagetool-server`
    * On Windows, I don't know yet, but I'll post an option once I have one.
 
