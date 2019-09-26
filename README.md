@@ -124,3 +124,4 @@ The following projects provided excellent guidance on creating this project.
 * [LT<sub>e</sub>X](https://github.com/valentjn/vscode-ltex) - a fork of LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool)
 * [VSCode Write Good Extension](https://github.com/TravisTheTechie/vscode-write-good/)
 * [Fall: Not Yet Another Parser Generator](https://github.com/matklad/fall)
+* [markdownlint](https://github.com/DavidAnson/vscode-markdownlint)
