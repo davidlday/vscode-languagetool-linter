@@ -24,7 +24,7 @@ let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
-const LT_DOCUMENT_SCHEMES: string[] = ['file','untitled'];
+const LT_DOCUMENT_SCHEMES: string[] = ['file', 'untitled'];
 const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
 const LT_OPTIONAL_CONFIGS: string[] = [
   "motherTongue",
@@ -107,7 +107,7 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
       let documentCodeActions: vscode.CodeAction[] = codeActionMap.get(documentUri) || [];
       let actions: vscode.CodeAction[] = [];
       // Code Actions get created in suggest()
-      documentCodeActions.forEach( function (action) {
+      documentCodeActions.forEach(function (action) {
         if (action.diagnostics && context.diagnostics) {
           let actionDiagnostic: vscode.Diagnostic = action.diagnostics[0];
           if (range.contains(actionDiagnostic.range)) {
@@ -126,7 +126,7 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
 export function activate(context: vscode.ExtensionContext) {
 
   LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
-    LT_DOCUMENT_SCHEMES.forEach(function(documentScheme) {
+    LT_DOCUMENT_SCHEMES.forEach(function (documentScheme) {
       context.subscriptions.push(
         vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider()));
     });
@@ -174,11 +174,8 @@ export function activate(context: vscode.ExtensionContext) {
     resetDiagnostics();
   }));
 
-  let lintCommand = vscode.commands.registerCommand('languagetoolLinter.lintCurrentDocument', () => {
-    if (vscode.window.activeTextEditor) {
-      let editor: vscode.TextEditor = vscode.window.activeTextEditor;
-      lintDocument(editor.document);
-    }
+  let lintCommand = vscode.commands.registerTextEditorCommand('languagetoolLinter.lintCurrentDocument', (editor, edit) => {
+    lintDocument(editor.document);
   });
 
   context.subscriptions.push(lintCommand);
@@ -221,7 +218,6 @@ function getPostDataDict(): any {
 }
 
 function resetDiagnostics() {
-  // console.log("Resetting Diagnostics...");
   diagnosticCollection.clear();
 
   diagnosticMap.forEach((diags, file) => {
@@ -253,7 +249,6 @@ function suggest(document: vscode.TextDocument, response: LTResponse) {
     diagnostic.source = LT_DIAGNOSTIC_SOURCE;
     diagnostics.push(diagnostic);
   });
-  // Update Global Code Actions.
   codeActionMap.set(document.uri.toString(), actions);
   diagnosticMap.set(document.uri.toString(), diagnostics);
   resetDiagnostics();
