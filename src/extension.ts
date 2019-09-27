@@ -270,6 +270,11 @@ export function activate(context: vscode.ExtensionContext) {
     callLanguageTool(document, ltPostDataDict);
   }
 
+  // Register onDidOpenTextDocument event
+  context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(document => {
+    requestLint(document, 0);
+  }));
+
   // Register onDidSaveTextDocument event
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
     requestLint(document, 0);
