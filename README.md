@@ -26,13 +26,13 @@ If this doesn't work for you, here are your options.
 
 Make sure you read and understand [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api) before doing this.
 
-In Settings, search for “LanguageTool”, and enable the "Language Tool Linter: Public Api" option.
+In Settings, search for “LanguageTool”, and enable the “Language Tool Linter: Public Api” option.
 
 ![Public API](./images/public_api.png)
 
 ### Option 2: Use a locally installed LanguageTool HTTP Server
 
-This is how I'm configured since I use both VSCode and Atom and don't want them each managing their own services.
+This is how I'm configured since I use both Visual Studio Code and Atom, and I don't want them each managing their own services.
 
 1. Install [LanguageTool](https://languagetool.org).
    * On Mac, use [HomeBrew](https://brew.sh): `brew install languagetool`
