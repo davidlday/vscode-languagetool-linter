@@ -137,12 +137,12 @@ export function activate(context: vscode.ExtensionContext) {
   codeActionMap = new Map();
   timeoutMap = new Map();
 
-  function isWriteGoodLanguage(languageId: string) {
+  function isSupportedLanguageId(languageId: string): boolean {
     return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
   }
 
   // Cancel lint
-  function cancelLint(document: vscode.TextDocument) {
+  function cancelLint(document: vscode.TextDocument): void {
     let uriString = document.uri.toString();
     let timeout = timeoutMap.get(uriString);
     if (timeout) {
@@ -152,7 +152,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   // Request lint
-  function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS) {
+  function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
     cancelLint(document);
     let uriString = document.uri.toString();
     let timeout = setTimeout(() => {
@@ -164,7 +164,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Actual Linter
   function lintDocument(document: vscode.TextDocument): void {
-    if (isWriteGoodLanguage(document.languageId)) {
+    if (isSupportedLanguageId(document.languageId)) {
       if (document.languageId === "markdown") {
         let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
         lintAnnotatedText(document, annotatedMarkdown);
@@ -209,7 +209,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   // Reset the Diagnostic Collection
-  function resetDiagnostics() {
+  function resetDiagnostics(): void {
     diagnosticCollection.clear();
     diagnosticMap.forEach((diags, file) => {
       diagnosticCollection.set(vscode.Uri.parse(file), diags);
@@ -217,7 +217,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   // Convert LanguageTool Suggestions into QuickFix CodeActions
-  function suggest(document: vscode.TextDocument, response: LTResponse) {
+  function suggest(document: vscode.TextDocument, response: LTResponse): void {
     let matches = response.matches;
     let diagnostics: vscode.Diagnostic[] = [];
     let actions: vscode.CodeAction[] = [];
@@ -246,7 +246,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   // Call to LanguageTool Service
-  function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any) {
+  function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): void {
     let options: object = {
       "method": "POST",
       "form": ltPostDataDict,
@@ -263,9 +263,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Lint Plain Text Document
   function lintPlaintext(document: vscode.TextDocument): void {
-    let editorContent: string = document.getText();
     let ltPostDataDict: any = getPostDataDict();
-    ltPostDataDict["text"] = editorContent;
+    ltPostDataDict["text"] = document.getText();
     callLanguageTool(document, ltPostDataDict);
   }
 
