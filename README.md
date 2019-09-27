@@ -8,7 +8,7 @@ Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://language
 
 * Issue highlighting with hover description.
 * Replacement suggestions.
-* Checks `plaintext`, `markdown`, and `html`.
+* Checks plain text, Markdown, and HTML.
 
 ## Setup
 
@@ -120,8 +120,8 @@ The following projects provided excellent guidance on creating this project.
 
 * [LaguageTool](https://languagetool.org) (of course!)
 * [Atom Linter LanguageTool](https://github.com/wysiib/linter-languagetool/)
-* [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) - now defunct. RIP, @adamvoss.
-* [LT<sub>e</sub>X](https://github.com/valentjn/vscode-ltex) - a fork of LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool)
-* [VSCode Write Good Extension](https://github.com/TravisTheTechie/vscode-write-good/)
+* [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) — now defunct. RIP, @adamvoss.
+* [LT<sub>e</sub>X](https://github.com/valentjn/vscode-ltex) — a fork of [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool)
+* [VS Code Write Good Extension](https://github.com/TravisTheTechie/vscode-write-good/)
 * [Fall: Not Yet Another Parser Generator](https://github.com/matklad/fall)
 * [markdownlint](https://github.com/DavidAnson/vscode-markdownlint)
