@@ -34,15 +34,10 @@ const LT_OPTIONAL_CONFIGS: string[] = [
   "disabledRules",
   "disabledCategories"
 ];
-const LT_DIAGNOSTIC_SOURCE = "LanguageTool";
-const LT_TIMEOUT_MS = 500;
+const LT_DIAGNOSTIC_SOURCE: string = "LanguageTool";
+const LT_TIMEOUT_MS: number = 500;
 
 // Interfaces
-interface Throttle {
-  documentUri: vscode.Uri;
-  timeout: NodeJS.Timeout;
-}
-
 interface LTResponse {
   software: {
     name: string;
