@@ -157,6 +157,11 @@ export function activate(context: vscode.ExtensionContext) {
     timeoutMap.set(uriString, timeout);
   }
 
+  // Request Immediate Lint
+  function requestImmediateLint(document: vscode.TextDocument) {
+    requestLint(document, 0);
+  }
+
   // Actual Linter
   function lintDocument(document: vscode.TextDocument): void {
     if (isSupportedLanguageId(document.languageId)) {
@@ -270,14 +275,26 @@ export function activate(context: vscode.ExtensionContext) {
     callLanguageTool(document, ltPostDataDict);
   }
 
-  // Register onDidOpenTextDocument event
+  // Register onDidOpenTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(document => {
-    requestLint(document, 0);
+    let editors: vscode.TextEditor[] = vscode.window.visibleTextEditors;
+    editors.forEach(function (editor: vscode.TextEditor) {
+      if (editor.document === document) {
+        requestImmediateLint(editor.document);
+      }
+    });
   }));
 
-  // Register onDidSaveTextDocument event
+  // Register onDidChangeActiveTextEditor event - request immediate lint
+  context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(editors => {
+    editors.forEach(function (editor: vscode.TextEditor) {
+      requestImmediateLint(editor.document);
+    });
+  }));
+
+  // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestLint(document, 0);
+    requestImmediateLint(document);
   }));
 
   // Register onDidChangeTextDocument event - request lint with default timeout
@@ -295,7 +312,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestLint(document, 0);
+    requestImmediateLint(document);
   }));
 
   // Register Code Actions Provider for supported languages
@@ -314,9 +331,9 @@ export function activate(context: vscode.ExtensionContext) {
     resetDiagnostics();
   }));
 
-  // Register TextEditorCommand
+  // Register "Lint Current Document" TextEditorCommand
   let lintCommand = vscode.commands.registerTextEditorCommand('languagetoolLinter.lintCurrentDocument', (editor, edit) => {
-    lintDocument(editor.document);
+    requestLint(editor.document, 0);
   });
   context.subscriptions.push(lintCommand);
 }
