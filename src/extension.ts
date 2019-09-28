@@ -179,7 +179,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   // Get URL of the LanguageTool service
-  function getCheckUrl(): string {
+  function getCheckUrl(): string | undefined {
     let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
     const checkPath = "/v2/check";
     let ltUrl = ltConfig.get("url");
@@ -188,9 +188,7 @@ export function activate(context: vscode.ExtensionContext) {
     } else if (ltUrl && typeof ltUrl === "string") {
       return ltUrl + checkPath;
     } else {
-      // Need a much nicer way of handling this.
-      console.log("No URL configured and using the public URL as a fallback is disabled!");
-      return "";
+      return undefined;
     }
   }
 
@@ -248,18 +246,23 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Call to LanguageTool Service
   function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): void {
-    let options: object = {
-      "method": "POST",
-      "form": ltPostDataDict,
-      "json": true
-    };
-    rp.post(getCheckUrl(), options)
-      .then(function (data) {
-        suggest(document, data);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+    let checkUrl: string | undefined = getCheckUrl();
+    if (checkUrl) {
+      let options: object = {
+        "method": "POST",
+        "form": ltPostDataDict,
+        "json": true
+      };
+      rp.post(checkUrl, options)
+        .then(function (data) {
+          suggest(document, data);
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+    } else {
+      console.log("No LanguageTool URL provided. Please check your settings.");
+    }
   }
 
   // Lint Plain Text Document
