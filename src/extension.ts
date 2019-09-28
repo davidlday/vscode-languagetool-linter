@@ -27,7 +27,8 @@ let timeoutMap: Map<string, NodeJS.Timeout>;
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
 const LT_DOCUMENT_SCHEMES: string[] = ['file', 'untitled'];
 const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
-const LT_OPTIONAL_CONFIGS: string[] = [
+const LT_SERVICE_PARAMETERS: string[] = [
+  "language",
   "motherTongue",
   "preferredVariants",
   "disabledCategories",
@@ -195,14 +196,13 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Create the Post Data Dictionary
   function getPostDataDict(): any {
-    let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter.languageTool");
-    let ltPostDataDict: any = {
-      "language": ltConfig.get("language")
-    };
-    LT_OPTIONAL_CONFIGS.forEach(function (ltConfigString) {
-      let configItem = ltConfigString;
-      if (ltConfig.get(configItem)) {
-        ltPostDataDict[configItem] = ltConfig.get(configItem);
+    let ltServiceConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter.languageTool");
+    let ltPostDataDict: any = {};
+    LT_SERVICE_PARAMETERS.forEach(function (ltConfigString) {
+      let key = ltConfigString;
+      let value = ltServiceConfig.get(key);
+      if (value) {
+        ltPostDataDict[key] = value;
       }
     });
     return ltPostDataDict;
