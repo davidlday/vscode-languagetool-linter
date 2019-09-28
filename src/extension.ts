@@ -228,7 +228,8 @@ export function activate(context: vscode.ExtensionContext) {
       let diagnosticMessage: string = match.rule.id + ": " + match.message;
       let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(diagnosticRange, diagnosticMessage, vscode.DiagnosticSeverity.Warning);
       match.replacements.forEach(function (replacement: LTReplacement) {
-        let action: vscode.CodeAction = new vscode.CodeAction(replacement.value, vscode.CodeActionKind.QuickFix);
+        let actionTitle: string = "'" + replacement.value + "'";
+        let action: vscode.CodeAction = new vscode.CodeAction(actionTitle, vscode.CodeActionKind.QuickFix);
         let location: vscode.Location = new vscode.Location(document.uri, diagnosticRange);
         let edit: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
         edit.replace(document.uri, location.range, replacement.value);
