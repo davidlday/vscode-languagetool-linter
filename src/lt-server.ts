@@ -44,11 +44,12 @@ export class LTServer {
   }
 
   startServer(script?: string): void {
+    console.log("Starting Managed Service.");
     if (script) {
       this.setScript(script);
     }
     let scriptPath: string = this.getScriptPath() as string;
-    if (!this.isRunning) {
+    if (!this.isRunning()) {
       if (fs.existsSync(scriptPath)) {
         let me = this;
         let spawnOptions: any = { windowsHide: true };
@@ -64,6 +65,9 @@ export class LTServer {
         newServer.listen(function () {
           let address: net.AddressInfo = newServer.address() as net.AddressInfo;
           me.subprocess = child_process.spawn(scriptPath as string, ["--port", address.port.toString()], spawnOptions);
+          setTimeout(function() {
+            console.log("Pause over");
+          }, 4000);
           me.server = newServer;
           me.port = address.port;
         });
@@ -75,6 +79,7 @@ export class LTServer {
 
   // Stop server if it's running
   stopServer() {
+    console.log("Stopping Managed Service.");
     if (this.subprocess) {
       if (this.server) {
         if (this.server.listening) {

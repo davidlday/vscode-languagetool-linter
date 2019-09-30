@@ -166,22 +166,31 @@ function setLtUrl(): void {
       ltServer.stopServer();
     }
     ltUrl = ltConfigUrl + LT_CHECK_PATH;
+    console.log("Using custom service URL: " + ltUrl);
   } else if (serviceType === "public") {
     if (ltServer.isRunning()) {
       ltServer.stopServer();
     }
     ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
+    console.log("Using public service URL: " + ltUrl);
   } else if (serviceType === "managed") {
     if (ltServer) {
       if (!ltServer.isRunning()) {
         ltServer.setScript(ltScriptPath);
         ltServer.startServer();
+        console.log("Starting new managed server using: " + ltScriptPath);
       }
     } else {
       ltServer = new LTServer(ltScriptPath);
       ltServer.startServer();
+      console.log("Starting new managed server using: " + ltScriptPath);
     }
     ltUrl = ltServer.getUrl() + LT_CHECK_PATH;
+    if (ltServer.isRunning()) {
+      console.log("Using managed service URL: " + ltUrl);
+    } else {
+      console.log("Service doesn't seem to want to start!");
+    }
   }
 }
 
@@ -309,8 +318,6 @@ function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string)
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
 
-  loadConfiguration();
-
   diagnosticCollection = vscode.languages.createDiagnosticCollection(LT_DISPLAY_NAME);
   context.subscriptions.push(diagnosticCollection);
 
@@ -318,6 +325,8 @@ export function activate(context: vscode.ExtensionContext) {
   codeActionMap = new Map();
   timeoutMap = new Map();
   ltServer = new LTServer();
+
+  loadConfiguration();
 
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
