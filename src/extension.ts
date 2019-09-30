@@ -18,7 +18,7 @@ import * as vscode from 'vscode';
 import * as remarkBuilder from 'annotatedtext-remark';
 import * as rehypeBuilder from 'annotatedtext-rehype';
 import * as rp from 'request-promise-native';
-import * as request from 'request';
+import { LTServer } from './lt-server';
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
@@ -45,6 +45,7 @@ let timeoutMap: Map<string, NodeJS.Timeout>;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltPostDataTemplate: any;
 let ltUrl: string | undefined;
+let ltServer: LTServer;
 
 // LanguageTool Response Interface
 interface LTResponse {
@@ -285,6 +286,7 @@ function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string)
   callLanguageTool(document, ltPostDataDict);
 }
 
+// Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
 
   loadConfiguration();
@@ -366,8 +368,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(lintCommand);
 
   // Lint Active Editor on Activate
-	if (vscode.window.activeTextEditor) {
-		requestLint(vscode.window.activeTextEditor.document);
+  if (vscode.window.activeTextEditor) {
+    requestLint(vscode.window.activeTextEditor.document);
   }
 
 }
