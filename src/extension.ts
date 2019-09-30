@@ -156,12 +156,32 @@ function setPostDataTemplate(): void {
 
 // Set ltUrl from Configuration
 function setLtUrl(): void {
-  let ltConfigUrl = ltConfig.get("url");
+  let serviceType: string = ltConfig.get("service") as string;
+  let ltConfigUrl: string = ltConfig.get("url") as string;
+  let ltScriptPath: string = ltConfig.get("script") as string;
   ltUrl = undefined;
-  if (ltConfig.get("publicApi") === true) {
-    ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
-  } else if (ltConfigUrl && typeof ltConfigUrl === "string") {
+
+  if (serviceType === "custom") {
+    if (ltServer.isRunning()) {
+      ltServer.stopServer();
+    }
     ltUrl = ltConfigUrl + LT_CHECK_PATH;
+  } else if (serviceType === "public") {
+    if (ltServer.isRunning()) {
+      ltServer.stopServer();
+    }
+    ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
+  } else if (serviceType === "managed") {
+    if (ltServer) {
+      if (!ltServer.isRunning()) {
+        ltServer.setScript(ltScriptPath);
+        ltServer.startServer();
+      }
+    } else {
+      ltServer = new LTServer(ltScriptPath);
+      ltServer.startServer();
+    }
+    ltUrl = ltServer.getUrl() + LT_CHECK_PATH;
   }
 }
 
@@ -297,6 +317,7 @@ export function activate(context: vscode.ExtensionContext) {
   diagnosticMap = new Map();
   codeActionMap = new Map();
   timeoutMap = new Map();
+  ltServer = new LTServer();
 
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
@@ -374,6 +395,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 }
 
-export function deactivate() { }
+export function deactivate() {
+  if (ltServer && ltServer.isRunning()) {
+    ltServer.stopServer();
+  }
+}
 
 
