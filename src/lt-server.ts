@@ -5,24 +5,30 @@ import * as fs from 'fs';
 export class LTServer {
 
   port: number | undefined;
-  running: boolean;
-  script: string;
+  script: string | undefined;
   server: net.Server | undefined;
   subprocess: child_process.ChildProcess | undefined;
   isWindows: boolean;
 
-  constructor(script: string) {
+  constructor(script?: string) {
     this.script = script;
-    this.running = false;
     this.isWindows = process.platform === 'win32';
   }
 
+  getPort(): number | undefined {
+    return this.port;
+  }
+
   getUrl(): string | undefined {
-    if (this.isRunning()) {
-      return "http://localhost:" + this.port;
+    if (this.isRunning() && this.port) {
+      return "http://localhost:" + this.port.toString();
     } else {
       return undefined;
     }
+  }
+
+  getScriptPath(): string | undefined {
+    return this.script;
   }
 
   isRunning(): boolean {
@@ -37,9 +43,13 @@ export class LTServer {
     this.script = script;
   }
 
-  startServer(): void {
+  startServer(script?: string): void {
+    if (script) {
+      this.setScript(script);
+    }
+    let scriptPath: string = this.getScriptPath() as string;
     if (!this.isRunning) {
-      if (fs.existsSync(this.script)) {
+      if (fs.existsSync(scriptPath)) {
         let me = this;
         let spawnOptions: any = { windowsHide: true };
         let newServer: net.Server = net.createServer(function (socket) {
@@ -53,7 +63,7 @@ export class LTServer {
         // grab a random port.
         newServer.listen(function () {
           let address: net.AddressInfo = newServer.address() as net.AddressInfo;
-          me.subprocess = child_process.spawn(me.script, ["--port", address.port.toString()], spawnOptions);
+          me.subprocess = child_process.spawn(scriptPath as string, ["--port", address.port.toString()], spawnOptions);
           me.server = newServer;
           me.port = address.port;
         });
