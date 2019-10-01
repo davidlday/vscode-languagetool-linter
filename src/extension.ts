@@ -219,34 +219,6 @@ function lintDocument(document: vscode.TextDocument): void {
   }
 }
 
-// // Get URL of the LanguageTool service
-// function getCheckUrl(): string | undefined {
-//   let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
-//   const checkPath = "/v2/check";
-//   let ltUrl = ltConfig.get("url");
-//   if (ltConfig.get("publicApi") === true) {
-//     return LT_PUBLIC_URL + checkPath;
-//   } else if (ltUrl && typeof ltUrl === "string") {
-//     return ltUrl + checkPath;
-//   } else {
-//     return undefined;
-//   }
-// }
-
-// // Create the Post Data Dictionary
-// function getPostDataDict(): any {
-//   let ltServiceConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter.languageTool");
-//   let ltPostDataDict: any = {};
-//   LT_SERVICE_PARAMETERS.forEach(function (ltConfigString) {
-//     let key = ltConfigString;
-//     let value = ltServiceConfig.get(key);
-//     if (value) {
-//       ltPostDataDict[key] = value;
-//     }
-//   });
-//   return ltPostDataDict;
-// }
-
 // Reset the Diagnostic Collection
 function resetDiagnostics(): void {
   diagnosticCollection.clear();
