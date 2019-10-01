@@ -19,14 +19,11 @@ import * as remarkBuilder from 'annotatedtext-remark';
 import * as rehypeBuilder from 'annotatedtext-rehype';
 import * as rp from 'request-promise-native';
 
-let diagnosticCollection: vscode.DiagnosticCollection;
-let diagnosticMap: Map<string, vscode.Diagnostic[]>;
-let codeActionMap: Map<string, vscode.CodeAction[]>;
-let timeoutMap: Map<string, NodeJS.Timeout>;
-
+// Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
 const LT_DOCUMENT_SCHEMES: string[] = ['file', 'untitled'];
 const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
+const LT_CHECK_PATH: string = "/v2/check";
 const LT_SERVICE_PARAMETERS: string[] = [
   "language",
   "motherTongue",
@@ -37,8 +34,18 @@ const LT_SERVICE_PARAMETERS: string[] = [
 ];
 const LT_DIAGNOSTIC_SOURCE: string = "LanguageTool";
 const LT_TIMEOUT_MS: number = 500;
+const LT_DISPLAY_NAME: string = "languagetool-linter";
 
-// Interfaces
+// Variables
+let diagnosticCollection: vscode.DiagnosticCollection;
+let diagnosticMap: Map<string, vscode.Diagnostic[]>;
+let codeActionMap: Map<string, vscode.CodeAction[]>;
+let timeoutMap: Map<string, NodeJS.Timeout>;
+let ltConfig: vscode.WorkspaceConfiguration;
+let ltPostDataTemplate: any;
+let ltUrl: string | undefined;
+
+// Interface - LanguageTool Response
 interface LTResponse {
   software: {
     name: string;
@@ -64,6 +71,7 @@ interface LTResponse {
   matches: LTMatch[];
 }
 
+// Interface - LangaugeTool Match
 interface LTMatch {
   message: string;
   shortMessage: string;
@@ -92,11 +100,13 @@ interface LTMatch {
   contextForSureMatch: number;
 }
 
+// Interface LanguageTool Replacement
 interface LTReplacement {
   value: string;
   shortDescription: string;
 }
 
+// CodeActionProvider
 class LTCodeActionProvider implements vscode.CodeActionProvider {
   provideCodeActions(
     document: vscode.TextDocument,
@@ -124,160 +134,209 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
   }
 }
 
+// Is Launguage ID Supported?
+function isSupportedLanguageId(languageId: string): boolean {
+  return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
+}
+
+// Set ltPostDataTemplate from Configuration
+function setPostDataTemplate(): void {
+  ltPostDataTemplate = {};
+  LT_SERVICE_PARAMETERS.forEach(function (ltKey) {
+    let configKey = "languageTool." + ltKey;
+    let value = ltConfig.get(configKey);
+    if (value) {
+      ltPostDataTemplate[ltKey] = value;
+      console.log(ltKey + ": " + value);
+    }
+  });
+}
+
+// Set ltUrl from Configuration
+function setLtUrl(): void {
+  let serviceType: string = ltConfig.get("serviceType") as string;
+  let ltConfigUrl: string = ltConfig.get("external.url") as string;
+  ltUrl = undefined;
+
+  if (serviceType === "external") {
+    ltUrl = ltConfigUrl + LT_CHECK_PATH;
+    console.log("Using custom service URL: " + ltUrl);
+  } else if (serviceType === "public") {
+    ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
+    console.log("Using public service URL: " + ltUrl);
+  } else if (serviceType === "managed") {
+    console.log("'managed' service isn't supported yet.");
+    ltUrl = undefined;
+  }
+}
+
+// Load Configuration
+function loadConfiguration(): void {
+  console.log("Loading Configuration.");
+  ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
+  setPostDataTemplate();
+  setLtUrl();
+}
+
+// Cancel lint
+function cancelLint(document: vscode.TextDocument): void {
+  let uriString = document.uri.toString();
+  let timeout = timeoutMap.get(uriString);
+  if (timeout) {
+    clearTimeout(timeout);
+    timeoutMap.delete(uriString);
+  }
+}
+
+// Request lint
+function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
+  cancelLint(document);
+  let uriString = document.uri.toString();
+  let timeout = setTimeout(() => {
+    lintDocument(document);
+    cancelLint(document);
+  }, timeoutDuration);
+  timeoutMap.set(uriString, timeout);
+}
+
+// Request Immediate Lint
+function requestImmediateLint(document: vscode.TextDocument) {
+  requestLint(document, 0);
+}
+
+// Perform Lint on Document
+function lintDocument(document: vscode.TextDocument): void {
+  if (isSupportedLanguageId(document.languageId)) {
+    if (document.languageId === "markdown") {
+      let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
+      lintAnnotatedText(document, annotatedMarkdown);
+    } else if (document.languageId === "html") {
+      let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(document.getText()));
+      lintAnnotatedText(document, annotatedHTML);
+    } else {
+      lintPlaintext(document);
+    }
+  }
+}
+
+// // Get URL of the LanguageTool service
+// function getCheckUrl(): string | undefined {
+//   let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
+//   const checkPath = "/v2/check";
+//   let ltUrl = ltConfig.get("url");
+//   if (ltConfig.get("publicApi") === true) {
+//     return LT_PUBLIC_URL + checkPath;
+//   } else if (ltUrl && typeof ltUrl === "string") {
+//     return ltUrl + checkPath;
+//   } else {
+//     return undefined;
+//   }
+// }
+
+// // Create the Post Data Dictionary
+// function getPostDataDict(): any {
+//   let ltServiceConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter.languageTool");
+//   let ltPostDataDict: any = {};
+//   LT_SERVICE_PARAMETERS.forEach(function (ltConfigString) {
+//     let key = ltConfigString;
+//     let value = ltServiceConfig.get(key);
+//     if (value) {
+//       ltPostDataDict[key] = value;
+//     }
+//   });
+//   return ltPostDataDict;
+// }
+
+// Reset the Diagnostic Collection
+function resetDiagnostics(): void {
+  diagnosticCollection.clear();
+  diagnosticMap.forEach((diags, file) => {
+    diagnosticCollection.set(vscode.Uri.parse(file), diags);
+  });
+}
+
+// Convert LanguageTool Suggestions into QuickFix CodeActions
+function suggest(document: vscode.TextDocument, response: LTResponse): void {
+  let matches = response.matches;
+  let diagnostics: vscode.Diagnostic[] = [];
+  let actions: vscode.CodeAction[] = [];
+  matches.forEach(function (match: LTMatch) {
+    let start: vscode.Position = document.positionAt(match.offset);
+    let end: vscode.Position = document.positionAt(match.offset + match.length);
+    let diagnosticRange: vscode.Range = new vscode.Range(start, end);
+    let diagnosticMessage: string = match.rule.id + ": " + match.message;
+    let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(diagnosticRange, diagnosticMessage, vscode.DiagnosticSeverity.Warning);
+    match.replacements.forEach(function (replacement: LTReplacement) {
+      let actionTitle: string = "'" + replacement.value + "'";
+      let action: vscode.CodeAction = new vscode.CodeAction(actionTitle, vscode.CodeActionKind.QuickFix);
+      let location: vscode.Location = new vscode.Location(document.uri, diagnosticRange);
+      let edit: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
+      edit.replace(document.uri, location.range, replacement.value);
+      action.edit = edit;
+      action.diagnostics = [];
+      action.diagnostics.push(diagnostic);
+      actions.push(action);
+    });
+    diagnostic.source = LT_DIAGNOSTIC_SOURCE;
+    diagnostics.push(diagnostic);
+  });
+  codeActionMap.set(document.uri.toString(), actions);
+  diagnosticMap.set(document.uri.toString(), diagnostics);
+  resetDiagnostics();
+}
+
+// Call to LanguageTool Service
+function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): void {
+  if (ltUrl) {
+    let options: object = {
+      "method": "POST",
+      "form": ltPostDataDict,
+      "json": true
+    };
+    rp.post(ltUrl, options)
+      .then(function (data) {
+        suggest(document, data);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  } else {
+    console.log("No LanguageTool URL provided. Please check your settings.");
+  }
+}
+
+// Lint Plain Text Document
+function lintPlaintext(document: vscode.TextDocument): void {
+  let ltPostDataDict: any = ltPostDataTemplate;
+  ltPostDataDict["text"] = document.getText();
+  callLanguageTool(document, ltPostDataDict);
+}
+
+// Lint Annotated Text
+function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
+  let ltPostDataDict: any = ltPostDataTemplate;
+  ltPostDataDict["data"] = annotatedText;
+  callLanguageTool(document, ltPostDataDict);
+}
+
+// Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
 
-  diagnosticCollection = vscode.languages.createDiagnosticCollection("languagetool-linter");
+  diagnosticCollection = vscode.languages.createDiagnosticCollection(LT_DISPLAY_NAME);
   context.subscriptions.push(diagnosticCollection);
 
   diagnosticMap = new Map();
   codeActionMap = new Map();
   timeoutMap = new Map();
 
-  function isSupportedLanguageId(languageId: string): boolean {
-    return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
-  }
+  loadConfiguration();
 
-  // Cancel lint
-  function cancelLint(document: vscode.TextDocument): void {
-    let uriString = document.uri.toString();
-    let timeout = timeoutMap.get(uriString);
-    if (timeout) {
-      clearTimeout(timeout);
-      timeoutMap.delete(uriString);
+  // Register onDidChangeconfiguration event
+  context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
+    if (event.affectsConfiguration("languageToolLinter")) {
+      loadConfiguration();
     }
-  }
-
-  // Request lint
-  function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
-    cancelLint(document);
-    let uriString = document.uri.toString();
-    let timeout = setTimeout(() => {
-      lintDocument(document);
-      cancelLint(document);
-    }, timeoutDuration);
-    timeoutMap.set(uriString, timeout);
-  }
-
-  // Request Immediate Lint
-  function requestImmediateLint(document: vscode.TextDocument) {
-    requestLint(document, 0);
-  }
-
-  // Actual Linter
-  function lintDocument(document: vscode.TextDocument): void {
-    if (isSupportedLanguageId(document.languageId)) {
-      if (document.languageId === "markdown") {
-        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
-        lintAnnotatedText(document, annotatedMarkdown);
-      } else if (document.languageId === "html") {
-        let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(document.getText()));
-        lintAnnotatedText(document, annotatedHTML);
-      } else {
-        lintPlaintext(document);
-      }
-    }
-  }
-
-  // Get URL of the LanguageTool service
-  function getCheckUrl(): string | undefined {
-    let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
-    const checkPath = "/v2/check";
-    let ltUrl = ltConfig.get("url");
-    if (ltConfig.get("publicApi") === true) {
-      return LT_PUBLIC_URL + checkPath;
-    } else if (ltUrl && typeof ltUrl === "string") {
-      return ltUrl + checkPath;
-    } else {
-      return undefined;
-    }
-  }
-
-  // Create the Post Data Dictionary
-  function getPostDataDict(): any {
-    let ltServiceConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter.languageTool");
-    let ltPostDataDict: any = {};
-    LT_SERVICE_PARAMETERS.forEach(function (ltConfigString) {
-      let key = ltConfigString;
-      let value = ltServiceConfig.get(key);
-      if (value) {
-        ltPostDataDict[key] = value;
-      }
-    });
-    return ltPostDataDict;
-  }
-
-  // Reset the Diagnostic Collection
-  function resetDiagnostics(): void {
-    diagnosticCollection.clear();
-    diagnosticMap.forEach((diags, file) => {
-      diagnosticCollection.set(vscode.Uri.parse(file), diags);
-    });
-  }
-
-  // Convert LanguageTool Suggestions into QuickFix CodeActions
-  function suggest(document: vscode.TextDocument, response: LTResponse): void {
-    let matches = response.matches;
-    let diagnostics: vscode.Diagnostic[] = [];
-    let actions: vscode.CodeAction[] = [];
-    matches.forEach(function (match: LTMatch) {
-      let start: vscode.Position = document.positionAt(match.offset);
-      let end: vscode.Position = document.positionAt(match.offset + match.length);
-      let diagnosticRange: vscode.Range = new vscode.Range(start, end);
-      let diagnosticMessage: string = match.rule.id + ": " + match.message;
-      let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(diagnosticRange, diagnosticMessage, vscode.DiagnosticSeverity.Warning);
-      match.replacements.forEach(function (replacement: LTReplacement) {
-        let actionTitle: string = "'" + replacement.value + "'";
-        let action: vscode.CodeAction = new vscode.CodeAction(actionTitle, vscode.CodeActionKind.QuickFix);
-        let location: vscode.Location = new vscode.Location(document.uri, diagnosticRange);
-        let edit: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, location.range, replacement.value);
-        action.edit = edit;
-        action.diagnostics = [];
-        action.diagnostics.push(diagnostic);
-        actions.push(action);
-      });
-      diagnostic.source = LT_DIAGNOSTIC_SOURCE;
-      diagnostics.push(diagnostic);
-    });
-    codeActionMap.set(document.uri.toString(), actions);
-    diagnosticMap.set(document.uri.toString(), diagnostics);
-    resetDiagnostics();
-  }
-
-  // Call to LanguageTool Service
-  function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): void {
-    let checkUrl: string | undefined = getCheckUrl();
-    if (checkUrl) {
-      let options: object = {
-        "method": "POST",
-        "form": ltPostDataDict,
-        "json": true
-      };
-      rp.post(checkUrl, options)
-        .then(function (data) {
-          suggest(document, data);
-        })
-        .catch(function (err) {
-          console.log(err);
-        });
-    } else {
-      console.log("No LanguageTool URL provided. Please check your settings.");
-    }
-  }
-
-  // Lint Plain Text Document
-  function lintPlaintext(document: vscode.TextDocument): void {
-    let ltPostDataDict: any = getPostDataDict();
-    ltPostDataDict["text"] = document.getText();
-    callLanguageTool(document, ltPostDataDict);
-  }
-
-  // Lint Annotated Text
-  function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
-    let ltPostDataDict: any = getPostDataDict();
-    ltPostDataDict["data"] = annotatedText;
-    callLanguageTool(document, ltPostDataDict);
-  }
+  }));
 
   // Register onDidOpenTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(document => {
@@ -303,7 +362,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    let ltConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("languageToolLinter");
     if (ltConfig.get('lintOnChange')) {
       requestLint(event.document);
     }
@@ -312,6 +370,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Register onDidCloseTextDocument event - cancel any pending lint
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(document => {
     cancelLint(document);
+    diagnosticCollection.delete(document.uri);
   }));
 
   // Register onDidSaveTextDocument event - request immediate lint
@@ -340,6 +399,11 @@ export function activate(context: vscode.ExtensionContext) {
     requestLint(editor.document, 0);
   });
   context.subscriptions.push(lintCommand);
+
+  // Lint Active Editor on Activate
+  if (vscode.window.activeTextEditor) {
+    requestLint(vscode.window.activeTextEditor.document);
+  }
 }
 
 export function deactivate() { }
