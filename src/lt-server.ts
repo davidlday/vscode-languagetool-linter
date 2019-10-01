@@ -20,11 +20,12 @@ export class LTServer {
   }
 
   getUrl(): string | undefined {
-    if (this.isRunning() && this.port) {
-      return "http://localhost:" + this.port.toString();
-    } else {
-      return undefined;
-    }
+    // if (this.isRunning() && this.port) {
+      let port = this.port ? this.port.toString() : '80';
+      return "http://localhost:" + port;
+    // } else {
+    //   return undefined;
+    // }
   }
 
   getScriptPath(): string | undefined {
@@ -43,38 +44,68 @@ export class LTServer {
     this.script = script;
   }
 
-  startServer(script?: string): void {
+  startServer(script?: string): Promise<any> {
     console.log("Starting Managed Service.");
     if (script) {
       this.setScript(script);
     }
     let scriptPath: string = this.getScriptPath() as string;
-    if (!this.isRunning()) {
-      if (fs.existsSync(scriptPath)) {
-        let me = this;
-        let spawnOptions: any = { windowsHide: true };
-        let newServer: net.Server = net.createServer(function (socket) {
-          console.log("Creating server");
-          socket.on('end', () => console.log("Disconnected"));
-        }).on('error', (err) => {
-          // handle errors here
-          console.log("Error Creating Local Server: " + err);
-          throw err;
-        });
-        // grab a random port.
-        newServer.listen(function () {
-          let address: net.AddressInfo = newServer.address() as net.AddressInfo;
-          me.subprocess = child_process.spawn(scriptPath as string, ["--port", address.port.toString()], spawnOptions);
-          setTimeout(function() {
-            console.log("Pause over");
-          }, 4000);
-          me.server = newServer;
+    let me = this;
+
+    return new Promise(function (resolve, reject) {
+      // let spawnOptions: any = { windowsHide: true };
+      // let newServer: net.Server = net.createServer(function (socket) {
+      //   console.log("Creating server");
+      //   socket.on('end', () => console.log("Disconnected"));
+      // }).on('error', (err) => {
+      //   // handle errors here
+      //   console.log("Error Creating Local Server: " + err);
+      //   throw err;
+      // });
+      // // grab a random port.
+      // newServer.listen(function () {
+      //   let address: net.AddressInfo = newServer.address() as net.AddressInfo;
+      //   me.subprocess = child_process.spawn(scriptPath as string, ["--port", address.port.toString()], spawnOptions);
+      //   me.server = newServer;
+      //   me.port = address.port;
+      // });
+      let ltServerJar: string = '/usr/local/opt/languagetool/libexec/languagetool-server.jar';
+      let spawnOptions: any = {
+        windowsHide: true,
+        // detached: true,
+        stdio: ['igonore', 'pipe', 'pipe']
+      };
+      let javaCommand: string = process.platform === 'win32' ? 'javaw' : 'java';
+      let newServer: net.Server = net.createServer(function (socket) {
+        console.log("Creating server");
+        socket.on('end', () => console.log("Disconnected"));
+      }).on('error', (err) => {
+        // handle errors here
+        console.log("Error Creating Local Server: " + err);
+        throw err;
+      });
+      let newSubprocess: child_process.ChildProcess;
+      // grab a random port.
+      newServer.listen(function () {
+        let address: net.AddressInfo = newServer.address() as net.AddressInfo;
+        console.log(javaCommand);
+        newSubprocess = child_process.spawn(javaCommand, ["-cp", ltServerJar, "--port", address.port.toString()], spawnOptions);
+        console.log("Started? " + newSubprocess.pid);
+        newSubprocess.on('data', function (out) {
+          me.subprocess = newSubprocess;
+          console.log("Setting port: " + address.port);
           me.port = address.port;
+          console.log("Port set: " + me.port);
+          if (/Server started/.test(out)) {
+            console.log(out);
+            return resolve();
+          }
+        }).on('error', function (err) {
+          console.log(err);
+          resolve();
         });
-      } else {
-        console.log(this.script + " does not seem to be a valid file. Server not started.");
-      }
-    }
+      });
+    });
   }
 
   // Stop server if it's running
