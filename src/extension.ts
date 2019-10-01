@@ -36,6 +36,32 @@ const LT_SERVICE_PARAMETERS: string[] = [
 const LT_DIAGNOSTIC_SOURCE: string = "LanguageTool";
 const LT_TIMEOUT_MS: number = 500;
 const LT_DISPLAY_NAME: string = "languagetool-linter";
+const LT_SERVER_TASK_DEFINITION: vscode.TaskDefinition = {
+  type: "shell",
+  command: "java",
+  windows: {
+    command: "javaw"
+  },
+  args: [
+    "-cp",
+    "${config:languageToolLinter.task.jarFile}",
+    "org.languagetool.server.HTTPServer",
+    "--port",
+    "8989"
+  ],
+  label: "LanguageTool: serve",
+  isBackground: true,
+  group: "none",
+  presentation: {
+    reveal: "silent",
+    panel: "dedicated",
+    showReuseMessage: false
+  },
+  runOptions: {
+    runOn: "default",
+    reevaluateOnRerun: true
+  }
+};
 
 // Variables
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -46,6 +72,7 @@ let ltConfig: vscode.WorkspaceConfiguration;
 let ltPostDataTemplate: any;
 let ltUrl: string | undefined;
 let ltServer: LTServer;
+let ltServerTask: vscode.Task;
 
 // LanguageTool Response Interface
 interface LTResponse {
@@ -325,6 +352,17 @@ export function activate(context: vscode.ExtensionContext) {
   codeActionMap = new Map();
   timeoutMap = new Map();
   ltServer = new LTServer();
+  let shellExecOptions: vscode.ShellExecutionOptions = {
+
+  };
+  let shellExec: vscode.ShellExecution = new vscode.ShellExecution(
+    "java -cp /usr/local/opt/languagetool/libexec org.languagetool.server.HTTPServer --port 8989");
+  ltServerTask = new vscode.Task(LT_SERVER_TASK_DEFINITION,
+    vscode.TaskScope.Global,
+    'server',
+    'lt',
+    shellExec);
+  ltServerTask.runOptions.reevaluateOnRerun = false;
 
   loadConfiguration();
 
