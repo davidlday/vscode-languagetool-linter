@@ -64,12 +64,12 @@
           "default": false,
           "description": "Lint every time the document changes. Use with caution."
         },
-        "languageToolLinter.service": {
+        "languageToolLinter.serviceType": {
           "type": "string",
           "default": "custom",
-          "description": "What kind of LanguageTool service to use: custom (default), public, or managed.",
+          "description": "What kind of LanguageTool service to use: external (default), public, or managed.",
           "enum":[
-            "custom",
+            "external",
             "managed",
             "public"
           ],
@@ -82,17 +82,22 @@
         "languageToolLinter.publicApi": {
           "type": "boolean",
           "default": false,
-          "description": "IGNORED - Select 'public' in the 'Service' setting instead."
+          "description": "DEPRECATED - Select 'public' in the 'Service Type' setting instead."
         },
-        "languageToolLinter.url": {
+        "languageToolLinter.external.url": {
           "type": "string",
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
-        "languageToolLinter.script": {
+        "languageToolLinter.task.jarFile": {
           "type": "string",
           "default": "",
-          "description": "Path to languagetool-server script on your local machine."
+          "description": "Path to languagetool-server.jar on your local machine."
+        },
+        "languageToolLinter.task.port": {
+          "type": "number",
+          "default": "8081",
+          "description": "Port to use for LanguageTool Server Task."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",
