@@ -18,9 +18,7 @@ import * as vscode from 'vscode';
 import * as remarkBuilder from 'annotatedtext-remark';
 import * as rehypeBuilder from 'annotatedtext-rehype';
 import * as rp from 'request-promise-native';
-import * as child_process from 'child_process';
 import * as execa from 'execa';
-import { LTServer } from './lt-server';
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
