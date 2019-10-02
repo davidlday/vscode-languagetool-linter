@@ -23,7 +23,7 @@ import { LTServer } from './lt-server';
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
 const LT_DOCUMENT_SCHEMES: string[] = ['file', 'untitled'];
-const LT_PUBLIC_URL: string = "https://languagetool.org/api";
+const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
 const LT_CHECK_PATH: string = "/v2/check";
 const LT_SERVICE_PARAMETERS: string[] = [
   "language",
@@ -36,32 +36,6 @@ const LT_SERVICE_PARAMETERS: string[] = [
 const LT_DIAGNOSTIC_SOURCE: string = "LanguageTool";
 const LT_TIMEOUT_MS: number = 500;
 const LT_DISPLAY_NAME: string = "languagetool-linter";
-const LT_SERVER_TASK_DEFINITION: vscode.TaskDefinition = {
-  type: "shell",
-  command: "java",
-  windows: {
-    command: "javaw"
-  },
-  args: [
-    "-cp",
-    "${config:languageToolLinter.task.jarFile}",
-    "org.languagetool.server.HTTPServer",
-    "--port",
-    "8989"
-  ],
-  label: "LanguageTool: serve",
-  isBackground: true,
-  group: "none",
-  presentation: {
-    reveal: "silent",
-    panel: "dedicated",
-    showReuseMessage: false
-  },
-  runOptions: {
-    runOn: "default",
-    reevaluateOnRerun: true
-  }
-};
 
 // Variables
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -69,12 +43,10 @@ let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 let timeoutMap: Map<string, NodeJS.Timeout>;
 let ltConfig: vscode.WorkspaceConfiguration;
-let ltPostDataTemplate: any;
+// let ltPostDataTemplate: any;
 let ltUrl: string | undefined;
-let ltServer: LTServer;
-let ltServerTask: vscode.Task;
 
-// LanguageTool Response Interface
+// Interface - LanguageTool Response
 interface LTResponse {
   software: {
     name: string;
@@ -100,7 +72,7 @@ interface LTResponse {
   matches: LTMatch[];
 }
 
-// LanguageTool Match Interface
+// Interface - LangaugeTool Match
 interface LTMatch {
   message: string;
   shortMessage: string;
@@ -129,7 +101,7 @@ interface LTMatch {
   contextForSureMatch: number;
 }
 
-// LanguageTool Replacement Interface
+// Interface LanguageTool Replacement
 interface LTReplacement {
   value: string;
   shortDescription: string;
@@ -169,8 +141,8 @@ function isSupportedLanguageId(languageId: string): boolean {
 }
 
 // Set ltPostDataTemplate from Configuration
-function setPostDataTemplate(): void {
-  ltPostDataTemplate = {};
+function getPostDataTemplate(): any {
+  let ltPostDataTemplate: any = {};
   LT_SERVICE_PARAMETERS.forEach(function (ltKey) {
     let configKey = "languageTool." + ltKey;
     let value = ltConfig.get(configKey);
@@ -179,45 +151,24 @@ function setPostDataTemplate(): void {
       console.log(ltKey + ": " + value);
     }
   });
+  return ltPostDataTemplate;
 }
 
 // Set ltUrl from Configuration
 function setLtUrl(): void {
-  let serviceType: string = ltConfig.get("service") as string;
-  let ltConfigUrl: string = ltConfig.get("url") as string;
-  let ltScriptPath: string = ltConfig.get("script") as string;
+  let serviceType: string = ltConfig.get("serviceType") as string;
+  let ltConfigUrl: string = ltConfig.get("external.url") as string;
   ltUrl = undefined;
 
-  if (serviceType === "custom") {
-    if (ltServer.isRunning()) {
-      ltServer.stopServer();
-    }
+  if (serviceType === "external") {
     ltUrl = ltConfigUrl + LT_CHECK_PATH;
     console.log("Using custom service URL: " + ltUrl);
   } else if (serviceType === "public") {
-    if (ltServer.isRunning()) {
-      ltServer.stopServer();
-    }
     ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
     console.log("Using public service URL: " + ltUrl);
   } else if (serviceType === "managed") {
-    if (ltServer) {
-      if (!ltServer.isRunning()) {
-        ltServer.setScript(ltScriptPath);
-        ltServer.startServer();
-        console.log("Starting new managed server using: " + ltScriptPath);
-      }
-    } else {
-      ltServer = new LTServer(ltScriptPath);
-      ltServer.startServer();
-      console.log("Starting new managed server using: " + ltScriptPath);
-    }
-    ltUrl = ltServer.getUrl() + LT_CHECK_PATH;
-    if (ltServer.isRunning()) {
-      console.log("Using managed service URL: " + ltUrl);
-    } else {
-      console.log("Service doesn't seem to want to start!");
-    }
+    console.log("'managed' service isn't supported yet.");
+    ltUrl = undefined;
   }
 }
 
@@ -225,11 +176,10 @@ function setLtUrl(): void {
 function loadConfiguration(): void {
   console.log("Loading Configuration.");
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
-  setPostDataTemplate();
   setLtUrl();
 }
 
-// Cancel Lint
+// Cancel lint
 function cancelLint(document: vscode.TextDocument): void {
   let uriString = document.uri.toString();
   let timeout = timeoutMap.get(uriString);
@@ -239,7 +189,7 @@ function cancelLint(document: vscode.TextDocument): void {
   }
 }
 
-// Request Lint
+// Request lint
 function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
   cancelLint(document);
   let uriString = document.uri.toString();
@@ -330,14 +280,16 @@ function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): v
 
 // Lint Plain Text Document
 function lintPlaintext(document: vscode.TextDocument): void {
-  let ltPostDataDict: any = ltPostDataTemplate;
+  let ltPostDataDict: any = getPostDataTemplate();
+  console.log(ltPostDataDict);
   ltPostDataDict["text"] = document.getText();
   callLanguageTool(document, ltPostDataDict);
 }
 
 // Lint Annotated Text
 function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
-  let ltPostDataDict: any = ltPostDataTemplate;
+  let ltPostDataDict: any = getPostDataTemplate();
+  console.log(ltPostDataDict);
   ltPostDataDict["data"] = annotatedText;
   callLanguageTool(document, ltPostDataDict);
 }
@@ -351,18 +303,6 @@ export function activate(context: vscode.ExtensionContext) {
   diagnosticMap = new Map();
   codeActionMap = new Map();
   timeoutMap = new Map();
-  ltServer = new LTServer();
-  let shellExecOptions: vscode.ShellExecutionOptions = {
-
-  };
-  let shellExec: vscode.ShellExecution = new vscode.ShellExecution(
-    "java -cp /usr/local/opt/languagetool/libexec org.languagetool.server.HTTPServer --port 8989");
-  ltServerTask = new vscode.Task(LT_SERVER_TASK_DEFINITION,
-    vscode.TaskScope.Global,
-    'server',
-    'lt',
-    shellExec);
-  ltServerTask.runOptions.reevaluateOnRerun = false;
 
   loadConfiguration();
 
@@ -439,13 +379,10 @@ export function activate(context: vscode.ExtensionContext) {
   if (vscode.window.activeTextEditor) {
     requestLint(vscode.window.activeTextEditor.document);
   }
-
 }
 
 export function deactivate() {
-  if (ltServer && ltServer.isRunning()) {
-    ltServer.stopServer();
-  }
+
 }
 
 

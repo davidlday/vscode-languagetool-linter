@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.38.0"
   },
@@ -74,15 +74,10 @@
             "public"
           ],
           "enumDescriptions": [
-            "Provide a URL to a LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'Url'.",
+            "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
             "Let LanguageTool Linter manage a local service. Specify the path to the script in 'Script'.",
             "Use the public LanguageTool API Service at https://languagetool.org/api."
           ]
-        },
-        "languageToolLinter.publicApi": {
-          "type": "boolean",
-          "default": false,
-          "description": "DEPRECATED - Select 'public' in the 'Service Type' setting instead."
         },
         "languageToolLinter.external.url": {
           "type": "string",
