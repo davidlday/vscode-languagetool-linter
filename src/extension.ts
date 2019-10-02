@@ -42,7 +42,7 @@ let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 let timeoutMap: Map<string, NodeJS.Timeout>;
 let ltConfig: vscode.WorkspaceConfiguration;
-let ltPostDataTemplate: any;
+// let ltPostDataTemplate: any;
 let ltUrl: string | undefined;
 
 // Interface - LanguageTool Response
@@ -140,8 +140,8 @@ function isSupportedLanguageId(languageId: string): boolean {
 }
 
 // Set ltPostDataTemplate from Configuration
-function setPostDataTemplate(): void {
-  ltPostDataTemplate = {};
+function getPostDataTemplate(): any {
+  let ltPostDataTemplate: any = {};
   LT_SERVICE_PARAMETERS.forEach(function (ltKey) {
     let configKey = "languageTool." + ltKey;
     let value = ltConfig.get(configKey);
@@ -150,6 +150,7 @@ function setPostDataTemplate(): void {
       console.log(ltKey + ": " + value);
     }
   });
+  return ltPostDataTemplate;
 }
 
 // Set ltUrl from Configuration
@@ -174,7 +175,6 @@ function setLtUrl(): void {
 function loadConfiguration(): void {
   console.log("Loading Configuration.");
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
-  setPostDataTemplate();
   setLtUrl();
 }
 
@@ -279,14 +279,16 @@ function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): v
 
 // Lint Plain Text Document
 function lintPlaintext(document: vscode.TextDocument): void {
-  let ltPostDataDict: any = ltPostDataTemplate;
+  let ltPostDataDict: any = getPostDataTemplate();
+  console.log(ltPostDataDict);
   ltPostDataDict["text"] = document.getText();
   callLanguageTool(document, ltPostDataDict);
 }
 
 // Lint Annotated Text
 function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
-  let ltPostDataDict: any = ltPostDataTemplate;
+  let ltPostDataDict: any = getPostDataTemplate();
+  console.log(ltPostDataDict);
   ltPostDataDict["data"] = annotatedText;
   callLanguageTool(document, ltPostDataDict);
 }
