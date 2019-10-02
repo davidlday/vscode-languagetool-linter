@@ -18,6 +18,8 @@ import * as vscode from 'vscode';
 import * as remarkBuilder from 'annotatedtext-remark';
 import * as rehypeBuilder from 'annotatedtext-rehype';
 import * as rp from 'request-promise-native';
+import * as child_process from 'child_process';
+import * as execa from 'execa';
 import { LTServer } from './lt-server';
 
 // Constants
@@ -43,7 +45,7 @@ let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 let timeoutMap: Map<string, NodeJS.Timeout>;
 let ltConfig: vscode.WorkspaceConfiguration;
-// let ltPostDataTemplate: any;
+let ltServerProcess: execa.ExecaChildProcess | undefined;
 let ltUrl: string | undefined;
 
 // Interface - LanguageTool Response
@@ -135,6 +137,33 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
   }
 }
 
+function startServer() {
+  stopServer();
+  let jarFile: string = ltConfig.get('managed.jarFile') as string;
+  let port: string = ltConfig.get('managed.port') as string;
+  let args: string[] = [
+    "-cp",
+    jarFile,
+    "org.languagetool.server.HTTPServer",
+    "--port",
+    port
+  ];
+  (ltServerProcess = execa('java', args)).catch(function (error) {
+    if (error.isCanceled) {
+      console.log("Managed service stopped.");
+    } else if (error.failed) {
+      console.log("Could not start service: " + error.command);
+    }
+  });
+}
+
+function stopServer() {
+  if (ltServerProcess) {
+    ltServerProcess.cancel();
+    ltServerProcess = undefined;
+  }
+}
+
 // Is Launguage ID Supported?
 function isSupportedLanguageId(languageId: string): boolean {
   return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
@@ -154,29 +183,26 @@ function getPostDataTemplate(): any {
   return ltPostDataTemplate;
 }
 
-// Set ltUrl from Configuration
-function setLtUrl(): void {
-  let serviceType: string = ltConfig.get("serviceType") as string;
-  let ltConfigUrl: string = ltConfig.get("external.url") as string;
-  ltUrl = undefined;
-
-  if (serviceType === "external") {
-    ltUrl = ltConfigUrl + LT_CHECK_PATH;
-    console.log("Using custom service URL: " + ltUrl);
-  } else if (serviceType === "public") {
-    ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
-    console.log("Using public service URL: " + ltUrl);
-  } else if (serviceType === "managed") {
-    console.log("'managed' service isn't supported yet.");
-    ltUrl = undefined;
-  }
-}
-
 // Load Configuration
 function loadConfiguration(): void {
   console.log("Loading Configuration.");
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
-  setLtUrl();
+  let serviceType: string = ltConfig.get("serviceType") as string;
+  let ltConfigUrl: string = ltConfig.get("external.url") as string;
+  let ltTaskPort: string = ltConfig.get('task.port') as string;
+  ltUrl = undefined;
+
+  if (serviceType === "external") {
+    stopServer();
+    ltUrl = ltConfigUrl + LT_CHECK_PATH;
+  } else if (serviceType === "public") {
+    stopServer();
+    ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
+  } else if (serviceType === "managed") {
+    startServer();
+    ltUrl = "http://localhost:" + ltTaskPort + LT_CHECK_PATH;
+  }
+  console.log("Using " + serviceType + " service URL: " + ltUrl);
 }
 
 // Cancel lint
@@ -382,7 +408,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-
+  stopServer();
 }
 
 
