@@ -135,8 +135,8 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
   }
 }
 
-function startServer() {
-  stopServer();
+function startManagedService() {
+  stopManagedService();
   let jarFile: string = ltConfig.get('managed.jarFile') as string;
   let port: string = ltConfig.get('managed.port') as string;
   let args: string[] = [
@@ -155,7 +155,7 @@ function startServer() {
   });
 }
 
-function stopServer() {
+function stopManagedService() {
   if (ltServerProcess) {
     ltServerProcess.cancel();
     ltServerProcess = undefined;
@@ -191,13 +191,13 @@ function loadConfiguration(): void {
   ltUrl = undefined;
 
   if (serviceType === "external") {
-    stopServer();
+    stopManagedService();
     ltUrl = ltConfigUrl + LT_CHECK_PATH;
   } else if (serviceType === "public") {
-    stopServer();
+    stopManagedService();
     ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
   } else if (serviceType === "managed") {
-    startServer();
+    startManagedService();
     ltUrl = "http://localhost:" + ltTaskPort + LT_CHECK_PATH;
   }
   console.log("Using " + serviceType + " service URL: " + ltUrl);
@@ -406,7 +406,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-  stopServer();
+  stopManagedService();
 }
 
 
