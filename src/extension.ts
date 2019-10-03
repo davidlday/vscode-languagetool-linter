@@ -14,15 +14,16 @@
  *   limitations under the License.
  */
 
-import * as vscode from 'vscode';
-import * as remarkBuilder from 'annotatedtext-remark';
-import * as rehypeBuilder from 'annotatedtext-rehype';
-import * as rp from 'request-promise-native';
-import * as execa from 'execa';
+import * as vscode from "vscode";
+import * as remarkBuilder from "annotatedtext-remark";
+import * as rehypeBuilder from "annotatedtext-rehype";
+import * as rp from "request-promise-native";
+import * as execa from "execa";
+import * as net from "net";
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
-const LT_DOCUMENT_SCHEMES: string[] = ['file', 'untitled'];
+const LT_DOCUMENT_SCHEMES: string[] = ["file", "untitled"];
 const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
 const LT_CHECK_PATH: string = "/v2/check";
 const LT_SERVICE_PARAMETERS: string[] = [
@@ -137,8 +138,8 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
 }
 
 function startManagedService() {
-  let jarFile: string = ltConfig.get('managed.jarFile') as string;
-  let port: string = ltConfig.get('managed.port') as string;
+  let jarFile: string = ltConfig.get("managed.jarFile") as string;
+  let port: string = ltConfig.get("managed.port") as string;
   let args: string[] = [
     "-cp",
     jarFile,
@@ -148,7 +149,7 @@ function startManagedService() {
   ];
   stopManagedService();
   outputChannel.appendLine("Starting managed service.");
-  (ltServerProcess = execa('java', args)).catch(function (error) {
+  (ltServerProcess = execa("java", args)).catch(function (error) {
     if (error.isCanceled) {
       outputChannel.appendLine("Managed service stopped.");
     } else if (error.failed) {
@@ -157,11 +158,11 @@ function startManagedService() {
       outputChannel.show(true);
     }
   });
-  ltServerProcess.stderr.addListener('data', function (data) {
+  ltServerProcess.stderr.addListener("data", function (data) {
     outputChannel.appendLine(data);
     outputChannel.show(true);
   });
-  ltServerProcess.stdout.addListener('data', function (data) {
+  ltServerProcess.stdout.addListener("data", function (data) {
     outputChannel.appendLine(data);
   });
 }
@@ -196,7 +197,7 @@ function loadConfiguration(): void {
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
   let ltConfigUrl: string = ltConfig.get("external.url") as string;
-  let ltTaskPort: string = ltConfig.get('task.port') as string;
+  let ltTaskPort: string = ltConfig.get("task.port") as string;
   ltUrl = undefined;
 
   if (serviceType === "external") {
@@ -215,27 +216,26 @@ function loadConfiguration(): void {
 // Cancel lint
 function cancelLint(document: vscode.TextDocument): void {
   let uriString = document.uri.toString();
-  let timeout = timeoutMap.get(uriString);
-  if (timeout) {
-    clearTimeout(timeout);
-    timeoutMap.delete(uriString);
+  if (timeoutMap.has(uriString)) {
+    let timeout = timeoutMap.get(uriString);
+    if (timeout) {
+      clearTimeout(timeout);
+      timeoutMap.delete(uriString);
+    }
   }
 }
 
 // Request lint
 function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
-  cancelLint(document);
-  let uriString = document.uri.toString();
-  let timeout = setTimeout(() => {
-    lintDocument(document);
+  if (isSupportedLanguageId(document.languageId)) {
     cancelLint(document);
-  }, timeoutDuration);
-  timeoutMap.set(uriString, timeout);
-}
-
-// Request Immediate Lint
-function requestImmediateLint(document: vscode.TextDocument) {
-  requestLint(document, 0);
+    let uriString = document.uri.toString();
+    let timeout = setTimeout(() => {
+      lintDocument(document);
+      cancelLint(document);
+    }, timeoutDuration);
+    timeoutMap.set(uriString, timeout);
+  }
 }
 
 // Perform Lint on Document
@@ -353,31 +353,33 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidOpenTextDocument event - request lint
   context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(document => {
-    let editors: vscode.TextEditor[] = vscode.window.visibleTextEditors;
-    editors.forEach(function (editor: vscode.TextEditor) {
-      if (editor.document === document) {
-        requestLint(editor.document);
-      }
-    });
+    requestLint(document);
   }));
 
   // Register onDidChangeActiveTextEditor event - request lint
   // I think this is uneccessary.
-  // context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(editors => {
-  //   editors.forEach(function (editor: vscode.TextEditor) {
-  //     requestLint(editor.document);
-  //   });
-  // }));
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+    if (editor) {
+      if (isSupportedLanguageId(editor.document.languageId)) {
+        requestLint(editor.document);
+      }
+    }
+  }));
 
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestLint(document);
+    if (isSupportedLanguageId(document.languageId)) {
+      requestLint(document);
+    }
   }));
 
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    if (ltConfig.get('lintOnChange')) {
-      requestLint(event.document);
+    console.log("");
+    if (ltConfig.get("lintOnChange")) {
+      if (isSupportedLanguageId(event.document.languageId)) {
+        requestLint(event.document);
+      }
     }
   }));
 
@@ -385,11 +387,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(document => {
     cancelLint(document);
     diagnosticCollection.delete(document.uri);
-  }));
-
-  // Register onDidSaveTextDocument event - request immediate lint
-  context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestImmediateLint(document);
   }));
 
   // Register Code Actions Provider for supported languages
@@ -409,14 +406,21 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register "Lint Current Document" TextEditorCommand
-  let lintCommand = vscode.commands.registerTextEditorCommand('languagetoolLinter.lintCurrentDocument', (editor, edit) => {
-    requestLint(editor.document, 0);
+  let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor, edit) => {
+    if (isSupportedLanguageId(editor.document.languageId)) {
+      requestLint(editor.document, 0);
+    }
   });
   context.subscriptions.push(lintCommand);
 
-  // Lint Active Editor on Activate
+  // Lint Visible Text Editors on Activate
   if (vscode.window.activeTextEditor) {
-    requestLint(vscode.window.activeTextEditor.document);
+    let firstDelay = LT_TIMEOUT_MS;
+    if (ltConfig.get("serviceType") === "managed") {
+      // Add a second to give the service time to start up.
+      firstDelay += 1000;
+    }
+    requestLint(vscode.window.activeTextEditor.document, firstDelay);
   }
 }
 
