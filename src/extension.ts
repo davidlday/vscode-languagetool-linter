@@ -45,6 +45,7 @@ let timeoutMap: Map<string, NodeJS.Timeout>;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltServerProcess: execa.ExecaChildProcess | undefined;
 let ltUrl: string | undefined;
+let outputChannel: vscode.OutputChannel;
 
 // Interface - LanguageTool Response
 interface LTResponse {
@@ -136,7 +137,6 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
 }
 
 function startManagedService() {
-  stopManagedService();
   let jarFile: string = ltConfig.get('managed.jarFile') as string;
   let port: string = ltConfig.get('managed.port') as string;
   let args: string[] = [
@@ -146,12 +146,22 @@ function startManagedService() {
     "--port",
     port
   ];
+  stopManagedService();
   (ltServerProcess = execa('java', args)).catch(function (error) {
     if (error.isCanceled) {
-      console.log("Managed service stopped.");
+      outputChannel.appendLine("Managed service stopped.");
     } else if (error.failed) {
-      console.log("Could not start service: " + error.command);
+      outputChannel.appendLine("Managed service command failed: " + error.command);
+      outputChannel.appendLine("Exit Code: " + error.exitCodeName + " (" + error.exitCode + ")");
+      outputChannel.show(true);
     }
+  });
+  ltServerProcess.stderr.addListener('data', function (data) {
+    outputChannel.appendLine(data);
+    outputChannel.show(true);
+  });
+  ltServerProcess.stdout.addListener('data', function (data) {
+    outputChannel.appendLine(data);
   });
 }
 
@@ -175,7 +185,6 @@ function getPostDataTemplate(): any {
     let value = ltConfig.get(configKey);
     if (value) {
       ltPostDataTemplate[ltKey] = value;
-      console.log(ltKey + ": " + value);
     }
   });
   return ltPostDataTemplate;
@@ -183,7 +192,6 @@ function getPostDataTemplate(): any {
 
 // Load Configuration
 function loadConfiguration(): void {
-  console.log("Loading Configuration.");
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
   let ltConfigUrl: string = ltConfig.get("external.url") as string;
@@ -200,7 +208,7 @@ function loadConfiguration(): void {
     startManagedService();
     ltUrl = "http://localhost:" + ltTaskPort + LT_CHECK_PATH;
   }
-  console.log("Using " + serviceType + " service URL: " + ltUrl);
+  outputChannel.appendLine("Now using " + serviceType + " service URL: " + ltUrl);
 }
 
 // Cancel lint
@@ -295,17 +303,19 @@ function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): v
         suggest(document, data);
       })
       .catch(function (err) {
-        console.log(err);
+        outputChannel.appendLine("Error connecting to " + ltUrl);
+        outputChannel.appendLine(err);
+        outputChannel.show(true);
       });
   } else {
-    console.log("No LanguageTool URL provided. Please check your settings.");
+    outputChannel.appendLine("No LanguageTool URL provided. Please check your settings and try again.");
+    outputChannel.show(true);
   }
 }
 
 // Lint Plain Text Document
 function lintPlaintext(document: vscode.TextDocument): void {
   let ltPostDataDict: any = getPostDataTemplate();
-  console.log(ltPostDataDict);
   ltPostDataDict["text"] = document.getText();
   callLanguageTool(document, ltPostDataDict);
 }
@@ -313,7 +323,6 @@ function lintPlaintext(document: vscode.TextDocument): void {
 // Lint Annotated Text
 function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
   let ltPostDataDict: any = getPostDataTemplate();
-  console.log(ltPostDataDict);
   ltPostDataDict["data"] = annotatedText;
   callLanguageTool(document, ltPostDataDict);
 }
@@ -323,6 +332,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   diagnosticCollection = vscode.languages.createDiagnosticCollection(LT_DISPLAY_NAME);
   context.subscriptions.push(diagnosticCollection);
+
+  outputChannel = vscode.window.createOutputChannel("LanguageTool Linter");
+  context.subscriptions.push(outputChannel);
+  outputChannel.appendLine("LanguageTool Linter Activated!");
 
   diagnosticMap = new Map();
   codeActionMap = new Map();
@@ -337,26 +350,26 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }));
 
-  // Register onDidOpenTextDocument event - request immediate lint
+  // Register onDidOpenTextDocument event - request lint
   context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(document => {
     let editors: vscode.TextEditor[] = vscode.window.visibleTextEditors;
     editors.forEach(function (editor: vscode.TextEditor) {
       if (editor.document === document) {
-        requestImmediateLint(editor.document);
+        requestLint(editor.document);
       }
     });
   }));
 
-  // Register onDidChangeActiveTextEditor event - request immediate lint
+  // Register onDidChangeActiveTextEditor event - request lint
   context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(editors => {
     editors.forEach(function (editor: vscode.TextEditor) {
-      requestImmediateLint(editor.document);
+      requestLint(editor.document);
     });
   }));
 
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestImmediateLint(document);
+    requestLint(document);
   }));
 
   // Register onDidChangeTextDocument event - request lint with default timeout
