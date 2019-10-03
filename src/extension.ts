@@ -147,12 +147,13 @@ function startManagedService() {
     port
   ];
   stopManagedService();
+  outputChannel.appendLine("Starting managed service.");
   (ltServerProcess = execa('java', args)).catch(function (error) {
     if (error.isCanceled) {
       outputChannel.appendLine("Managed service stopped.");
     } else if (error.failed) {
       outputChannel.appendLine("Managed service command failed: " + error.command);
-      outputChannel.appendLine("Exit Code: " + error.exitCodeName + " (" + error.exitCode + ")");
+      outputChannel.appendLine("Error Message: " + error.message);
       outputChannel.show(true);
     }
   });
@@ -361,11 +362,12 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register onDidChangeActiveTextEditor event - request lint
-  context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(editors => {
-    editors.forEach(function (editor: vscode.TextEditor) {
-      requestLint(editor.document);
-    });
-  }));
+  // I think this is uneccessary.
+  // context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(editors => {
+  //   editors.forEach(function (editor: vscode.TextEditor) {
+  //     requestLint(editor.document);
+  //   });
+  // }));
 
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
