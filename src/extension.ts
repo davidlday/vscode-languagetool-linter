@@ -43,10 +43,11 @@ let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 let timeoutMap: Map<string, NodeJS.Timeout>;
+let outputChannel: vscode.OutputChannel;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltServerProcess: execa.ExecaChildProcess | undefined;
+let ltServer: net.Server | undefined;
 let ltUrl: string | undefined;
-let outputChannel: vscode.OutputChannel;
 
 // Interface - LanguageTool Response
 interface LTResponse {
@@ -137,40 +138,54 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
   }
 }
 
+// Start a managed service using a random, available port
 function startManagedService() {
   let jarFile: string = ltConfig.get("managed.jarFile") as string;
-  let port: string = ltConfig.get("managed.port") as string;
-  let args: string[] = [
-    "-cp",
-    jarFile,
-    "org.languagetool.server.HTTPServer",
-    "--port",
-    port
-  ];
   stopManagedService();
-  outputChannel.appendLine("Starting managed service.");
-  (ltServerProcess = execa("java", args)).catch(function (error) {
-    if (error.isCanceled) {
-      outputChannel.appendLine("Managed service stopped.");
-    } else if (error.failed) {
-      outputChannel.appendLine("Managed service command failed: " + error.command);
-      outputChannel.appendLine("Error Message: " + error.message);
-      outputChannel.show(true);
+  ltServer = net.createServer();
+  ltServer.on("close", function() {
+    if (ltServerProcess) {
+      outputChannel.appendLine("Cancelling managed service process.");
+      ltServerProcess.cancel();
+      ltServerProcess = undefined;
     }
   });
-  ltServerProcess.stderr.addListener("data", function (data) {
-    outputChannel.appendLine(data);
-    outputChannel.show(true);
-  });
-  ltServerProcess.stdout.addListener("data", function (data) {
-    outputChannel.appendLine(data);
+  ltServer.listen(0, function () {
+    let address: net.AddressInfo = (ltServer as net.Server).address() as net.AddressInfo;
+    // ltServerPort = address.port;
+    let args: string[] = [
+      "-cp",
+      jarFile,
+      "org.languagetool.server.HTTPServer",
+      "--port",
+      address.port.toString()
+    ];
+    outputChannel.appendLine("Starting managed service.");
+    (ltServerProcess = execa("java", args)).catch(function (error) {
+      if (error.isCanceled) {
+        outputChannel.appendLine("Managed service process stopped.");
+      } else if (error.failed) {
+        outputChannel.appendLine("Managed service command failed: " + error.command);
+        outputChannel.appendLine("Error Message: " + error.message);
+        outputChannel.show(true);
+      }
+    });
+    ltServerProcess.stderr.addListener("data", function (data) {
+      outputChannel.appendLine(data);
+      outputChannel.show(true);
+    });
+    ltServerProcess.stdout.addListener("data", function (data) {
+      outputChannel.appendLine(data);
+    });
   });
 }
 
+// Stop the managed service
 function stopManagedService() {
-  if (ltServerProcess) {
-    ltServerProcess.cancel();
-    ltServerProcess = undefined;
+  if (ltServer) {
+    outputChannel.appendLine("Closing managed service server.");
+    ltServer.close();
+    ltServer = undefined;
   }
 }
 
@@ -197,7 +212,7 @@ function loadConfiguration(): void {
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
   let ltConfigUrl: string = ltConfig.get("external.url") as string;
-  let ltTaskPort: string = ltConfig.get("task.port") as string;
+  // let ltServerPort: string = ltConfig.get("task.port") as string;
   ltUrl = undefined;
 
   if (serviceType === "external") {
@@ -208,7 +223,10 @@ function loadConfiguration(): void {
     ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
   } else if (serviceType === "managed") {
     startManagedService();
-    ltUrl = "http://localhost:" + ltTaskPort + LT_CHECK_PATH;
+    if (ltServer) {
+      let address: net.AddressInfo = ltServer.address() as net.AddressInfo;
+      ltUrl = "http://localhost:" + address.port.toString() + LT_CHECK_PATH;
+    }
   }
   outputChannel.appendLine("Now using " + serviceType + " service URL: " + ltUrl);
 }
@@ -375,7 +393,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    console.log("");
     if (ltConfig.get("lintOnChange")) {
       if (isSupportedLanguageId(event.document.languageId)) {
         requestLint(event.document);
