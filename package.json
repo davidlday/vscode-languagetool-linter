@@ -37,7 +37,6 @@
   },
   "homepage": "https://github.com/davidlday/vscode-languagetool-linter#readme",
   "activationEvents": [
-    "*",
     "onLanguage:plaintext",
     "onLanguage:markdown",
     "onLanguage:html",
