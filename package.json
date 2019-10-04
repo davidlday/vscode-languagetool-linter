@@ -89,11 +89,6 @@
           "default": "",
           "description": "Path to languagetool-server.jar on your local machine."
         },
-        "languageToolLinter.managed.port": {
-          "type": "number",
-          "default": "8081",
-          "description": "Port to use for LanguageTool Server Task."
-        },
         "languageToolLinter.languageTool.language": {
           "type": "string",
           "default": "auto",
