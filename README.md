@@ -4,6 +4,8 @@
 
 Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://languagetool.org). Support Markdown, HTML, and plain text files.
 
+In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) extension.
+
 ## Features
 
 * Issue highlighting with hover description.
@@ -17,8 +19,8 @@ The defaults are probably not going to work for you, but they are there to make 
 The defaults assume the following:
 
 1. You do not want to use the [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api)
-1. You're running [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) on your machine using the default port of 8081.
-1. You do not want to have this extension manage your local [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) service.
+2. You're running [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) on your machine using the default port of 8081.
+3. You do not want to have this extension manage your local [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) service.
 
 If this doesn't work for you, here are your options.
 
@@ -312,7 +314,6 @@ The following projects provided excellent guidance on creating this project.
 
 * [LaguageTool](https://languagetool.org) (of course!)
 * [Atom Linter LanguageTool](https://github.com/wysiib/linter-languagetool/)
-* [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) — now defunct. RIP, @adamvoss.
 * [LT<sub>e</sub>X](https://github.com/valentjn/vscode-ltex) — a fork of [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool)
 * [VS Code Write Good Extension](https://github.com/TravisTheTechie/vscode-write-good/)
 * [Fall: Not Yet Another Parser Generator](https://github.com/matklad/fall)
