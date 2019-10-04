@@ -2,16 +2,25 @@
 
 All notable changes to the "languagetool-linter" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
 ## [Unreleased]
 
-* Service is now controlled by `serviceType`, with one of the following values:
-  * `external` (default): Use an external LanguageTool service. URL must be provided in `external.url`.
-  * `managed`: Have VS Code manage a LanguageTool service. A path to languagetool-server.jar file must be provided in `task.jarFile`, and a port must be provided in `task.port`.
+### [Added]
+
+* New "Service Type" setting with the following 3 options:
+  * `external` (default): Use an external LanguageTool service. URL must be provided in "External: Url".
+  * `managed`: Have VS Code manage a LanguageTool service. A path to a languagetool-server.jar file must be provided in "Managed: Jar File", and a port must be provided in "Managed: Port".
   * `public`: Uses the public LanguageTool API service.
 
-## 0.1.0 - Initial Release
+### [Changed]
+
+* BREAKING: The checkbox setting "Public Api" has been replaced by the new "Service Type" drop-down setting.
+* The "Url" setting has been moved to "External: Url".
+* The caution notice for "Lint on Change" has been removed. Throttling seems to be working. Still off by default.
+* Output / errors now sent to "LanguageTool Linter" output channel.
+
+## [0.1.0]
+
+### [Added]
 
 * Basic Spelling / Grammar Checking with QuickFix options on errors.
 * `languageTool.disableCategories`: IDs of categories to be disabled, comma-separated.
