@@ -29,7 +29,7 @@ This could either be a [locally running instance](https://github.com/davidlday/v
 1. Set the URL in "LanguageTool Linter > External: Url" (i.e. `http://localhost:8081`).
 1. Set "LanguageTool Linter: Service Type" to `external`.
 
-ADD SCREENSHOT
+ADD SCREENSHOT.
 
 ### Option 2: Use an Extension-Managed Service
 
@@ -39,7 +39,7 @@ Works well if you're only using LangaugeTool in Visual Studio Code.
 1. Set "LanguageTool Linter > Managed: Jar File" to the location of the `languagetool-server.jar` file. The install doc has hints.
 1. Set "LanguageTool Linter: Service Type" to `managed`.
 
-ADD SCREENSHOT
+ADD SCREENSHOT.
 
 ### Option 3: Public API Service
 
@@ -47,7 +47,7 @@ Make sure you read and understand [LanguageTool's Public API](http://wiki.langua
 
 1. Set "LanguageTool Linter: Service Type" to `public`.
 
-![Public API](./images/public_api.png)
+ADD SCREENSHOT.
 
 ## Configuration
 
@@ -70,26 +70,224 @@ Below is the full configuration for reference:
           "default": false,
           "description": "Lint every time the document changes. Use with caution."
         },
-        "languageToolLinter.publicApi": {
-          "type": "boolean",
-          "default": false,
-          "description": "Use the public LanguageTool API Service."
+        "languageToolLinter.serviceType": {
+          "type": "string",
+          "default": "custom",
+          "description": "What kind of LanguageTool service to use: external (default), public, or managed.",
+          "enum": [
+            "external",
+            "managed",
+            "public"
+          ],
+          "enumDescriptions": [
+            "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
+            "Let LanguageTool Linter manage a local service. Specify the path to the script in 'Script'.",
+            "Use the public LanguageTool API Service at https://languagetool.org/api."
+          ]
         },
-        "languageToolLinter.url": {
+        "languageToolLinter.external.url": {
           "type": "string",
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
-
+        "languageToolLinter.managed.jarFile": {
+          "type": "string",
+          "default": "",
+          "description": "Path to languagetool-server.jar on your local machine."
+        },
         "languageToolLinter.languageTool.language": {
           "type": "string",
           "default": "auto",
-          "description": "A language code like en-US, de-DE, fr, or auto to guess the language automatically (see preferredVariants below). For languages with variants (English, German, Portuguese) spell checking will only be activated when you specify the variant, e.g. en-GB instead of just en."
+          "description": "A language code like en-US, de-DE, fr, or auto to guess the language automatically (see preferredVariants below). For languages with variants (English, German, Portuguese) spell checking will only be activated when you specify the variant, e.g. en-GB instead of just en.",
+          "enum": [
+            "auto",
+            "ast-ES",
+            "be-BY",
+            "br-FR",
+            "ca-ES",
+            "ca-ES-valencia",
+            "zh-CN",
+            "da-DK",
+            "nl",
+            "en",
+            "en-AU",
+            "en-CA",
+            "en-GB",
+            "en-NZ",
+            "en-ZA",
+            "en-US",
+            "eo",
+            "fr",
+            "gl-ES",
+            "de",
+            "de-AT",
+            "de-DE",
+            "de-CH",
+            "el-GR",
+            "it",
+            "ja-JP",
+            "km-KH",
+            "fa",
+            "pl-PL",
+            "pt",
+            "pt-AO",
+            "pt-BR",
+            "pt-MZ",
+            "pt-PT",
+            "ro-RO",
+            "ru-RU",
+            "de-DE-x-simple-language",
+            "sk-SK",
+            "sl-SI",
+            "es",
+            "sv",
+            "tl-PH",
+            "ta-IN",
+            "uk-UA"
+          ],
+          "enumDescriptions": [
+            "Auto Select",
+            "Asturian",
+            "Belarusian",
+            "Breton",
+            "Catalan",
+            "Catalan (Valencian)",
+            "Chinese",
+            "Danish",
+            "Dutch",
+            "English",
+            "English (Australian)",
+            "English (Canadian)",
+            "English (GB)",
+            "English (New Zealand)",
+            "English (South African)",
+            "English (US)",
+            "Esperanto",
+            "French",
+            "Galician",
+            "German",
+            "German (Austria)",
+            "German (Germany)",
+            "German (Swiss)",
+            "Greek",
+            "Italian",
+            "Japanese",
+            "Khmer",
+            "Persian",
+            "Polish",
+            "Portuguese",
+            "Portuguese (Angola preAO)",
+            "Portuguese (Brazil)",
+            "Portuguese (Moçambique preAO)",
+            "Portuguese (Portugal)",
+            "Romanian",
+            "Russian",
+            "Simple German",
+            "Slovak",
+            "Slovenian",
+            "Spanish",
+            "Swedish",
+            "Tagalog",
+            "Tamil",
+            "Ukrainian"
+          ]
         },
         "languageToolLinter.languageTool.motherTongue": {
           "type": "string",
           "default": "",
-          "description": "A language code of the user's native language, enabling false friends checks for some language pairs."
+          "description": "A language code of the user's native language, enabling false friends checks for some language pairs.",
+          "enum": [
+            "",
+            "ast-ES",
+            "be-BY",
+            "br-FR",
+            "ca-ES",
+            "ca-ES-valencia",
+            "zh-CN",
+            "da-DK",
+            "nl",
+            "en",
+            "en-AU",
+            "en-CA",
+            "en-GB",
+            "en-NZ",
+            "en-ZA",
+            "en-US",
+            "eo",
+            "fr",
+            "gl-ES",
+            "de",
+            "de-AT",
+            "de-DE",
+            "de-CH",
+            "el-GR",
+            "it",
+            "ja-JP",
+            "km-KH",
+            "fa",
+            "pl-PL",
+            "pt",
+            "pt-AO",
+            "pt-BR",
+            "pt-MZ",
+            "pt-PT",
+            "ro-RO",
+            "ru-RU",
+            "de-DE-x-simple-language",
+            "sk-SK",
+            "sl-SI",
+            "es",
+            "sv",
+            "tl-PH",
+            "ta-IN",
+            "uk-UA"
+          ],
+          "enumDescriptions": [
+            "No Language Selected",
+            "Asturian",
+            "Belarusian",
+            "Breton",
+            "Catalan",
+            "Catalan (Valencian)",
+            "Chinese",
+            "Danish",
+            "Dutch",
+            "English",
+            "English (Australian)",
+            "English (Canadian)",
+            "English (GB)",
+            "English (New Zealand)",
+            "English (South African)",
+            "English (US)",
+            "Esperanto",
+            "French",
+            "Galician",
+            "German",
+            "German (Austria)",
+            "German (Germany)",
+            "German (Swiss)",
+            "Greek",
+            "Italian",
+            "Japanese",
+            "Khmer",
+            "Persian",
+            "Polish",
+            "Portuguese",
+            "Portuguese (Angola preAO)",
+            "Portuguese (Brazil)",
+            "Portuguese (Moçambique preAO)",
+            "Portuguese (Portugal)",
+            "Romanian",
+            "Russian",
+            "Simple German",
+            "Slovak",
+            "Slovenian",
+            "Spanish",
+            "Swedish",
+            "Tagalog",
+            "Tamil",
+            "Ukrainian"
+          ]
         },
         "languageToolLinter.languageTool.preferredVariants": {
           "type": "string",
