@@ -212,7 +212,6 @@ function loadConfiguration(): void {
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
   let ltConfigUrl: string = ltConfig.get("external.url") as string;
-  // let ltServerPort: string = ltConfig.get("task.port") as string;
   ltUrl = undefined;
 
   if (serviceType === "external") {
