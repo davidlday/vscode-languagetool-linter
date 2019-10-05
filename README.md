@@ -6,6 +6,10 @@ Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://language
 
 In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) extension.
 
+## BREAKING CHANGES
+
+I've tweaked the configuration a little, so you'll need to review the setup options below and make sure you have a valid configuration. Note that the "Public Api" checkbox has been replaced by the "Service Type", and "URL" setting is now "> External: URL".
+
 ## Features
 
 * Issue highlighting with hover description.
@@ -31,7 +35,7 @@ This could either be a [locally running instance](https://github.com/davidlday/v
 1. Set the URL in "LanguageTool Linter > External: Url" (i.e. `http://localhost:8081`).
 1. Set "LanguageTool Linter: Service Type" to `external`.
 
-ADD SCREENSHOT.
+![External URL](images/external.gif)
 
 ### Option 2: Use an Extension-Managed Service
 
@@ -41,7 +45,7 @@ Works well if you're only using LangaugeTool in Visual Studio Code.
 1. Set "LanguageTool Linter > Managed: Jar File" to the location of the `languagetool-server.jar` file. The install doc has hints.
 1. Set "LanguageTool Linter: Service Type" to `managed`.
 
-ADD SCREENSHOT.
+![Managed Service](images/managed.gif)
 
 ### Option 3: Public API Service
 
@@ -49,7 +53,7 @@ Make sure you read and understand [LanguageTool's Public API](http://wiki.langua
 
 1. Set "LanguageTool Linter: Service Type" to `public`.
 
-ADD SCREENSHOT.
+![Public API](images/public.gif)
 
 ## Configuration
 
