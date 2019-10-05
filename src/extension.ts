@@ -150,9 +150,8 @@ function startManagedService() {
       ltServerProcess = undefined;
     }
   });
-  ltServer.listen(0, function () {
+  ltServer.listen(0, "127.0.0.1", function () {
     let address: net.AddressInfo = (ltServer as net.Server).address() as net.AddressInfo;
-    // ltServerPort = address.port;
     let args: string[] = [
       "-cp",
       jarFile,
