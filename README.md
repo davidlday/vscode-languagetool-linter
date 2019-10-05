@@ -6,9 +6,9 @@ Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://language
 
 In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) extension.
 
-## BREAKING CHANGES
+### Breaking Changes
 
-I've tweaked the configuration a little, so you'll need to review the setup options below and make sure you have a valid configuration. Note that the "Public Api" checkbox has been replaced by the "Service Type", and "URL" setting is now "> External: URL".
+I've tweaked the configuration a little, so you'll need to review the setup options below and make sure you have a valid configuration. See the Changelog for details.
 
 ## Features
 
