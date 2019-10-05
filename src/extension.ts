@@ -24,7 +24,7 @@ import * as portfinder from 'portfinder';
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
 const LT_DOCUMENT_SCHEMES: string[] = ["file", "untitled"];
-const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
+const LT_PUBLIC_URL: string = "https://languagetool.org/api";
 const LT_CHECK_PATH: string = "/v2/check";
 const LT_SERVICE_PARAMETERS: string[] = [
   "language",
@@ -137,16 +137,44 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
   }
 }
 
+// Set up whenever service type changes
+function setServiceType(serviceType: string): string {
+  let newUrl: string = "";
+  switch (serviceType) {
+    case "external": {
+      let ltConfigUrl: string = ltConfig.get("external.url") as string;
+      newUrl = ltConfigUrl + LT_CHECK_PATH;
+      stopManagedService();
+      outputChannel.appendLine("Now using " + serviceType + " service URL: " + newUrl);
+      break;
+    }
+    case "managed": {
+      newUrl = startManagedService();
+      break;
+    }
+    case "public": {
+      newUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
+      stopManagedService();
+      outputChannel.appendLine("Now using " + serviceType + " service URL: " + newUrl);
+      break;
+    }
+  }
+  return newUrl;
+}
+
 // Start a managed service using a random, available port
-// Idempotent. Service will be stopped and restarted every time.
+// Service will be stopped and restarted every time.
 function startManagedService() {
   let jarFile: string = ltConfig.get("managed.jarFile") as string;
+  let serviceType: string = ltConfig.get("serviceType") as string;
+  let newUrl: string = "";
   stopManagedService();
   portfinder.getPort({host: "127.0.0.1"}, function (error, port) {
     if (error) {
       outputChannel.appendLine("Error getting open port: " + error.message);
       outputChannel.show(true);
     } else {
+      ltUrl = "http://localhost:" + port.toString() + LT_CHECK_PATH;
       let args: string[] = [
         "-cp",
         jarFile,
@@ -154,7 +182,6 @@ function startManagedService() {
         "--port",
         port.toString()
       ];
-      ltUrl = "http://localhost:" + port.toString() + LT_CHECK_PATH;
       outputChannel.appendLine("Starting managed service.");
       (ltServerProcess = execa("java", args)).catch(function (error) {
         if (error.isCanceled) {
@@ -174,6 +201,7 @@ function startManagedService() {
       });
     }
   });
+  return newUrl;
 }
 
 // Stop the managed service
@@ -203,23 +231,23 @@ function getPostDataTemplate(): any {
   return ltPostDataTemplate;
 }
 
-// Load Configuration
-function loadConfiguration(): void {
+function reloadConfiguration(event: vscode.ConfigurationChangeEvent) {
+  outputChannel.appendLine("Configuration changed.");
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
-  let ltConfigUrl: string = ltConfig.get("external.url") as string;
-  ltUrl = undefined;
-
-  if (serviceType === "external") {
-    stopManagedService();
-    ltUrl = ltConfigUrl + LT_CHECK_PATH;
-  } else if (serviceType === "public") {
-    stopManagedService();
-    ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
-  } else if (serviceType === "managed") {
+  ltUrl = setServiceType(serviceType);
+  // Did the jarFile also change? Then the server process also needs restarted
+  if (serviceType === "managed" && event.affectsConfiguration("languageToolLinter.managed.jarFile")) {
     startManagedService();
   }
-  outputChannel.appendLine("Now using " + serviceType + " service URL: " + ltUrl);
+}
+
+// Load Configuration
+function loadConfiguration(): void {
+  outputChannel.appendLine("Loading initial configuration.");
+  ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
+  let serviceType: string = ltConfig.get("serviceType") as string;
+  ltUrl = setServiceType(serviceType);
 }
 
 // Cancel lint
@@ -356,7 +384,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
     if (event.affectsConfiguration("languageToolLinter")) {
-      loadConfiguration();
+      reloadConfiguration(event);
     }
   }));
 
