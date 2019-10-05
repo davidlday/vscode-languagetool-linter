@@ -19,7 +19,7 @@ import * as remarkBuilder from "annotatedtext-remark";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as rp from "request-promise-native";
 import * as execa from "execa";
-import * as net from "net";
+import * as portfinder from 'portfinder';
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
@@ -46,7 +46,6 @@ let timeoutMap: Map<string, NodeJS.Timeout>;
 let outputChannel: vscode.OutputChannel;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltServerProcess: execa.ExecaChildProcess | undefined;
-let ltServer: net.Server | undefined;
 let ltUrl: string | undefined;
 
 // Interface - LanguageTool Response
@@ -139,52 +138,50 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
 }
 
 // Start a managed service using a random, available port
+// Idempotent. Service will be stopped and restarted every time.
 function startManagedService() {
   let jarFile: string = ltConfig.get("managed.jarFile") as string;
   stopManagedService();
-  ltServer = net.createServer();
-  ltServer.on("close", function() {
-    if (ltServerProcess) {
-      outputChannel.appendLine("Cancelling managed service process.");
-      ltServerProcess.cancel();
-      ltServerProcess = undefined;
-    }
-  });
-  ltServer.listen(0, "127.0.0.1", function () {
-    let address: net.AddressInfo = (ltServer as net.Server).address() as net.AddressInfo;
-    let args: string[] = [
-      "-cp",
-      jarFile,
-      "org.languagetool.server.HTTPServer",
-      "--port",
-      address.port.toString()
-    ];
-    outputChannel.appendLine("Starting managed service.");
-    (ltServerProcess = execa("java", args)).catch(function (error) {
-      if (error.isCanceled) {
-        outputChannel.appendLine("Managed service process stopped.");
-      } else if (error.failed) {
-        outputChannel.appendLine("Managed service command failed: " + error.command);
-        outputChannel.appendLine("Error Message: " + error.message);
-        outputChannel.show(true);
-      }
-    });
-    ltServerProcess.stderr.addListener("data", function (data) {
-      outputChannel.appendLine(data);
+  portfinder.getPort({host: "127.0.0.1"}, function (error, port) {
+    if (error) {
+      outputChannel.appendLine("Error getting open port: " + error.message);
       outputChannel.show(true);
-    });
-    ltServerProcess.stdout.addListener("data", function (data) {
-      outputChannel.appendLine(data);
-    });
+    } else {
+      let args: string[] = [
+        "-cp",
+        jarFile,
+        "org.languagetool.server.HTTPServer",
+        "--port",
+        port.toString()
+      ];
+      ltUrl = "http://localhost:" + port.toString() + LT_CHECK_PATH;
+      outputChannel.appendLine("Starting managed service.");
+      (ltServerProcess = execa("java", args)).catch(function (error) {
+        if (error.isCanceled) {
+          outputChannel.appendLine("Managed service process stopped.");
+        } else if (error.failed) {
+          outputChannel.appendLine("Managed service command failed: " + error.command);
+          outputChannel.appendLine("Error Message: " + error.message);
+          outputChannel.show(true);
+        }
+      });
+      ltServerProcess.stderr.addListener("data", function (data) {
+        outputChannel.appendLine(data);
+        outputChannel.show(true);
+      });
+      ltServerProcess.stdout.addListener("data", function (data) {
+        outputChannel.appendLine(data);
+      });
+    }
   });
 }
 
 // Stop the managed service
 function stopManagedService() {
-  if (ltServer) {
+  if (ltServerProcess) {
     outputChannel.appendLine("Closing managed service server.");
-    ltServer.close();
-    ltServer = undefined;
+    ltServerProcess.cancel();
+    ltServerProcess = undefined;
   }
 }
 
@@ -221,10 +218,6 @@ function loadConfiguration(): void {
     ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
   } else if (serviceType === "managed") {
     startManagedService();
-    if (ltServer) {
-      let address: net.AddressInfo = ltServer.address() as net.AddressInfo;
-      ltUrl = "http://localhost:" + address.port.toString() + LT_CHECK_PATH;
-    }
   }
   outputChannel.appendLine("Now using " + serviceType + " service URL: " + ltUrl);
 }
