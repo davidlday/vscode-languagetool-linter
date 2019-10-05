@@ -14,15 +14,17 @@
  *   limitations under the License.
  */
 
-import * as vscode from 'vscode';
-import * as remarkBuilder from 'annotatedtext-remark';
-import * as rehypeBuilder from 'annotatedtext-rehype';
-import * as rp from 'request-promise-native';
+import * as vscode from "vscode";
+import * as remarkBuilder from "annotatedtext-remark";
+import * as rehypeBuilder from "annotatedtext-rehype";
+import * as rp from "request-promise-native";
+import * as execa from "execa";
+import * as portfinder from 'portfinder';
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
-const LT_DOCUMENT_SCHEMES: string[] = ['file', 'untitled'];
-const LT_PUBLIC_URL: string = "https://languagetool.org/api/";
+const LT_DOCUMENT_SCHEMES: string[] = ["file", "untitled"];
+const LT_PUBLIC_URL: string = "https://languagetool.org/api";
 const LT_CHECK_PATH: string = "/v2/check";
 const LT_SERVICE_PARAMETERS: string[] = [
   "language",
@@ -41,8 +43,9 @@ let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 let timeoutMap: Map<string, NodeJS.Timeout>;
+let outputChannel: vscode.OutputChannel;
 let ltConfig: vscode.WorkspaceConfiguration;
-// let ltPostDataTemplate: any;
+let ltServerProcess: execa.ExecaChildProcess | undefined;
 let ltUrl: string | undefined;
 
 // Interface - LanguageTool Response
@@ -134,6 +137,82 @@ class LTCodeActionProvider implements vscode.CodeActionProvider {
   }
 }
 
+// Set up whenever service type changes
+function setServiceType(serviceType: string): string {
+  let newUrl: string = "";
+  switch (serviceType) {
+    case "external": {
+      let ltConfigUrl: string = ltConfig.get("external.url") as string;
+      newUrl = ltConfigUrl + LT_CHECK_PATH;
+      stopManagedService();
+      outputChannel.appendLine("Now using " + serviceType + " service URL: " + newUrl);
+      break;
+    }
+    case "managed": {
+      newUrl = startManagedService();
+      break;
+    }
+    case "public": {
+      newUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
+      stopManagedService();
+      outputChannel.appendLine("Now using " + serviceType + " service URL: " + newUrl);
+      break;
+    }
+  }
+  return newUrl;
+}
+
+// Start a managed service using a random, available port
+// Service will be stopped and restarted every time.
+function startManagedService() {
+  let jarFile: string = ltConfig.get("managed.jarFile") as string;
+  let serviceType: string = ltConfig.get("serviceType") as string;
+  let newUrl: string = "";
+  stopManagedService();
+  portfinder.getPort({host: "127.0.0.1"}, function (error, port) {
+    if (error) {
+      outputChannel.appendLine("Error getting open port: " + error.message);
+      outputChannel.show(true);
+    } else {
+      ltUrl = "http://localhost:" + port.toString() + LT_CHECK_PATH;
+      let args: string[] = [
+        "-cp",
+        jarFile,
+        "org.languagetool.server.HTTPServer",
+        "--port",
+        port.toString()
+      ];
+      outputChannel.appendLine("Starting managed service.");
+      (ltServerProcess = execa("java", args)).catch(function (error) {
+        if (error.isCanceled) {
+          outputChannel.appendLine("Managed service process stopped.");
+        } else if (error.failed) {
+          outputChannel.appendLine("Managed service command failed: " + error.command);
+          outputChannel.appendLine("Error Message: " + error.message);
+          outputChannel.show(true);
+        }
+      });
+      ltServerProcess.stderr.addListener("data", function (data) {
+        outputChannel.appendLine(data);
+        outputChannel.show(true);
+      });
+      ltServerProcess.stdout.addListener("data", function (data) {
+        outputChannel.appendLine(data);
+      });
+    }
+  });
+  return newUrl;
+}
+
+// Stop the managed service
+function stopManagedService() {
+  if (ltServerProcess) {
+    outputChannel.appendLine("Closing managed service server.");
+    ltServerProcess.cancel();
+    ltServerProcess = undefined;
+  }
+}
+
 // Is Launguage ID Supported?
 function isSupportedLanguageId(languageId: string): boolean {
   return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
@@ -147,61 +226,53 @@ function getPostDataTemplate(): any {
     let value = ltConfig.get(configKey);
     if (value) {
       ltPostDataTemplate[ltKey] = value;
-      console.log(ltKey + ": " + value);
     }
   });
   return ltPostDataTemplate;
 }
 
-// Set ltUrl from Configuration
-function setLtUrl(): void {
+function reloadConfiguration(event: vscode.ConfigurationChangeEvent) {
+  outputChannel.appendLine("Configuration changed.");
+  ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
-  let ltConfigUrl: string = ltConfig.get("external.url") as string;
-  ltUrl = undefined;
-
-  if (serviceType === "external") {
-    ltUrl = ltConfigUrl + LT_CHECK_PATH;
-    console.log("Using custom service URL: " + ltUrl);
-  } else if (serviceType === "public") {
-    ltUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
-    console.log("Using public service URL: " + ltUrl);
-  } else if (serviceType === "managed") {
-    console.log("'managed' service isn't supported yet.");
-    ltUrl = undefined;
+  ltUrl = setServiceType(serviceType);
+  // Did the jarFile also change? Then the server process also needs restarted
+  if (serviceType === "managed" && event.affectsConfiguration("languageToolLinter.managed.jarFile")) {
+    startManagedService();
   }
 }
 
 // Load Configuration
 function loadConfiguration(): void {
-  console.log("Loading Configuration.");
+  outputChannel.appendLine("Loading initial configuration.");
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
-  setLtUrl();
+  let serviceType: string = ltConfig.get("serviceType") as string;
+  ltUrl = setServiceType(serviceType);
 }
 
 // Cancel lint
 function cancelLint(document: vscode.TextDocument): void {
   let uriString = document.uri.toString();
-  let timeout = timeoutMap.get(uriString);
-  if (timeout) {
-    clearTimeout(timeout);
-    timeoutMap.delete(uriString);
+  if (timeoutMap.has(uriString)) {
+    let timeout = timeoutMap.get(uriString);
+    if (timeout) {
+      clearTimeout(timeout);
+      timeoutMap.delete(uriString);
+    }
   }
 }
 
 // Request lint
 function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
-  cancelLint(document);
-  let uriString = document.uri.toString();
-  let timeout = setTimeout(() => {
-    lintDocument(document);
+  if (isSupportedLanguageId(document.languageId)) {
     cancelLint(document);
-  }, timeoutDuration);
-  timeoutMap.set(uriString, timeout);
-}
-
-// Request Immediate Lint
-function requestImmediateLint(document: vscode.TextDocument) {
-  requestLint(document, 0);
+    let uriString = document.uri.toString();
+    let timeout = setTimeout(() => {
+      lintDocument(document);
+      cancelLint(document);
+    }, timeoutDuration);
+    timeoutMap.set(uriString, timeout);
+  }
 }
 
 // Perform Lint on Document
@@ -270,17 +341,19 @@ function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): v
         suggest(document, data);
       })
       .catch(function (err) {
-        console.log(err);
+        outputChannel.appendLine("Error connecting to " + ltUrl);
+        outputChannel.appendLine(err);
+        outputChannel.show(true);
       });
   } else {
-    console.log("No LanguageTool URL provided. Please check your settings.");
+    outputChannel.appendLine("No LanguageTool URL provided. Please check your settings and try again.");
+    outputChannel.show(true);
   }
 }
 
 // Lint Plain Text Document
 function lintPlaintext(document: vscode.TextDocument): void {
   let ltPostDataDict: any = getPostDataTemplate();
-  console.log(ltPostDataDict);
   ltPostDataDict["text"] = document.getText();
   callLanguageTool(document, ltPostDataDict);
 }
@@ -288,7 +361,6 @@ function lintPlaintext(document: vscode.TextDocument): void {
 // Lint Annotated Text
 function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
   let ltPostDataDict: any = getPostDataTemplate();
-  console.log(ltPostDataDict);
   ltPostDataDict["data"] = annotatedText;
   callLanguageTool(document, ltPostDataDict);
 }
@@ -299,6 +371,10 @@ export function activate(context: vscode.ExtensionContext) {
   diagnosticCollection = vscode.languages.createDiagnosticCollection(LT_DISPLAY_NAME);
   context.subscriptions.push(diagnosticCollection);
 
+  outputChannel = vscode.window.createOutputChannel("LanguageTool Linter");
+  context.subscriptions.push(outputChannel);
+  outputChannel.appendLine("LanguageTool Linter Activated!");
+
   diagnosticMap = new Map();
   codeActionMap = new Map();
   timeoutMap = new Map();
@@ -308,36 +384,38 @@ export function activate(context: vscode.ExtensionContext) {
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
     if (event.affectsConfiguration("languageToolLinter")) {
-      loadConfiguration();
+      reloadConfiguration(event);
     }
   }));
 
-  // Register onDidOpenTextDocument event - request immediate lint
+  // Register onDidOpenTextDocument event - request lint
   context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(document => {
-    let editors: vscode.TextEditor[] = vscode.window.visibleTextEditors;
-    editors.forEach(function (editor: vscode.TextEditor) {
-      if (editor.document === document) {
-        requestImmediateLint(editor.document);
-      }
-    });
+    requestLint(document);
   }));
 
-  // Register onDidChangeActiveTextEditor event - request immediate lint
-  context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(editors => {
-    editors.forEach(function (editor: vscode.TextEditor) {
-      requestImmediateLint(editor.document);
-    });
+  // Register onDidChangeActiveTextEditor event - request lint
+  // I think this is uneccessary.
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+    if (editor) {
+      if (isSupportedLanguageId(editor.document.languageId)) {
+        requestLint(editor.document);
+      }
+    }
   }));
 
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestImmediateLint(document);
+    if (isSupportedLanguageId(document.languageId)) {
+      requestLint(document);
+    }
   }));
 
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    if (ltConfig.get('lintOnChange')) {
-      requestLint(event.document);
+    if (ltConfig.get("lintOnChange")) {
+      if (isSupportedLanguageId(event.document.languageId)) {
+        requestLint(event.document);
+      }
     }
   }));
 
@@ -345,11 +423,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(document => {
     cancelLint(document);
     diagnosticCollection.delete(document.uri);
-  }));
-
-  // Register onDidSaveTextDocument event - request immediate lint
-  context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    requestImmediateLint(document);
   }));
 
   // Register Code Actions Provider for supported languages
@@ -369,17 +442,26 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register "Lint Current Document" TextEditorCommand
-  let lintCommand = vscode.commands.registerTextEditorCommand('languagetoolLinter.lintCurrentDocument', (editor, edit) => {
-    requestLint(editor.document, 0);
+  let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor, edit) => {
+    if (isSupportedLanguageId(editor.document.languageId)) {
+      requestLint(editor.document, 0);
+    }
   });
   context.subscriptions.push(lintCommand);
 
-  // Lint Active Editor on Activate
+  // Lint Visible Text Editors on Activate
   if (vscode.window.activeTextEditor) {
-    requestLint(vscode.window.activeTextEditor.document);
+    let firstDelay = LT_TIMEOUT_MS;
+    if (ltConfig.get("serviceType") === "managed") {
+      // Add a second to give the service time to start up.
+      firstDelay += 1000;
+    }
+    requestLint(vscode.window.activeTextEditor.document, firstDelay);
   }
 }
 
-export function deactivate() { }
+export function deactivate() {
+  stopManagedService();
+}
 
 

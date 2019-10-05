@@ -66,9 +66,9 @@
         },
         "languageToolLinter.serviceType": {
           "type": "string",
-          "default": "custom",
+          "default": "external",
           "description": "What kind of LanguageTool service to use: external (default), public, or managed.",
-          "enum":[
+          "enum": [
             "external",
             "managed",
             "public"
@@ -84,15 +84,10 @@
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
-        "languageToolLinter.task.jarFile": {
+        "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
           "description": "Path to languagetool-server.jar on your local machine."
-        },
-        "languageToolLinter.task.port": {
-          "type": "number",
-          "default": "8081",
-          "description": "Port to use for LanguageTool Server Task."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",
@@ -316,18 +311,20 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.12.21",
+    "@types/node": "^10.14.20",
     "@types/vscode": "^1.38.0",
     "glob": "^7.1.4",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.1",
     "tslint": "^5.20.0",
     "typescript": "^3.3.1",
     "vscode-test": "^1.2.0"
   },
   "dependencies": {
-    "@types/request-promise-native": "^1.0.16",
+    "@types/request-promise-native": "^1.0.17",
     "annotatedtext-rehype": "^0.1.0",
     "annotatedtext-remark": "^0.1.0",
+    "execa": "^2.0.5",
+    "portfinder": "^1.0.24",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5"
   }
