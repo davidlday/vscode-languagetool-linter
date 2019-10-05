@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.38.0"
   },
@@ -64,15 +64,30 @@
           "default": false,
           "description": "Lint every time the document changes. Use with caution."
         },
-        "languageToolLinter.publicApi": {
-          "type": "boolean",
-          "default": false,
-          "description": "Use the public LanguageTool API Service."
+        "languageToolLinter.serviceType": {
+          "type": "string",
+          "default": "external",
+          "description": "What kind of LanguageTool service to use: external (default), public, or managed.",
+          "enum": [
+            "external",
+            "managed",
+            "public"
+          ],
+          "enumDescriptions": [
+            "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
+            "Let LanguageTool Linter manage a local service. Specify the path to the script in 'Script'.",
+            "Use the public LanguageTool API Service at https://languagetool.org/api."
+          ]
         },
-        "languageToolLinter.url": {
+        "languageToolLinter.external.url": {
           "type": "string",
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
+        },
+        "languageToolLinter.managed.jarFile": {
+          "type": "string",
+          "default": "",
+          "description": "Path to languagetool-server.jar on your local machine."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",
@@ -296,18 +311,20 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.12.21",
+    "@types/node": "^10.14.20",
     "@types/vscode": "^1.38.0",
     "glob": "^7.1.4",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.1",
     "tslint": "^5.20.0",
     "typescript": "^3.3.1",
     "vscode-test": "^1.2.0"
   },
   "dependencies": {
-    "@types/request-promise-native": "^1.0.16",
+    "@types/request-promise-native": "^1.0.17",
     "annotatedtext-rehype": "^0.1.0",
     "annotatedtext-remark": "^0.1.0",
+    "execa": "^2.0.5",
+    "portfinder": "^1.0.24",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5"
   }
