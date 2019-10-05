@@ -60,7 +60,7 @@ Make sure you read and understand [LanguageTool's Public API](http://wiki.langua
 Most configuration items should be safe, but there are three you should pay particular attention to:
 
 1. *Public Api*: This will use [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api) service. If you violate their conditions, they'll block your IP address.
-2. *Lint on Change*: This will make a call to the LanguageTool API on every change. If you mix this with the *Public Api*, you're more likely to violate their conditions and get your IP address blocked. I prefer to set VS Code's [Auto Save](https://code.visualstudio.com/docs/editor/codebasics#_save-auto-save) to `afterDelay`, set for 1000ms (default).
+2. *Lint on Change*: This will make a call to the LanguageTool API on every change. If you mix this with the *Public Api*, you're more likely to violate their conditions and get your IP address blocked.
 3. *Language Tool: Preferred Variants*: If you set this, then *Language Tool: Language* must be set to `auto`. If it isn't, the service will throw an error.
 
 Below is the full configuration for reference:
