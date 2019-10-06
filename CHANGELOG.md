@@ -4,6 +4,12 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+## [0.2.1] - 2019-10-06
+
+### Fixed
+
+* Checking occurred on non-file documents (i.e. git). Lint functions now check to make sure documents passed in have a [URI](https://code.visualstudio.com/api/references/vscode-api#Uri) schema of "file". See [issue #9](https://github.com/davidlday/vscode-languagetool-linter/issues/9).
+
 ## [0.2.0] - 2019-10-05
 
 ### Added
