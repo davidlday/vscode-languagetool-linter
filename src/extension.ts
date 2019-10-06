@@ -14,12 +14,12 @@
  *   limitations under the License.
  */
 
-import * as vscode from "vscode";
-import * as remarkBuilder from "annotatedtext-remark";
 import * as rehypeBuilder from "annotatedtext-rehype";
-import * as rp from "request-promise-native";
+import * as remarkBuilder from "annotatedtext-remark";
 import * as execa from "execa";
 import * as portfinder from 'portfinder';
+import * as rp from "request-promise-native";
+import * as vscode from "vscode";
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
@@ -214,8 +214,11 @@ function stopManagedService() {
 }
 
 // Is Launguage ID Supported?
-function isSupportedLanguageId(languageId: string): boolean {
-  return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(languageId) > -1);
+function isSupportedDocument(document: vscode.TextDocument): boolean {
+  if (document.uri.scheme === "file") {
+    return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(document.languageId) > -1);
+  }
+  return false;
 }
 
 // Set ltPostDataTemplate from Configuration
@@ -264,7 +267,7 @@ function cancelLint(document: vscode.TextDocument): void {
 
 // Request lint
 function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
-  if (isSupportedLanguageId(document.languageId)) {
+  if (isSupportedDocument(document)) {
     cancelLint(document);
     let uriString = document.uri.toString();
     let timeout = setTimeout(() => {
@@ -277,7 +280,7 @@ function requestLint(document: vscode.TextDocument, timeoutDuration: number = LT
 
 // Perform Lint on Document
 function lintDocument(document: vscode.TextDocument): void {
-  if (isSupportedLanguageId(document.languageId)) {
+  if (isSupportedDocument(document)) {
     if (document.languageId === "markdown") {
       let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
       lintAnnotatedText(document, annotatedMarkdown);
@@ -353,16 +356,20 @@ function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): v
 
 // Lint Plain Text Document
 function lintPlaintext(document: vscode.TextDocument): void {
-  let ltPostDataDict: any = getPostDataTemplate();
-  ltPostDataDict["text"] = document.getText();
-  callLanguageTool(document, ltPostDataDict);
+  if (isSupportedDocument(document)) {
+    let ltPostDataDict: any = getPostDataTemplate();
+    ltPostDataDict["text"] = document.getText();
+    callLanguageTool(document, ltPostDataDict);
+  }
 }
 
 // Lint Annotated Text
 function lintAnnotatedText(document: vscode.TextDocument, annotatedText: string): void {
-  let ltPostDataDict: any = getPostDataTemplate();
-  ltPostDataDict["data"] = annotatedText;
-  callLanguageTool(document, ltPostDataDict);
+  if (isSupportedDocument(document)) {
+    let ltPostDataDict: any = getPostDataTemplate();
+    ltPostDataDict["data"] = annotatedText;
+    callLanguageTool(document, ltPostDataDict);
+  }
 }
 
 // Wonder Twin Powers, Activate!
@@ -394,28 +401,21 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register onDidChangeActiveTextEditor event - request lint
-  // I think this is uneccessary.
   context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
     if (editor) {
-      if (isSupportedLanguageId(editor.document.languageId)) {
-        requestLint(editor.document);
-      }
+      requestLint(editor.document);
     }
   }));
 
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
-    if (isSupportedLanguageId(document.languageId)) {
-      requestLint(document);
-    }
+    requestLint(document);
   }));
 
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
     if (ltConfig.get("lintOnChange")) {
-      if (isSupportedLanguageId(event.document.languageId)) {
-        requestLint(event.document);
-      }
+      requestLint(event.document);
     }
   }));
 
@@ -443,13 +443,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register "Lint Current Document" TextEditorCommand
   let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor, edit) => {
-    if (isSupportedLanguageId(editor.document.languageId)) {
-      requestLint(editor.document, 0);
-    }
+    requestLint(editor.document, 0);
   });
   context.subscriptions.push(lintCommand);
 
-  // Lint Visible Text Editors on Activate
+  // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {
     let firstDelay = LT_TIMEOUT_MS;
     if (ltConfig.get("serviceType") === "managed") {
