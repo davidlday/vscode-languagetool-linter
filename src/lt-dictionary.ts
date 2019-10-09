@@ -17,9 +17,9 @@
 // A custom list of words to be ignored
 // at both the User and Workspace level
 
-export class LTDictionary() {
+export class LTDictionary {
 
-  const SPELLING_RULE_PREFIXES: string[] = [
+  SPELLING_RULE_PREFIXES: string[] = [
     "MORFOLOGIK_RULE",
     "SPELLER_RULE",
     "HUNSPELL_NO_SUGGEST_RULE",
@@ -27,8 +27,8 @@ export class LTDictionary() {
     "FR_SPELLING_RULE"
   ];
 
-  function isSpellingRule(ruleId: string): Boolean {
-    SPELLING_RULE_PREFIXES.forEach(function (prefix) {
+  isSpellingRule(ruleId: string): Boolean {
+    this.SPELLING_RULE_PREFIXES.forEach(function (prefix) {
       if (ruleId.indexOf(prefix) !== -1) {
         return true;
       }
