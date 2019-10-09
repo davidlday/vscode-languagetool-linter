@@ -20,6 +20,7 @@ import * as execa from "execa";
 import * as portfinder from 'portfinder';
 import * as rp from "request-promise-native";
 import * as vscode from "vscode";
+import * as ltdictionary from "./lt-dictionary";
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
@@ -47,6 +48,7 @@ let outputChannel: vscode.OutputChannel;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltServerProcess: execa.ExecaChildProcess | undefined;
 let ltUrl: string | undefined;
+let dictionary: ltdictionary.LTDictionary;
 
 // Interface - LanguageTool Response
 interface LTResponse {
@@ -166,7 +168,6 @@ function setServiceType(serviceType: string): string {
 // Service will be stopped and restarted every time.
 function startManagedService() {
   let jarFile: string = ltConfig.get("managed.jarFile") as string;
-  let serviceType: string = ltConfig.get("serviceType") as string;
   let newUrl: string = "";
   stopManagedService();
   portfinder.getPort({host: "127.0.0.1"}, function (error, port) {
