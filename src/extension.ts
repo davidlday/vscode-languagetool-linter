@@ -48,7 +48,8 @@ let outputChannel: vscode.OutputChannel;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltServerProcess: execa.ExecaChildProcess | undefined;
 let ltUrl: string | undefined;
-let dictionary: ltdictionary.LTDictionary;
+let userDictionary: ltdictionary.LTDictionary;
+let workspaceDictionary: ltdictionary.LTDictionary | undefined;
 
 // Interface - LanguageTool Response
 interface LTResponse {
@@ -235,23 +236,24 @@ function getPostDataTemplate(): any {
   return ltPostDataTemplate;
 }
 
-function reloadConfiguration(event: vscode.ConfigurationChangeEvent) {
-  outputChannel.appendLine("Configuration changed.");
-  ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
-  let serviceType: string = ltConfig.get("serviceType") as string;
-  ltUrl = setServiceType(serviceType);
-  // Did the jarFile also change? Then the server process also needs restarted
-  if (serviceType === "managed" && event.affectsConfiguration("languageToolLinter.managed.jarFile")) {
-    startManagedService();
-  }
-}
-
 // Load Configuration
-function loadConfiguration(): void {
-  outputChannel.appendLine("Loading initial configuration.");
+function loadConfiguration(event?: vscode.ConfigurationChangeEvent): void {
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
-  ltUrl = setServiceType(serviceType);
+  if (event && event.affectsConfiguration("languageToolLinter.serviceType")) {
+    outputChannel.appendLine("Service configuration changed.");
+    // Did the jarFile also change? Then the server process also needs restarted
+    if (serviceType === "managed" && event.affectsConfiguration("languageToolLinter.managed.jarFile")) {
+      startManagedService();
+    } else {
+      // Reloading due to configuration change.
+      ltUrl = setServiceType(serviceType);
+    }
+  } else {
+    // Load the whole thing.
+    outputChannel.appendLine("Loading initial configuration.");
+    ltUrl = setServiceType(serviceType);
+  }
 }
 
 // Cancel lint
@@ -392,7 +394,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
     if (event.affectsConfiguration("languageToolLinter")) {
-      reloadConfiguration(event);
+      loadConfiguration(event);
     }
   }));
 
