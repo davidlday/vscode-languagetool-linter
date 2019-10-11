@@ -14,27 +14,56 @@
  *   limitations under the License.
  */
 
-// A custom list of words to be ignored
-// at both the User and Workspace level
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class LTDictionary {
 
-  SPELLING_RULE_PREFIXES: string[] = [
-    "MORFOLOGIK_RULE",
-    "SPELLER_RULE",
-    "HUNSPELL_NO_SUGGEST_RULE",
-    "HUNSPELL_RULE",
-    "FR_SPELLING_RULE"
-  ];
+  dictionaryFile: fs.PathLike;
+  dictionaryMap: Map<string, Set<string>>;
 
-  isSpellingRule(ruleId: string): Boolean {
-    this.SPELLING_RULE_PREFIXES.forEach(function (prefix) {
-      if (ruleId.indexOf(prefix) !== -1) {
-        return true;
-      }
-    });
+  constructor(dictionaryFile: string) {
+    this.dictionaryFile = dictionaryFile;
+    this.dictionaryMap = new Map<string, Set<string>>();
+  }
+
+  getWords(ruleId: string): Set<string> {
+    let words: Set<string> | undefined = this.dictionaryMap.get(ruleId);
+    if (words) {
+      return words;
+    } else {
+      return new Set<string>();
+    }
+  }
+
+  hasWord(ruleId: string, word: string): boolean {
+    let words = this.dictionaryMap.get(ruleId);
+    if (words && words.has(word)) {
+      return true;
+    }
     return false;
   }
 
-}
+  addWord(ruleId: string, word: string): void {
+    let words = this.getWords(ruleId).add(word);
+    this.dictionaryMap.set(ruleId, words);
+  }
 
+  removeWord(ruleId: string, word: string): boolean {
+    let words = this.getWords(ruleId);
+    if (words.delete(word)) {
+      this.dictionaryMap.set(ruleId, words);
+      return true;
+    }
+    return false;
+  }
+
+  loadDictionaryMap(): boolean {
+    return true;
+  }
+
+  saveDictionaryMap(): boolean {
+    return true;
+  }
+
+}
