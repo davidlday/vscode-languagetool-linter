@@ -15,11 +15,10 @@ install:
   - npm install
   - npm run compile
   - npm run vscode:prepublish
-  - vsce package
-  - ls -ll *vsix
 script:
   - npm test --silent
   - vsce package
+  - ls -ll *vsix
 deploy:
   provider: releases
   api_key:
