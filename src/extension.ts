@@ -20,7 +20,7 @@ import * as execa from "execa";
 import * as portfinder from 'portfinder';
 import * as rp from "request-promise-native";
 import * as vscode from "vscode";
-import { SmartQuotesFormatter } from './typeFormatters/smartQuotesFormatter';
+import { SmartQuotesFormattingProvider } from './typeFormatters/smartQuotesFormatter';
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
@@ -426,8 +426,6 @@ export function activate(context: vscode.ExtensionContext) {
     diagnosticCollection.delete(document.uri);
   }));
 
-  const smartQuotesFormatter = new SmartQuotesFormatter();
-
   // Register Code Actions Provider for supported languages
   LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
     LT_DOCUMENT_SCHEMES.forEach(function (documentScheme) {
@@ -435,7 +433,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider())
       );
       context.subscriptions.push(
-        vscode.languages.registerOnTypeFormattingEditProvider({ scheme: documentScheme, language: id }, smartQuotesFormatter, ' ')
+        vscode.languages.registerOnTypeFormattingEditProvider({ scheme: documentScheme, language: id }, new SmartQuotesFormattingProvider(), '"', "'")
       );
     });
   });
