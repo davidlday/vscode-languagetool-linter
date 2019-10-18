@@ -20,7 +20,6 @@ import * as execa from "execa";
 import * as portfinder from 'portfinder';
 import * as rp from "request-promise-native";
 import * as vscode from "vscode";
-import * as ltdictionary from "./lt-dictionary";
 
 // Constants
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
@@ -48,8 +47,6 @@ let outputChannel: vscode.OutputChannel;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltServerProcess: execa.ExecaChildProcess | undefined;
 let ltUrl: string | undefined;
-let userDictionary: ltdictionary.LTDictionary;
-let workspaceDictionary: ltdictionary.LTDictionary | undefined;
 
 // Interface - LanguageTool Response
 interface LTResponse {
