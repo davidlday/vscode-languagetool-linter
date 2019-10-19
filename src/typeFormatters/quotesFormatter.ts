@@ -1,7 +1,7 @@
 // import { CancellationToken, FormattingOptions, OnTypeFormattingEditProvider, Position, TextDocument, TextEdit, TextLine, Range } from 'vscode';
 import * as vscode from 'vscode';
 
-export class SmartQuotesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
+export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
   private readonly startDoubleQuote: string = '“';
   private readonly endDoubleQuote: string = '”';
   private readonly startSingleQuote: string = '‘';
