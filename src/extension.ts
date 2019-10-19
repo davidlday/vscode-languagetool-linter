@@ -20,9 +20,10 @@ import * as execa from "execa";
 import * as portfinder from 'portfinder';
 import * as rp from "request-promise-native";
 import * as vscode from "vscode";
-import { QuotesFormattingProvider } from './typeFormatters/quotesFormatter';
 import { DashesFormattingProvider } from './typeFormatters/dashesFormatter';
+import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
 import { OnTypeFormattingDispatcher } from './typeFormatters/dispatcher';
+import { QuotesFormattingProvider } from './typeFormatters/quotesFormatter';
 import { LT_DOCUMENT_SELECTORS } from './common/constants';
 
 // Constants
@@ -173,7 +174,7 @@ function startManagedService() {
   let jarFile: string = ltConfig.get("managed.jarFile") as string;
   let newUrl: string = "";
   stopManagedService();
-  portfinder.getPort({host: "127.0.0.1"}, function (error, port) {
+  portfinder.getPort({ host: "127.0.0.1" }, function (error, port) {
     if (error) {
       outputChannel.appendLine("Error getting open port: " + error.message);
       outputChannel.show(true);
@@ -439,31 +440,19 @@ export function activate(context: vscode.ExtensionContext) {
     const onTypeDispatcher = new OnTypeFormattingDispatcher({
       '"': new QuotesFormattingProvider(),
       "'": new QuotesFormattingProvider(),
-      '-': new DashesFormattingProvider()
+      '-': new DashesFormattingProvider(),
+      '.': new EllipsesFormattingProvider()
     });
     const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
     if (onTypeTriggers) {
       context.subscriptions.push(
-      vscode.languages.registerOnTypeFormattingEditProvider(selector,
-        onTypeDispatcher,
-        onTypeTriggers.first,
-        ...onTypeTriggers.more)
+        vscode.languages.registerOnTypeFormattingEditProvider(selector,
+          onTypeDispatcher,
+          onTypeTriggers.first,
+          ...onTypeTriggers.more)
       );
     }
   });
-  // LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
-  //   LT_DOCUMENT_SCHEMES.forEach(function (documentScheme) {
-  //     context.subscriptions.push(
-  //       vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider())
-  //     );
-  //     context.subscriptions.push(
-  //       vscode.languages.registerOnTypeFormattingEditProvider({ scheme: documentScheme, language: id }, new SmartQuotesFormattingProvider(), '"', "'")
-  //     );
-  //     context.subscriptions.push(
-  //       vscode.languages.registerOnTypeFormattingEditProvider({ scheme: documentScheme, language: id }, new SmartDashesFormattingProvider(), '-')
-  //     );
-  //   });
-  // });
 
   // Register onDidCloseTextDocument event
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(event => {
