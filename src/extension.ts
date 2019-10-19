@@ -24,7 +24,7 @@ import { DashesFormattingProvider } from './typeFormatters/dashesFormatter';
 import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
 import { OnTypeFormattingDispatcher } from './typeFormatters/dispatcher';
 import { QuotesFormattingProvider } from './typeFormatters/quotesFormatter';
-import { LT_DOCUMENT_SELECTORS } from './common/constants';
+import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL } from './common/constants';
 
 // Constants
 // TODO: Move these to ./common/constants.ts
@@ -49,7 +49,7 @@ let diagnosticCollection: vscode.DiagnosticCollection;
 let diagnosticMap: Map<string, vscode.Diagnostic[]>;
 let codeActionMap: Map<string, vscode.CodeAction[]>;
 let timeoutMap: Map<string, NodeJS.Timeout>;
-let outputChannel: vscode.OutputChannel;
+// let outputChannel: vscode.LT_OUTPUT_CHANNEL;
 let ltConfig: vscode.WorkspaceConfiguration;
 let ltServerProcess: execa.ExecaChildProcess | undefined;
 let ltUrl: string | undefined;
@@ -151,7 +151,7 @@ function setServiceType(serviceType: string): string {
       let ltConfigUrl: string = ltConfig.get("external.url") as string;
       newUrl = ltConfigUrl + LT_CHECK_PATH;
       stopManagedService();
-      outputChannel.appendLine("Now using " + serviceType + " service URL: " + newUrl);
+      LT_OUTPUT_CHANNEL.appendLine("Now using " + serviceType + " service URL: " + newUrl);
       break;
     }
     case "managed": {
@@ -161,7 +161,7 @@ function setServiceType(serviceType: string): string {
     case "public": {
       newUrl = LT_PUBLIC_URL + LT_CHECK_PATH;
       stopManagedService();
-      outputChannel.appendLine("Now using " + serviceType + " service URL: " + newUrl);
+      LT_OUTPUT_CHANNEL.appendLine("Now using " + serviceType + " service URL: " + newUrl);
       break;
     }
   }
@@ -176,8 +176,8 @@ function startManagedService() {
   stopManagedService();
   portfinder.getPort({ host: "127.0.0.1" }, function (error, port) {
     if (error) {
-      outputChannel.appendLine("Error getting open port: " + error.message);
-      outputChannel.show(true);
+      LT_OUTPUT_CHANNEL.appendLine("Error getting open port: " + error.message);
+      LT_OUTPUT_CHANNEL.show(true);
     } else {
       ltUrl = "http://localhost:" + port.toString() + LT_CHECK_PATH;
       let args: string[] = [
@@ -187,22 +187,22 @@ function startManagedService() {
         "--port",
         port.toString()
       ];
-      outputChannel.appendLine("Starting managed service.");
+      LT_OUTPUT_CHANNEL.appendLine("Starting managed service.");
       (ltServerProcess = execa("java", args)).catch(function (error) {
         if (error.isCanceled) {
-          outputChannel.appendLine("Managed service process stopped.");
+          LT_OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
         } else if (error.failed) {
-          outputChannel.appendLine("Managed service command failed: " + error.command);
-          outputChannel.appendLine("Error Message: " + error.message);
-          outputChannel.show(true);
+          LT_OUTPUT_CHANNEL.appendLine("Managed service command failed: " + error.command);
+          LT_OUTPUT_CHANNEL.appendLine("Error Message: " + error.message);
+          LT_OUTPUT_CHANNEL.show(true);
         }
       });
       ltServerProcess.stderr.addListener("data", function (data) {
-        outputChannel.appendLine(data);
-        outputChannel.show(true);
+        LT_OUTPUT_CHANNEL.appendLine(data);
+        LT_OUTPUT_CHANNEL.show(true);
       });
       ltServerProcess.stdout.addListener("data", function (data) {
-        outputChannel.appendLine(data);
+        LT_OUTPUT_CHANNEL.appendLine(data);
       });
     }
   });
@@ -212,7 +212,7 @@ function startManagedService() {
 // Stop the managed service
 function stopManagedService() {
   if (ltServerProcess) {
-    outputChannel.appendLine("Closing managed service server.");
+    LT_OUTPUT_CHANNEL.appendLine("Closing managed service server.");
     ltServerProcess.cancel();
     ltServerProcess = undefined;
   }
@@ -244,7 +244,7 @@ function loadConfiguration(event?: vscode.ConfigurationChangeEvent): void {
   ltConfig = vscode.workspace.getConfiguration("languageToolLinter");
   let serviceType: string = ltConfig.get("serviceType") as string;
   if (event && event.affectsConfiguration("languageToolLinter.serviceType")) {
-    outputChannel.appendLine("Service configuration changed.");
+    LT_OUTPUT_CHANNEL.appendLine("Service configuration changed.");
     // Did the jarFile also change? Then the server process also needs restarted
     if (serviceType === "managed" && event.affectsConfiguration("languageToolLinter.managed.jarFile")) {
       startManagedService();
@@ -254,7 +254,7 @@ function loadConfiguration(event?: vscode.ConfigurationChangeEvent): void {
     }
   } else {
     // Load the whole thing.
-    outputChannel.appendLine("Loading initial configuration.");
+    LT_OUTPUT_CHANNEL.appendLine("Loading initial configuration.");
     ltUrl = setServiceType(serviceType);
   }
 }
@@ -350,13 +350,13 @@ function callLanguageTool(document: vscode.TextDocument, ltPostDataDict: any): v
         suggest(document, data);
       })
       .catch(function (err) {
-        outputChannel.appendLine("Error connecting to " + ltUrl);
-        outputChannel.appendLine(err);
-        outputChannel.show(true);
+        LT_OUTPUT_CHANNEL.appendLine("Error connecting to " + ltUrl);
+        LT_OUTPUT_CHANNEL.appendLine(err);
+        LT_OUTPUT_CHANNEL.show(true);
       });
   } else {
-    outputChannel.appendLine("No LanguageTool URL provided. Please check your settings and try again.");
-    outputChannel.show(true);
+    LT_OUTPUT_CHANNEL.appendLine("No LanguageTool URL provided. Please check your settings and try again.");
+    LT_OUTPUT_CHANNEL.show(true);
   }
 }
 
@@ -384,9 +384,9 @@ export function activate(context: vscode.ExtensionContext) {
   diagnosticCollection = vscode.languages.createDiagnosticCollection(LT_DISPLAY_NAME);
   context.subscriptions.push(diagnosticCollection);
 
-  outputChannel = vscode.window.createOutputChannel("LanguageTool Linter");
-  context.subscriptions.push(outputChannel);
-  outputChannel.appendLine("LanguageTool Linter Activated!");
+  // outputChannel = vscode.window.createOutputChannel("LanguageTool Linter");
+  context.subscriptions.push(LT_OUTPUT_CHANNEL);
+  LT_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
 
   diagnosticMap = new Map();
   codeActionMap = new Map();
