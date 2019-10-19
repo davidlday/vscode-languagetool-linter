@@ -20,9 +20,13 @@ import * as execa from "execa";
 import * as portfinder from 'portfinder';
 import * as rp from "request-promise-native";
 import * as vscode from "vscode";
-import { SmartQuotesFormattingProvider } from './typeFormatters/smartQuotesFormatter';
+import { QuotesFormattingProvider } from './typeFormatters/quotesFormatter';
+import { DashesFormattingProvider } from './typeFormatters/dashesFormatter';
+import { OnTypeFormattingDispatcher } from './typeFormatters/dispatcher';
+import { LT_DOCUMENT_SELECTORS } from './common/constants';
 
 // Constants
+// TODO: Move these to ./common/constants.ts
 const LT_DOCUMENT_LANGUAGE_IDS: string[] = ["markdown", "html", "plaintext"];
 const LT_DOCUMENT_SCHEMES: string[] = ["file", "untitled"];
 const LT_PUBLIC_URL: string = "https://languagetool.org/api";
@@ -427,16 +431,39 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register Code Actions Provider for supported languages
-  LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
-    LT_DOCUMENT_SCHEMES.forEach(function (documentScheme) {
-      context.subscriptions.push(
-        vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider())
-      );
-      context.subscriptions.push(
-        vscode.languages.registerOnTypeFormattingEditProvider({ scheme: documentScheme, language: id }, new SmartQuotesFormattingProvider(), '"', "'")
-      );
+  LT_DOCUMENT_SELECTORS.forEach(function (selector: vscode.DocumentSelector) {
+    context.subscriptions.push(
+      vscode.languages.registerCodeActionsProvider(selector, new LTCodeActionProvider())
+    );
+
+    const onTypeDispatcher = new OnTypeFormattingDispatcher({
+      '"': new QuotesFormattingProvider(),
+      "'": new QuotesFormattingProvider(),
+      '-': new DashesFormattingProvider()
     });
+    const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
+    if (onTypeTriggers) {
+      context.subscriptions.push(
+      vscode.languages.registerOnTypeFormattingEditProvider(selector,
+        onTypeDispatcher,
+        onTypeTriggers.first,
+        ...onTypeTriggers.more)
+      );
+    }
   });
+  // LT_DOCUMENT_LANGUAGE_IDS.forEach(function (id) {
+  //   LT_DOCUMENT_SCHEMES.forEach(function (documentScheme) {
+  //     context.subscriptions.push(
+  //       vscode.languages.registerCodeActionsProvider({ scheme: documentScheme, language: id }, new LTCodeActionProvider())
+  //     );
+  //     context.subscriptions.push(
+  //       vscode.languages.registerOnTypeFormattingEditProvider({ scheme: documentScheme, language: id }, new SmartQuotesFormattingProvider(), '"', "'")
+  //     );
+  //     context.subscriptions.push(
+  //       vscode.languages.registerOnTypeFormattingEditProvider({ scheme: documentScheme, language: id }, new SmartDashesFormattingProvider(), '-')
+  //     );
+  //   });
+  // });
 
   // Register onDidCloseTextDocument event
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(event => {
