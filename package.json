@@ -321,7 +321,7 @@
   },
   "dependencies": {
     "@types/request-promise-native": "^1.0.17",
-    "annotatedtext-rehype": "^0.1.0",
+    "annotatedtext-rehype": "^0.1.1",
     "annotatedtext-remark": "^0.1.1",
     "execa": "^3.2.0",
     "portfinder": "^1.0.25",
