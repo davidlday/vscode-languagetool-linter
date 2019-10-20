@@ -54,6 +54,11 @@
       "type": "object",
       "title": "LanguageTool Linter",
       "properties": {
+        "languageToolLinter.autoformat.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run autoformat as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
+        },
         "languageToolLinter.enabled": {
           "type": "boolean",
           "default": true,
