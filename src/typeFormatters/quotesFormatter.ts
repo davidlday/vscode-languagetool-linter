@@ -26,8 +26,6 @@ export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProv
     const prevCh: string = (position.character > 1) ? line.text.charAt(position.character - 2) : " ";
     const nextCh: string = (position.character < line.text.length) ? line.text.charAt(line.text.length + 1) : " ";
 
-    console.log("'" + prevCh + ch + nextCh + "'");
-
     if (this.config.isAutoFormatEnabled()) {
       switch (ch) {
         case '"':
