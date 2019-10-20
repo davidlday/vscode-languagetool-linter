@@ -18,10 +18,12 @@ import * as vscode from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
 
 export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-  private readonly startDoubleQuote: string = '“';
-  private readonly endDoubleQuote: string = '”';
-  private readonly startSingleQuote: string = '‘';
-  private readonly endSingleQuote: string = '’';
+  static readonly startDoubleQuote: string = '“';
+  static readonly endDoubleQuote: string = '”';
+  static readonly startSingleQuote: string = '‘';
+  static readonly endSingleQuote: string = '’';
+  static readonly doubleQuote: string = '"';
+  static readonly singleQuote: string = "'";
   private readonly config: ConfigurationManager;
   static readonly triggers: string[] = ['"', "'"];
 
@@ -43,18 +45,18 @@ export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProv
 
     if (this.config.isAutoFormatEnabled()) {
       switch (ch) {
-        case '"':
+        case QuotesFormattingProvider.doubleQuote:
           if (prevCh === " ") {
-            return [new vscode.TextEdit(chRange, this.startDoubleQuote)];
+            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.startDoubleQuote)];
           } else if (nextCh === " ") {
-            return [new vscode.TextEdit(chRange, this.endDoubleQuote)];
+            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.endDoubleQuote)];
           }
           break;
-        case "'":
-          if ([" ", '"', this.startDoubleQuote].indexOf(prevCh) !== -1) {
-            return [new vscode.TextEdit(chRange, this.startSingleQuote)];
+        case QuotesFormattingProvider.singleQuote:
+          if ([" ", '"', QuotesFormattingProvider.startDoubleQuote].indexOf(prevCh) !== -1) {
+            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.startSingleQuote)];
           } else {
-            return [new vscode.TextEdit(chRange, this.endSingleQuote)];
+            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.endSingleQuote)];
           }
         default:
           break;

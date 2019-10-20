@@ -18,9 +18,9 @@ import * as vscode from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
 
 export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-  private readonly emDash: string = '—';
-  private readonly enDash: string = '–';
-  private readonly hyphen: string = '-';
+  static readonly emDash: string = '—';
+  static readonly enDash: string = '–';
+  static readonly hyphen: string = '-';
   private readonly config: ConfigurationManager;
   static readonly triggers: string[] = ['-'];
 
@@ -41,14 +41,14 @@ export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProv
     const prevPrevCh: string = (position.character > 1) ? line.text.charAt(position.character - 3) : " ";
 
     if (this.config.isAutoFormatEnabled()) {
-      if (prevCh === this.enDash) {
-        return [new vscode.TextEdit(range, this.emDash)];
-      } else if (prevCh === this.hyphen) {
-        if (prevPrevCh === this.hyphen) {
+      if (prevCh === DashesFormattingProvider.enDash) {
+        return [new vscode.TextEdit(range, DashesFormattingProvider.emDash)];
+      } else if (prevCh === DashesFormattingProvider.hyphen) {
+        if (prevPrevCh === DashesFormattingProvider.hyphen) {
           let range: vscode.Range = new vscode.Range(position.line, position.character - 3, position.line, position.character);
-          return [new vscode.TextEdit(range, this.emDash)];
+          return [new vscode.TextEdit(range, DashesFormattingProvider.emDash)];
         } else {
-          return [new vscode.TextEdit(range, this.enDash)];
+          return [new vscode.TextEdit(range, DashesFormattingProvider.enDash)];
         }
       }
     }

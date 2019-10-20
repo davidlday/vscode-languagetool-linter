@@ -18,8 +18,8 @@ import * as vscode from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
 
 export class EllipsesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-  private readonly ellipses: string = '…';
-  private readonly period: string = '.';
+  static readonly ellipses: string = '…';
+  static readonly period: string = '.';
   private readonly config: ConfigurationManager;
   static readonly triggers: string[] = ['.'];
 
@@ -40,8 +40,8 @@ export class EllipsesFormattingProvider implements vscode.OnTypeFormattingEditPr
     const prevPrevCh: string = (position.character > 1) ? line.text.charAt(position.character - 3) : " ";
 
     if (this.config.isAutoFormatEnabled()) {
-      if (prevCh === this.period && prevPrevCh === this.period) {
-        return [new vscode.TextEdit(range, this.ellipses)];
+      if (prevCh === EllipsesFormattingProvider.period && prevPrevCh === EllipsesFormattingProvider.period) {
+        return [new vscode.TextEdit(range, EllipsesFormattingProvider.ellipses)];
       }
     }
     return [];
