@@ -1,19 +1,38 @@
-import { TextDocument } from 'vscode';
+import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri } from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
-import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL } from '../common/constants';
+import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
+import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement } from './interfaces';
 
 export class LinterCommands {
-  private config: ConfigurationManager;
-  private url: string | undefined;
+  private readonly config: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
+  diagnosticCollection: DiagnosticCollection;
+  diagnosticMap: Map<string, Diagnostic[]> = new Map();
+  codeActionMap: Map<string, CodeAction[]> = new Map();
 
-  constructor(config: ConfigurationManager, ltUrl: string) {
+  constructor(config: ConfigurationManager) {
     this.config = config;
-    this.url = config.getUrl();
     this.timeoutMap = new Map();
+    this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
+  }
+
+  deleteFromDiagnosticCollection(uri: Uri): void {
+    this.diagnosticCollection.delete(uri);
+  }
+
+  getDiagnosticCollection(): DiagnosticCollection {
+    return this.diagnosticCollection;
+  }
+
+  getDiagnosticMap(): Map<string, Diagnostic[]> {
+    return this.diagnosticMap;
+  }
+
+  getCodeActionMap(): Map<string, CodeAction[]> {
+    return this.codeActionMap;
   }
 
   requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
@@ -29,7 +48,7 @@ export class LinterCommands {
   }
 
   // Cancel lint
-  private cancelLint(document: TextDocument): void {
+  cancelLint(document: TextDocument): void {
     let uriString = document.uri.toString();
     if (this.timeoutMap.has(uriString)) {
       let timeout = this.timeoutMap.get(uriString);
@@ -58,8 +77,7 @@ export class LinterCommands {
   // Set ltPostDataTemplate from Configuration
   private getPostDataTemplate(): any {
     let ltPostDataTemplate: any = {};
-    let configManager: ConfigurationManager = this.config;
-    configManager.getServiceParameters().forEach( function(key, value) {
+    this.config.getServiceParameters().forEach(function (value, key) {
       ltPostDataTemplate[key] = value;
     });
     return ltPostDataTemplate;
@@ -67,19 +85,19 @@ export class LinterCommands {
 
   // Call to LanguageTool Service
   private callLanguageTool(document: TextDocument, ltPostDataDict: any): void {
-    let ltUrl = this.config.getUrl();
-    if (ltUrl) {
+    let url = this.config.getUrl();
+    if (url) {
       let options: object = {
         "method": "POST",
         "form": ltPostDataDict,
         "json": true
       };
-      rp.post(ltUrl, options)
-        .then(function (data) {
-          return data;
+      rp.post(url, options)
+        .then((data) => {
+          this.suggest(document, data);
         })
-        .catch(function (err) {
-          LT_OUTPUT_CHANNEL.appendLine("Error connecting to " + ltUrl);
+        .catch((err) => {
+          LT_OUTPUT_CHANNEL.appendLine("Error connecting to " + url);
           LT_OUTPUT_CHANNEL.appendLine(err);
           LT_OUTPUT_CHANNEL.show(true);
         });
@@ -89,23 +107,61 @@ export class LinterCommands {
     }
   }
 
-// Lint Plain Text Document
-lintPlaintext(document: TextDocument): void {
-  if (this.config.isSupportedDocument(document)) {
-    let ltPostDataDict: any = this.getPostDataTemplate();
-    ltPostDataDict["text"] = document.getText();
-    this.callLanguageTool(document, ltPostDataDict);
+  // Lint Plain Text Document
+  lintPlaintext(document: TextDocument): void {
+    if (this.config.isSupportedDocument(document)) {
+      let ltPostDataDict: any = this.getPostDataTemplate();
+      ltPostDataDict["text"] = document.getText();
+      this.callLanguageTool(document, ltPostDataDict);
+    }
   }
-}
 
-// Lint Annotated Text
-lintAnnotatedText(document: TextDocument, annotatedText: string): void {
-  if (this.config.isSupportedDocument(document)) {
-    let ltPostDataDict: any = this.getPostDataTemplate();
-    ltPostDataDict["data"] = annotatedText;
-    this.callLanguageTool(document, ltPostDataDict);
+  // Lint Annotated Text
+  lintAnnotatedText(document: TextDocument, annotatedText: string): void {
+    if (this.config.isSupportedDocument(document)) {
+      let ltPostDataDict: any = this.getPostDataTemplate();
+      ltPostDataDict["data"] = annotatedText;
+      this.callLanguageTool(document, ltPostDataDict);
+    }
   }
-}
+
+  // Convert LanguageTool Suggestions into QuickFix CodeActions
+  private suggest(document: TextDocument, response: ILanguageToolResponse): void {
+    let matches = response.matches;
+    let diagnostics: Diagnostic[] = [];
+    let actions: CodeAction[] = [];
+    matches.forEach(function (match: ILanguageToolMatch) {
+      let start: Position = document.positionAt(match.offset);
+      let end: Position = document.positionAt(match.offset + match.length);
+      let diagnosticRange: Range = new Range(start, end);
+      let diagnosticMessage: string = match.rule.id + ": " + match.message;
+      let diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
+      match.replacements.forEach(function (replacement: ILanguageToolReplacement) {
+        let actionTitle: string = "'" + replacement.value + "'";
+        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+        let location: Location = new Location(document.uri, diagnosticRange);
+        let edit: WorkspaceEdit = new WorkspaceEdit();
+        edit.replace(document.uri, location.range, replacement.value);
+        action.edit = edit;
+        action.diagnostics = [];
+        action.diagnostics.push(diagnostic);
+        actions.push(action);
+      });
+      diagnostic.source = LT_DIAGNOSTIC_SOURCE;
+      diagnostics.push(diagnostic);
+    });
+    this.codeActionMap.set(document.uri.toString(), actions);
+    this.diagnosticMap.set(document.uri.toString(), diagnostics);
+    this.resetDiagnostics();
+  }
+
+  // Reset the Diagnostic Collection
+  resetDiagnostics(): void {
+    this.diagnosticCollection.clear();
+    this.diagnosticMap.forEach((diags, file) => {
+      this.diagnosticCollection.set(Uri.parse(file), diags);
+    });
+  }
 
 
 }
