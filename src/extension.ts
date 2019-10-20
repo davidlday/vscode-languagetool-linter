@@ -155,7 +155,6 @@ export function activate(context: vscode.ExtensionContext) {
       firstDelay += 1000;
     }
     linter.requestLint(vscode.window.activeTextEditor.document, firstDelay);
-    // requestLint(vscode.window.activeTextEditor.document, firstDelay);
   }
 }
 
