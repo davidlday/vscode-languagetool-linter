@@ -19,13 +19,19 @@ import { DashesFormattingProvider } from './typeFormatters/dashesFormatter';
 import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
 import { OnTypeFormattingDispatcher } from './typeFormatters/dispatcher';
 import { QuotesFormattingProvider } from './typeFormatters/quotesFormatter';
-import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_DOCUMENT_LANGUAGE_IDS, LT_CHECK_PATH, LT_PUBLIC_URL, LT_SERVICE_PARAMETERS, LT_TIMEOUT_MS, LT_DISPLAY_NAME, LT_DIAGNOSTIC_SOURCE, LT_SERVICE_MANAGED } from './common/constants';
+import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_TIMEOUT_MS, LT_SERVICE_MANAGED } from './common/constants';
 import { ConfigurationManager } from "./common/configuration";
-import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement } from './linter/interfaces';
 import { LinterCommands } from "./linter/commands";
 
 const config: ConfigurationManager = new ConfigurationManager();
 const linter: LinterCommands = new LinterCommands(config);
+const onTypeDispatcher = new OnTypeFormattingDispatcher({
+  '"': new QuotesFormattingProvider(config),
+  "'": new QuotesFormattingProvider(config),
+  '-': new DashesFormattingProvider(config),
+  '.': new EllipsesFormattingProvider(config)
+});
+const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
 // CodeActionProvider
 class LTCodeActionProvider implements vscode.CodeActionProvider {
@@ -116,13 +122,6 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.languages.registerCodeActionsProvider(selector, new LTCodeActionProvider(linter))
     );
 
-    const onTypeDispatcher = new OnTypeFormattingDispatcher({
-      '"': new QuotesFormattingProvider(config),
-      "'": new QuotesFormattingProvider(config),
-      '-': new DashesFormattingProvider(config),
-      '.': new EllipsesFormattingProvider(config)
-    });
-    const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
     if (onTypeTriggers) {
       context.subscriptions.push(
         vscode.languages.registerOnTypeFormattingEditProvider(selector,
@@ -146,6 +145,65 @@ export function activate(context: vscode.ExtensionContext) {
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(lintCommand);
+
+  // Register "Auto Format Document" TextEditorCommand
+  let autoFormatCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.autoFormatDocument", (editor, edit) => {
+    let i: number = 0;
+    let text: string = editor.document.getText();
+    let newText: string = "";
+    let lastOffset: number = text.length - 1;
+    while (i < lastOffset) {
+      let ch: string = text.charAt(i);
+      let prevCh: string = i > 0 ? text.charAt(i - 1) : " ";
+      let nextCh: string = (i < lastOffset - 1) ? text.charAt(i + 1) : " ";
+      switch (ch) {
+        case QuotesFormattingProvider.doubleQuote:
+          if (prevCh === " ") {
+            newText += QuotesFormattingProvider.startDoubleQuote;
+          } else if (nextCh === " ") {
+            newText += QuotesFormattingProvider.endDoubleQuote;
+          }
+          break;
+        case QuotesFormattingProvider.singleQuote:
+          if ([" ", QuotesFormattingProvider.doubleQuote, QuotesFormattingProvider.startDoubleQuote].indexOf(prevCh) !== -1) {
+            newText += QuotesFormattingProvider.startSingleQuote;
+          } else {
+            newText += QuotesFormattingProvider.endSingleQuote;
+          }
+          break;
+        case DashesFormattingProvider.hyphen:
+          if (prevCh === DashesFormattingProvider.hyphen) {
+            if (nextCh === DashesFormattingProvider.hyphen) {
+              // Clobber previous character
+              newText = newText.substr(0, newText.length - 1) + DashesFormattingProvider.emDash;
+            } else {
+              // Clobber previous character
+              newText = newText.substr(0, newText.length - 1) + DashesFormattingProvider.enDash;
+            }
+            // Eat next character
+            i++;
+            break;
+          }
+        case EllipsesFormattingProvider.period:
+          if (prevCh === EllipsesFormattingProvider.period && nextCh === EllipsesFormattingProvider.period) {
+            // Clobber previous character
+            newText = newText.substr(0, newText.length - 1) + EllipsesFormattingProvider.ellipses;
+            // Eat next character
+            i++;
+            break;
+          }
+        default:
+          newText += ch;
+      }
+      i++;
+    }
+    // Replace the whole thing at once so undo applies to all changes.
+    edit.replace(
+      new vscode.Range(editor.document.positionAt(0), editor.document.positionAt(lastOffset)),
+      newText
+    );
+  });
+  context.subscriptions.push(autoFormatCommand);
 
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {

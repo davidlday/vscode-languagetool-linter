@@ -48,6 +48,10 @@
       {
         "command": "languagetoolLinter.lintCurrentDocument",
         "title": "LanguageTool Linter: Lint Current Document"
+      },
+      {
+        "command": "languagetoolLinter.autoFormatDocument",
+        "title": "LanguageTool Linter: Auto Format Document"
       }
     ],
     "configuration": {
