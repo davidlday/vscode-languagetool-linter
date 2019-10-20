@@ -311,10 +311,10 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.14.20",
+    "@types/node": "^10.14.22",
     "@types/vscode": "^1.39.0",
     "glob": "^7.1.4",
-    "mocha": "^6.2.1",
+    "mocha": "^6.2.2",
     "tslint": "^5.20.0",
     "typescript": "^3.6.4",
     "vscode-test": "^1.2.0"
@@ -322,7 +322,7 @@
   "dependencies": {
     "@types/request-promise-native": "^1.0.17",
     "annotatedtext-rehype": "^0.1.1",
-    "annotatedtext-remark": "^0.1.1",
+    "annotatedtext-remark": "^0.2.0",
     "execa": "^3.2.0",
     "portfinder": "^1.0.25",
     "request": "^2.88.0",
