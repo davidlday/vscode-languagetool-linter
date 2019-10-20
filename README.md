@@ -8,7 +8,7 @@ In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [
 
 ### Breaking Changes
 
-I've tweaked the configuration a little, so you'll need to review the setup options below and make sure you have a valid configuration. See the Changelog for details.
+I've tweaked the configuration a little in version 0.2.0, so you'll need to review the setup options below and make sure you have a valid configuration. See the Changelog for details.
 
 ## Features
 
