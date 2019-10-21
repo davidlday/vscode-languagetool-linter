@@ -9,7 +9,11 @@ All notable changes to the "languagetool-linter" extension will be documented in
 ### Added
 
 * Auto Format on Type feature. Replaces double and single quotes with smart quotes, apostrophes with smart apostrophe, multiple consecutive hyphens with em and en dashes, and three consecutive periods with ellipses. Feature is controlled with `autoformat.enabled` setting.
-* Auto Format Command replaced quotes, apostrophes, dashes, and periods with smart quotes, en-dash, em-dash, and ellipses in the entire document.
+* Auto Format Command replaces quotes, apostrophes, dashes, and periods with smart quotes, en-dash, em-dash, and ellipses in the entire document.
+
+### Fixed
+
+* Updated annotatedtext-remark to filter out front matter.
 
 ## [0.2.1] - 2019-10-06
 
