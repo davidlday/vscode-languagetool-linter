@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -48,12 +48,21 @@
       {
         "command": "languagetoolLinter.lintCurrentDocument",
         "title": "LanguageTool Linter: Lint Current Document"
+      },
+      {
+        "command": "languagetoolLinter.autoFormatDocument",
+        "title": "LanguageTool Linter: Auto Format Document"
       }
     ],
     "configuration": {
       "type": "object",
       "title": "LanguageTool Linter",
       "properties": {
+        "languageToolLinter.autoformat.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run autoformat as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
+        },
         "languageToolLinter.enabled": {
           "type": "boolean",
           "default": true,

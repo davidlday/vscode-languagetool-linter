@@ -8,13 +8,15 @@ In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [
 
 ### Breaking Changes
 
-I've tweaked the configuration a little, so you'll need to review the setup options below and make sure you have a valid configuration. See the Changelog for details.
+I've tweaked the configuration a little in version 0.2.0, so you'll need to review the setup options below and make sure you have a valid configuration. See the Changelog for details.
 
 ## Features
 
 * Issue highlighting with hover description.
 * Replacement suggestions.
 * Checks plain text, Markdown, and HTML.
+* Auto format on type to replace quotes with smart quotes, multiple consecutive hyphens with em or en-dash, and three consecutive periods with ellipses.
+  * Make sure 'Editor: Format On Type' is enabled or this feature won't work. You can enable it at the document format level as well in your `settings.json`.
 
 ## Setup
 
