@@ -4,6 +4,12 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+## [0.3.1] - 2019-10-25
+
+### Fixed
+
+* Upgraded http-proxy-agent to 2.2.3. ([npmjs advisory 1184](https://www.npmjs.com/advisories/1184))
+
 ## [0.3.0] - 2019-10-20
 
 ### Added
