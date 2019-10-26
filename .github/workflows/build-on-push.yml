@@ -27,9 +27,8 @@ jobs:
       run: |
         npm install -g typescript vsce
         npm install
-        npm run compile
-        npm run vscode:prepublish
         vsce package
+        npm run vscode:prepublish
         npm test
       env:
         CI: true
