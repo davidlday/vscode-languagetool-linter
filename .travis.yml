@@ -16,6 +16,7 @@ install:
   - npm run vscode:prepublish
   - vsce package
 script:
+  - unset npm_config_prefix
   - npm test
   - ls -ll *vsix
 deploy:
