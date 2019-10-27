@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [macOS-latest, windows-latest]
-        node-version: [10.x]
+        node-version: [12.x]
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -27,9 +27,8 @@ jobs:
       run: |
         npm install -g typescript vsce
         npm install
-        npm run compile
-        npm run vscode:prepublish
         vsce package
+        npm run vscode:prepublish
         npm test
       env:
         CI: true
