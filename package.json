@@ -326,7 +326,7 @@
     "mocha": "^6.2.2",
     "tslint": "^5.20.0",
     "typescript": "^3.6.4",
-    "vscode-test": "^1.2.0"
+    "vscode-test": "^1.2.2"
   },
   "dependencies": {
     "@types/request-promise-native": "^1.0.17",
