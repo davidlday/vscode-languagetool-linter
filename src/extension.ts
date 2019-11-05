@@ -149,59 +149,20 @@ export function activate(context: vscode.ExtensionContext) {
   // Register "Auto Format Document" TextEditorCommand
   let autoFormatCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.autoFormatDocument", (editor, edit) => {
     if (config.isSupportedDocument(editor.document)) {
-      let i: number = 0;
+      // Revert to regex here for cleaner code.
       let text: string = editor.document.getText();
-      let newText: string = "";
       let lastOffset: number = text.length - 1;
-      while (i < lastOffset) {
-        let ch: string = text.charAt(i);
-        let prevCh: string = i > 0 ? text.charAt(i - 1) : " ";
-        let nextCh: string = (i < lastOffset - 1) ? text.charAt(i + 1) : " ";
-        switch (ch) {
-          case QuotesFormattingProvider.doubleQuote:
-            if (prevCh === " ") {
-              newText += QuotesFormattingProvider.startDoubleQuote;
-            } else if (nextCh === " ") {
-              newText += QuotesFormattingProvider.endDoubleQuote;
-            }
-            break;
-          case QuotesFormattingProvider.singleQuote:
-            if ([" ", QuotesFormattingProvider.doubleQuote, QuotesFormattingProvider.startDoubleQuote].indexOf(prevCh) !== -1) {
-              newText += QuotesFormattingProvider.startSingleQuote;
-            } else {
-              newText += QuotesFormattingProvider.endSingleQuote;
-            }
-            break;
-          case DashesFormattingProvider.hyphen:
-            if (prevCh === DashesFormattingProvider.hyphen) {
-              if (nextCh === DashesFormattingProvider.hyphen) {
-                // Clobber previous character
-                newText = newText.substr(0, newText.length - 1) + DashesFormattingProvider.emDash;
-              } else {
-                // Clobber previous character
-                newText = newText.substr(0, newText.length - 1) + DashesFormattingProvider.enDash;
-              }
-              // Eat next character
-              i++;
-              break;
-            }
-          case EllipsesFormattingProvider.period:
-            if (prevCh === EllipsesFormattingProvider.period && nextCh === EllipsesFormattingProvider.period) {
-              // Clobber previous character
-              newText = newText.substr(0, newText.length - 1) + EllipsesFormattingProvider.ellipses;
-              // Eat next character
-              i++;
-              break;
-            }
-          default:
-            newText += ch;
-        }
-        i++;
-      }
+      text = text.replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
+        .replace(/'(?=[\w"“])/g, QuotesFormattingProvider.startSingleQuote)
+        .replace(/([\w.!?%,'’])"/g, "$1" + QuotesFormattingProvider.endDoubleQuote)
+        .replace(/([\w.!?%,"”])'/g, "$1" + QuotesFormattingProvider.endSingleQuote)
+        .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
+        .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
+        .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
       // Replace the whole thing at once so undo applies to all changes.
       edit.replace(
         new vscode.Range(editor.document.positionAt(0), editor.document.positionAt(lastOffset)),
-        newText
+        text
       );
     }
   });
