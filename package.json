@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -322,7 +322,7 @@
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.17.3",
     "@types/vscode": "^1.39.0",
-    "glob": "^7.1.4",
+    "glob": "^7.1.5",
     "mocha": "^6.2.2",
     "tslint": "^5.20.0",
     "typescript": "^3.6.4",
