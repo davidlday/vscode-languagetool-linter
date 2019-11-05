@@ -320,7 +320,7 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.14.22",
+    "@types/node": "^10.17.3",
     "@types/vscode": "^1.39.0",
     "glob": "^7.1.4",
     "mocha": "^6.2.2",
@@ -335,6 +335,6 @@
     "execa": "^3.2.0",
     "portfinder": "^1.0.25",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.5"
+    "request-promise-native": "^1.0.8"
   }
 }
