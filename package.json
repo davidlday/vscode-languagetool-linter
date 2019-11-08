@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -320,13 +320,13 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.14.22",
+    "@types/node": "^10.17.4",
     "@types/vscode": "^1.39.0",
-    "glob": "^7.1.4",
+    "glob": "^7.1.5",
     "mocha": "^6.2.2",
-    "tslint": "^5.20.0",
+    "tslint": "^5.20.1",
     "typescript": "^3.6.4",
-    "vscode-test": "^1.2.0"
+    "vscode-test": "^1.2.2"
   },
   "dependencies": {
     "@types/request-promise-native": "^1.0.17",
@@ -335,6 +335,6 @@
     "execa": "^3.2.0",
     "portfinder": "^1.0.25",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.5"
+    "request-promise-native": "^1.0.8"
   }
 }

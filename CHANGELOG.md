@@ -4,6 +4,23 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+## [0.3.2] - 2019-11-04
+
+### Fixed
+
+* `autoFormatCommand` no longer eats the quotes at start of line
+* `autoFormatCommand` no longer converts comments to em-dashes
+
+### Changed
+
+* Use regex in `autoFormatCommand` for simplicity.
+
+## [0.3.1] - 2019-10-25
+
+### Fixed
+
+* Upgraded http-proxy-agent to 2.2.3. ([npmjs advisory 1184](https://www.npmjs.com/advisories/1184))
+
 ## [0.3.0] - 2019-10-20
 
 ### Added
