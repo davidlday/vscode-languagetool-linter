@@ -325,7 +325,7 @@
     "glob": "^7.1.5",
     "mocha": "^6.2.2",
     "tslint": "^5.20.1",
-    "typescript": "^3.6.4",
+    "typescript": "^3.7.2",
     "vscode-test": "^1.2.2"
   },
   "dependencies": {
