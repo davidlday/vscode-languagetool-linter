@@ -2,6 +2,8 @@ import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEve
 import { LT_DOCUMENT_LANGUAGE_IDS, LT_CONFIGURATION_ROOT, LT_SERVICE_PARAMETERS, LT_SERVICE_EXTERNAL, LT_CHECK_PATH, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC, LT_PUBLIC_URL, LT_OUTPUT_CHANNEL } from './constants';
 import * as portfinder from 'portfinder';
 import * as execa from "execa";
+import * as path from "path";
+import * as glob from "glob";
 
 export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
@@ -31,6 +33,11 @@ export class ConfigurationManager implements Disposable {
           this.stopManagedService();
           break;
       }
+    } else if (this.getServiceType() === LT_SERVICE_MANAGED &&
+        (event.affectsConfiguration("languageToolLinter.managed.jarFile")
+        || event.affectsConfiguration("languageToolLinter.managed.classPath"))
+      ) {
+      this.restartManagedService();
     }
   }
 
@@ -108,6 +115,23 @@ export class ConfigurationManager implements Disposable {
   private startManagedService(): void {
     if (this.getServiceType() === LT_SERVICE_MANAGED) {
       let jarFile: string = this.get("managed.jarFile") as string;
+      let classPath: string = this.get("managed.classPath") as string;
+      let classPathFiles: string[] = [];
+      let classPathString: string = "";
+      if (jarFile !== "") {
+        classPathString = jarFile;
+      }
+      classPath.split(path.delimiter).forEach((globPattern) => {
+        console.log("Glob: " + globPattern);
+        glob(globPattern, (error, matches) => {
+          console.log("Glob Matches: " + matches);
+          matches.forEach((match) => {
+            classPathString += path.delimiter + match;
+            console.log("Class Path String: " + classPathString);
+          });
+        });
+      });
+      console.log("class path: " + classPathString);
       this.stopManagedService();
       portfinder.getPort({ host: "127.0.0.1" }, (error, port) => {
         if (error) {
@@ -117,7 +141,7 @@ export class ConfigurationManager implements Disposable {
           this.setManagedServicePort(port);
           let args: string[] = [
             "-cp",
-            jarFile,
+            classPathString,
             "org.languagetool.server.HTTPServer",
             "--port",
             port.toString()
@@ -154,5 +178,9 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
+  restartManagedService(): void {
+    this.stopManagedService();
+    this.startManagedService();
+  }
 
 }
