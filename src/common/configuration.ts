@@ -117,20 +117,16 @@ export class ConfigurationManager implements Disposable {
       let jarFile: string = this.get("managed.jarFile") as string;
       let classPath: string = this.get("managed.classPath") as string;
       let classPathFiles: string[] = [];
-      let classPathString: string = "";
       if (jarFile !== "") {
-        classPathString = jarFile;
+        classPathFiles.push(jarFile);
       }
       classPath.split(path.delimiter).forEach((globPattern) => {
         console.log("Glob: " + globPattern);
-        glob(globPattern, (error, matches) => {
-          console.log("Glob Matches: " + matches);
-          matches.forEach((match) => {
-            classPathString += path.delimiter + match;
-            console.log("Class Path String: " + classPathString);
-          });
+        glob.sync(globPattern).forEach((match) => {
+          classPathFiles.push(match);
         });
       });
+      let classPathString: string = classPathFiles.join(path.delimiter);
       console.log("class path: " + classPathString);
       this.stopManagedService();
       portfinder.getPort({ host: "127.0.0.1" }, (error, port) => {
