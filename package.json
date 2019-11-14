@@ -4,7 +4,7 @@
   "description": "LanguageTool integration for VS Code.",
   "version": "0.3.2",
   "engines": {
-    "vscode": "^1.39.0"
+    "vscode": "^1.40.0"
   },
   "categories": [
     "Linters"
@@ -326,11 +326,11 @@
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.17.4",
-    "@types/vscode": "^1.39.0",
+    "@types/vscode": "^1.40.0",
     "glob": "^7.1.6",
     "mocha": "^6.2.2",
     "tslint": "^5.20.1",
-    "typescript": "^3.6.4",
+    "typescript": "^3.7.2",
     "vscode-test": "^1.2.2"
   },
   "dependencies": {
