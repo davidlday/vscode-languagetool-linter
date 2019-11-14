@@ -98,6 +98,11 @@
           "default": "",
           "description": "Path to languagetool-server.jar on your local machine."
         },
+        "languageToolLinter.managed.classPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
+        },
         "languageToolLinter.languageTool.language": {
           "type": "string",
           "default": "auto",
@@ -322,7 +327,7 @@
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.17.4",
     "@types/vscode": "^1.40.0",
-    "glob": "^7.1.5",
+    "glob": "^7.1.6",
     "mocha": "^6.2.2",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2",
