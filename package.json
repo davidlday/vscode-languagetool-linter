@@ -101,7 +101,7 @@
         "languageToolLinter.managed.classPath": {
           "type": "string",
           "default": "",
-          "description": "Custom classpath for managed server. Use filesystem separator. File globbing per node-glob."
+          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",
