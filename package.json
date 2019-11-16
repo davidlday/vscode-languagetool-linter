@@ -2,9 +2,9 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.4.0",
+  "version": "0.3.2",
   "engines": {
-    "vscode": "^1.40.0"
+    "vscode": "^1.39.0"
   },
   "categories": [
     "Linters"
@@ -97,11 +97,6 @@
           "type": "string",
           "default": "",
           "description": "Path to languagetool-server.jar on your local machine."
-        },
-        "languageToolLinter.managed.classPath": {
-          "type": "string",
-          "default": "",
-          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",
@@ -325,19 +320,19 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.17.5",
-    "@types/vscode": "^1.40.0",
-    "glob": "^7.1.6",
+    "@types/node": "^10.17.3",
+    "@types/vscode": "^1.39.0",
+    "glob": "^7.1.5",
     "mocha": "^6.2.2",
-    "tslint": "^5.20.1",
-    "typescript": "^3.7.2",
-    "vscode-test": "^1.2.3"
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4",
+    "vscode-test": "^1.2.2"
   },
   "dependencies": {
     "@types/request-promise-native": "^1.0.17",
-    "annotatedtext-rehype": "^0.1.2",
-    "annotatedtext-remark": "^0.4.0",
-    "execa": "^3.3.0",
+    "annotatedtext-rehype": "^0.1.1",
+    "annotatedtext-remark": "^0.2.0",
+    "execa": "^3.2.0",
     "portfinder": "^1.0.25",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8"
