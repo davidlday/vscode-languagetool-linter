@@ -36,7 +36,7 @@ export class LinterCommands {
     this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
 
     // Custom markdown interpretation
-    this.remarkBuilderOptions.interpretmarkup = function (text: string) {
+    this.remarkBuilderOptions.interpretmarkup = (text: string) => {
       let interpretation = "";
       // Treat inline code as redacted text
       if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
