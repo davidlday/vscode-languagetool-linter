@@ -40,18 +40,21 @@
     "onLanguage:plaintext",
     "onLanguage:markdown",
     "onLanguage:html",
-    "onCommand:languagetoolLinter.lintCurrentDocument"
+    "onCommand:languagetoolLinter.lintCurrentDocument",
+    "onCommand:languagetoolLinter.autoFormatDocument"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "languagetoolLinter.lintCurrentDocument",
-        "title": "LanguageTool Linter: Lint Current Document"
+        "title": "LanguageTool Linter: Lint Current Document",
+        "category": "languagetoolLinter"
       },
       {
         "command": "languagetoolLinter.autoFormatDocument",
-        "title": "LanguageTool Linter: Auto Format Document"
+        "title": "LanguageTool Linter: Auto Format Document",
+        "category": "languagetoolLinter"
       }
     ],
     "configuration": {
