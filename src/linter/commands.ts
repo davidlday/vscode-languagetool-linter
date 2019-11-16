@@ -28,11 +28,25 @@ export class LinterCommands {
   diagnosticCollection: DiagnosticCollection;
   diagnosticMap: Map<string, Diagnostic[]> = new Map();
   codeActionMap: Map<string, CodeAction[]> = new Map();
+  remarkBuilderOptions: any = remarkBuilder.defaults;
 
   constructor(config: ConfigurationManager) {
     this.config = config;
     this.timeoutMap = new Map();
     this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
+
+    // Custom markdown interpretation
+    this.remarkBuilderOptions.interpretmarkup = function (text: string) {
+      let interpretation = "";
+      // Treat inline code as redacted text
+      if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
+        interpretation = "`" + "#".repeat(text.length - 2) + "`";
+      } else {
+        let count = (text.match(/\n/g) || []).length;
+        interpretation = "\n".repeat(count);
+      }
+      return interpretation;
+    };
   }
 
   deleteFromDiagnosticCollection(uri: Uri): void {
@@ -79,7 +93,7 @@ export class LinterCommands {
   lintDocument(document: TextDocument): void {
     if (this.config.isSupportedDocument(document)) {
       if (document.languageId === "markdown") {
-        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
+        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText(), this.remarkBuilderOptions));
         this.lintAnnotatedText(document, annotatedMarkdown);
       } else if (document.languageId === "html") {
         let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(document.getText()));
