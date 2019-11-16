@@ -49,12 +49,12 @@
       {
         "command": "languagetoolLinter.lintCurrentDocument",
         "title": "LanguageTool Linter: Lint Current Document",
-        "category": "languagetoolLinter"
+        "category": "languagetool-linter"
       },
       {
         "command": "languagetoolLinter.autoFormatDocument",
         "title": "LanguageTool Linter: Auto Format Document",
-        "category": "languagetoolLinter"
+        "category": "languagetool-linter"
       }
     ],
     "configuration": {
