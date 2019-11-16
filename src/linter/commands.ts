@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
- import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri } from 'vscode';
+import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri } from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
 import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
