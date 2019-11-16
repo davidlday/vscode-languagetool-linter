@@ -4,6 +4,12 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+## [0.4.0] - 2019-11-15
+
+### Fixed
+
+* Inline code is interpreted as hashtags, eliminated errors around extra spaces or missing words. ([#40](https://github.com/davidlday/vscode-languagetool-linter/issues/40))
+
 ### Added
 
 * `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accomodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
