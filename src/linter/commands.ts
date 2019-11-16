@@ -29,6 +29,7 @@ export class LinterCommands {
   diagnosticMap: Map<string, Diagnostic[]> = new Map();
   codeActionMap: Map<string, CodeAction[]> = new Map();
   remarkBuilderOptions: any = remarkBuilder.defaults;
+  rehypeBuilderOptions: any = rehypeBuilder.defaults;
 
   constructor(config: ConfigurationManager) {
     this.config = config;
@@ -89,14 +90,24 @@ export class LinterCommands {
     }
   }
 
+  // Build annotatedtext from Markdown
+  buildAnnotatedMarkdown(text: string): string {
+    return JSON.stringify(remarkBuilder.build(text, this.remarkBuilderOptions));
+  }
+
+  // Build annotatedtext from HTML
+  buildAnnotatedHTML(text: string): string {
+    return JSON.stringify(rehypeBuilder.build(text, this.rehypeBuilderOptions));
+  }
+
   // Perform Lint on Document
   lintDocument(document: TextDocument): void {
     if (this.config.isSupportedDocument(document)) {
       if (document.languageId === "markdown") {
-        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
+        let annotatedMarkdown: string = this.buildAnnotatedMarkdown(document.getText());
         this.lintAnnotatedText(document, annotatedMarkdown);
       } else if (document.languageId === "html") {
-        let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(document.getText()));
+        let annotatedHTML: string = this.buildAnnotatedHTML(document.getText());
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
         this.lintPlaintext(document);
