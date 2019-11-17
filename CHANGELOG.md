@@ -4,6 +4,8 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+## [0.5.0] - 2019-11-15
+
 ### Fixed
 
 * Inline code is interpreted as hashtags, eliminated errors around extra spaces or missing words. ([#40](https://github.com/davidlday/vscode-languagetool-linter/issues/40))
