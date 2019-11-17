@@ -6,10 +6,6 @@ Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://language
 
 In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) extension.
 
-## Important Notes
-
-Version 0.4.0 broke on publication. I rolled back all the changes until I can figure out what happened.
-
 ## Features
 
 * Issue highlighting with hover description.
