@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import * as chai from 'chai';
 import { before } from 'mocha';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
@@ -20,8 +21,14 @@ suite('Linter Test Suite', () => {
     const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/markdown/backticks.json"), "utf8"));
     const text = fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/markdown/backticks.md"), "utf8");
     const result = JSON.parse(linter.buildAnnotatedMarkdown(text));
-    // fs.writeFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/markdown/backticks.json"), result);
-    assert.equal(result, expected, "Annotated Markdown not built correctly.");
+    assert.ok(chai.expect(result).to.deep.equal(expected));
+  });
+
+  test('Linter should return annotated text for HTML', () => {
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/html/basic.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/html/basic.html"), "utf8");
+    const result = JSON.parse(linter.buildAnnotatedHTML(text));
+    assert.ok(chai.expect(result).to.deep.equal(expected));
   });
 
 });
