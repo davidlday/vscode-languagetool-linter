@@ -1,0 +1,522 @@
+{
+  "annotation": [
+    {
+      "markup": "<h1 id=\"atfb\">",
+      "interpretAs": "",
+      "offset": {
+        "start": 0,
+        "end": 14
+      }
+    },
+    {
+      "text": "ATFB",
+      "offset": {
+        "start": 14,
+        "end": 18
+      }
+    },
+    {
+      "markup": "</h1>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 18,
+        "end": 23
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 23,
+        "end": 24
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 24,
+        "end": 27
+      }
+    },
+    {
+      "text": "Annotated Text Format Builder (ATFB) is a JavaScript module for converting various text formats to an annotated text format suitable for processing by the LanguageTool server.",
+      "offset": {
+        "start": 27,
+        "end": 202
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 202,
+        "end": 206
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 206,
+        "end": 207
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 207,
+        "end": 210
+      }
+    },
+    {
+      "text": "This is just a playground for a proof of concent and may move to a better home if it looks useful.",
+      "offset": {
+        "start": 210,
+        "end": 308
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 308,
+        "end": 312
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 312,
+        "end": 313
+      }
+    },
+    {
+      "markup": "<h2 id=\"history\">",
+      "interpretAs": "",
+      "offset": {
+        "start": 313,
+        "end": 330
+      }
+    },
+    {
+      "text": "History",
+      "offset": {
+        "start": 330,
+        "end": 337
+      }
+    },
+    {
+      "markup": "</h2>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 337,
+        "end": 342
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 342,
+        "end": 343
+      }
+    },
+    {
+      "markup": "<p><a href=\"https://languagetool.org\">",
+      "interpretAs": "",
+      "offset": {
+        "start": 343,
+        "end": 381
+      }
+    },
+    {
+      "text": "LanguageTool",
+      "offset": {
+        "start": 381,
+        "end": 393
+      }
+    },
+    {
+      "markup": "</a>",
+      "interpretAs": "",
+      "offset": {
+        "start": 393,
+        "end": 397
+      }
+    },
+    {
+      "text": " is an ",
+      "offset": {
+        "start": 397,
+        "end": 404
+      }
+    },
+    {
+      "markup": "<strong>",
+      "interpretAs": "",
+      "offset": {
+        "start": 404,
+        "end": 412
+      }
+    },
+    {
+      "text": "excellent",
+      "offset": {
+        "start": 412,
+        "end": 421
+      }
+    },
+    {
+      "markup": "</strong>",
+      "interpretAs": "",
+      "offset": {
+        "start": 421,
+        "end": 430
+      }
+    },
+    {
+      "text": " open source spell and grammar checker. It’s being integrated into more and more IDEs so that developers can leverage it alongside their other tools. However, LanguageTool’s creator has explicitly stated, ",
+      "offset": {
+        "start": 430,
+        "end": 635
+      }
+    },
+    {
+      "markup": "<a href=\"https://forum.languagetool.org/t/rules-for-markdown/374/2\">",
+      "interpretAs": "",
+      "offset": {
+        "start": 635,
+        "end": 703
+      }
+    },
+    {
+      "text": "“LT only works on plain text, so you’ll need to either convert Markdown to plain text first, or tell LT what the markup is.”",
+      "offset": {
+        "start": 703,
+        "end": 827
+      }
+    },
+    {
+      "markup": "</a>",
+      "interpretAs": "",
+      "offset": {
+        "start": 827,
+        "end": 831
+      }
+    },
+    {
+      "text": " Pretty clear.",
+      "offset": {
+        "start": 831,
+        "end": 845
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 845,
+        "end": 849
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 849,
+        "end": 850
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 850,
+        "end": 853
+      }
+    },
+    {
+      "text": "Tdhis makes perfect sense. LanguageTool is meant to parse and analyze natural languages, not computer languages.",
+      "offset": {
+        "start": 853,
+        "end": 965
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 965,
+        "end": 969
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 969,
+        "end": 970
+      }
+    },
+    {
+      "markup": "<h2 id=\"goals\">",
+      "interpretAs": "",
+      "offset": {
+        "start": 970,
+        "end": 985
+      }
+    },
+    {
+      "text": "Goals",
+      "offset": {
+        "start": 985,
+        "end": 990
+      }
+    },
+    {
+      "markup": "</h2>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 990,
+        "end": 995
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 995,
+        "end": 996
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 996,
+        "end": 999
+      }
+    },
+    {
+      "text": "So what are the goals here? Glad you asked:",
+      "offset": {
+        "start": 999,
+        "end": 1042
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 1042,
+        "end": 1046
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1046,
+        "end": 1047
+      }
+    },
+    {
+      "markup": "<ul>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1047,
+        "end": 1051
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1051,
+        "end": 1052
+      }
+    },
+    {
+      "markup": "<li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1052,
+        "end": 1056
+      }
+    },
+    {
+      "text": "Create a simple, lightweight parser in JavaScript.",
+      "offset": {
+        "start": 1056,
+        "end": 1106
+      }
+    },
+    {
+      "markup": "</li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1106,
+        "end": 1111
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1111,
+        "end": 1112
+      }
+    },
+    {
+      "markup": "<li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1112,
+        "end": 1116
+      }
+    },
+    {
+      "text": "Be portable across editors that leverage JavaScript in their plugins.",
+      "offset": {
+        "start": 1116,
+        "end": 1185
+      }
+    },
+    {
+      "markup": "</li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1185,
+        "end": 1190
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1190,
+        "end": 1191
+      }
+    },
+    {
+      "markup": "<li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1191,
+        "end": 1195
+      }
+    },
+    {
+      "text": "Map various formatting languages to the simple Annotated Text format described in LanguageTool’s API.",
+      "offset": {
+        "start": 1195,
+        "end": 1296
+      }
+    },
+    {
+      "markup": "</li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1296,
+        "end": 1301
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1301,
+        "end": 1302
+      }
+    },
+    {
+      "markup": "<li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1302,
+        "end": 1306
+      }
+    },
+    {
+      "text": "Use this readme as a test document.",
+      "offset": {
+        "start": 1306,
+        "end": 1341
+      }
+    },
+    {
+      "markup": "</li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1341,
+        "end": 1346
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1346,
+        "end": 1347
+      }
+    },
+    {
+      "markup": "</ul>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1347,
+        "end": 1352
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1352,
+        "end": 1353
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 1353,
+        "end": 1356
+      }
+    },
+    {
+      "text": "Oh, and because we shouldn’t assume the text ends with text, here’s a link to one of my favorite quotes by Socrates: ",
+      "offset": {
+        "start": 1356,
+        "end": 1473
+      }
+    },
+    {
+      "markup": "<a href=\"https://www.brainyquote.com/quotes/socrates_125872\">",
+      "interpretAs": "",
+      "offset": {
+        "start": 1473,
+        "end": 1534
+      }
+    },
+    {
+      "text": "“I am the wisest man alive, for I know one thing, and that is that I know nothing.”",
+      "offset": {
+        "start": 1534,
+        "end": 1617
+      }
+    },
+    {
+      "markup": "</a></p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 1617,
+        "end": 1625
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 1625,
+        "end": 1626
+      }
+    },
+    {
+      "markup": "",
+      "interpretAs": "",
+      "offset": {
+        "start": 1626,
+        "end": 1626
+      }
+    }
+  ]
+}

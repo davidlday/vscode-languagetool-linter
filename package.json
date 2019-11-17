@@ -49,12 +49,12 @@
       {
         "command": "languagetoolLinter.lintCurrentDocument",
         "title": "LanguageTool Linter: Lint Current Document",
-        "category": "languagetoolLinter"
+        "category": "languagetool-linter"
       },
       {
         "command": "languagetoolLinter.autoFormatDocument",
         "title": "LanguageTool Linter: Auto Format Document",
-        "category": "languagetoolLinter"
+        "category": "languagetool-linter"
       }
     ],
     "configuration": {
@@ -321,10 +321,12 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.5",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.17.3",
     "@types/vscode": "^1.39.0",
+    "chai": "^4.2.0",
     "glob": "^7.1.5",
     "mocha": "^6.2.2",
     "tslint": "^5.20.0",
@@ -333,8 +335,8 @@
   },
   "dependencies": {
     "@types/request-promise-native": "^1.0.17",
-    "annotatedtext-rehype": "^0.1.1",
-    "annotatedtext-remark": "^0.2.0",
+    "annotatedtext-rehype": "^0.1.2",
+    "annotatedtext-remark": "^0.4.0",
     "execa": "^3.2.0",
     "portfinder": "^1.0.25",
     "request": "^2.88.0",
