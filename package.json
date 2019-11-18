@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.6.0",
+  "version": "0.5.0",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -99,12 +99,7 @@
         "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
-          "description": "DEPRECATED. Path to languagetool-server.jar on your local machine. Use Class Path instead."
-        },
-        "languageToolLinter.managed.classPath": {
-          "type": "string",
-          "default": "",
-          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
+          "description": "Path to languagetool-server.jar on your local machine."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",

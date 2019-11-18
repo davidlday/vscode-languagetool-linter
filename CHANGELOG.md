@@ -4,17 +4,7 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
-## [0.6.0] - 2019-11-17
-
-### Added
-
-* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accomodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
-
-### Deprecated
-
-* Deprecated `managed.jarFile` setting in favor of `managed.classPath` to align with how the setting was used.
-
-## [0.5.0] - 2019-11-17
+## [0.5.0] - 2019-11-15
 
 ### Fixed
 
