@@ -1,7 +1,9 @@
-import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable } from 'vscode';
+import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable, window } from 'vscode';
 import { LT_DOCUMENT_LANGUAGE_IDS, LT_CONFIGURATION_ROOT, LT_SERVICE_PARAMETERS, LT_SERVICE_EXTERNAL, LT_CHECK_PATH, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC, LT_PUBLIC_URL, LT_OUTPUT_CHANNEL } from './constants';
-import * as portfinder from 'portfinder';
+import * as portfinder from "portfinder";
 import * as execa from "execa";
+import * as path from "path";
+import * as glob from "glob";
 
 export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
@@ -31,6 +33,10 @@ export class ConfigurationManager implements Disposable {
           this.stopManagedService();
           break;
       }
+    } else if (this.getServiceType() === LT_SERVICE_MANAGED
+        && (event.affectsConfiguration("languageToolLinter.managed.classPath")
+        || event.affectsConfiguration("languageToolLinter.managed.jarFile"))) {
+      this.startManagedService();
     }
   }
 
@@ -105,9 +111,28 @@ export class ConfigurationManager implements Disposable {
     return this.config.get(key);
   }
 
+  getClassPath(): string {
+    let jarFile: string = this.get("managed.jarFile") as string;
+    let classPath: string = this.get("managed.classPath") as string;
+    let classPathFiles: string[] = [];
+    // DEPRECATED
+    if (jarFile !== "") {
+      window.showWarningMessage('"LanguageTool Linter > Managed: Jar File" is deprecated. Please use "LanguageTool > Managed: Class Path" instead.');
+      classPathFiles.push(jarFile);
+    }
+    if (classPath !== "") {
+      classPath.split(path.delimiter).forEach((globPattern) => {
+        glob.sync(globPattern).forEach((match) => {
+          classPathFiles.push(match);
+        });
+      });
+    }
+    let classPathString: string = classPathFiles.join(path.delimiter);
+    return classPathString;
+  }
+
   private startManagedService(): void {
     if (this.getServiceType() === LT_SERVICE_MANAGED) {
-      let jarFile: string = this.get("managed.jarFile") as string;
       this.stopManagedService();
       portfinder.getPort({ host: "127.0.0.1" }, (error, port) => {
         if (error) {
@@ -117,7 +142,7 @@ export class ConfigurationManager implements Disposable {
           this.setManagedServicePort(port);
           let args: string[] = [
             "-cp",
-            jarFile,
+            this.getClassPath(),
             "org.languagetool.server.HTTPServer",
             "--port",
             port.toString()

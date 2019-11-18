@@ -15,7 +15,11 @@ async function main() {
     const testWorkspace = path.resolve(__dirname, '../test-fixtures/workspace');
 
 		// Download VS Code, unzip it and run the integration test
-		await runTests({ extensionDevelopmentPath, extensionTestsPath });
+		await runTests({
+      extensionDevelopmentPath,
+      extensionTestsPath,
+      launchArgs: [testWorkspace]
+    });
 	} catch (err) {
 		console.error('Failed to run tests');
 		process.exit(1);

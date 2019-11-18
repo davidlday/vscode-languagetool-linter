@@ -99,7 +99,12 @@
         "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
-          "description": "Path to languagetool-server.jar on your local machine."
+          "description": "DEPRECATED. Path to languagetool-server.jar on your local machine. Use Class Path instead."
+        },
+        "languageToolLinter.managed.classPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",
