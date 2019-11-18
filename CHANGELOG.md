@@ -8,7 +8,7 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ### Deleted
 
-* New classpath setting. Extension doesn't activate, but all tests pass.
+* New classpath setting. Extension doesn't activate when published, but all tests pass.
 
 ## [0.6.0] - 2019-11-17
 
