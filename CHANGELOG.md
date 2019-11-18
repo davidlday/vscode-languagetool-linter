@@ -12,7 +12,7 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 * Deprecated `managed.jarFile` setting in favor of `managed.classPath` to align with how the setting was used.
 
-## [0.5.0] - 2019-11-15
+## [0.5.0] - 2019-11-17
 
 ### Fixed
 
