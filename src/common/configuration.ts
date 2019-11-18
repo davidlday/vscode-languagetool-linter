@@ -33,6 +33,10 @@ export class ConfigurationManager implements Disposable {
           this.stopManagedService();
           break;
       }
+    } else if (this.getServiceType() === LT_SERVICE_MANAGED
+        && (event.affectsConfiguration("languageToolLinter.managed.classPath")
+        || event.affectsConfiguration("languageToolLinter.managed.jarFile"))) {
+      this.startManagedService();
     }
   }
 
