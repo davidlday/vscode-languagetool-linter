@@ -122,8 +122,8 @@ export class ConfigurationManager implements Disposable {
       classPathFiles.push(jarFile);
     }
     if (classPath !== "") {
-      classPath.split(path.delimiter).forEach((globPattern) => {
-        glob.sync(globPattern).forEach((match) => {
+      classPath.split(path.delimiter).forEach((globPattern: string) => {
+        glob.sync(globPattern).forEach((match: string) => {
           classPathFiles.push(match);
         });
       });
