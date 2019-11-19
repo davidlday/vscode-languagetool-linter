@@ -1,4 +1,4 @@
-import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable, window } from 'vscode';
+import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable, window, ExtensionContext } from 'vscode';
 import { LT_DOCUMENT_LANGUAGE_IDS, LT_CONFIGURATION_ROOT, LT_SERVICE_PARAMETERS, LT_SERVICE_EXTERNAL, LT_CHECK_PATH, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC, LT_PUBLIC_URL, LT_OUTPUT_CHANNEL } from './constants';
 import * as portfinder from "portfinder";
 import * as execa from "execa";
@@ -7,11 +7,13 @@ import * as glob from "glob";
 
 export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
+  private context: ExtensionContext;
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
 
-  constructor() {
+  constructor(context: ExtensionContext) {
+    this.context = context;
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
@@ -19,6 +21,10 @@ export class ConfigurationManager implements Disposable {
 
   dispose(): void {
     this.stopManagedService();
+  }
+
+  getContext() {
+    return this.context;
   }
 
   reloadConfiguration(event: ConfigurationChangeEvent) {
