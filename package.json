@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.3.2",
+  "version": "0.8.0",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -40,18 +40,21 @@
     "onLanguage:plaintext",
     "onLanguage:markdown",
     "onLanguage:html",
-    "onCommand:languagetoolLinter.lintCurrentDocument"
+    "onCommand:languagetoolLinter.lintCurrentDocument",
+    "onCommand:languagetoolLinter.autoFormatDocument"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "languagetoolLinter.lintCurrentDocument",
-        "title": "LanguageTool Linter: Lint Current Document"
+        "title": "LanguageTool Linter: Lint Current Document",
+        "category": "languagetool-linter"
       },
       {
         "command": "languagetoolLinter.autoFormatDocument",
-        "title": "LanguageTool Linter: Auto Format Document"
+        "title": "LanguageTool Linter: Auto Format Document",
+        "category": "languagetool-linter"
       }
     ],
     "configuration": {
@@ -97,6 +100,11 @@
           "type": "string",
           "default": "",
           "description": "Path to languagetool-server.jar on your local machine."
+        },
+        "languageToolLinter.managed.classPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",
@@ -318,21 +326,23 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.5",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.17.4",
+    "@types/node": "^10.17.5",
     "@types/vscode": "^1.39.0",
-    "glob": "^7.1.5",
+    "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "tslint": "^5.20.1",
-    "typescript": "^3.6.4",
-    "vscode-test": "^1.2.2"
+    "typescript": "^3.7.2",
+    "vscode-test": "^1.2.3"
   },
   "dependencies": {
     "@types/request-promise-native": "^1.0.17",
-    "annotatedtext-rehype": "^0.1.1",
-    "annotatedtext-remark": "^0.2.0",
-    "execa": "^3.2.0",
+    "annotatedtext-rehype": "^0.1.2",
+    "annotatedtext-remark": "^0.4.0",
+    "execa": "^3.3.0",
+    "glob": "^7.1.6",
     "portfinder": "^1.0.25",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8"

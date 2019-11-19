@@ -4,6 +4,62 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+## [0.8.0] - 2019-11-17
+
+### Added
+
+* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accomodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
+
+### Deprecated
+
+* Deprecated `managed.jarFile` setting in favor of `managed.classPath` to align with how the setting was used.
+
+## [0.7.0] - 2019-11-17
+
+### Deleted
+
+* New classpath setting. Extension doesn't activate when published, but all tests pass.
+
+## [0.6.0] - 2019-11-17
+
+### Added
+
+* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accomodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
+
+### Deprecated
+
+* Deprecated `managed.jarFile` setting in favor of `managed.classPath` to align with how the setting was used.
+
+## [0.5.0] - 2019-11-15
+
+### Fixed
+
+* Inline code is interpreted as hashtags, eliminated errors around extra spaces or missing words. ([#40](https://github.com/davidlday/vscode-languagetool-linter/issues/40))
+
+### Added
+
+* Basic tests for extension, configuration manager, and linter.
+
+## [0.4.1] - 2019-11-15
+
+### Removed
+
+* All version 0.4.0 Fixes, adds, and deprecations. Package broke on publication.
+
+## [0.4.0] - 2019-11-15
+
+### Fixed
+
+* Inline code is interpreted as hashtags, eliminated errors around extra spaces or missing words. ([#40](https://github.com/davidlday/vscode-languagetool-linter/issues/40))
+
+### Added
+
+* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accomodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
+
+### Deprecated
+
+* Deprecated `managed.jarFile` setting in favor of `managed.classPath` to align with how the setting was used.
+
 ## [0.3.2] - 2019-11-04
 
 ### Fixed

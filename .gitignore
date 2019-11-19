@@ -68,3 +68,9 @@ out
 
 # VS Code - Add project directory
 !.vscode
+
+# VS Code tests
+.vscode-test
+
+# VS Code Extensions
+*.vsix

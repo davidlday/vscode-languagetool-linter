@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
- import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri } from 'vscode';
+import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri } from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
 import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
@@ -28,11 +28,26 @@ export class LinterCommands {
   diagnosticCollection: DiagnosticCollection;
   diagnosticMap: Map<string, Diagnostic[]> = new Map();
   codeActionMap: Map<string, CodeAction[]> = new Map();
+  remarkBuilderOptions: any = remarkBuilder.defaults;
+  rehypeBuilderOptions: any = rehypeBuilder.defaults;
 
   constructor(config: ConfigurationManager) {
     this.config = config;
     this.timeoutMap = new Map();
     this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
+
+    // Custom markdown interpretation
+    this.remarkBuilderOptions.interpretmarkup = (text: string) => {
+      let interpretation = "";
+      // Treat inline code as redacted text
+      if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
+        interpretation = "`" + "#".repeat(text.length - 2) + "`";
+      } else {
+        let count = (text.match(/\n/g) || []).length;
+        interpretation = "\n".repeat(count);
+      }
+      return interpretation;
+    };
   }
 
   deleteFromDiagnosticCollection(uri: Uri): void {
@@ -75,14 +90,24 @@ export class LinterCommands {
     }
   }
 
+  // Build annotatedtext from Markdown
+  buildAnnotatedMarkdown(text: string): string {
+    return JSON.stringify(remarkBuilder.build(text, this.remarkBuilderOptions));
+  }
+
+  // Build annotatedtext from HTML
+  buildAnnotatedHTML(text: string): string {
+    return JSON.stringify(rehypeBuilder.build(text, this.rehypeBuilderOptions));
+  }
+
   // Perform Lint on Document
   lintDocument(document: TextDocument): void {
     if (this.config.isSupportedDocument(document)) {
       if (document.languageId === "markdown") {
-        let annotatedMarkdown: string = JSON.stringify(remarkBuilder.build(document.getText()));
+        let annotatedMarkdown: string = this.buildAnnotatedMarkdown(document.getText());
         this.lintAnnotatedText(document, annotatedMarkdown);
       } else if (document.languageId === "html") {
-        let annotatedHTML: string = JSON.stringify(rehypeBuilder.build(document.getText()));
+        let annotatedHTML: string = this.buildAnnotatedHTML(document.getText());
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
         this.lintPlaintext(document);

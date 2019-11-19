@@ -14,18 +14,15 @@ before_install:
       export DISPLAY=':99.0'
       /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     fi
-  - npm install -g typescript vsce
 
 install:
-  - npm ci
+  - npm install -g typescript vsce
+  - npm install
   - npm run vscode:prepublish
-  - vsce package
 
 script:
-  - if [ $TRAVIS_OS_NAME == "linux" ]; then
-      npm dedupe;
-    fi
   - npm test
+  - vsce package
   - ls -ll *vsix
 
 deploy:
@@ -34,6 +31,7 @@ deploy:
     secure: Ll6LyJZ63D037zVA3nnGxFtPL4bViOzLxVTfNNrbt2fbRYFlUAMLOnGy9ETleWvkCSR7qBdk8rnQ3ZxWJlnCOJW1VsV12Wvz+EvDxxiglxTpgxikHdNkjkrmKBbTjvxB+Kp1Fpo6IpysUBhLKngLp4Vdv6Xbj/vhALKN5yeTrDB7DaKjG7mTW5vnVLn93OarOIfCnIeX8grbm+jxE52rp3sKocdFE4YpHRJXo3vsP70Yjl+jy9HtjREF6GI6skunkiQoOYiYKLOLNdx2QALPWSbTq/pjuNd2fx7NJIWiecP/R0qvMtVMBv89OT2epBSMNV/DJHhwTv5XMUWa694yq9U1hsm1K3SVI/BVizuMM9w2zMrJiYcAagXEkuigwuzyY2sXa1n88e+A2o3CLVCXGbq7Z3k/SxKoIhCbPm6YzucJaW5WPLz6eq9xA1cZG/9hhDTn9GaF1861inGzf+iSyPDCgaeJ9cdpW9QfQWMVePtsM7ZjOVSSbDXzRk+MFBjzDxu4hgshoZAsjNO9IMPWnZdt7gLFcjlL+qN6N7cqwsP2evpekVPUKbJuhpvVrcnPorKI42yWWLfzDX2R5VxLMBdeP0T28BmawJNkoe0JOMeTzkIlY+hyHEWksiOV8fIrgvkCsXgiASiSUjz8m3AqFruwa/qPEyms36fwAlCTHsQ=
   file: languagetool-linter-*.vsix
   file_glob: true
+  skip_cleanup: true
   on:
     condition: $TRAVIS_OS_NAME == "linux"
     repo: davidlday/vscode-languagetool-linter

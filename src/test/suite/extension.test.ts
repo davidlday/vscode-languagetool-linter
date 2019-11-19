@@ -1,18 +1,37 @@
 import * as assert from 'assert';
 import { before } from 'mocha';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode';
-// import * as myExtension from '../extension';
+import * as linter from '../../linter/commands';
+import * as configman from '../../common/configuration';
+import * as constants from '../../common/constants';
+
+// import * as languagetooLinter from '../';
 
 suite('Extension Test Suite', () => {
 	before(() => {
 		vscode.window.showInformationMessage('Start all tests.');
 	});
 
-	test('Sample test', () => {
-		assert.equal(-1, [1, 2, 3].indexOf(5));
-		assert.equal(-1, [1, 2, 3].indexOf(0));
+	test('Extension should be present', () => {
+		assert.ok(vscode.extensions.getExtension('davidlday.languagetool-linter'));
 	});
+
+  test('Extension should activate', function () {
+    this.timeout(60000);
+    let ext: any = vscode.extensions.getExtension('davidlday.languagetool-linter');
+    return ext.activate().then((api: any) => {
+      assert.ok(true);
+    });
+	});
+
+  test('Extension should register all commands', () => {
+    return vscode.commands.getCommands(true).then((commands) => {
+      const EXPECTED_COMMANDS: string[] = ["languagetoolLinter.lintCurrentDocument","languagetoolLinter.autoFormatDocument"];
+      const FOUND_COMMANDS = commands.filter((value) => {
+				return EXPECTED_COMMANDS.indexOf(value)>=0 || value.startsWith('languagetoolLinter.');
+      });
+      assert.equal(FOUND_COMMANDS.length , EXPECTED_COMMANDS.length, 'Either not all commands are registered or new commands have not been added to this test.');
+    });
+  });
+
 });
