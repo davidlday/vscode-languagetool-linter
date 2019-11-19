@@ -71,3 +71,6 @@ out
 
 # VS Code tests
 .vscode-test
+
+# VS Code Extensions
+*.vsix
