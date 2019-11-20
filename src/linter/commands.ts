@@ -57,7 +57,6 @@ export class LinterCommands implements CodeActionProvider {
     token: CancellationToken
   ): CodeAction[] {
     let documentUri: string = document.uri.toString();
-    // let diagnosticMap: Map<string, vscode.Diagnostic[]> = this.linter.getDiagnosticMap();
     let codeActionMap: Map<string, CodeAction[]> = this.getCodeActionMap();
     if (codeActionMap.has(documentUri) && codeActionMap.get(documentUri)) {
       let documentCodeActions: CodeAction[] = codeActionMap.get(documentUri) || [];
@@ -76,7 +75,6 @@ export class LinterCommands implements CodeActionProvider {
       return [];
     }
   }
-
 
   deleteFromDiagnosticCollection(uri: Uri): void {
     this.diagnosticCollection.delete(uri);
