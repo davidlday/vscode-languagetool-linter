@@ -16,7 +16,7 @@
 
 import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, CodeActionProvider, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionContext, CancellationToken } from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
-import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
+import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
@@ -31,7 +31,7 @@ export class LinterCommands implements CodeActionProvider {
   remarkBuilderOptions: any = remarkBuilder.defaults;
   rehypeBuilderOptions: any = rehypeBuilder.defaults;
 
-  private customMarkdownInterpretation(text: string): string {
+  private customMarkdownInterpreter(text: string): string {
     let interpretation = "";
     // Treat inline code as redacted text
     if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
@@ -47,7 +47,7 @@ export class LinterCommands implements CodeActionProvider {
     this.config = config;
     this.timeoutMap = new Map();
     this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
-    this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpretation;
+    this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
   }
 
   provideCodeActions(
