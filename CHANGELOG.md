@@ -4,6 +4,10 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+### Fixed
+
+* Corrected category on commands.
+
 ## [0.8.0] - 2019-11-17
 
 ### Added
