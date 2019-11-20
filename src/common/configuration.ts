@@ -7,13 +7,11 @@ import * as glob from "glob";
 
 export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
-  private context: ExtensionContext;
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
 
-  constructor(context: ExtensionContext) {
-    this.context = context;
+  constructor() {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
@@ -21,10 +19,6 @@ export class ConfigurationManager implements Disposable {
 
   dispose(): void {
     this.stopManagedService();
-  }
-
-  getContext() {
-    return this.context;
   }
 
   reloadConfiguration(event: ConfigurationChangeEvent) {

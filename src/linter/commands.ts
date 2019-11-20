@@ -25,7 +25,6 @@ import { LTDictionary } from './dictionary';
 
 export class LinterCommands {
   private readonly config: ConfigurationManager;
-  private readonly dictionary: LTDictionary;
   private timeoutMap: Map<string, NodeJS.Timeout>;
   diagnosticCollection: DiagnosticCollection;
   diagnosticMap: Map<string, Diagnostic[]> = new Map();
@@ -35,7 +34,6 @@ export class LinterCommands {
 
   constructor(config: ConfigurationManager) {
     this.config = config;
-    this.dictionary = new LTDictionary(config.getContext());
     this.timeoutMap = new Map();
     this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
 
