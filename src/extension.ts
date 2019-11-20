@@ -23,54 +23,18 @@ import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_TIMEOUT_MS, LT_SERVICE_MAN
 import { ConfigurationManager } from "./common/configuration";
 import { LinterCommands } from "./linter/commands";
 
-const config: ConfigurationManager = new ConfigurationManager();
-const linter: LinterCommands = new LinterCommands(config);
-const onTypeDispatcher = new OnTypeFormattingDispatcher({
-  '"': new QuotesFormattingProvider(config),
-  "'": new QuotesFormattingProvider(config),
-  '-': new DashesFormattingProvider(config),
-  '.': new EllipsesFormattingProvider(config)
-});
-const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
-
-// CodeActionProvider
-class LTCodeActionProvider implements vscode.CodeActionProvider {
-  private readonly linter: LinterCommands;
-
-  constructor(linter: LinterCommands) {
-    this.linter = linter;
-  }
-
-  provideCodeActions(
-    document: vscode.TextDocument,
-    range: vscode.Range,
-    context: vscode.CodeActionContext,
-    token: vscode.CancellationToken
-  ): vscode.CodeAction[] {
-    let documentUri: string = document.uri.toString();
-    // let diagnosticMap: Map<string, vscode.Diagnostic[]> = this.linter.getDiagnosticMap();
-    let codeActionMap: Map<string, vscode.CodeAction[]> = this.linter.getCodeActionMap();
-    if (codeActionMap.has(documentUri) && codeActionMap.get(documentUri)) {
-      let documentCodeActions: vscode.CodeAction[] = codeActionMap.get(documentUri) || [];
-      let actions: vscode.CodeAction[] = [];
-      // Code Actions get created in suggest()
-      documentCodeActions.forEach(function (action) {
-        if (action.diagnostics && context.diagnostics) {
-          let actionDiagnostic: vscode.Diagnostic = action.diagnostics[0];
-          if (range.contains(actionDiagnostic.range)) {
-            actions.push(action);
-          }
-        }
-      });
-      return actions;
-    } else {
-      return [];
-    }
-  }
-}
-
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
+
+  const config: ConfigurationManager = new ConfigurationManager();
+  const linter: LinterCommands = new LinterCommands(config);
+  const onTypeDispatcher = new OnTypeFormattingDispatcher({
+    '"': new QuotesFormattingProvider(config),
+    "'": new QuotesFormattingProvider(config),
+    '-': new DashesFormattingProvider(config),
+    '.': new EllipsesFormattingProvider(config)
+  });
+  const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
   context.subscriptions.push(config);
 
@@ -119,7 +83,8 @@ export function activate(context: vscode.ExtensionContext) {
   // Register Code Actions Provider for supported languages
   LT_DOCUMENT_SELECTORS.forEach(function (selector: vscode.DocumentSelector) {
     context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider(selector, new LTCodeActionProvider(linter))
+      // vscode.languages.registerCodeActionsProvider(selector, new LTCodeActionProvider(linter))
+      vscode.languages.registerCodeActionsProvider(selector, linter)
     );
 
     if (onTypeTriggers) {

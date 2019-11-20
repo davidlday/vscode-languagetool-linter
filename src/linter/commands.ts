@@ -14,16 +14,15 @@
  *   limitations under the License.
  */
 
-import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri } from 'vscode';
+import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, CodeActionProvider, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionContext, CancellationToken } from 'vscode';
 import { ConfigurationManager } from '../common/configuration';
 import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
 import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement } from './interfaces';
-import { LTDictionary } from './dictionary';
 
-export class LinterCommands {
+export class LinterCommands implements CodeActionProvider {
   private readonly config: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
   diagnosticCollection: DiagnosticCollection;
@@ -32,24 +31,52 @@ export class LinterCommands {
   remarkBuilderOptions: any = remarkBuilder.defaults;
   rehypeBuilderOptions: any = rehypeBuilder.defaults;
 
+  private customMarkdownInterpretation(text: string): string {
+    let interpretation = "";
+    // Treat inline code as redacted text
+    if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
+      interpretation = "`" + "#".repeat(text.length - 2) + "`";
+    } else {
+      let count = (text.match(/\n/g) || []).length;
+      interpretation = "\n".repeat(count);
+    }
+    return interpretation;
+  }
+
   constructor(config: ConfigurationManager) {
     this.config = config;
     this.timeoutMap = new Map();
     this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
-
-    // Custom markdown interpretation
-    this.remarkBuilderOptions.interpretmarkup = (text: string) => {
-      let interpretation = "";
-      // Treat inline code as redacted text
-      if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
-        interpretation = "`" + "#".repeat(text.length - 2) + "`";
-      } else {
-        let count = (text.match(/\n/g) || []).length;
-        interpretation = "\n".repeat(count);
-      }
-      return interpretation;
-    };
+    this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpretation;
   }
+
+  provideCodeActions(
+    document: TextDocument,
+    range: Range,
+    context: CodeActionContext,
+    token: CancellationToken
+  ): CodeAction[] {
+    let documentUri: string = document.uri.toString();
+    // let diagnosticMap: Map<string, vscode.Diagnostic[]> = this.linter.getDiagnosticMap();
+    let codeActionMap: Map<string, CodeAction[]> = this.getCodeActionMap();
+    if (codeActionMap.has(documentUri) && codeActionMap.get(documentUri)) {
+      let documentCodeActions: CodeAction[] = codeActionMap.get(documentUri) || [];
+      let actions: CodeAction[] = [];
+      // Code Actions get created in suggest()
+      documentCodeActions.forEach(function (action) {
+        if (action.diagnostics && context.diagnostics) {
+          let actionDiagnostic: Diagnostic = action.diagnostics[0];
+          if (range.contains(actionDiagnostic.range)) {
+            actions.push(action);
+          }
+        }
+      });
+      return actions;
+    } else {
+      return [];
+    }
+  }
+
 
   deleteFromDiagnosticCollection(uri: Uri): void {
     this.diagnosticCollection.delete(uri);
