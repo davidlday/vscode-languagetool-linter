@@ -4,14 +4,14 @@ import { before } from 'mocha';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ConfigurationManager } from '../../common/configuration';
+import { ConfigurationManager } from '../../common/configuration-manager';
 import * as constants from '../../common/constants';
-import { LinterCommands } from "../../linter/commands";
+import { Linter } from "../../linter/linter";
 
 suite('Linter Test Suite', () => {
 
   const config: ConfigurationManager = new ConfigurationManager();
-  const linter: LinterCommands = new LinterCommands(config);
+  const linter: Linter = new Linter(config);
 
 	test('Linter should instantiate', () => {
 		assert.ok(linter);

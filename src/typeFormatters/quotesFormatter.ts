@@ -15,7 +15,7 @@
  */
 
 import * as vscode from 'vscode';
-import { ConfigurationManager } from '../common/configuration';
+import { ConfigurationManager } from '../common/configuration-manager';
 
 export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
   static readonly startDoubleQuote: string = '“';

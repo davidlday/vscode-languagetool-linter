@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -48,13 +48,13 @@
     "commands": [
       {
         "command": "languagetoolLinter.lintCurrentDocument",
-        "title": "LanguageTool Linter: Lint Current Document",
-        "category": "languagetool-linter"
+        "title": "Lint Current Document",
+        "category": "LanguageTool Linter"
       },
       {
         "command": "languagetoolLinter.autoFormatDocument",
-        "title": "LanguageTool Linter: Auto Format Document",
-        "category": "languagetool-linter"
+        "title": "Auto Format Document",
+        "category": "LanguageTool Linter"
       }
     ],
     "configuration": {
