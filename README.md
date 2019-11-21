@@ -1,6 +1,7 @@
 # LanguageTool Linter for Visual Studio Code
 
 [![Build Status](https://travis-ci.org/davidlday/vscode-languagetool-linter.svg?branch=master)](https://travis-ci.org/davidlday/vscode-languagetool-linter)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1f9fb350738a438ba0d4142896733026)](https://www.codacy.com/manual/davidlday/vscode-languagetool-linter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=davidlday/vscode-languagetool-linter&amp;utm_campaign=Badge_Grade)
 
 Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://languagetool.org). Support Markdown, HTML, and plain text files.
 
