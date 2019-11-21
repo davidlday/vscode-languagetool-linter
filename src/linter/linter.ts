@@ -14,16 +14,17 @@
  *   limitations under the License.
  */
 
-import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position, Range, CodeActionKind, CodeActionProvider, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionContext, CancellationToken } from 'vscode';
-import { ConfigurationManager } from '../common/configuration';
-import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
+import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
+  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken } from 'vscode';
+import { ConfigurationManager } from '../common/configuration-manager';
+import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
 import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement } from './interfaces';
 
-export class LinterCommands implements CodeActionProvider {
-  private readonly config: ConfigurationManager;
+export class Linter implements CodeActionProvider {
+  private readonly configManager: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
   diagnosticCollection: DiagnosticCollection;
   diagnosticMap: Map<string, Diagnostic[]> = new Map();
@@ -31,6 +32,15 @@ export class LinterCommands implements CodeActionProvider {
   remarkBuilderOptions: any = remarkBuilder.defaults;
   rehypeBuilderOptions: any = rehypeBuilder.defaults;
 
+  constructor(configManager: ConfigurationManager) {
+    this.configManager = configManager;
+    this.timeoutMap = new Map();
+    this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
+
+    this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
+  }
+
+  // Custom markdown interpretation
   private customMarkdownInterpreter(text: string): string {
     let interpretation = "";
     // Treat inline code as redacted text
@@ -41,13 +51,6 @@ export class LinterCommands implements CodeActionProvider {
       interpretation = "\n".repeat(count);
     }
     return interpretation;
-  }
-
-  constructor(config: ConfigurationManager) {
-    this.config = config;
-    this.timeoutMap = new Map();
-    this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
-    this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
   }
 
   provideCodeActions(
@@ -61,7 +64,6 @@ export class LinterCommands implements CodeActionProvider {
     if (codeActionMap.has(documentUri) && codeActionMap.get(documentUri)) {
       let documentCodeActions: CodeAction[] = codeActionMap.get(documentUri) || [];
       let actions: CodeAction[] = [];
-      // Code Actions get created in suggest()
       documentCodeActions.forEach(function (action) {
         if (action.diagnostics && context.diagnostics) {
           let actionDiagnostic: Diagnostic = action.diagnostics[0];
@@ -93,7 +95,7 @@ export class LinterCommands implements CodeActionProvider {
   }
 
   requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
-    if (this.config.isSupportedDocument(document)) {
+    if (this.configManager.isSupportedDocument(document)) {
       this.cancelLint(document);
       let uriString = document.uri.toString();
       let timeout = setTimeout(() => {
@@ -128,7 +130,7 @@ export class LinterCommands implements CodeActionProvider {
 
   // Perform Lint on Document
   lintDocument(document: TextDocument): void {
-    if (this.config.isSupportedDocument(document)) {
+    if (this.configManager.isSupportedDocument(document)) {
       if (document.languageId === "markdown") {
         let annotatedMarkdown: string = this.buildAnnotatedMarkdown(document.getText());
         this.lintAnnotatedText(document, annotatedMarkdown);
@@ -144,7 +146,7 @@ export class LinterCommands implements CodeActionProvider {
   // Set ltPostDataTemplate from Configuration
   private getPostDataTemplate(): any {
     let ltPostDataTemplate: any = {};
-    this.config.getServiceParameters().forEach(function (value, key) {
+    this.configManager.getServiceParameters().forEach(function (value, key) {
       ltPostDataTemplate[key] = value;
     });
     return ltPostDataTemplate;
@@ -152,7 +154,7 @@ export class LinterCommands implements CodeActionProvider {
 
   // Call to LanguageTool Service
   private callLanguageTool(document: TextDocument, ltPostDataDict: any): void {
-    let url = this.config.getUrl();
+    let url = this.configManager.getUrl();
     if (url) {
       let options: object = {
         "method": "POST",
@@ -176,7 +178,7 @@ export class LinterCommands implements CodeActionProvider {
 
   // Lint Plain Text Document
   lintPlaintext(document: TextDocument): void {
-    if (this.config.isSupportedDocument(document)) {
+    if (this.configManager.isSupportedDocument(document)) {
       let ltPostDataDict: any = this.getPostDataTemplate();
       ltPostDataDict["text"] = document.getText();
       this.callLanguageTool(document, ltPostDataDict);
@@ -185,7 +187,7 @@ export class LinterCommands implements CodeActionProvider {
 
   // Lint Annotated Text
   lintAnnotatedText(document: TextDocument, annotatedText: string): void {
-    if (this.config.isSupportedDocument(document)) {
+    if (this.configManager.isSupportedDocument(document)) {
       let ltPostDataDict: any = this.getPostDataTemplate();
       ltPostDataDict["data"] = annotatedText;
       this.callLanguageTool(document, ltPostDataDict);
