@@ -1,1 +1,1 @@
-declare module 'annotatedtext-remark';
+declare module "annotatedtext-remark";

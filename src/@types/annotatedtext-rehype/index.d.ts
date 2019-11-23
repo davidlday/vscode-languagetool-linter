@@ -1,1 +1,1 @@
-declare module 'annotatedtext-rehype';
+declare module "annotatedtext-rehype";
