@@ -104,6 +104,18 @@ export function activate(context: vscode.ExtensionContext) {
     linter.resetDiagnostics();
   }));
 
+  // Register "Ignore Word Globally" TextEditorCommand
+  let ignoreWordGlobally = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordGlobally", (editor, edit, ...args) => {
+    configMan.ignoreWordGlobally(args[0]);
+  });
+  context.subscriptions.push(ignoreWordGlobally);
+
+  // Register "Ignore Word in Workspace" TextEditorCommand
+  let ingnoreWordInWorkspace = vscode.commands.registerTextEditorCommand("languagetoolLinter.ingnoreWordInWorkspace", (editor, edit, ...args) => {
+    configMan.ignoreWordInWorkspace(args[0]);
+  });
+  context.subscriptions.push(ingnoreWordInWorkspace);
+
   // Register "Lint Current Document" TextEditorCommand
   let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor, edit) => {
     linter.requestLint(editor.document, 0);
