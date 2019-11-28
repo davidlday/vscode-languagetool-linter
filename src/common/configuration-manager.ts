@@ -1,4 +1,4 @@
-import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable, window, ExtensionContext } from 'vscode';
+import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable, window, ExtensionContext, ConfigurationTarget } from 'vscode';
 import { LT_DOCUMENT_LANGUAGE_IDS, LT_CONFIGURATION_ROOT, LT_SERVICE_PARAMETERS, LT_SERVICE_EXTERNAL, LT_CHECK_PATH, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC, LT_PUBLIC_URL, LT_OUTPUT_CHANNEL } from './constants';
 import * as portfinder from "portfinder";
 import * as execa from "execa";
@@ -10,11 +10,17 @@ export class ConfigurationManager implements Disposable {
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
+  private globallyIgnoredWords: Array<string>;
+  private workspaceIgnoredWords: Array<string>;
+  private static SETTING_IGNORE_GLOBAL: string = "languageTool.ignoredWordsGlobal";
+  private static SETTING_IGNORE_WORKSPACE: string = "languageTool.ignoredWordsInWorkspace";
 
   constructor() {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
+    this.globallyIgnoredWords = this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_GLOBAL) as Array<string>;
+    this.workspaceIgnoredWords = this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_WORKSPACE) as Array<string>;
   }
 
   dispose(): void {
@@ -38,6 +44,16 @@ export class ConfigurationManager implements Disposable {
       && (event.affectsConfiguration("languageToolLinter.managed.classPath")
         || event.affectsConfiguration("languageToolLinter.managed.jarFile"))) {
       this.startManagedService();
+    }
+    // Error about conflicting settings
+    if (event.affectsConfiguration("languageToolLinter.languageTool.preferredVariants")
+      || event.affectsConfiguration("languageToolLinter.languageTool.language")) {
+      if (this.config.get("languageToolLinter.languageTool.language") !== "auto"
+        && this.config.get("languageToolLinter.languageTool.preferredVariants") !== undefined) {
+        window.showErrorMessage('', ...["Set Language to 'auto'", "Clear Preferred Variants"]).then((selection) => {
+          console.log(selection);
+        });
+      }
     }
   }
 
@@ -181,5 +197,31 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
+  // Manage Ignored Words Lists
+  isIgnoredWord(word: string): boolean {
+    return this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word);
+  }
+
+  isGloballyIgnoredWord(word: string): boolean {
+    return this.globallyIgnoredWords.includes(word);
+  }
+
+  isWorkspaceIgnoredWord(word: string): boolean {
+    return this.workspaceIgnoredWords.includes(word);
+  }
+
+  ignoreWordGlobally(word: string): void {
+    if (!this.isGloballyIgnoredWord(word)) {
+      this.globallyIgnoredWords.push(word);
+      this.config.update(ConfigurationManager.SETTING_IGNORE_GLOBAL, this.globallyIgnoredWords, ConfigurationTarget.Global);
+    }
+  }
+
+  ignoreWordInWorkspace(word: string): void {
+    if (!this.isWorkspaceIgnoredWord(word)) {
+      this.workspaceIgnoredWords.push(word);
+      this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, this.workspaceIgnoredWords, ConfigurationTarget.Workspace);
+    }
+  }
 
 }
