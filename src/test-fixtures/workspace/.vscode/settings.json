@@ -1,0 +1,5 @@
+{
+    "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
+        "misspeeled"
+    ]
+}
