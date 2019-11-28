@@ -14,10 +14,12 @@
  *   limitations under the License.
  */
 
-import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
-  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken } from 'vscode';
+import {
+  TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
+  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken
+} from 'vscode';
 import { ConfigurationManager } from '../common/configuration-manager';
-import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
+import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
@@ -128,6 +130,11 @@ export class Linter implements CodeActionProvider {
     return JSON.stringify(rehypeBuilder.build(text, this.rehypeBuilderOptions));
   }
 
+  // Build annotatedtext from PLAINTEXT
+  buildAnnotatedPlaintext(text: string): string {
+    return JSON.stringify({ "text": text });
+  }
+
   // Perform Lint on Document
   lintDocument(document: TextDocument): void {
     if (this.configManager.isSupportedDocument(document)) {
@@ -138,7 +145,8 @@ export class Linter implements CodeActionProvider {
         let annotatedHTML: string = this.buildAnnotatedHTML(document.getText());
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
-        this.lintPlaintext(document);
+        let annotatedPlaintext: string = this.buildAnnotatedPlaintext(document.getText());
+        this.lintAnnotatedText(document, annotatedPlaintext);
       }
     }
   }
@@ -177,13 +185,13 @@ export class Linter implements CodeActionProvider {
   }
 
   // Lint Plain Text Document
-  lintPlaintext(document: TextDocument): void {
-    if (this.configManager.isSupportedDocument(document)) {
-      let ltPostDataDict: any = this.getPostDataTemplate();
-      ltPostDataDict["text"] = document.getText();
-      this.callLanguageTool(document, ltPostDataDict);
-    }
-  }
+  // lintPlaintext(document: TextDocument): void {
+  //   if (this.configManager.isSupportedDocument(document)) {
+  //     let ltPostDataDict: any = this.getPostDataTemplate();
+  //     ltPostDataDict["text"] = document.getText();
+  //     this.callLanguageTool(document, ltPostDataDict);
+  //   }
+  // }
 
   // Lint Annotated Text
   lintAnnotatedText(document: TextDocument, annotatedText: string): void {
@@ -199,18 +207,26 @@ export class Linter implements CodeActionProvider {
     let matches = response.matches;
     let diagnostics: Diagnostic[] = [];
     let actions: CodeAction[] = [];
-    matches.forEach(function (match: ILanguageToolMatch) {
+    matches.forEach((match: ILanguageToolMatch) => {
       let start: Position = document.positionAt(match.offset);
       let end: Position = document.positionAt(match.offset + match.length);
       let diagnosticRange: Range = new Range(start, end);
       let diagnosticMessage: string = match.rule.id + ": " + match.message;
       let diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
+      if (this.isSpellingRule(match.rule.id)) {
+        let word: string = document.getText(diagnosticRange);
+        let actionTitle: string = "Ignore '" + word + "' Globally";
+        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+        action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordGlobally", arguments: [word] };
+        action.diagnostics = [];
+        action.diagnostics.push(diagnostic);
+        actions.push(action);
+      }
       match.replacements.forEach(function (replacement: ILanguageToolReplacement) {
         let actionTitle: string = "'" + replacement.value + "'";
         let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-        let location: Location = new Location(document.uri, diagnosticRange);
         let edit: WorkspaceEdit = new WorkspaceEdit();
-        edit.replace(document.uri, location.range, replacement.value);
+        edit.replace(document.uri, diagnosticRange, replacement.value);
         action.edit = edit;
         action.diagnostics = [];
         action.diagnostics.push(diagnostic);
@@ -232,5 +248,12 @@ export class Linter implements CodeActionProvider {
     });
   }
 
+  // Is the rule a Spelling rule?
+  // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
+  isSpellingRule(ruleId: string): boolean {
+    return ruleId.indexOf("MORFOLOGIK_RULE") !== -1 || ruleId.indexOf("SPELLER_RULE") !== -1
+      || ruleId.indexOf("HUNSPELL_NO_SUGGEST_RULE") !== -1 || ruleId.indexOf("HUNSPELL_RULE") !== -1
+      || ruleId.indexOf("FR_SPELLING_RULE") !== -1;
+  }
 
 }
