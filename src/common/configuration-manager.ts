@@ -10,8 +10,8 @@ export class ConfigurationManager implements Disposable {
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
-  private globallyIgnoredWords: Array<string>;
-  private workspaceIgnoredWords: Array<string>;
+  private globallyIgnoredWords: Set<string>;
+  private workspaceIgnoredWords: Set<string>;
   private static SETTING_IGNORE_GLOBAL: string = "languageTool.ignoredWordsGlobal";
   private static SETTING_IGNORE_WORKSPACE: string = "languageTool.ignoredWordsInWorkspace";
 
@@ -19,8 +19,8 @@ export class ConfigurationManager implements Disposable {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
-    this.globallyIgnoredWords = this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_GLOBAL) as Array<string>;
-    this.workspaceIgnoredWords = this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_WORKSPACE) as Array<string>;
+    this.globallyIgnoredWords = new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_GLOBAL));
+    this.workspaceIgnoredWords = new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_WORKSPACE));
   }
 
   dispose(): void {
@@ -202,25 +202,55 @@ export class ConfigurationManager implements Disposable {
     return this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word);
   }
 
+  // Is word ignored at the User Level?
   isGloballyIgnoredWord(word: string): boolean {
-    return this.globallyIgnoredWords.includes(word);
+    return this.globallyIgnoredWords.has(word);
   }
 
+  // Is word ignored at the Workspace Level?
   isWorkspaceIgnoredWord(word: string): boolean {
-    return this.workspaceIgnoredWords.includes(word);
+    return this.workspaceIgnoredWords.has(word);
   }
 
+  // Save word to User Level ignored word list.
+  private saveGloballyIgnoredWords(): void {
+    this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, this.globallyIgnoredWords, ConfigurationTarget.Global);
+  }
+
+  // Save word to Workspace Level ignored word list.
+  private saveWorkspaceIgnoredWords(): void {
+    this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, this.workspaceIgnoredWords, ConfigurationTarget.Workspace);
+  }
+
+  // Add word to User Level ignored word list.
   ignoreWordGlobally(word: string): void {
     if (!this.isGloballyIgnoredWord(word)) {
-      this.globallyIgnoredWords.push(word);
-      this.config.update(ConfigurationManager.SETTING_IGNORE_GLOBAL, this.globallyIgnoredWords, ConfigurationTarget.Global);
+      this.globallyIgnoredWords.add(word);
+      this.saveGloballyIgnoredWords();
     }
   }
 
+  // Add word to Workspace Level ignored word list.
   ignoreWordInWorkspace(word: string): void {
     if (!this.isWorkspaceIgnoredWord(word)) {
-      this.workspaceIgnoredWords.push(word);
-      this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, this.workspaceIgnoredWords, ConfigurationTarget.Workspace);
+      this.workspaceIgnoredWords.add(word);
+      this.saveWorkspaceIgnoredWords();
+    }
+  }
+
+  // Remove word from User Level ignored word list.
+  uningoreWordGlobally(word: string): void {
+    if (this.isGloballyIgnoredWord(word)) {
+      this.globallyIgnoredWords.delete(word);
+      this.saveGloballyIgnoredWords();
+    }
+  }
+
+  // Remove word from Workspace Level ignored word list.
+  unignoreWordInWorkspace(word: string): void {
+    if (this.isWorkspaceIgnoredWord(word)) {
+      this.workspaceIgnoredWords.delete(word);
+      this.saveWorkspaceIgnoredWords();
     }
   }
 
