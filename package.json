@@ -98,13 +98,11 @@
         },
         "languageToolLinter.managed.jarFile": {
           "type": "string",
-          "scope": "machine",
           "default": "",
           "description": "Path to languagetool-server.jar on your local machine."
         },
         "languageToolLinter.managed.classPath": {
           "type": "string",
-          "scope": "machine",
           "default": "",
           "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
         },
