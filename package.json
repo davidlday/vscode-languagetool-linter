@@ -98,11 +98,13 @@
         },
         "languageToolLinter.managed.jarFile": {
           "type": "string",
+          "scope": "machine",
           "default": "",
           "description": "Path to languagetool-server.jar on your local machine."
         },
         "languageToolLinter.managed.classPath": {
           "type": "string",
+          "scope": "machine",
           "default": "",
           "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
         },
@@ -314,6 +316,18 @@
           "type": "string",
           "default": "",
           "description": "IDs of categories to be disabled, comma-separated."
+        },
+        "languageToolLinter.languageTool.ignoredWordsGlobal": {
+          "type": "array",
+          "scope": "application",
+          "default": [],
+          "description": "Global list of words to ignore in spellcheck."
+        },
+        "languageToolLinter.languageTool.ignoredWordsInWorkspace": {
+          "type": "array",
+          "scope": "window",
+          "default": [],
+          "description": "Workspace list of words to ignore in spellcheck. This setting is ignored at the User (Global) level."
         }
       }
     }
