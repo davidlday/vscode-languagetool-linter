@@ -214,7 +214,7 @@ export class ConfigurationManager implements Disposable {
 
   // Save word to User Level ignored word list.
   private saveGloballyIgnoredWords(): void {
-    this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, this.globallyIgnoredWords, ConfigurationTarget.Global);
+    this.config.update(ConfigurationManager.SETTING_IGNORE_GLOBAL, this.globallyIgnoredWords, ConfigurationTarget.Global);
   }
 
   // Save word to Workspace Level ignored word list.
