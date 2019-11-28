@@ -16,7 +16,7 @@
 
 import {
   TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
-  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken
+  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken, workspace
 } from 'vscode';
 import { ConfigurationManager } from '../common/configuration-manager';
 import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
@@ -184,15 +184,6 @@ export class Linter implements CodeActionProvider {
     }
   }
 
-  // Lint Plain Text Document
-  // lintPlaintext(document: TextDocument): void {
-  //   if (this.configManager.isSupportedDocument(document)) {
-  //     let ltPostDataDict: any = this.getPostDataTemplate();
-  //     ltPostDataDict["text"] = document.getText();
-  //     this.callLanguageTool(document, ltPostDataDict);
-  //   }
-  // }
-
   // Lint Annotated Text
   lintAnnotatedText(document: TextDocument, annotatedText: string): void {
     if (this.configManager.isSupportedDocument(document)) {
@@ -213,31 +204,92 @@ export class Linter implements CodeActionProvider {
       let diagnosticRange: Range = new Range(start, end);
       let diagnosticMessage: string = match.rule.id + ": " + match.message;
       let diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
-      if (this.isSpellingRule(match.rule.id)) {
-        let word: string = document.getText(diagnosticRange);
-        let actionTitle: string = "Ignore '" + word + "' Globally";
-        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-        action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordGlobally", arguments: [word] };
-        action.diagnostics = [];
-        action.diagnostics.push(diagnostic);
-        actions.push(action);
-      }
-      match.replacements.forEach(function (replacement: ILanguageToolReplacement) {
-        let actionTitle: string = "'" + replacement.value + "'";
-        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-        let edit: WorkspaceEdit = new WorkspaceEdit();
-        edit.replace(document.uri, diagnosticRange, replacement.value);
-        action.edit = edit;
-        action.diagnostics = [];
-        action.diagnostics.push(diagnostic);
-        actions.push(action);
-      });
       diagnostic.source = LT_DIAGNOSTIC_SOURCE;
       diagnostics.push(diagnostic);
+      // Spelling Rules
+      if (Linter.isSpellingRule(match.rule.id)) {
+        this.getSpellingRuleActions(document, diagnostic, match).forEach( (action) => {
+          actions.push(action);
+        });
+      } else {
+        this.getRuleActions(document, diagnostic, match).forEach( (action) => {
+          actions.push(action);
+        });
+      }
     });
     this.codeActionMap.set(document.uri.toString(), actions);
     this.diagnosticMap.set(document.uri.toString(), diagnostics);
     this.resetDiagnostics();
+  }
+
+  private getSpellingRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
+    if (!Linter.isSpellingRule(match.rule.id)) {
+      return [];
+    }
+    let actions: CodeAction[] = [];
+    let word: string = document.getText(diagnostic.range);
+    if (this.configManager.isIgnoredWord(word)) {
+      // Change severity for ignored words.
+      diagnostic.severity = DiagnosticSeverity.Hint;
+      if (this.configManager.isGloballyIgnoredWord(word)) {
+        let actionTitle: string = "Remove '" + word + "' from always ignored words.";
+        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+        action.command = { title: actionTitle, command: "languagetoolLinter.removeGloballyIgnoredWord", arguments: [word] };
+        action.diagnostics = [];
+        action.diagnostics.push(diagnostic);
+        actions.push(action);
+      }
+      if (this.configManager.isWorkspaceIgnoredWord(word)) {
+        let actionTitle: string = "Remove '" + word + "' from Workspace ignored words.";
+        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+        action.command = { title: actionTitle, command: "languagetoolLinter.removeWorkspaceIgnoredWord", arguments: [word] };
+        action.diagnostics = [];
+        action.diagnostics.push(diagnostic);
+        actions.push(action);
+      }
+    } else {
+      let actionTitle: string = "Always ignore '" + word + "'";
+      let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+      action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordGlobally", arguments: [word] };
+      action.diagnostics = [];
+      action.diagnostics.push(diagnostic);
+      actions.push(action);
+      if (workspace !== undefined) {
+        let actionTitle: string = "Ignore '" + word + "' in Workspace";
+        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+        action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordInWorkspace", arguments: [word] };
+        action.diagnostics = [];
+        action.diagnostics.push(diagnostic);
+        actions.push(action);
+      }
+      this.getReplacementActions(document, diagnostic, match.replacements).forEach( (action: CodeAction) => {
+        actions.push(action);
+      });
+    }
+    return actions;
+  }
+
+  private getRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
+    let actions: CodeAction[] = [];
+    this.getReplacementActions(document, diagnostic, match.replacements).forEach( (action: CodeAction) => {
+      actions.push(action);
+    });
+    return actions;
+  }
+
+  private getReplacementActions(document: TextDocument, diagnostic: Diagnostic, replacements: ILanguageToolReplacement[]): CodeAction[] {
+    let actions: CodeAction[] = [];
+    replacements.forEach( (replacement: ILanguageToolReplacement) => {
+      let actionTitle: string = "'" + replacement.value + "'";
+      let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+      let edit: WorkspaceEdit = new WorkspaceEdit();
+      edit.replace(document.uri, diagnostic.range, replacement.value);
+      action.edit = edit;
+      action.diagnostics = [];
+      action.diagnostics.push(diagnostic);
+      actions.push(action);
+    });
+    return actions;
   }
 
   // Reset the Diagnostic Collection
@@ -250,7 +302,7 @@ export class Linter implements CodeActionProvider {
 
   // Is the rule a Spelling rule?
   // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
-  isSpellingRule(ruleId: string): boolean {
+  static isSpellingRule(ruleId: string): boolean {
     return ruleId.indexOf("MORFOLOGIK_RULE") !== -1 || ruleId.indexOf("SPELLER_RULE") !== -1
       || ruleId.indexOf("HUNSPELL_NO_SUGGEST_RULE") !== -1 || ruleId.indexOf("HUNSPELL_RULE") !== -1
       || ruleId.indexOf("FR_SPELLING_RULE") !== -1;
