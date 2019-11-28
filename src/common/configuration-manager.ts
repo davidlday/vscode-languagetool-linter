@@ -214,12 +214,12 @@ export class ConfigurationManager implements Disposable {
 
   // Save word to User Level ignored word list.
   private saveGloballyIgnoredWords(): void {
-    this.config.update(ConfigurationManager.SETTING_IGNORE_GLOBAL, this.globallyIgnoredWords, ConfigurationTarget.Global);
+    this.config.update(ConfigurationManager.SETTING_IGNORE_GLOBAL, Array.from(this.globallyIgnoredWords), ConfigurationTarget.Global);
   }
 
   // Save word to Workspace Level ignored word list.
   private saveWorkspaceIgnoredWords(): void {
-    this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, this.workspaceIgnoredWords, ConfigurationTarget.Workspace);
+    this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, Array.from(this.workspaceIgnoredWords), ConfigurationTarget.Workspace);
   }
 
   // Add word to User Level ignored word list.
@@ -239,7 +239,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Remove word from User Level ignored word list.
-  uningoreWordGlobally(word: string): void {
+  removeGloballyIgnoredWord(word: string): void {
     if (this.isGloballyIgnoredWord(word)) {
       this.globallyIgnoredWords.delete(word);
       this.saveGloballyIgnoredWords();
@@ -247,7 +247,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Remove word from Workspace Level ignored word list.
-  unignoreWordInWorkspace(word: string): void {
+  removeWorkspaceIgnoredWord(word: string): void {
     if (this.isWorkspaceIgnoredWord(word)) {
       this.workspaceIgnoredWords.delete(word);
       this.saveWorkspaceIgnoredWords();
