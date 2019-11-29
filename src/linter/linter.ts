@@ -205,14 +205,18 @@ export class Linter implements CodeActionProvider {
       let diagnosticMessage: string = match.rule.id + ": " + match.message;
       let diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
       diagnostic.source = LT_DIAGNOSTIC_SOURCE;
-      diagnostics.push(diagnostic);
       // Spelling Rules
       if (Linter.isSpellingRule(match.rule.id)) {
-        this.getSpellingRuleActions(document, diagnostic, match).forEach( (action) => {
-          actions.push(action);
-        });
+        let spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
+        if (spellingActions.length > 0) {
+          diagnostics.push(diagnostic);
+          spellingActions.forEach( (action) => {
+            actions.push(action);
+          });
+        }
       } else {
-        this.getRuleActions(document, diagnostic, match).forEach( (action) => {
+        diagnostics.push(diagnostic);
+        this.getRuleActions(document, diagnostic, match).forEach((action) => {
           actions.push(action);
         });
       }
@@ -223,29 +227,28 @@ export class Linter implements CodeActionProvider {
   }
 
   private getSpellingRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
-    if (!Linter.isSpellingRule(match.rule.id)) {
-      return [];
-    }
     let actions: CodeAction[] = [];
     let word: string = document.getText(diagnostic.range);
     if (this.configManager.isIgnoredWord(word)) {
-      // Change severity for ignored words.
-      diagnostic.severity = DiagnosticSeverity.Hint;
-      if (this.configManager.isGloballyIgnoredWord(word)) {
-        let actionTitle: string = "Remove '" + word + "' from always ignored words.";
-        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-        action.command = { title: actionTitle, command: "languagetoolLinter.removeGloballyIgnoredWord", arguments: [word] };
-        action.diagnostics = [];
-        action.diagnostics.push(diagnostic);
-        actions.push(action);
-      }
-      if (this.configManager.isWorkspaceIgnoredWord(word)) {
-        let actionTitle: string = "Remove '" + word + "' from Workspace ignored words.";
-        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-        action.command = { title: actionTitle, command: "languagetoolLinter.removeWorkspaceIgnoredWord", arguments: [word] };
-        action.diagnostics = [];
-        action.diagnostics.push(diagnostic);
-        actions.push(action);
+      if (this.configManager.showIgnoredWordHints()) {
+        // Change severity for ignored words.
+        diagnostic.severity = DiagnosticSeverity.Hint;
+        if (this.configManager.isGloballyIgnoredWord(word)) {
+          let actionTitle: string = "Remove '" + word + "' from always ignored words.";
+          let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+          action.command = { title: actionTitle, command: "languagetoolLinter.removeGloballyIgnoredWord", arguments: [word] };
+          action.diagnostics = [];
+          action.diagnostics.push(diagnostic);
+          actions.push(action);
+        }
+        if (this.configManager.isWorkspaceIgnoredWord(word)) {
+          let actionTitle: string = "Remove '" + word + "' from Workspace ignored words.";
+          let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+          action.command = { title: actionTitle, command: "languagetoolLinter.removeWorkspaceIgnoredWord", arguments: [word] };
+          action.diagnostics = [];
+          action.diagnostics.push(diagnostic);
+          actions.push(action);
+        }
       }
     } else {
       let actionTitle: string = "Always ignore '" + word + "'";
@@ -262,7 +265,7 @@ export class Linter implements CodeActionProvider {
         action.diagnostics.push(diagnostic);
         actions.push(action);
       }
-      this.getReplacementActions(document, diagnostic, match.replacements).forEach( (action: CodeAction) => {
+      this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
         actions.push(action);
       });
     }
@@ -271,7 +274,7 @@ export class Linter implements CodeActionProvider {
 
   private getRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
     let actions: CodeAction[] = [];
-    this.getReplacementActions(document, diagnostic, match.replacements).forEach( (action: CodeAction) => {
+    this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
       actions.push(action);
     });
     return actions;
@@ -279,7 +282,7 @@ export class Linter implements CodeActionProvider {
 
   private getReplacementActions(document: TextDocument, diagnostic: Diagnostic, replacements: ILanguageToolReplacement[]): CodeAction[] {
     let actions: CodeAction[] = [];
-    replacements.forEach( (replacement: ILanguageToolReplacement) => {
+    replacements.forEach((replacement: ILanguageToolReplacement) => {
       let actionTitle: string = "'" + replacement.value + "'";
       let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
       let edit: WorkspaceEdit = new WorkspaceEdit();
