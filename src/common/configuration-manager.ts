@@ -207,12 +207,18 @@ export class ConfigurationManager implements Disposable {
 
   // Is word ignored at the User Level?
   isGloballyIgnoredWord(word: string): boolean {
-    return this.globallyIgnoredWords.has(word);
+    return this.globallyIgnoredWords.has(word.toLowerCase());
   }
 
   // Is word ignored at the Workspace Level?
   isWorkspaceIgnoredWord(word: string): boolean {
-    return this.workspaceIgnoredWords.has(word);
+    return this.workspaceIgnoredWords.has(word.toLowerCase());
+  }
+
+  // Save words to settings
+  private saveIgnoredWords(words: Set<string>, configurationTarget: ConfigurationTarget): void {
+    let wordArray: Array<string> = Array.from(words).sort();
+    this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, wordArray, configurationTarget);
   }
 
   // Get Globally ingored words from settings.
@@ -222,7 +228,7 @@ export class ConfigurationManager implements Disposable {
 
   // Save word to User Level ignored word list.
   private saveGloballyIgnoredWords(): void {
-    this.config.update(ConfigurationManager.SETTING_IGNORE_GLOBAL, Array.from(this.globallyIgnoredWords), ConfigurationTarget.Global);
+    this.saveIgnoredWords(this.globallyIgnoredWords, ConfigurationTarget.Global);
   }
 
   // Get Workspace ignored words from settings.
@@ -232,37 +238,41 @@ export class ConfigurationManager implements Disposable {
 
   // Save word to Workspace Level ignored word list.
   private saveWorkspaceIgnoredWords(): void {
-    this.config.update(ConfigurationManager.SETTING_IGNORE_WORKSPACE, Array.from(this.workspaceIgnoredWords), ConfigurationTarget.Workspace);
+    this.saveIgnoredWords(this.workspaceIgnoredWords, ConfigurationTarget.Workspace);
   }
 
   // Add word to User Level ignored word list.
   ignoreWordGlobally(word: string): void {
-    if (!this.isGloballyIgnoredWord(word)) {
-      this.globallyIgnoredWords.add(word);
+    let lowerCaseWord: string = word.toLowerCase();
+    if (!this.isGloballyIgnoredWord(lowerCaseWord)) {
+      this.globallyIgnoredWords.add(lowerCaseWord);
       this.saveGloballyIgnoredWords();
     }
   }
 
   // Add word to Workspace Level ignored word list.
   ignoreWordInWorkspace(word: string): void {
-    if (!this.isWorkspaceIgnoredWord(word)) {
-      this.workspaceIgnoredWords.add(word);
+    let lowerCaseWord: string = word.toLowerCase();
+    if (!this.isWorkspaceIgnoredWord(lowerCaseWord)) {
+      this.workspaceIgnoredWords.add(lowerCaseWord);
       this.saveWorkspaceIgnoredWords();
     }
   }
 
   // Remove word from User Level ignored word list.
   removeGloballyIgnoredWord(word: string): void {
-    if (this.isGloballyIgnoredWord(word)) {
-      this.globallyIgnoredWords.delete(word);
+    let lowerCaseWord: string = word.toLowerCase();
+    if (this.isGloballyIgnoredWord(lowerCaseWord)) {
+      this.globallyIgnoredWords.delete(lowerCaseWord);
       this.saveGloballyIgnoredWords();
     }
   }
 
   // Remove word from Workspace Level ignored word list.
   removeWorkspaceIgnoredWord(word: string): void {
-    if (this.isWorkspaceIgnoredWord(word)) {
-      this.workspaceIgnoredWords.delete(word);
+    let lowerCaseWord: string = word.toLowerCase();
+    if (this.isWorkspaceIgnoredWord(lowerCaseWord)) {
+      this.workspaceIgnoredWords.delete(lowerCaseWord);
       this.saveWorkspaceIgnoredWords();
     }
   }
