@@ -14,13 +14,14 @@ export class ConfigurationManager implements Disposable {
   private workspaceIgnoredWords: Set<string>;
   private static SETTING_IGNORE_GLOBAL: string = "languageTool.ignoredWordsGlobal";
   private static SETTING_IGNORE_WORKSPACE: string = "languageTool.ignoredWordsInWorkspace";
+  private static SETTING_HINT_IGNORED: string = "languageTool.ignoredWordHint";
 
   constructor() {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
-    this.globallyIgnoredWords = new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_GLOBAL));
-    this.workspaceIgnoredWords = new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_WORKSPACE));
+    this.globallyIgnoredWords = this.getGloballyIgnoredWords();
+    this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
   dispose(): void {
@@ -55,6 +56,8 @@ export class ConfigurationManager implements Disposable {
         });
       }
     }
+    this.globallyIgnoredWords = this.getGloballyIgnoredWords();
+    this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
   isAutoFormatEnabled(): boolean {
@@ -212,9 +215,19 @@ export class ConfigurationManager implements Disposable {
     return this.workspaceIgnoredWords.has(word);
   }
 
+  // Get Globally ingored words from settings.
+  private getGloballyIgnoredWords(): Set<string> {
+    return new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_GLOBAL));
+  }
+
   // Save word to User Level ignored word list.
   private saveGloballyIgnoredWords(): void {
     this.config.update(ConfigurationManager.SETTING_IGNORE_GLOBAL, Array.from(this.globallyIgnoredWords), ConfigurationTarget.Global);
+  }
+
+  // Get Workspace ignored words from settings.
+  private getWorkspaceIgnoredWords(): Set<string> {
+    return new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_WORKSPACE));
   }
 
   // Save word to Workspace Level ignored word list.
@@ -252,6 +265,11 @@ export class ConfigurationManager implements Disposable {
       this.workspaceIgnoredWords.delete(word);
       this.saveWorkspaceIgnoredWords();
     }
+  }
+
+  // Show hints for ignored words?
+  showIgnoredWordHints(): boolean {
+    return this.config.get(ConfigurationManager.SETTING_HINT_IGNORED) as boolean;
   }
 
 }
