@@ -326,6 +326,11 @@
           "scope": "window",
           "default": [],
           "description": "Workspace list of words to ignore in spellcheck. This setting is ignored at the User (Global) level."
+        },
+        "languageToolLinter.languageTool.ignoredWordHint": {
+          "type": "boolean",
+          "default": true,
+          "description": "Shows a hint for ignored words, providing a Quick Fix to remove the word from the ignored list."
         }
       }
     }
