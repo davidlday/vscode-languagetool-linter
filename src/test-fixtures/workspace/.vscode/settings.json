@@ -1,5 +1,6 @@
 {
     "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
         "misspeeled"
-    ]
+    ],
+    "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
 }
