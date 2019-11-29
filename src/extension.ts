@@ -118,16 +118,16 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(ignoreWordInWorkspace);
 
-  // Register "Ignore Word Globally" TextEditorCommand
+  // Register "Remove Globally Ignored Word" TextEditorCommand
   let removeGloballyIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeGloballyIgnoredWord", (editor, edit, ...args) => {
     configMan.removeGloballyIgnoredWord(args[0]);
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(removeGloballyIgnoredWord);
 
-  // Register "Ignore Word in Workspace" TextEditorCommand
+  // Register "Remove Workspace Ignored Word" TextEditorCommand
   let removeWorkspaceIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeWorkspaceIgnoredWord", (editor, edit, ...args) => {
-    configMan.ignoreWordInWorkspace(args[0]);
+    configMan.removeWorkspaceIgnoredWord(args[0]);
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(removeWorkspaceIgnoredWord);
