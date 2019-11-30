@@ -4,6 +4,14 @@ All notable changes to the "languagetool-linter" extension will be documented in
 
 ## [Unreleased]
 
+## [0.9.0] - 2019-11-29
+
+### Added
+
+* Ignored Words lists at the User and Workspace levels.
+  * The Workspace level list appears in the User settings, but is ignored. This is due to how settings work as overrides instead of cumulative.
+  * Ignored words have an optional hint shown to remove the word from the ignored list.
+
 ## [0.8.1] - 2019-11-17
 
 ### Fixed

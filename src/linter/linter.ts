@@ -14,10 +14,12 @@
  *   limitations under the License.
  */
 
-import { TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
-  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken } from 'vscode';
+import {
+  TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
+  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken, workspace
+} from 'vscode';
 import { ConfigurationManager } from '../common/configuration-manager';
-import { LT_TIMEOUT_MS, LT_SERVICE_PARAMETERS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
+import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
@@ -128,6 +130,11 @@ export class Linter implements CodeActionProvider {
     return JSON.stringify(rehypeBuilder.build(text, this.rehypeBuilderOptions));
   }
 
+  // Build annotatedtext from PLAINTEXT
+  buildAnnotatedPlaintext(text: string): string {
+    return JSON.stringify({ "text": text });
+  }
+
   // Perform Lint on Document
   lintDocument(document: TextDocument): void {
     if (this.configManager.isSupportedDocument(document)) {
@@ -138,7 +145,8 @@ export class Linter implements CodeActionProvider {
         let annotatedHTML: string = this.buildAnnotatedHTML(document.getText());
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
-        this.lintPlaintext(document);
+        let annotatedPlaintext: string = this.buildAnnotatedPlaintext(document.getText());
+        this.lintAnnotatedText(document, annotatedPlaintext);
       }
     }
   }
@@ -176,15 +184,6 @@ export class Linter implements CodeActionProvider {
     }
   }
 
-  // Lint Plain Text Document
-  lintPlaintext(document: TextDocument): void {
-    if (this.configManager.isSupportedDocument(document)) {
-      let ltPostDataDict: any = this.getPostDataTemplate();
-      ltPostDataDict["text"] = document.getText();
-      this.callLanguageTool(document, ltPostDataDict);
-    }
-  }
-
   // Lint Annotated Text
   lintAnnotatedText(document: TextDocument, annotatedText: string): void {
     if (this.configManager.isSupportedDocument(document)) {
@@ -199,29 +198,101 @@ export class Linter implements CodeActionProvider {
     let matches = response.matches;
     let diagnostics: Diagnostic[] = [];
     let actions: CodeAction[] = [];
-    matches.forEach(function (match: ILanguageToolMatch) {
+    matches.forEach((match: ILanguageToolMatch) => {
       let start: Position = document.positionAt(match.offset);
       let end: Position = document.positionAt(match.offset + match.length);
       let diagnosticRange: Range = new Range(start, end);
       let diagnosticMessage: string = match.rule.id + ": " + match.message;
       let diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
-      match.replacements.forEach(function (replacement: ILanguageToolReplacement) {
-        let actionTitle: string = "'" + replacement.value + "'";
-        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-        let location: Location = new Location(document.uri, diagnosticRange);
-        let edit: WorkspaceEdit = new WorkspaceEdit();
-        edit.replace(document.uri, location.range, replacement.value);
-        action.edit = edit;
-        action.diagnostics = [];
-        action.diagnostics.push(diagnostic);
-        actions.push(action);
-      });
       diagnostic.source = LT_DIAGNOSTIC_SOURCE;
-      diagnostics.push(diagnostic);
+      // Spelling Rules
+      if (Linter.isSpellingRule(match.rule.id)) {
+        let spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
+        if (spellingActions.length > 0) {
+          diagnostics.push(diagnostic);
+          spellingActions.forEach( (action) => {
+            actions.push(action);
+          });
+        }
+      } else {
+        diagnostics.push(diagnostic);
+        this.getRuleActions(document, diagnostic, match).forEach((action) => {
+          actions.push(action);
+        });
+      }
     });
     this.codeActionMap.set(document.uri.toString(), actions);
     this.diagnosticMap.set(document.uri.toString(), diagnostics);
     this.resetDiagnostics();
+  }
+
+  private getSpellingRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
+    let actions: CodeAction[] = [];
+    let word: string = document.getText(diagnostic.range);
+    if (this.configManager.isIgnoredWord(word)) {
+      if (this.configManager.showIgnoredWordHints()) {
+        // Change severity for ignored words.
+        diagnostic.severity = DiagnosticSeverity.Hint;
+        if (this.configManager.isGloballyIgnoredWord(word)) {
+          let actionTitle: string = "Remove '" + word + "' from always ignored words.";
+          let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+          action.command = { title: actionTitle, command: "languagetoolLinter.removeGloballyIgnoredWord", arguments: [word] };
+          action.diagnostics = [];
+          action.diagnostics.push(diagnostic);
+          actions.push(action);
+        }
+        if (this.configManager.isWorkspaceIgnoredWord(word)) {
+          let actionTitle: string = "Remove '" + word + "' from Workspace ignored words.";
+          let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+          action.command = { title: actionTitle, command: "languagetoolLinter.removeWorkspaceIgnoredWord", arguments: [word] };
+          action.diagnostics = [];
+          action.diagnostics.push(diagnostic);
+          actions.push(action);
+        }
+      }
+    } else {
+      let actionTitle: string = "Always ignore '" + word + "'";
+      let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+      action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordGlobally", arguments: [word] };
+      action.diagnostics = [];
+      action.diagnostics.push(diagnostic);
+      actions.push(action);
+      if (workspace !== undefined) {
+        let actionTitle: string = "Ignore '" + word + "' in Workspace";
+        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+        action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordInWorkspace", arguments: [word] };
+        action.diagnostics = [];
+        action.diagnostics.push(diagnostic);
+        actions.push(action);
+      }
+      this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
+        actions.push(action);
+      });
+    }
+    return actions;
+  }
+
+  private getRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
+    let actions: CodeAction[] = [];
+    this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
+      actions.push(action);
+    });
+    return actions;
+  }
+
+  private getReplacementActions(document: TextDocument, diagnostic: Diagnostic, replacements: ILanguageToolReplacement[]): CodeAction[] {
+    let actions: CodeAction[] = [];
+    replacements.forEach((replacement: ILanguageToolReplacement) => {
+      let actionTitle: string = "'" + replacement.value + "'";
+      let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+      let edit: WorkspaceEdit = new WorkspaceEdit();
+      edit.replace(document.uri, diagnostic.range, replacement.value);
+      action.edit = edit;
+      action.diagnostics = [];
+      action.diagnostics.push(diagnostic);
+      actions.push(action);
+    });
+    return actions;
   }
 
   // Reset the Diagnostic Collection
@@ -232,5 +303,12 @@ export class Linter implements CodeActionProvider {
     });
   }
 
+  // Is the rule a Spelling rule?
+  // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
+  static isSpellingRule(ruleId: string): boolean {
+    return ruleId.indexOf("MORFOLOGIK_RULE") !== -1 || ruleId.indexOf("SPELLER_RULE") !== -1
+      || ruleId.indexOf("HUNSPELL_NO_SUGGEST_RULE") !== -1 || ruleId.indexOf("HUNSPELL_RULE") !== -1
+      || ruleId.indexOf("FR_SPELLING_RULE") !== -1;
+  }
 
 }

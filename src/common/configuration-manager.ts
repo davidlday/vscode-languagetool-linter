@@ -1,4 +1,4 @@
-import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable, window } from 'vscode';
+import { TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent, Disposable, window, ExtensionContext, ConfigurationTarget } from 'vscode';
 import { LT_DOCUMENT_LANGUAGE_IDS, LT_CONFIGURATION_ROOT, LT_SERVICE_PARAMETERS, LT_SERVICE_EXTERNAL, LT_CHECK_PATH, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC, LT_PUBLIC_URL, LT_OUTPUT_CHANNEL } from './constants';
 import * as portfinder from "portfinder";
 import * as execa from "execa";
@@ -10,11 +10,18 @@ export class ConfigurationManager implements Disposable {
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
+  private globallyIgnoredWords: Set<string>;
+  private workspaceIgnoredWords: Set<string>;
+  private static SETTING_IGNORE_GLOBAL: string = "languageTool.ignoredWordsGlobal";
+  private static SETTING_IGNORE_WORKSPACE: string = "languageTool.ignoredWordsInWorkspace";
+  private static SETTING_HINT_IGNORED: string = "languageTool.ignoredWordHint";
 
   constructor() {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
+    this.globallyIgnoredWords = this.getGloballyIgnoredWords();
+    this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
   dispose(): void {
@@ -39,6 +46,18 @@ export class ConfigurationManager implements Disposable {
         || event.affectsConfiguration("languageToolLinter.managed.jarFile"))) {
       this.startManagedService();
     }
+    // Error about conflicting settings
+    if (event.affectsConfiguration("languageToolLinter.languageTool.preferredVariants")
+      || event.affectsConfiguration("languageToolLinter.languageTool.language")) {
+      if (this.config.get("languageToolLinter.languageTool.language") !== "auto"
+        && this.config.get("languageToolLinter.languageTool.preferredVariants") !== undefined) {
+        window.showErrorMessage('', ...["Set Language to 'auto'", "Clear Preferred Variants"]).then((selection) => {
+          console.log(selection);
+        });
+      }
+    }
+    this.globallyIgnoredWords = this.getGloballyIgnoredWords();
+    this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
   isAutoFormatEnabled(): boolean {
@@ -181,5 +200,86 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
+  // Manage Ignored Words Lists
+  isIgnoredWord(word: string): boolean {
+    return this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word);
+  }
+
+  // Is word ignored at the User Level?
+  isGloballyIgnoredWord(word: string): boolean {
+    return this.globallyIgnoredWords.has(word.toLowerCase());
+  }
+
+  // Is word ignored at the Workspace Level?
+  isWorkspaceIgnoredWord(word: string): boolean {
+    return this.workspaceIgnoredWords.has(word.toLowerCase());
+  }
+
+  // Save words to settings
+  private saveIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
+    let wordArray: Array<string> = Array.from(words).sort();
+    this.config.update(section, wordArray, configurationTarget);
+  }
+
+  // Get Globally ingored words from settings.
+  private getGloballyIgnoredWords(): Set<string> {
+    return new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_GLOBAL));
+  }
+
+  // Save word to User Level ignored word list.
+  private saveGloballyIgnoredWords(): void {
+    this.saveIgnoredWords(this.globallyIgnoredWords, ConfigurationManager.SETTING_IGNORE_GLOBAL, ConfigurationTarget.Global);
+  }
+
+  // Get Workspace ignored words from settings.
+  private getWorkspaceIgnoredWords(): Set<string> {
+    return new Set<string>(this.config.get<Array<string>>(ConfigurationManager.SETTING_IGNORE_WORKSPACE));
+  }
+
+  // Save word to Workspace Level ignored word list.
+  private saveWorkspaceIgnoredWords(): void {
+    this.saveIgnoredWords(this.workspaceIgnoredWords, ConfigurationManager.SETTING_IGNORE_WORKSPACE, ConfigurationTarget.Workspace);
+  }
+
+  // Add word to User Level ignored word list.
+  ignoreWordGlobally(word: string): void {
+    let lowerCaseWord: string = word.toLowerCase();
+    if (!this.isGloballyIgnoredWord(lowerCaseWord)) {
+      this.globallyIgnoredWords.add(lowerCaseWord);
+      this.saveGloballyIgnoredWords();
+    }
+  }
+
+  // Add word to Workspace Level ignored word list.
+  ignoreWordInWorkspace(word: string): void {
+    let lowerCaseWord: string = word.toLowerCase();
+    if (!this.isWorkspaceIgnoredWord(lowerCaseWord)) {
+      this.workspaceIgnoredWords.add(lowerCaseWord);
+      this.saveWorkspaceIgnoredWords();
+    }
+  }
+
+  // Remove word from User Level ignored word list.
+  removeGloballyIgnoredWord(word: string): void {
+    let lowerCaseWord: string = word.toLowerCase();
+    if (this.isGloballyIgnoredWord(lowerCaseWord)) {
+      this.globallyIgnoredWords.delete(lowerCaseWord);
+      this.saveGloballyIgnoredWords();
+    }
+  }
+
+  // Remove word from Workspace Level ignored word list.
+  removeWorkspaceIgnoredWord(word: string): void {
+    let lowerCaseWord: string = word.toLowerCase();
+    if (this.isWorkspaceIgnoredWord(lowerCaseWord)) {
+      this.workspaceIgnoredWords.delete(lowerCaseWord);
+      this.saveWorkspaceIgnoredWords();
+    }
+  }
+
+  // Show hints for ignored words?
+  showIgnoredWordHints(): boolean {
+    return this.config.get(ConfigurationManager.SETTING_HINT_IGNORED) as boolean;
+  }
 
 }

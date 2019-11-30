@@ -104,6 +104,34 @@ export function activate(context: vscode.ExtensionContext) {
     linter.resetDiagnostics();
   }));
 
+  // Register "Ignore Word Globally" TextEditorCommand
+  let ignoreWordGlobally = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordGlobally", (editor, edit, ...args) => {
+    configMan.ignoreWordGlobally(args[0]);
+    linter.requestLint(editor.document, 0);
+  });
+  context.subscriptions.push(ignoreWordGlobally);
+
+  // Register "Ignore Word in Workspace" TextEditorCommand
+  let ignoreWordInWorkspace = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordInWorkspace", (editor, edit, ...args) => {
+    configMan.ignoreWordInWorkspace(args[0]);
+    linter.requestLint(editor.document, 0);
+  });
+  context.subscriptions.push(ignoreWordInWorkspace);
+
+  // Register "Remove Globally Ignored Word" TextEditorCommand
+  let removeGloballyIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeGloballyIgnoredWord", (editor, edit, ...args) => {
+    configMan.removeGloballyIgnoredWord(args[0]);
+    linter.requestLint(editor.document, 0);
+  });
+  context.subscriptions.push(removeGloballyIgnoredWord);
+
+  // Register "Remove Workspace Ignored Word" TextEditorCommand
+  let removeWorkspaceIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeWorkspaceIgnoredWord", (editor, edit, ...args) => {
+    configMan.removeWorkspaceIgnoredWord(args[0]);
+    linter.requestLint(editor.document, 0);
+  });
+  context.subscriptions.push(removeWorkspaceIgnoredWord);
+
   // Register "Lint Current Document" TextEditorCommand
   let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor, edit) => {
     linter.requestLint(editor.document, 0);

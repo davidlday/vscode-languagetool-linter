@@ -26,7 +26,13 @@ suite('Extension Test Suite', () => {
 
   test('Extension should register all commands', () => {
     return vscode.commands.getCommands(true).then((commands) => {
-      const EXPECTED_COMMANDS: string[] = ["languagetoolLinter.lintCurrentDocument","languagetoolLinter.autoFormatDocument"];
+      const EXPECTED_COMMANDS: string[] = ["languagetoolLinter.lintCurrentDocument",
+        "languagetoolLinter.autoFormatDocument",
+        "languagetoolLinter.ignoreWordGlobally",
+        "languagetoolLinter.ignoreWordInWorkspace",
+        "languagetoolLinter.removeGloballyIgnoredWord",
+        "languagetoolLinter.removeWorkspaceIgnoredWord"
+      ];
       const FOUND_COMMANDS = commands.filter((value) => {
 				return EXPECTED_COMMANDS.indexOf(value)>=0 || value.startsWith('languagetoolLinter.');
       });
