@@ -45,10 +45,14 @@ export class Linter implements CodeActionProvider {
   // Custom markdown interpretation
   private customMarkdownInterpreter(text: string): string {
     let interpretation = "";
-    // Treat inline code as redacted text
     if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
+      // Treat inline code as redacted text
       interpretation = "`" + "#".repeat(text.length - 2) + "`";
+    } else if (text.match(/#\s+$/)) {
+      // Preserve Headers
+      interpretation = text;
     } else {
+      // Preserve line breaks
       let count = (text.match(/\n/g) || []).length;
       interpretation = "\n".repeat(count);
     }
