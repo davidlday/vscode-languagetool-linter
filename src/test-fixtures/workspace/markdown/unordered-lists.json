@@ -32,7 +32,7 @@
     },
     {
       "markup": "\n\n* ",
-      "interpretAs": "\n\n",
+      "interpretAs": "\n\n* ",
       "offset": {
         "start": 48,
         "end": 52
@@ -47,7 +47,7 @@
     },
     {
       "markup": "\n* ",
-      "interpretAs": "\n",
+      "interpretAs": "\n* ",
       "offset": {
         "start": 94,
         "end": 97
@@ -62,7 +62,7 @@
     },
     {
       "markup": "\n  * ",
-      "interpretAs": "\n",
+      "interpretAs": "\n* ",
       "offset": {
         "start": 142,
         "end": 147
@@ -77,7 +77,7 @@
     },
     {
       "markup": "\n    * ",
-      "interpretAs": "\n",
+      "interpretAs": "\n* ",
       "offset": {
         "start": 190,
         "end": 197
