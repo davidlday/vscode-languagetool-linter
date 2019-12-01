@@ -358,7 +358,7 @@
     "@types/request-promise-native": "^1.0.17",
     "annotatedtext-rehype": "^0.1.2",
     "annotatedtext-remark": "^0.4.0",
-    "execa": "^3.3.0",
+    "execa": "^3.4.0",
     "glob": "^7.1.6",
     "portfinder": "^1.0.25",
     "request": "^2.88.0",
