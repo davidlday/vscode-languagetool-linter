@@ -55,6 +55,10 @@ export class Linter implements CodeActionProvider {
       // Preserve bullets without leading spaces
       let count = (text.match(/\n/g) || []).length;
       interpretation = "\n".repeat(count) + "* ";
+    } else if (text.match(/\d+\.\s+$/)) {
+      // Treat as bullets without leading spaces
+      let count = (text.match(/\n/g) || []).length;
+      interpretation = "\n".repeat(count) + "** ";
     } else {
       // Preserve line breaks
       let count = (text.match(/\n/g) || []).length;
