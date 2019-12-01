@@ -143,4 +143,3 @@ All notable changes to the “languagetool-linter” extension will be documente
 * `lintOnChange`: Lint every time the document changes. Use with caution.
 * `publicApi`: Use the public LanguageTool API Service.
 * `url`: URL of your LanguageTool server. Defaults to localhost on port 8081.
-
