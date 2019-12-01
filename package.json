@@ -346,7 +346,7 @@
     "@types/chai": "^4.2.5",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.17.5",
+    "@types/node": "^10.17.6",
     "@types/vscode": "^1.39.0",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
