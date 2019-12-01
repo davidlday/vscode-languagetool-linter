@@ -1,6 +1,7 @@
 {
     "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
         "backticks",
+        "languagetool-linter",
         "misspeeled"
     ],
     "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
