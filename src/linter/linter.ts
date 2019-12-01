@@ -136,7 +136,7 @@ export class Linter implements CodeActionProvider {
 
   // Build annotatedtext from PLAINTEXT
   buildAnnotatedPlaintext(text: string): string {
-    return JSON.stringify({ "text": text });
+    return JSON.stringify({ "annotation": [{ "text": text }] });
   }
 
   // Perform Lint on Document
