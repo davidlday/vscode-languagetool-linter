@@ -31,4 +31,12 @@ suite('Linter Test Suite', () => {
     assert.ok(chai.expect(result).to.deep.equal(expected));
   });
 
+  test('Linter should return annotated text for Plaintext', () => {
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/plaintext/basic.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/plaintext/basic.txt"), "utf8");
+    const result = JSON.parse(linter.buildAnnotatedPlaintext(text));
+    // fs.writeFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/plaintext/basic.json"), JSON.stringify(result), "utf8");
+    assert.ok(chai.expect(result).to.deep.equal(expected));
+  });
+
 });
