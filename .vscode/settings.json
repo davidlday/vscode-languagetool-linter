@@ -1,5 +1,9 @@
 // Place your settings in this file to overwrite default and user settings.
 {
+    "markdownlint.config": {
+      "MD013": false,
+      "MD024": false
+    },
     "files.exclude": {
         "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
@@ -9,9 +13,15 @@
     // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
     "typescript.tsc.autoDetect": "off",
     "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
+        "annotatedtext",
         "api",
+        "globbing",
+        "languagetool-linter",
         "linter",
         "lt<sub>e</sub>x",
+        "pacman",
+        "plaintext",
         "voss"
-    ]
+    ],
+    "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
 }
