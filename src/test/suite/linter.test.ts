@@ -1,41 +1,65 @@
 import * as assert from 'assert';
 import * as chai from 'chai';
-import { before } from 'mocha';
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigurationManager } from '../../common/configuration-manager';
-import * as constants from '../../common/constants';
 import { Linter } from "../../linter/linter";
 
 suite('Linter Test Suite', () => {
 
   const config: ConfigurationManager = new ConfigurationManager();
   const linter: Linter = new Linter(config);
+  const testWorkspace: string = path.resolve(__dirname, "../../../src/test-fixtures/workspace");
 
 	test('Linter should instantiate', () => {
 		assert.ok(linter);
 	});
 
-  test('Linter should return annotated text for Markdown', () => {
-    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/markdown/backticks.json"), "utf8"));
-    const text = fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/markdown/backticks.md"), "utf8");
+  test('Linter should return annotated text for Markdown with Backticks', () => {
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.md"), "utf8");
     const result = JSON.parse(linter.buildAnnotatedMarkdown(text));
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.json"), JSON.stringify(result), "utf8");
+    assert.ok(chai.expect(result).to.deep.equal(expected));
+  });
+
+  test('Linter should return annotated text for Markdown with Headers', () => {
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/headers.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/headers.md"), "utf8");
+    const result = JSON.parse(linter.buildAnnotatedMarkdown(text));
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/headers.json"), JSON.stringify(result), "utf8");
+    assert.ok(chai.expect(result).to.deep.equal(expected));
+  });
+
+  test('Linter should return annotated text for Markdown with Ordered Lists', () => {
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.md"), "utf8");
+    const result = JSON.parse(linter.buildAnnotatedMarkdown(text));
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.json"), JSON.stringify(result), "utf8");
+    assert.ok(chai.expect(result).to.deep.equal(expected));
+  });
+
+  test('Linter should return annotated text for Markdown with Unordered Lists', () => {
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.md"), "utf8");
+    const result = JSON.parse(linter.buildAnnotatedMarkdown(text));
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(result), "utf8");
     assert.ok(chai.expect(result).to.deep.equal(expected));
   });
 
   test('Linter should return annotated text for HTML', () => {
-    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/html/basic.json"), "utf8"));
-    const text = fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/html/basic.html"), "utf8");
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.html"), "utf8");
     const result = JSON.parse(linter.buildAnnotatedHTML(text));
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.json"), JSON.stringify(result), "utf8");
     assert.ok(chai.expect(result).to.deep.equal(expected));
   });
 
   test('Linter should return annotated text for Plaintext', () => {
-    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/plaintext/basic.json"), "utf8"));
-    const text = fs.readFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/plaintext/basic.txt"), "utf8");
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.txt"), "utf8");
     const result = JSON.parse(linter.buildAnnotatedPlaintext(text));
-    // fs.writeFileSync(path.resolve(__dirname, "../../../src/test-fixtures/workspace/plaintext/basic.json"), JSON.stringify(result), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.json"), JSON.stringify(result), "utf8");
     assert.ok(chai.expect(result).to.deep.equal(expected));
   });
 

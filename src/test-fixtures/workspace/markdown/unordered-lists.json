@@ -1,0 +1,102 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "# ",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "Unordered Lists",
+      "offset": {
+        "start": 2,
+        "end": 17
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 17,
+        "end": 19
+      }
+    },
+    {
+      "text": "Unordered list test document.",
+      "offset": {
+        "start": 19,
+        "end": 48
+      }
+    },
+    {
+      "markup": "\n\n* ",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 48,
+        "end": 52
+      }
+    },
+    {
+      "text": "bullets shouldn’t throw punctuation errors",
+      "offset": {
+        "start": 52,
+        "end": 94
+      }
+    },
+    {
+      "markup": "\n* ",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 94,
+        "end": 97
+      }
+    },
+    {
+      "text": "bullets shouldn’t throw capitalization errors",
+      "offset": {
+        "start": 97,
+        "end": 142
+      }
+    },
+    {
+      "markup": "\n  * ",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 142,
+        "end": 147
+      }
+    },
+    {
+      "text": "bullets shouldn’t throw errors at any level",
+      "offset": {
+        "start": 147,
+        "end": 190
+      }
+    },
+    {
+      "markup": "\n    * ",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 190,
+        "end": 197
+      }
+    },
+    {
+      "text": "bullets shouldn’t throw errors at any level",
+      "offset": {
+        "start": 197,
+        "end": 240
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 240,
+        "end": 241
+      }
+    }
+  ]
+}
