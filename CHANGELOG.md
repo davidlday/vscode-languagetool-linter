@@ -7,6 +7,7 @@ All notable changes to the “languagetool-linter” extension will be documente
 ### Fixed
 
 * Header marks (#) preserved to prevent LanguageTool from throwing `PUNCTUATION_PARAGRAPH_END` Errors
+* Ordered and Unordered list items interpreted as bullets to prevent LanguageTool from throwing `UPPERCASE_SENTENCE_START` and `PUNCTUATION_PARAGRAPH_END` Errors
 * Plaintext Annotatedtext produced correctly
 
 ## [0.9.0] - 2019-11-29
