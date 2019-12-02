@@ -1,0 +1,72 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "# ",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "Header Test",
+      "offset": {
+        "start": 2,
+        "end": 13
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 13,
+        "end": 15
+      }
+    },
+    {
+      "text": "Headers should not error on missing punctuation.",
+      "offset": {
+        "start": 15,
+        "end": 63
+      }
+    },
+    {
+      "markup": "\n\n## ",
+      "interpretAs": "\n\n## ",
+      "offset": {
+        "start": 63,
+        "end": 68
+      }
+    },
+    {
+      "text": "Second Level Header",
+      "offset": {
+        "start": 68,
+        "end": 87
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 87,
+        "end": 89
+      }
+    },
+    {
+      "text": "No level of header should error on missing punctuation.",
+      "offset": {
+        "start": 89,
+        "end": 144
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 144,
+        "end": 145
+      }
+    }
+  ]
+}

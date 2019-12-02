@@ -1,0 +1,7 @@
+  {
+    "annotation": [
+      {
+        "text":"Plain Text\n\nThis is a basic text file. Linter should check spelling. The Linter should also\nnot care about word wrapping at 80.\n"
+      }
+    ]
+  }
