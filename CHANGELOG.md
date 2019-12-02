@@ -30,7 +30,7 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 ### Added
 
-* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accommodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
+* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accommodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`.
 
 ### Deprecated
 
@@ -46,7 +46,7 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 ### Added
 
-* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accommodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
+* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accommodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`.
 
 ### Deprecated
 
@@ -76,7 +76,7 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 ### Added
 
-* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accommodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`
+* `managed.classPath` setting supports multiple paths and file globbing via [node-glob](https://github.com/isaacs/node-glob). This accommodates various install methods. For example, on Arch Linux using the pacman LanguageTool package, you would set this to `/usr/share/java/languagetool/*.jar`.
 
 ### Deprecated
 
@@ -121,14 +121,14 @@ All notable changes to the “languagetool-linter” extension will be documente
 ### Added
 
 * “Service Type” setting with the following 3 options:
-  * `external` (default): Use an external LanguageTool service. URL must be provided in “External: Url”.
+  * `external` (default): Use an external LanguageTool service. URL must be provided in “External: URL”.
   * **NEW**: `managed`: Have VS Code manage a LanguageTool service. A path to a languagetool-server.jar file must be provided in “Managed: Jar File”. The extension will try to find a random open port.
   * `public`: Uses the public LanguageTool API service.
 
 ### Changed
 
 * **BREAKING:** The checkbox setting “Public Api” has been replaced by the “Service Type” drop-down setting.
-* **BREAKING:** The “Url” setting has been moved to “External: Url”.
+* **BREAKING:** The “URL” setting has been moved to “External: URL”.
 * The caution notice for “Lint on Change” has been removed. Throttling seems to be working. Still off by default.
 * Output / errors now sent to “LanguageTool Linter” output channel.
 
@@ -136,12 +136,12 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 ### Added
 
-* Basic Spelling / Grammar Checking with QuickFix options on errors.
+* Basic Spelling / Grammar Checking with Quick Fix options on errors.
 * `languageTool.disableCategories`: IDs of categories to be disabled, comma-separated.
 * `languageTool.disabledRules`: IDs of rules to be disabled, comma-separated.
-* `languageTool.language`: A language code like en-US, de-DE, fr, or auto to guess the language automatically (see preferredVariants below). For languages with variants (English, German, Portuguese) spell checking will only be activated when you specify the variant, e.g. en-GB instead of just en.
+* `languageTool.language`: A language code like en-US, de-DE, fr, or auto to guess the language automatically (see `preferredVariants` below). For languages with variants (English, German, Portuguese) spell checking will only be activated when you specify the variant, e.g. en-GB instead of just en.
 * `languageTool.motherTongue`: A language code of the user‘s native language, enabling false friends checks for some language pairs.
-* `languageTool.preferredVariants`: Comma-separated list of preferred language variants. The language detector used with language=auto can detect e.g. English, but it cannot decide whether British English or American English is used. Thus this parameter can be used to specify the preferred variants like en-GB and de-AT. Only available with language=auto.
+* `languageTool.preferredVariants`: Comma-separated list of preferred language variants. The language detector used with language=auto can detect e.g. English, but it cannot decide whether British English or American English is used. Thus, this parameter can be used to specify the preferred variants like en-GB and de-AT. Only available with language=auto.
 * `lintOnChange`: Lint every time the document changes. Use with caution.
 * `publicApi`: Use the public LanguageTool API Service.
 * `url`: URL of your LanguageTool server. Defaults to localhost on port 8081.

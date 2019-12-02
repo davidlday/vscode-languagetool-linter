@@ -14,11 +14,15 @@
     "typescript.tsc.autoDetect": "off",
     "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
         "annotatedtext",
+        "annotatedtext-remark",
         "api",
         "globbing",
+        "http-proxy-agent",
         "languagetool-linter",
         "linter",
+        "localhost",
         "lt<sub>e</sub>x",
+        "npmjs",
         "pacman",
         "plaintext",
         "voss"
