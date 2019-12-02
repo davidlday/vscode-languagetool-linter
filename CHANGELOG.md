@@ -4,6 +4,8 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 ## [Unreleased]
 
+## [0.9.1] - 2019-12-01
+
 ### Fixed
 
 * Header marks (#) preserved to prevent LanguageTool from throwing `PUNCTUATION_PARAGRAPH_END` Errors
