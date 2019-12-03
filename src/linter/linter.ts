@@ -19,11 +19,11 @@ import {
   Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken, workspace
 } from 'vscode';
 import { ConfigurationManager } from '../common/configuration-manager';
-import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME } from '../common/constants';
+import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME, MARKDOWN, HTML, PLAINTEXT } from '../common/constants';
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
-import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement } from './interfaces';
+import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement, IAnnotatedtext, IAnnotation } from './interfaces';
 
 export class Linter implements CodeActionProvider {
   private readonly configManager: ConfigurationManager;
@@ -133,31 +133,49 @@ export class Linter implements CodeActionProvider {
   }
 
   // Build annotatedtext from Markdown
-  buildAnnotatedMarkdown(text: string): string {
-    return JSON.stringify(remarkBuilder.build(text, this.remarkBuilderOptions));
+  buildAnnotatedMarkdown(text: string): IAnnotatedtext {
+    return remarkBuilder.build(text, this.remarkBuilderOptions);
   }
 
   // Build annotatedtext from HTML
-  buildAnnotatedHTML(text: string): string {
-    return JSON.stringify(rehypeBuilder.build(text, this.rehypeBuilderOptions));
+  buildAnnotatedHTML(text: string): IAnnotatedtext {
+    return rehypeBuilder.build(text, this.rehypeBuilderOptions);
   }
 
   // Build annotatedtext from PLAINTEXT
-  buildAnnotatedPlaintext(text: string): string {
-    return JSON.stringify({ "annotation": [{ "text": text }] });
+  buildAnnotatedPlaintext(text: string): IAnnotatedtext {
+    let textAnnotation: IAnnotation = { "text": text };
+    return { "annotation": [textAnnotation] };
+  }
+
+  // Abstract annotated text builder
+  buildAnnotatedtext(document: TextDocument): IAnnotatedtext {
+    let annotatedtext: IAnnotatedtext = { "annotation": [] };
+    switch (document.languageId) {
+      case (MARKDOWN):
+        annotatedtext = this.buildAnnotatedMarkdown(document.getText());
+        break;
+      case (HTML):
+        annotatedtext = this.buildAnnotatedHTML(document.getText());
+        break;
+      default:
+        annotatedtext = this.buildAnnotatedPlaintext(document.getText());
+        break;
+    }
+    return annotatedtext;
   }
 
   // Perform Lint on Document
   lintDocument(document: TextDocument): void {
     if (this.configManager.isSupportedDocument(document)) {
       if (document.languageId === "markdown") {
-        let annotatedMarkdown: string = this.buildAnnotatedMarkdown(document.getText());
+        let annotatedMarkdown: string = JSON.stringify(this.buildAnnotatedMarkdown(document.getText()));
         this.lintAnnotatedText(document, annotatedMarkdown);
       } else if (document.languageId === "html") {
-        let annotatedHTML: string = this.buildAnnotatedHTML(document.getText());
+        let annotatedHTML: string = JSON.stringify(this.buildAnnotatedHTML(document.getText()));
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
-        let annotatedPlaintext: string = this.buildAnnotatedPlaintext(document.getText());
+        let annotatedPlaintext: string = JSON.stringify(this.buildAnnotatedPlaintext(document.getText()));
         this.lintAnnotatedText(document, annotatedPlaintext);
       }
     }
@@ -222,7 +240,7 @@ export class Linter implements CodeActionProvider {
         let spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
         if (spellingActions.length > 0) {
           diagnostics.push(diagnostic);
-          spellingActions.forEach( (action) => {
+          spellingActions.forEach((action) => {
             actions.push(action);
           });
         }

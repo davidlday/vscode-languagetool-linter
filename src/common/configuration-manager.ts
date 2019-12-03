@@ -60,8 +60,8 @@ export class ConfigurationManager implements Disposable {
     this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
-  isAutoFormatEnabled(): boolean {
-    return this.config.get("autoformat.enabled") as boolean;
+  isSmartFormatEnabled(): boolean {
+    return this.config.get("smartformat.enabled") as boolean;
   }
 
   // Is Language ID Supported?

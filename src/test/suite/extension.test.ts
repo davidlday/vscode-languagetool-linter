@@ -27,7 +27,7 @@ suite('Extension Test Suite', () => {
   test('Extension should register all commands', () => {
     return vscode.commands.getCommands(true).then((commands) => {
       const EXPECTED_COMMANDS: string[] = ["languagetoolLinter.lintCurrentDocument",
-        "languagetoolLinter.autoFormatDocument",
+        "languagetoolLinter.smartFormatDocument",
         "languagetoolLinter.ignoreWordGlobally",
         "languagetoolLinter.ignoreWordInWorkspace",
         "languagetoolLinter.removeGloballyIgnoredWord",

@@ -4,6 +4,12 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 ## [Unreleased]
 
+Changes not yet released.
+
+### Changed
+
+* Auto Format renamed to Smart Format since it only formats smart characters.
+
 ## [0.9.1] - 2019-12-01
 
 ### Fixed

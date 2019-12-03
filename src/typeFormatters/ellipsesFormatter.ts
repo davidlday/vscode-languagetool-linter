@@ -39,7 +39,7 @@ export class EllipsesFormattingProvider implements vscode.OnTypeFormattingEditPr
     const prevCh: string = (position.character > 0) ? line.text.charAt(position.character - 2) : " ";
     const prevPrevCh: string = (position.character > 1) ? line.text.charAt(position.character - 3) : " ";
 
-    if (this.config.isAutoFormatEnabled()) {
+    if (this.config.isSmartFormatEnabled()) {
       if (prevCh === EllipsesFormattingProvider.period && prevPrevCh === EllipsesFormattingProvider.period) {
         return [new vscode.TextEdit(range, EllipsesFormattingProvider.ellipses)];
       }

@@ -41,7 +41,7 @@
     "onLanguage:markdown",
     "onLanguage:html",
     "onCommand:languagetoolLinter.lintCurrentDocument",
-    "onCommand:languagetoolLinter.autoFormatDocument"
+    "onCommand:languagetoolLinter.smartFormatDocument"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -52,7 +52,7 @@
         "category": "LanguageTool Linter"
       },
       {
-        "command": "languagetoolLinter.autoFormatDocument",
+        "command": "languagetoolLinter.smartFormatDocument",
         "title": "Auto Format Document",
         "category": "LanguageTool Linter"
       }
@@ -61,10 +61,10 @@
       "type": "object",
       "title": "LanguageTool Linter",
       "properties": {
-        "languageToolLinter.autoformat.enabled": {
+        "languageToolLinter.smartformat.enabled": {
           "type": "boolean",
           "default": false,
-          "description": "Run autoformat as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
+          "description": "Run smart format as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
         },
         "languageToolLinter.enabled": {
           "type": "boolean",

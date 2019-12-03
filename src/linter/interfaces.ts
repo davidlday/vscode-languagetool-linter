@@ -74,3 +74,17 @@ export interface ILanguageToolReplacement {
   value: string;
   shortDescription: string;
 }
+
+export interface IAnnotation {
+  markdown?: string;
+  interpretAs?: string;
+  text?: string;
+  offset?: {
+    start: number;
+    end: number
+  };
+}
+
+export interface IAnnotatedtext {
+  annotation: IAnnotation[];
+}
