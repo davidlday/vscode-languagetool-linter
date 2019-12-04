@@ -24,6 +24,9 @@ import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
 import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement, IAnnotatedtext, IAnnotation } from './interfaces';
+import { QuotesFormattingProvider } from '../typeFormatters/quotesFormatter';
+import { DashesFormattingProvider } from '../typeFormatters/dashesFormatter';
+import { EllipsesFormattingProvider } from '../typeFormatters/ellipsesFormatter';
 
 export class Linter implements CodeActionProvider {
   private readonly configManager: ConfigurationManager;
@@ -67,6 +70,7 @@ export class Linter implements CodeActionProvider {
     return interpretation;
   }
 
+  // Provide CodeActions for thw given Document and Range
   provideCodeActions(
     document: TextDocument,
     range: Range,
@@ -74,9 +78,8 @@ export class Linter implements CodeActionProvider {
     token: CancellationToken
   ): CodeAction[] {
     let documentUri: string = document.uri.toString();
-    let codeActionMap: Map<string, CodeAction[]> = this.getCodeActionMap();
-    if (codeActionMap.has(documentUri) && codeActionMap.get(documentUri)) {
-      let documentCodeActions: CodeAction[] = codeActionMap.get(documentUri) || [];
+    if (this.codeActionMap.has(documentUri) && this.codeActionMap.get(documentUri)) {
+      let documentCodeActions: CodeAction[] = this.codeActionMap.get(documentUri) || [];
       let actions: CodeAction[] = [];
       documentCodeActions.forEach(function (action) {
         if (action.diagnostics && context.diagnostics) {
@@ -92,20 +95,9 @@ export class Linter implements CodeActionProvider {
     }
   }
 
+  // Delete a set of diagnostics for the given Document URI
   deleteFromDiagnosticCollection(uri: Uri): void {
     this.diagnosticCollection.delete(uri);
-  }
-
-  getDiagnosticCollection(): DiagnosticCollection {
-    return this.diagnosticCollection;
-  }
-
-  getDiagnosticMap(): Map<string, Diagnostic[]> {
-    return this.diagnosticMap;
-  }
-
-  getCodeActionMap(): Map<string, CodeAction[]> {
-    return this.codeActionMap;
   }
 
   requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
@@ -256,6 +248,7 @@ export class Linter implements CodeActionProvider {
     this.resetDiagnostics();
   }
 
+  // Get CodeActions for Spelling Rules
   private getSpellingRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
     let actions: CodeAction[] = [];
     let word: string = document.getText(diagnostic.range);
@@ -302,6 +295,7 @@ export class Linter implements CodeActionProvider {
     return actions;
   }
 
+  // Get all Rule CodeActions
   private getRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
     let actions: CodeAction[] = [];
     this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
@@ -310,6 +304,7 @@ export class Linter implements CodeActionProvider {
     return actions;
   }
 
+  // Get all edit CodeActions based on Replacements
   private getReplacementActions(document: TextDocument, diagnostic: Diagnostic, replacements: ILanguageToolReplacement[]): CodeAction[] {
     let actions: CodeAction[] = [];
     replacements.forEach((replacement: ILanguageToolReplacement) => {
@@ -339,6 +334,26 @@ export class Linter implements CodeActionProvider {
     return ruleId.indexOf("MORFOLOGIK_RULE") !== -1 || ruleId.indexOf("SPELLER_RULE") !== -1
       || ruleId.indexOf("HUNSPELL_NO_SUGGEST_RULE") !== -1 || ruleId.indexOf("HUNSPELL_RULE") !== -1
       || ruleId.indexOf("FR_SPELLING_RULE") !== -1;
+  }
+
+  // Apply smart formatting to annotated text.
+  static smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
+    let newText: string = "";
+    // Only run substitutions on text annotations.
+    annotatedtext.annotation.forEach((annotation) => {
+      if (annotation.text) {
+        newText += annotation.text.replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
+          .replace(/'(?=[\w"“])/g, QuotesFormattingProvider.startSingleQuote)
+          .replace(/([\w.!?%,'’])"/g, "$1" + QuotesFormattingProvider.endDoubleQuote)
+          .replace(/([\w.!?%,"”])'/g, "$1" + QuotesFormattingProvider.endSingleQuote)
+          .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
+          .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
+          .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
+      } else if (annotation.markdown) {
+        newText += annotation.markdown;
+      }
+    });
+    return newText;
   }
 
 }
