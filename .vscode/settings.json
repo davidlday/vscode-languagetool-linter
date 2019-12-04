@@ -16,6 +16,8 @@
         "annotatedtext",
         "annotatedtext-remark",
         "api",
+        "de-at",
+        "de-de",
         "globbing",
         "http-proxy-agent",
         "languagetool-linter",
