@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import * as chai from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigurationManager } from '../../common/configuration-manager';
@@ -20,7 +19,7 @@ suite('Linter Test Suite', () => {
     const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.md"), "utf8");
     const result = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.json"), JSON.stringify(result), "utf8");
-    assert.ok(chai.expect(result).to.deep.equal(expected));
+    assert.deepEqual(expected, result);
   });
 
   test('Linter should return annotated text for Markdown with Headers', () => {
@@ -28,7 +27,7 @@ suite('Linter Test Suite', () => {
     const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/headers.md"), "utf8");
     const result = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/headers.json"), JSON.stringify(result), "utf8");
-    assert.ok(chai.expect(result).to.deep.equal(expected));
+    assert.deepEqual(expected, result);
   });
 
   test('Linter should return annotated text for Markdown with Ordered Lists', () => {
@@ -36,7 +35,7 @@ suite('Linter Test Suite', () => {
     const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.md"), "utf8");
     const result = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.json"), JSON.stringify(result), "utf8");
-    assert.ok(chai.expect(result).to.deep.equal(expected));
+    assert.deepEqual(expected, result);
   });
 
   test('Linter should return annotated text for Markdown with Unordered Lists', () => {
@@ -44,7 +43,7 @@ suite('Linter Test Suite', () => {
     const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.md"), "utf8");
     const result = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(result), "utf8");
-    assert.ok(chai.expect(result).to.deep.equal(expected));
+    assert.deepEqual(expected, result);
   });
 
   test('Linter should return annotated text for HTML', () => {
@@ -52,7 +51,7 @@ suite('Linter Test Suite', () => {
     const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.html"), "utf8");
     const result = linter.buildAnnotatedHTML(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.json"), JSON.stringify(result), "utf8");
-    assert.ok(chai.expect(result).to.deep.equal(expected));
+    assert.deepEqual(expected, result);
   });
 
   test('Linter should return annotated text for Plaintext', () => {
@@ -60,7 +59,7 @@ suite('Linter Test Suite', () => {
     const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.txt"), "utf8");
     const result = linter.buildAnnotatedPlaintext(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.json"), JSON.stringify(result), "utf8");
-    assert.ok(chai.expect(result).to.deep.equal(expected));
+    assert.deepEqual(expected, result);
   });
 
   test('Linter should only smart format text in annotatedtext', () => {
