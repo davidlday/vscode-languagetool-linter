@@ -11,9 +11,9 @@ suite('Linter Test Suite', () => {
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(__dirname, "../../../src/test-fixtures/workspace");
 
-	test('Linter should instantiate', () => {
-		assert.ok(linter);
-	});
+  test('Linter should instantiate', () => {
+    assert.ok(linter);
+  });
 
   test('Linter should return annotated text for Markdown with Backticks', () => {
     const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.json"), "utf8"));
@@ -61,6 +61,11 @@ suite('Linter Test Suite', () => {
     const result = linter.buildAnnotatedPlaintext(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.json"), JSON.stringify(result), "utf8");
     assert.ok(chai.expect(result).to.deep.equal(expected));
+  });
+
+  test('Linter should only smart format text in annotatedtext', () => {
+    // TODO: Make a real test.
+    assert.ok(true);
   });
 
 });
