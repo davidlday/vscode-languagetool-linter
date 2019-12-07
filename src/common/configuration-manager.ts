@@ -68,7 +68,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   isSmartFormatEnabled(): boolean {
-    return this.config.get("smartformat.enabled") as boolean;
+    return this.config.get("smartFormat.enabled") as boolean;
   }
 
   // Is Language ID Supported?
