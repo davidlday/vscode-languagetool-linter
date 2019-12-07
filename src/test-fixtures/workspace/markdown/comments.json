@@ -1,0 +1,57 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "# ",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "Comments Test Case",
+      "offset": {
+        "start": 2,
+        "end": 20
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 20,
+        "end": 22
+      }
+    },
+    {
+      "text": "Smart formatting should ignore comments.",
+      "offset": {
+        "start": 22,
+        "end": 62
+      }
+    },
+    {
+      "markup": "\n\n<!--\nLike this.\nUnfortunately the linter will also ignore comments.\n-->\n\n",
+      "interpretAs": "\n\n\n\n\n\n\n",
+      "offset": {
+        "start": 62,
+        "end": 137
+      }
+    },
+    {
+      "text": "But that’s okay for now.",
+      "offset": {
+        "start": 137,
+        "end": 161
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 161,
+        "end": 162
+      }
+    }
+  ]
+}
