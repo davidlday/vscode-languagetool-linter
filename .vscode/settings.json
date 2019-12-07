@@ -27,7 +27,8 @@
         "npmjs",
         "pacman",
         "plaintext",
-        "voss"
+        "voss",
+        "yaml"
     ],
     "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
 }
