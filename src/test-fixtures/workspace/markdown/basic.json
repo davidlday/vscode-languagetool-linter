@@ -1,0 +1,297 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "# ",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "ATFB",
+      "offset": {
+        "start": 2,
+        "end": 6
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 6,
+        "end": 8
+      }
+    },
+    {
+      "text": "Annotated Text Format Builder (ATFB) is a JavaScript module for converting various\ntext formats to an annotated text format suitable for processing by the LanguageTool server.",
+      "offset": {
+        "start": 8,
+        "end": 183
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 183,
+        "end": 185
+      }
+    },
+    {
+      "text": "This is just a playground for a proof of concent and may move to a better home if it looks useful.",
+      "offset": {
+        "start": 185,
+        "end": 283
+      }
+    },
+    {
+      "markup": "\n\n## ",
+      "interpretAs": "\n\n# ",
+      "offset": {
+        "start": 283,
+        "end": 288
+      }
+    },
+    {
+      "text": "History",
+      "offset": {
+        "start": 288,
+        "end": 295
+      }
+    },
+    {
+      "markup": "\n\n[",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 295,
+        "end": 298
+      }
+    },
+    {
+      "text": "LanguageTool",
+      "offset": {
+        "start": 298,
+        "end": 310
+      }
+    },
+    {
+      "markup": "](https://languagetool.org)",
+      "interpretAs": "",
+      "offset": {
+        "start": 310,
+        "end": 337
+      }
+    },
+    {
+      "text": " is an ",
+      "offset": {
+        "start": 337,
+        "end": 344
+      }
+    },
+    {
+      "markup": "**",
+      "interpretAs": "",
+      "offset": {
+        "start": 344,
+        "end": 346
+      }
+    },
+    {
+      "text": "excellent",
+      "offset": {
+        "start": 346,
+        "end": 355
+      }
+    },
+    {
+      "markup": "**",
+      "interpretAs": "",
+      "offset": {
+        "start": 355,
+        "end": 357
+      }
+    },
+    {
+      "text": " open source spell and grammar checker. It's\nbeing integrated into more and more IDEs so that developers can leverage it alongside their other\ntools. However, LanguageTool's creator has explicitly stated, ",
+      "offset": {
+        "start": 357,
+        "end": 562
+      }
+    },
+    {
+      "markup": "[",
+      "interpretAs": "",
+      "offset": {
+        "start": 562,
+        "end": 563
+      }
+    },
+    {
+      "text": "\"LT only works on plain text, so you'll need to either convert Markdown to plain text first, or tell LT what the markup is.\"",
+      "offset": {
+        "start": 563,
+        "end": 687
+      }
+    },
+    {
+      "markup": "](https://forum.languagetool.org/t/rules-for-markdown/374/2)",
+      "interpretAs": "",
+      "offset": {
+        "start": 687,
+        "end": 747
+      }
+    },
+    {
+      "text": " Pretty clear.",
+      "offset": {
+        "start": 747,
+        "end": 761
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 761,
+        "end": 763
+      }
+    },
+    {
+      "text": "Tdhis makes perfect sense. LanguageTool is meant to parse and analyze natural languages, not computer languages.",
+      "offset": {
+        "start": 763,
+        "end": 875
+      }
+    },
+    {
+      "markup": "\n\n## ",
+      "interpretAs": "\n\n# ",
+      "offset": {
+        "start": 875,
+        "end": 880
+      }
+    },
+    {
+      "text": "Goals",
+      "offset": {
+        "start": 880,
+        "end": 885
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 885,
+        "end": 887
+      }
+    },
+    {
+      "text": "So what are the goals here? Glad you asked:",
+      "offset": {
+        "start": 887,
+        "end": 930
+      }
+    },
+    {
+      "markup": "\n\n* ",
+      "interpretAs": "\n\n* ",
+      "offset": {
+        "start": 930,
+        "end": 934
+      }
+    },
+    {
+      "text": "Create a simple, lightweight parser in JavaScript.",
+      "offset": {
+        "start": 934,
+        "end": 984
+      }
+    },
+    {
+      "markup": "\n* ",
+      "interpretAs": "\n* ",
+      "offset": {
+        "start": 984,
+        "end": 987
+      }
+    },
+    {
+      "text": "Be portable across editors that leverage JavaScript in their plugins.",
+      "offset": {
+        "start": 987,
+        "end": 1056
+      }
+    },
+    {
+      "markup": "\n* ",
+      "interpretAs": "\n* ",
+      "offset": {
+        "start": 1056,
+        "end": 1059
+      }
+    },
+    {
+      "text": "Map various formatting languages to the simple Annotated Text format described in LanguageTool's API.",
+      "offset": {
+        "start": 1059,
+        "end": 1160
+      }
+    },
+    {
+      "markup": "\n* ",
+      "interpretAs": "\n* ",
+      "offset": {
+        "start": 1160,
+        "end": 1163
+      }
+    },
+    {
+      "text": "Use this readme as a test document.",
+      "offset": {
+        "start": 1163,
+        "end": 1198
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 1198,
+        "end": 1200
+      }
+    },
+    {
+      "text": "Oh, and because we shouldn't assume the text ends with text, here's a link to one of my favorite quotes by Socrates:\n",
+      "offset": {
+        "start": 1200,
+        "end": 1317
+      }
+    },
+    {
+      "markup": "[",
+      "interpretAs": "",
+      "offset": {
+        "start": 1317,
+        "end": 1318
+      }
+    },
+    {
+      "text": "\"I am the wisest man alive, for I know one thing, and that is that I know nothing.\"",
+      "offset": {
+        "start": 1318,
+        "end": 1401
+      }
+    },
+    {
+      "markup": "](https://www.brainyquote.com/quotes/socrates_125872)\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 1401,
+        "end": 1455
+      }
+    }
+  ]
+}
