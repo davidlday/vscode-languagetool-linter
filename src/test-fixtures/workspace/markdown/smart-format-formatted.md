@@ -11,7 +11,7 @@ Make sure the smart format command only applies formatting to text and skips all
 
 ## Smart Quotes
 
-This “sentence" contains ‘quotes’.
+This “sentence” contains ‘quotes’.
 
 ## Ellipses
 
