@@ -8,12 +8,12 @@ Changes not yet released.
 
 ### Fixed
 
-* Header marks reduced to only single has instead of entire markup to prevent passing front matter.
-* Smart Format command only applies smart format to text and skips markup.
+* Header marks reduced to only single has instead of entire markup to prevent passing front matter
+* Smart Format command only applies smart format to text and skips markup
 
 ### Changed
 
-* Auto Format renamed to Smart Format since it only formats smart characters.
+* Auto Format Enabled renamed to Smart Format on Type since it only formats smart characters
 
 ## [0.9.1] - 2019-12-01
 
