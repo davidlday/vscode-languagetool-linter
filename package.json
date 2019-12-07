@@ -66,6 +66,11 @@
           "default": false,
           "description": "Run smart format as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
         },
+        "languageToolLinter.smartFormat.onSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run smart format when you save for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…)."
+        },
         "languageToolLinter.enabled": {
           "type": "boolean",
           "default": true,

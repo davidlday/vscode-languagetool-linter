@@ -72,6 +72,11 @@ export class ConfigurationManager implements Disposable {
     return this.config.get("smartFormat.onType") as boolean;
   }
 
+  // Smart Format on Save
+  isSmartFormatOnSave(): boolean {
+    return this.config.get("smartFormat.onSave") as boolean;
+  }
+
   // Is Language ID Supported?
   isSupportedDocument(document: TextDocument): boolean {
     if (document.uri.scheme === "file") {
