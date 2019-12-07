@@ -333,7 +333,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Apply smart formatting to annotated text.
-  static smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
+  smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
     let newText: string = "";
     // Only run substitutions on text annotations.
     annotatedtext.annotation.forEach((annotation) => {
@@ -345,8 +345,8 @@ export class Linter implements CodeActionProvider {
           .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
           .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
           .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
-      } else if (annotation.markdown) {
-        newText += annotation.markdown;
+      } else if (annotation.markup) {
+        newText += annotation.markup;
       }
     });
     return newText;
