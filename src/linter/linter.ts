@@ -50,7 +50,8 @@ export class Linter implements CodeActionProvider {
       interpretation = "`" + "#".repeat(text.length - 2) + "`";
     } else if (text.match(/#\s+$/)) {
       // Preserve Headers
-      interpretation = text;
+      let count = (text.match(/\n/g) || []).length;
+      interpretation = "\n".repeat(count) + "# ";
     } else if (text.match(/\*\s+$/)) {
       // Preserve bullets without leading spaces
       let count = (text.match(/\n/g) || []).length;
