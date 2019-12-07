@@ -48,25 +48,20 @@ export class Linter implements CodeActionProvider {
 
   // Custom markdown interpretation
   private customMarkdownInterpreter(text: string): string {
-    let interpretation = "";
+    // Default of preserve line breaks
+    let interpretation = "\n".repeat((text.match(/\n/g) || []).length);
     if (text.match(/^(?!\s*`{3})\s*`{1,2}/)) {
       // Treat inline code as redacted text
       interpretation = "`" + "#".repeat(text.length - 2) + "`";
     } else if (text.match(/#\s+$/)) {
       // Preserve Headers
-      interpretation = text;
+      interpretation += "# ";
     } else if (text.match(/\*\s+$/)) {
       // Preserve bullets without leading spaces
-      let count = (text.match(/\n/g) || []).length;
-      interpretation = "\n".repeat(count) + "* ";
+      interpretation += "* ";
     } else if (text.match(/\d+\.\s+$/)) {
       // Treat as bullets without leading spaces
-      let count = (text.match(/\n/g) || []).length;
-      interpretation = "\n".repeat(count) + "** ";
-    } else {
-      // Preserve line breaks
-      let count = (text.match(/\n/g) || []).length;
-      interpretation = "\n".repeat(count);
+      interpretation += "** ";
     }
     return interpretation;
   }

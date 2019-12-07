@@ -6,6 +6,10 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 Changes not yet released.
 
+### Fixed
+
+* Header marks reduced to only single has instead of entire markup to prevent passing front matter.
+
 ### Changed
 
 * Auto Format renamed to Smart Format since it only formats smart characters.

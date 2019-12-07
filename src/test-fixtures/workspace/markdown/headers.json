@@ -32,7 +32,7 @@
     },
     {
       "markup": "\n\n## ",
-      "interpretAs": "\n\n## ",
+      "interpretAs": "\n\n# ",
       "offset": {
         "start": 63,
         "end": 68

@@ -17,7 +17,7 @@
     },
     {
       "markup": "\n\n## ",
-      "interpretAs": "\n\n## ",
+      "interpretAs": "\n\n# ",
       "offset": {
         "start": 22,
         "end": 27
@@ -167,7 +167,7 @@
     },
     {
       "markup": "\n\n## ",
-      "interpretAs": "\n\n## ",
+      "interpretAs": "\n\n# ",
       "offset": {
         "start": 198,
         "end": 203
