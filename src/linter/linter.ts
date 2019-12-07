@@ -16,7 +16,8 @@
 
 import {
   TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
-  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri, CodeActionProvider, CodeActionContext, CancellationToken, workspace
+  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri,
+  CodeActionProvider, CodeActionContext, CancellationToken, workspace
 } from 'vscode';
 import { ConfigurationManager } from '../common/configuration-manager';
 import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME, MARKDOWN, HTML, PLAINTEXT } from '../common/constants';
@@ -39,7 +40,7 @@ export class Linter implements CodeActionProvider {
 
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
-    this.timeoutMap = new Map();
+    this.timeoutMap = new Map<string, NodeJS.Timeout>();
     this.diagnosticCollection = languages.createDiagnosticCollection(LT_DISPLAY_NAME);
 
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
