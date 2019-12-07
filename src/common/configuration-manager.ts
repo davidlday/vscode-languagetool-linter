@@ -67,8 +67,9 @@ export class ConfigurationManager implements Disposable {
     this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
-  isSmartFormatEnabled(): boolean {
-    return this.config.get("smartFormat.enabled") as boolean;
+  // Smart Format on Type
+  isSmartFormatOnType(): boolean {
+    return this.config.get("smartFormat.onType") as boolean;
   }
 
   // Is Language ID Supported?

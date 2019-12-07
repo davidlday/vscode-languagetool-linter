@@ -40,7 +40,7 @@ export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProv
     const prevCh: string = (position.character > 0) ? line.text.charAt(position.character - 2) : " ";
     const prevPrevCh: string = (position.character > 1) ? line.text.charAt(position.character - 3) : " ";
 
-    if (this.config.isSmartFormatEnabled()) {
+    if (this.config.isSmartFormatOnType()) {
       if (prevCh === DashesFormattingProvider.enDash) {
         return [new vscode.TextEdit(range, DashesFormattingProvider.emDash)];
       } else if (prevCh === DashesFormattingProvider.hyphen) {

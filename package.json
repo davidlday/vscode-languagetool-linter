@@ -61,7 +61,7 @@
       "type": "object",
       "title": "LanguageTool Linter",
       "properties": {
-        "languageToolLinter.smartFormat.enabled": {
+        "languageToolLinter.smartFormat.onType": {
           "type": "boolean",
           "default": false,
           "description": "Run smart format as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
