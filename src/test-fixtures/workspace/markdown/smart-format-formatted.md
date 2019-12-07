@@ -22,3 +22,9 @@ This sentence ends with ellipses…
 This non–sense sentence contains en-dashes.
 
 This sentence—if you can call it that—contains em-dashes.
+
+## Comments
+
+Smart formatting should ignore comment brackets.
+
+<!-- "Like this," he said... But---at least I think---so will the linter. -->

@@ -121,11 +121,41 @@
       }
     },
     {
-      "markup": "\n",
-      "interpretAs": "\n",
+      "markup": "\n\n## ",
+      "interpretAs": "\n\n# ",
       "offset": {
         "start": 460,
-        "end": 461
+        "end": 465
+      }
+    },
+    {
+      "offset": {
+        "end": 473,
+        "start": 465
+      },
+      "text": "Comments"
+    },
+    {
+      "interpretAs": "\n\n",
+      "markup": "\n\n",
+      "offset": {
+        "end": 475,
+        "start": 473
+      }
+    },
+    {
+      "offset": {
+        "end": 523,
+        "start": 475
+      },
+      "text": "Smart formatting should ignore comment brackets."
+    },
+    {
+      "interpretAs": "\n\n\n",
+      "markup": "\n\n<!-- \"Like this,\" he said... But---at least I think---so will the linter. -->\n",
+      "offset": {
+        "end": 603,
+        "start": 523
       }
     }
   ]
