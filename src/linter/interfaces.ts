@@ -76,7 +76,7 @@ export interface ILanguageToolReplacement {
 }
 
 export interface IAnnotation {
-  markdown?: string;
+  markup?: string;
   interpretAs?: string;
   text?: string;
   offset?: {
