@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import { before } from 'mocha';
 import * as vscode from 'vscode';
 import { ConfigurationManager } from '../../common/configuration-manager';
 import * as constants from '../../common/constants';

@@ -2,7 +2,9 @@
     "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
         "backticks",
         "languagetool-linter",
-        "misspeeled"
+        "linter",
+        "misspeeled",
+        "yaml"
     ],
     "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
 }

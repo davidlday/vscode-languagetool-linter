@@ -16,6 +16,8 @@
         "annotatedtext",
         "annotatedtext-remark",
         "api",
+        "de-at",
+        "de-de",
         "globbing",
         "http-proxy-agent",
         "languagetool-linter",
@@ -25,7 +27,8 @@
         "npmjs",
         "pacman",
         "plaintext",
-        "voss"
+        "voss",
+        "yaml"
     ],
     "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
 }

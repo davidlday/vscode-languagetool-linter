@@ -1,9 +1,6 @@
 import * as assert from 'assert';
 import { before } from 'mocha';
 import * as vscode from 'vscode';
-import * as linter from '../../linter/linter';
-import * as configman from '../../common/configuration-manager';
-import * as constants from '../../common/constants';
 
 // import * as languagetooLinter from '../';
 
@@ -27,7 +24,7 @@ suite('Extension Test Suite', () => {
   test('Extension should register all commands', () => {
     return vscode.commands.getCommands(true).then((commands) => {
       const EXPECTED_COMMANDS: string[] = ["languagetoolLinter.lintCurrentDocument",
-        "languagetoolLinter.autoFormatDocument",
+        "languagetoolLinter.smartFormatDocument",
         "languagetoolLinter.ignoreWordGlobally",
         "languagetoolLinter.ignoreWordInWorkspace",
         "languagetoolLinter.removeGloballyIgnoredWord",

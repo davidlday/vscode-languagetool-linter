@@ -22,6 +22,7 @@ import { QuotesFormattingProvider } from './typeFormatters/quotesFormatter';
 import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_TIMEOUT_MS, LT_SERVICE_MANAGED } from './common/constants';
 import { ConfigurationManager } from "./common/configuration-manager";
 import { Linter } from "./linter/linter";
+import { IAnnotatedtext } from "./linter/interfaces";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
@@ -75,13 +76,13 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register onDidCloseTextDocument event - cancel any pending lint
-  context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(document => {
+  context.subscriptions.push(vscode.workspace.onDidCloseTextDocument( (document: vscode.TextDocument) => {
     linter.cancelLint(document);
     linter.deleteFromDiagnosticCollection(document.uri);
   }));
 
   // Register Code Actions Provider for supported languages
-  LT_DOCUMENT_SELECTORS.forEach(function (selector: vscode.DocumentSelector) {
+  LT_DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
     context.subscriptions.push(
       vscode.languages.registerCodeActionsProvider(selector, linter)
     );
@@ -97,9 +98,9 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // Register onDidCloseTextDocument event
-  context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(event => {
-    if (linter.diagnosticMap.has(event.uri.toString())) {
-      linter.diagnosticMap.delete(event.uri.toString());
+  context.subscriptions.push(vscode.workspace.onDidCloseTextDocument( (document: vscode.TextDocument) => {
+    if (linter.diagnosticMap.has(document.uri.toString())) {
+      linter.diagnosticMap.delete(document.uri.toString());
     }
     linter.resetDiagnostics();
   }));
@@ -133,32 +134,27 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(removeWorkspaceIgnoredWord);
 
   // Register "Lint Current Document" TextEditorCommand
-  let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor, edit) => {
+  let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(lintCommand);
 
   // Register "Auto Format Document" TextEditorCommand
-  let autoFormatCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.autoFormatDocument", (editor, edit) => {
+  let smartFormatCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.smartFormatDocument", (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
     if (configMan.isSupportedDocument(editor.document)) {
       // Revert to regex here for cleaner code.
       let text: string = editor.document.getText();
       let lastOffset: number = text.length - 1;
-      text = text.replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
-        .replace(/'(?=[\w"“])/g, QuotesFormattingProvider.startSingleQuote)
-        .replace(/([\w.!?%,'’])"/g, "$1" + QuotesFormattingProvider.endDoubleQuote)
-        .replace(/([\w.!?%,"”])'/g, "$1" + QuotesFormattingProvider.endSingleQuote)
-        .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
-        .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
-        .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
+      let annotatedtext: IAnnotatedtext = linter.buildAnnotatedtext(editor.document);
+      let newText = linter.smartFormatAnnotatedtext(annotatedtext);
       // Replace the whole thing at once so undo applies to all changes.
       edit.replace(
         new vscode.Range(editor.document.positionAt(0), editor.document.positionAt(lastOffset)),
-        text
+        newText
       );
     }
   });
-  context.subscriptions.push(autoFormatCommand);
+  context.subscriptions.push(smartFormatCommand);
 
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {

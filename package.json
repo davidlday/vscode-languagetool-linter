@@ -41,7 +41,7 @@
     "onLanguage:markdown",
     "onLanguage:html",
     "onCommand:languagetoolLinter.lintCurrentDocument",
-    "onCommand:languagetoolLinter.autoFormatDocument"
+    "onCommand:languagetoolLinter.smartFormatDocument"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -52,7 +52,7 @@
         "category": "LanguageTool Linter"
       },
       {
-        "command": "languagetoolLinter.autoFormatDocument",
+        "command": "languagetoolLinter.smartFormatDocument",
         "title": "Auto Format Document",
         "category": "LanguageTool Linter"
       }
@@ -61,10 +61,10 @@
       "type": "object",
       "title": "LanguageTool Linter",
       "properties": {
-        "languageToolLinter.autoformat.enabled": {
+        "languageToolLinter.smartFormat.onType": {
           "type": "boolean",
           "default": false,
-          "description": "Run autoformat as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
+          "description": "Run smart format as you type for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
         },
         "languageToolLinter.enabled": {
           "type": "boolean",
@@ -343,12 +343,10 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.5",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.17.6",
     "@types/vscode": "^1.39.0",
-    "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2",
