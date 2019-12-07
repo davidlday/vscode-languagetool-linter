@@ -4,6 +4,10 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 ## [Unreleased]
 
+### Fixed
+
+* Header marks reduced to only single has instead of entire markup to prevent passing front matter.
+
 ## [0.9.1] - 2019-12-01
 
 ### Fixed
