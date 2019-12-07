@@ -146,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
       let text: string = editor.document.getText();
       let lastOffset: number = text.length - 1;
       let annotatedtext: IAnnotatedtext = linter.buildAnnotatedtext(editor.document);
-      let newText = Linter.smartFormatAnnotatedtext(annotatedtext);
+      let newText = linter.smartFormatAnnotatedtext(annotatedtext);
       // Replace the whole thing at once so undo applies to all changes.
       edit.replace(
         new vscode.Range(editor.document.positionAt(0), editor.document.positionAt(lastOffset)),
