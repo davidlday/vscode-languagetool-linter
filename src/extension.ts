@@ -61,6 +61,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }));
 
+  context.subscriptions.push(vscode.workspace.onWillSaveTextDocument(event => {
+    if (configMan.isSmartFormatOnSave()) {
+      vscode.commands.executeCommand("languagetoolLinter.smartFormatDocument");
+    }
+  }));
+
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
     linter.requestLint(document);
