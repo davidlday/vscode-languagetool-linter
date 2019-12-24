@@ -1,0 +1,222 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "# ",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "Bold or Italics Test Case",
+      "offset": {
+        "start": 2,
+        "end": 27
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 27,
+        "end": 29
+      }
+    },
+    {
+      "text": "Markdown text decorated with _, __, *, ** to produce italic or bold text will throw an error (StatusCodeError: 500).",
+      "offset": {
+        "start": 29,
+        "end": 145
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 145,
+        "end": 147
+      }
+    },
+    {
+      "text": "Here is the markdown failing:",
+      "offset": {
+        "start": 147,
+        "end": 176
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 176,
+        "end": 178
+      }
+    },
+    {
+      "text": "This is a ",
+      "offset": {
+        "start": 178,
+        "end": 188
+      }
+    },
+    {
+      "markup": "**",
+      "interpretAs": "",
+      "offset": {
+        "start": 188,
+        "end": 190
+      }
+    },
+    {
+      "text": "bold",
+      "offset": {
+        "start": 190,
+        "end": 194
+      }
+    },
+    {
+      "markup": "**",
+      "interpretAs": "",
+      "offset": {
+        "start": 194,
+        "end": 196
+      }
+    },
+    {
+      "text": " style and this is ",
+      "offset": {
+        "start": 196,
+        "end": 215
+      }
+    },
+    {
+      "markup": "*",
+      "interpretAs": "",
+      "offset": {
+        "start": 215,
+        "end": 216
+      }
+    },
+    {
+      "text": "italic",
+      "offset": {
+        "start": 216,
+        "end": 222
+      }
+    },
+    {
+      "markup": "*",
+      "interpretAs": "",
+      "offset": {
+        "start": 222,
+        "end": 223
+      }
+    },
+    {
+      "text": " style using * char",
+      "offset": {
+        "start": 223,
+        "end": 242
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 242,
+        "end": 244
+      }
+    },
+    {
+      "text": "This is a ",
+      "offset": {
+        "start": 244,
+        "end": 254
+      }
+    },
+    {
+      "markup": "__",
+      "interpretAs": "",
+      "offset": {
+        "start": 254,
+        "end": 256
+      }
+    },
+    {
+      "text": "bold",
+      "offset": {
+        "start": 256,
+        "end": 260
+      }
+    },
+    {
+      "markup": "__",
+      "interpretAs": "",
+      "offset": {
+        "start": 260,
+        "end": 262
+      }
+    },
+    {
+      "text": " style and this is ",
+      "offset": {
+        "start": 262,
+        "end": 281
+      }
+    },
+    {
+      "markup": "_",
+      "interpretAs": "",
+      "offset": {
+        "start": 281,
+        "end": 282
+      }
+    },
+    {
+      "text": "italic",
+      "offset": {
+        "start": 282,
+        "end": 288
+      }
+    },
+    {
+      "markup": "_",
+      "interpretAs": "",
+      "offset": {
+        "start": 288,
+        "end": 289
+      }
+    },
+    {
+      "text": " style using _ char",
+      "offset": {
+        "start": 289,
+        "end": 308
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 308,
+        "end": 310
+      }
+    },
+    {
+      "text": "You can reproduce the error with every service type.",
+      "offset": {
+        "start": 310,
+        "end": 362
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 362,
+        "end": 363
+      }
+    }
+  ]
+}
