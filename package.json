@@ -347,7 +347,7 @@
     "test-compile": "tsc -p ./",
     "compile": "webpack --mode none",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
-    "pretest": "npm run compile",
+    "pretest": "npm run test-compile",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
