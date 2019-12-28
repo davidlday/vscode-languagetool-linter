@@ -145,7 +145,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(lintCommand);
 
-  // Register "Auto Format Document" TextEditorCommand
+  // Register "Smart Format Document" TextEditorCommand
   let smartFormatCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.smartFormatDocument", (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
     if (configMan.isSupportedDocument(editor.document)) {
       // Revert to regex here for cleaner code.

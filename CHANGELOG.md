@@ -6,6 +6,10 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 Changes not yet released.
 
+### Fixed
+
+* Smart Format command name updated
+
 ### Added
 
 * Smart Format on Save option

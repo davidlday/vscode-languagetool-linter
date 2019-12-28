@@ -53,7 +53,7 @@
       },
       {
         "command": "languagetoolLinter.smartFormatDocument",
-        "title": "Auto Format Document",
+        "title": "Smart Format Document",
         "category": "LanguageTool Linter"
       }
     ],
