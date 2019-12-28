@@ -168,7 +168,7 @@ export class ConfigurationManager implements Disposable {
     if (this.getServiceType() === LT_SERVICE_MANAGED) {
       let classpath: string = this.getClassPath();
       this.stopManagedService();
-      portfinder.getPort({ host: "127.0.0.1" }, (error, port) => {
+      portfinder.getPort({ host: "127.0.0.1" }, (error: any, port: number) => {
         if (error) {
           LT_OUTPUT_CHANNEL.appendLine("Error getting open port: " + error.message);
           LT_OUTPUT_CHANNEL.show(true);
@@ -182,7 +182,7 @@ export class ConfigurationManager implements Disposable {
             port.toString()
           ];
           LT_OUTPUT_CHANNEL.appendLine("Starting managed service.");
-          (this.process = execa("java", args)).catch((error) => {
+          (this.process = execa("java", args)).catch((error: any) => {
             if (error.isCanceled) {
               LT_OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
             } else if (error.failed) {
@@ -191,11 +191,11 @@ export class ConfigurationManager implements Disposable {
               LT_OUTPUT_CHANNEL.show(true);
             }
           });
-          this.process.stderr.addListener("data", (data) => {
+          this.process.stderr.addListener("data", (data: any) => {
             LT_OUTPUT_CHANNEL.appendLine(data);
             LT_OUTPUT_CHANNEL.show(true);
           });
-          this.process.stdout.addListener("data", function (data) {
+          this.process.stdout.addListener("data", function (data: any) {
             LT_OUTPUT_CHANNEL.appendLine(data);
           });
           this.serviceUrl = this.findServiceUrl(this.getServiceType());
