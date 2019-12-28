@@ -74,3 +74,6 @@ out
 
 # VS Code Extensions
 *.vsix
+
+# Webpack Directory
+dist/
