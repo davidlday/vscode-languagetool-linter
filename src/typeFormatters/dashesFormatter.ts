@@ -14,15 +14,15 @@
  *   limitations under the License.
  */
 
-import * as vscode from 'vscode';
-import { ConfigurationManager } from '../common/configuration-manager';
+import * as vscode from "vscode";
+import { ConfigurationManager } from "../common/configuration-manager";
 
 export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-  static readonly emDash: string = '—';
-  static readonly enDash: string = '–';
-  static readonly hyphen: string = '-';
+  static readonly emDash: string = "—";
+  static readonly enDash: string = "–";
+  static readonly hyphen: string = "-";
   private readonly config: ConfigurationManager;
-  static readonly triggers: string[] = ['-'];
+  static readonly triggers: string[] = ["-"];
 
   constructor(config: ConfigurationManager) {
     this.config = config;

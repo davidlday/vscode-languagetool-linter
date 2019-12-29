@@ -3,9 +3,9 @@
 // Source:
 // https://github.com/DonJayamanne/pythonVSCode/blob/4e9f7389a847e6298e1fb3ea3e66bd27c61c3972/src/client/typeFormatters/dispatcher.ts
 
-'use strict';
+"use strict";
 
-import { CancellationToken, FormattingOptions, OnTypeFormattingEditProvider, Position, ProviderResult, TextDocument, TextEdit } from 'vscode';
+import { CancellationToken, FormattingOptions, OnTypeFormattingEditProvider, Position, ProviderResult, TextDocument, TextEdit } from "vscode";
 
 export class OnTypeFormattingDispatcher implements OnTypeFormattingEditProvider {
   private readonly providers: Record<string, OnTypeFormattingEditProvider>;

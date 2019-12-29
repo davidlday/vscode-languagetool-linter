@@ -14,14 +14,14 @@
  *   limitations under the License.
  */
 
-import * as vscode from 'vscode';
-import { ConfigurationManager } from '../common/configuration-manager';
+import * as vscode from "vscode";
+import { ConfigurationManager } from "../common/configuration-manager";
 
 export class EllipsesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-  static readonly ellipses: string = '…';
-  static readonly period: string = '.';
+  static readonly ellipses: string = "…";
+  static readonly period: string = ".";
   private readonly config: ConfigurationManager;
-  static readonly triggers: string[] = ['.'];
+  static readonly triggers: string[] = ["."];
 
   constructor(config: ConfigurationManager) {
     this.config = config;

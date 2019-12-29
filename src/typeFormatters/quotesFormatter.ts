@@ -14,18 +14,18 @@
  *   limitations under the License.
  */
 
-import * as vscode from 'vscode';
-import { ConfigurationManager } from '../common/configuration-manager';
+import * as vscode from "vscode";
+import { ConfigurationManager } from "../common/configuration-manager";
 
 export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-  static readonly startDoubleQuote: string = '“';
-  static readonly endDoubleQuote: string = '”';
-  static readonly startSingleQuote: string = '‘';
-  static readonly endSingleQuote: string = '’';
+  static readonly startDoubleQuote: string = "“";
+  static readonly endDoubleQuote: string = "”";
+  static readonly startSingleQuote: string = "‘";
+  static readonly endSingleQuote: string = "’";
   static readonly doubleQuote: string = '"';
   static readonly singleQuote: string = "'";
   private readonly config: ConfigurationManager;
-  static readonly triggers: string[] = ['"', "'"];
+  static readonly triggers: string[] = [QuotesFormattingProvider.doubleQuote, QuotesFormattingProvider.singleQuote];
 
   constructor(config: ConfigurationManager) {
     this.config = config;
@@ -53,7 +53,7 @@ export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProv
           }
           break;
         case QuotesFormattingProvider.singleQuote:
-          if ([" ", '"', QuotesFormattingProvider.startDoubleQuote].indexOf(prevCh) !== -1) {
+          if ([" ", QuotesFormattingProvider.doubleQuote, QuotesFormattingProvider.startDoubleQuote].indexOf(prevCh) !== -1) {
             return [new vscode.TextEdit(chRange, QuotesFormattingProvider.startSingleQuote)];
           } else {
             return [new vscode.TextEdit(chRange, QuotesFormattingProvider.endSingleQuote)];

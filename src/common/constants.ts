@@ -1,4 +1,4 @@
-import { DocumentSelector, OutputChannel, window } from 'vscode';
+import { DocumentSelector, OutputChannel, window } from "vscode";
 
 export const MARKDOWN: string = "markdown";
 export const HTML: string = "html";
