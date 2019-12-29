@@ -6,6 +6,10 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 Changes not yet released.
 
+### Added
+
+* Webpack for performancy goodness
+
 ### Fixed
 
 * Smart Format command name updated
