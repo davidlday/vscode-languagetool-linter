@@ -14,3 +14,5 @@ out/
 src/
 tsconfig.json
 webpack.config.js
+webpack.config.ts
+licenseTemplates
