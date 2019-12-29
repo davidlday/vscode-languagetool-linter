@@ -342,11 +342,11 @@
   },
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
-    "webpack": "webpack --mode none",
+    "webpack": "webpack --mode development",
     "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
-    "test-compile": "tsc -p ./",
     "compile": "webpack --mode none",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
+    "test-compile": "tsc -p ./",
     "pretest": "npm run test-compile",
     "test": "node ./out/test/runTest.js"
   },
