@@ -29,6 +29,7 @@
         "plaintext",
         "socio-economic",
         "voss",
+        "webpack",
         "yaml"
     ],
     "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
