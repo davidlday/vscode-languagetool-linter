@@ -18,16 +18,16 @@ import {
   TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
   Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri,
   CodeActionProvider, CodeActionContext, CancellationToken, workspace
-} from 'vscode';
-import { ConfigurationManager } from '../common/configuration-manager';
-import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME, MARKDOWN, HTML, PLAINTEXT } from '../common/constants';
+} from "vscode";
+import { ConfigurationManager } from "../common/configuration-manager";
+import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME, MARKDOWN, HTML, PLAINTEXT } from "../common/constants";
 import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
-import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement, IAnnotatedtext, IAnnotation } from './interfaces';
-import { QuotesFormattingProvider } from '../typeFormatters/quotesFormatter';
-import { DashesFormattingProvider } from '../typeFormatters/dashesFormatter';
-import { EllipsesFormattingProvider } from '../typeFormatters/ellipsesFormatter';
+import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement, IAnnotatedtext, IAnnotation } from "./interfaces";
+import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";
+import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
+import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter";
 
 export class Linter implements CodeActionProvider {
   private readonly configManager: ConfigurationManager;

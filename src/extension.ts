@@ -15,11 +15,11 @@
  */
 
 import * as vscode from "vscode";
-import { DashesFormattingProvider } from './typeFormatters/dashesFormatter';
+import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
 import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
-import { OnTypeFormattingDispatcher } from './typeFormatters/dispatcher';
-import { QuotesFormattingProvider } from './typeFormatters/quotesFormatter';
-import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_TIMEOUT_MS, LT_SERVICE_MANAGED } from './common/constants';
+import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";
+import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
+import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_TIMEOUT_MS, LT_SERVICE_MANAGED } from "./common/constants";
 import { ConfigurationManager } from "./common/configuration-manager";
 import { Linter } from "./linter/linter";
 import { IAnnotatedtext } from "./linter/interfaces";
@@ -32,8 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
     '"': new QuotesFormattingProvider(configMan),
     "'": new QuotesFormattingProvider(configMan),
-    '-': new DashesFormattingProvider(configMan),
-    '.': new EllipsesFormattingProvider(configMan)
+    "-": new DashesFormattingProvider(configMan),
+    ".": new EllipsesFormattingProvider(configMan)
   });
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
@@ -43,37 +43,37 @@ export function activate(context: vscode.ExtensionContext) {
   LT_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
 
   // Register onDidChangeconfiguration event
-  context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
+  context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => {
     if (event.affectsConfiguration("languageToolLinter")) {
       configMan.reloadConfiguration(event);
     }
   }));
 
   // Register onDidOpenTextDocument event - request lint
-  context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(document => {
+  context.subscriptions.push(vscode.workspace.onDidOpenTextDocument((document) => {
     linter.requestLint(document);
   }));
 
   // Register onDidChangeActiveTextEditor event - request lint
-  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor) => {
     if (editor) {
       linter.requestLint(editor.document);
     }
   }));
 
-  context.subscriptions.push(vscode.workspace.onWillSaveTextDocument(event => {
+  context.subscriptions.push(vscode.workspace.onWillSaveTextDocument((event) => {
     if (configMan.isSmartFormatOnSave()) {
       vscode.commands.executeCommand("languagetoolLinter.smartFormatDocument");
     }
   }));
 
   // Register onDidSaveTextDocument event - request immediate lint
-  context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(document => {
+  context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => {
     linter.requestLint(document);
   }));
 
   // Register onDidChangeTextDocument event - request lint with default timeout
-  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => {
     // if (ltConfig.get("lintOnChange")) {
     if (configMan.getLintOnChange()) {
       linter.requestLint(event.document);
