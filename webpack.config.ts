@@ -35,8 +35,7 @@ const config = {
         handleMissingLicenseText: (packageName, licenseType) => {
           console.log('Cannot find license for ' + packageName + " (" + licenseType + ")");
           return licenseType;
-        },
-        licenseTemplateDir: path.resolve(__dirname, 'licenseTemplates')
+        }
       })
     ],
     module: {
