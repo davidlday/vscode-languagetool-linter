@@ -8,7 +8,7 @@ Changes not yet released.
 
 ### Added
 
-* Webpack for performancy goodness
+* Webpack for performance goodness
 
 ### Fixed
 
