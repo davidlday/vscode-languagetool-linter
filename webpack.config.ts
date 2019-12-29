@@ -8,6 +8,7 @@
 'use strict';
 
 const path = require('path');
+const LicenseWebpackPlugin = require('license-webpack-plugin').LicenseWebpackPlugin;
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -27,6 +28,22 @@ const config = {
     resolve: { // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
         extensions: ['.ts', '.js']
     },
+    plugins: [
+      new LicenseWebpackPlugin({
+        stats: {
+          warnings: false,
+          errors: true
+        },
+        perChunkOutput: true,
+        addBanner: true,
+        preferredLicenseTypes: ['MIT', 'ISC'],
+        handleMissingLicenseText: (packageName, licenseType) => {
+          console.log('Cannot find license for ' + packageName + " (" + licenseType + ")");
+          return licenseType;
+        },
+        licenseTemplateDir: path.resolve(__dirname, 'licenseTemplates')
+      })
+    ],
     module: {
         rules: [{
             test: /\.ts$/,
@@ -41,6 +58,6 @@ const config = {
             }]
         }]
     },
-}
+};
 
 module.exports = config;
