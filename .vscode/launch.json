@@ -14,10 +14,10 @@
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
 			"outFiles": [
-				"${workspaceFolder}/out/**/*.js"
+				"${workspaceFolder}/dist/**/*.js"
 			],
-			"preLaunchTask": "npm: watch"
-		},
+			"preLaunchTask": "npm: webpack"
+    },
 		{
 			"name": "Extension Tests",
 			"type": "extensionHost",
@@ -30,7 +30,7 @@
 			"outFiles": [
 				"${workspaceFolder}/out/test/**/*.js"
 			],
-			"preLaunchTask": "npm: watch"
+			"preLaunchTask": "npm: test-compile"
 		}
 	]
 }

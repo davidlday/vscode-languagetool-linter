@@ -21,6 +21,7 @@ install:
   - npm run vscode:prepublish
 
 script:
+  - npm run test-compile
   - npm test
   - vsce package
   - ls -ll *vsix

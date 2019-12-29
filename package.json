@@ -43,7 +43,7 @@
     "onCommand:languagetoolLinter.lintCurrentDocument",
     "onCommand:languagetoolLinter.smartFormatDocument"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension",
   "contributes": {
     "commands": [
       {
@@ -341,24 +341,32 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
+    "vscode:prepublish": "webpack --mode production",
+    "webpack": "webpack --mode development",
+    "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
+    "compile": "webpack --mode none",
+    "watch": "webpack --mode development --watch --info-verbosity verbose",
+    "test-compile": "tsc -p ./",
+    "pretest": "npm run test-compile",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.17.6",
+    "@types/node": "^10.17.13",
+    "@types/request-promise-native": "^1.0.17",
     "@types/vscode": "^1.39.0",
+    "@types/webpack": "^4.41.0",
+    "license-webpack-plugin": "^2.1.3",
     "mocha": "^6.2.2",
+    "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
-    "typescript": "^3.7.2",
-    "vscode-test": "^1.2.3"
+    "typescript": "^3.7.4",
+    "vscode-test": "^1.3.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
   "dependencies": {
-    "@types/request-promise-native": "^1.0.17",
     "annotatedtext-rehype": "^0.1.2",
     "annotatedtext-remark": "^0.4.0",
     "execa": "^3.4.0",
