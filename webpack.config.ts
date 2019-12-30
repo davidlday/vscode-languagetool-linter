@@ -20,7 +20,7 @@ const config = {
         vscode: "commonjs vscode",
     },
     resolve: {
-        extensions: [".ts", ".js"]
+        extensions: [".ts", ".js",]
     },
     plugins: [
       new LicenseWebpackPlugin({
@@ -30,7 +30,7 @@ const config = {
           return licenseType;
         },
         perChunkOutput: true,
-        preferredLicenseTypes: ["MIT", "ISC"],
+        preferredLicenseTypes: ["MIT", "ISC",],
         stats: {
           errors: true,
           warnings: false,
@@ -45,7 +45,7 @@ const config = {
                 loader: "ts-loader",
                 options: {
                     compilerOptions: {
-                        "module": "es6"
+                        "module": "es6",
                     }
                 }
             }]
