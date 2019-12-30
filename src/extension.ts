@@ -95,10 +95,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (onTypeTriggers) {
       context.subscriptions.push(
-        vscode.languages.registerOnTypeFormattingEditProvider(selector,
+        vscode.languages.registerOnTypeFormattingEditProvider(
+          selector,
           onTypeDispatcher,
           onTypeTriggers.first,
-          ...onTypeTriggers.more)
+          ...onTypeTriggers.more,
+        )
       );
     }
   });
@@ -127,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register "Remove Globally Ignored Word" TextEditorCommand
   let removeGloballyIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeGloballyIgnoredWord", (editor, edit, ...args) => {
-    configMan.removeGloballyIgnoredWord(args[0]);
+    configMan.removeGloballyIgnoredWord(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(removeGloballyIgnoredWord);
