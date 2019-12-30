@@ -24,17 +24,17 @@ const config = {
     },
     plugins: [
       new LicenseWebpackPlugin({
+        addBanner: true,
+        handleMissingLicenseText: (packageName, licenseType) => {
+          console.log("Cannot find license for " + packageName + " (" + licenseType + ")");
+          return licenseType;
+        },
+        perChunkOutput: true,
+        preferredLicenseTypes: ["MIT", "ISC"],
         stats: {
           errors: true,
           warnings: false,
         },
-        perChunkOutput: true,
-        addBanner: true,
-        preferredLicenseTypes: ["MIT", "ISC"],
-        handleMissingLicenseText: (packageName, licenseType) => {
-          console.log("Cannot find license for " + packageName + " (" + licenseType + ")");
-          return licenseType;
-        }
       })
     ],
     module: {
