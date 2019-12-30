@@ -1,8 +1,8 @@
 import { DocumentSelector, OutputChannel, window } from "vscode";
 
-export const MARKDOWN: string = "markdown";
-export const HTML: string = "html";
-export const PLAINTEXT: string = "plaintext";
+export const MARKDOWN = "markdown";
+export const HTML = "html";
+export const PLAINTEXT = "plaintext";
 
 export const MARKDOWN_FILE: DocumentSelector = {language: MARKDOWN, scheme: "file"};
 export const MARKDOWN_UNTITLED: DocumentSelector = {language: MARKDOWN, scheme: "untitled"};
@@ -23,8 +23,8 @@ export const LT_DOCUMENT_SELECTORS: DocumentSelector[] = [
   PLAINTEXT_UNTITLED
 ];
 
-export const LT_PUBLIC_URL: string = "https://languagetool.org/api";
-export const LT_CHECK_PATH: string = "/v2/check";
+export const LT_PUBLIC_URL = "https://languagetool.org/api";
+export const LT_CHECK_PATH = "/v2/check";
 export const LT_SERVICE_PARAMETERS: string[] = [
   "language",
   "motherTongue",
@@ -34,15 +34,15 @@ export const LT_SERVICE_PARAMETERS: string[] = [
   "disabledCategories"
 ];
 
-export const LT_TIMEOUT_MS: number = 500;
-export const LT_DIAGNOSTIC_SOURCE: string = "LanguageTool";
-export const LT_DISPLAY_NAME: string = "languagetool-linter";
+export const LT_TIMEOUT_MS = 500;
+export const LT_DIAGNOSTIC_SOURCE = "LanguageTool";
+export const LT_DISPLAY_NAME = "languagetool-linter";
 export const LT_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel("LanguageTool Linter");
 
-export const LT_CONFIGURATION_ROOT: string = "languageToolLinter";
+export const LT_CONFIGURATION_ROOT = "languageToolLinter";
 
-export const LT_SERVICE_EXTERNAL: string = "external";
-export const LT_SERVICE_MANAGED: string = "managed";
-export const LT_SERVICE_PUBLIC: string = "public";
+export const LT_SERVICE_EXTERNAL = "external";
+export const LT_SERVICE_MANAGED = "managed";
+export const LT_SERVICE_PUBLIC = "public";
 export const LT_SERVICE_TYPES: string[] = [LT_SERVICE_EXTERNAL, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC];
 
