@@ -75,7 +75,7 @@ export class Linter implements CodeActionProvider {
   ): CodeAction[] {
     let documentUri: string = document.uri.toString();
     if (this.codeActionMap.has(documentUri) && this.codeActionMap.get(documentUri)) {
-      let documentCodeActions: CodeAction[] = this.codeActionMap.get(documentUri) || [];
+      const documentCodeActions: CodeAction[] = this.codeActionMap.get(documentUri) || [];
       let actions: CodeAction[] = [];
       documentCodeActions.forEach(function (action) {
         if (action.diagnostics && context.diagnostics) {
@@ -99,7 +99,7 @@ export class Linter implements CodeActionProvider {
   public requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
     if (this.configManager.isSupportedDocument(document)) {
       this.cancelLint(document);
-      let uriString = document.uri.toString();
+      const uriString = document.uri.toString();
       let timeout = setTimeout(() => {
         this.lintDocument(document);
         this.cancelLint(document);
@@ -110,7 +110,7 @@ export class Linter implements CodeActionProvider {
 
   // Cancel lint
   public cancelLint(document: TextDocument): void {
-    let uriString = document.uri.toString();
+    const uriString = document.uri.toString();
     if (this.timeoutMap.has(uriString)) {
       let timeout = this.timeoutMap.get(uriString);
       if (timeout) {
@@ -183,9 +183,9 @@ export class Linter implements CodeActionProvider {
     let url = this.configManager.getUrl();
     if (url) {
       let options: object = {
-        "method": "POST",
         "form": ltPostDataDict,
-        "json": true
+        "json": true,
+        "method": "POST"
       };
       rp.post(url, options)
         .then((data) => {
