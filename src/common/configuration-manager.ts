@@ -25,6 +25,8 @@ export class ConfigurationManager implements Disposable {
   private globallyIgnoredWords: Set<string>;
   private workspaceIgnoredWords: Set<string>;
 
+  // Constructor
+
   constructor() {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
@@ -32,6 +34,8 @@ export class ConfigurationManager implements Disposable {
     this.globallyIgnoredWords = this.getGloballyIgnoredWords();
     this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
+
+  // Public instance methods
 
   public dispose(): void {
     this.stopManagedService();
@@ -96,13 +100,108 @@ export class ConfigurationManager implements Disposable {
     let parameters: Map<string, string> = new Map();
     LT_SERVICE_PARAMETERS.forEach(function (ltKey) {
       let configKey: string = "languageTool." + ltKey;
-      let value: string | undefined = config.get(configKey);
+      const value: string | undefined = config.get(configKey);
       if (value) {
         parameters.set(ltKey, value);
       }
     });
     return parameters;
   }
+
+  public getUrl(): string | undefined {
+    return this.serviceUrl;
+  }
+
+  public getLintOnChange(): boolean {
+    return this.config.get("lintOnChange") as boolean;
+  }
+
+  public getClassPath(): string {
+    let jarFile: string = this.get("managed.jarFile") as string;
+    let classPath: string = this.get("managed.classPath") as string;
+    let classPathFiles: string[] = [];
+    // DEPRECATED
+    if (jarFile !== "") {
+      window.showWarningMessage('"LanguageTool Linter > Managed: Jar File" is deprecated. Please use "LanguageTool > Managed: Class Path" instead.');
+      classPathFiles.push(jarFile);
+    }
+    if (classPath !== "") {
+      classPath.split(path.delimiter).forEach((globPattern: string) => {
+        glob.sync(globPattern).forEach((match: string) => {
+          classPathFiles.push(match);
+        });
+      });
+    }
+    let classPathString: string = classPathFiles.join(path.delimiter);
+    return classPathString;
+  }
+
+  // Stop the managed service
+  public stopManagedService(): void {
+    if (this.process) {
+      LT_OUTPUT_CHANNEL.appendLine("Closing managed service server.");
+      this.process.cancel();
+      this.process = undefined;
+    }
+  }
+
+  // Manage Ignored Words Lists
+  public isIgnoredWord(word: string): boolean {
+    return this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word);
+  }
+
+  // Is word ignored at the User Level?
+  public isGloballyIgnoredWord(word: string): boolean {
+    return this.globallyIgnoredWords.has(word.toLowerCase());
+  }
+
+  // Is word ignored at the Workspace Level?
+  public isWorkspaceIgnoredWord(word: string): boolean {
+    return this.workspaceIgnoredWords.has(word.toLowerCase());
+  }
+
+  // Add word to User Level ignored word list.
+  public ignoreWordGlobally(word: string): void {
+    const lowerCaseWord: string = word.toLowerCase();
+    if (!this.isGloballyIgnoredWord(lowerCaseWord)) {
+      this.globallyIgnoredWords.add(lowerCaseWord);
+      this.saveGloballyIgnoredWords();
+    }
+  }
+
+  // Add word to Workspace Level ignored word list.
+  public ignoreWordInWorkspace(word: string): void {
+    let lowerCaseWord: string = word.toLowerCase();
+    if (!this.isWorkspaceIgnoredWord(lowerCaseWord)) {
+      this.workspaceIgnoredWords.add(lowerCaseWord);
+      this.saveWorkspaceIgnoredWords();
+    }
+  }
+
+  // Remove word from User Level ignored word list.
+  public removeGloballyIgnoredWord(word: string): void {
+    let lowerCaseWord: string = word.toLowerCase();
+    if (this.isGloballyIgnoredWord(lowerCaseWord)) {
+      this.globallyIgnoredWords.delete(lowerCaseWord);
+      this.saveGloballyIgnoredWords();
+    }
+  }
+
+  // Remove word from Workspace Level ignored word list.
+  public removeWorkspaceIgnoredWord(word: string): void {
+    let lowerCaseWord: string = word.toLowerCase();
+    if (this.isWorkspaceIgnoredWord(lowerCaseWord)) {
+      this.workspaceIgnoredWords.delete(lowerCaseWord);
+      this.saveWorkspaceIgnoredWords();
+    }
+  }
+
+  // Show hints for ignored words?
+  public showIgnoredWordHints(): boolean {
+    return this.config.get(ConfigurationManager.ignoredWordHintSection) as boolean;
+  }
+
+  // Private instance methods
 
   private findServiceUrl(serviceType: string): string | undefined {
     switch (serviceType) {
@@ -130,40 +229,12 @@ export class ConfigurationManager implements Disposable {
     return this.managedPort;
   }
 
-  public getUrl(): string | undefined {
-    return this.serviceUrl;
-  }
-
-  public getLintOnChange(): boolean {
-    return this.config.get("lintOnChange") as boolean;
-  }
-
   private getExternalUrl(): string | undefined {
     return this.get("external.url");
   }
 
   private get(key: string): string | undefined {
     return this.config.get(key);
-  }
-
-  public getClassPath(): string {
-    let jarFile: string = this.get("managed.jarFile") as string;
-    let classPath: string = this.get("managed.classPath") as string;
-    let classPathFiles: string[] = [];
-    // DEPRECATED
-    if (jarFile !== "") {
-      window.showWarningMessage('"LanguageTool Linter > Managed: Jar File" is deprecated. Please use "LanguageTool > Managed: Class Path" instead.');
-      classPathFiles.push(jarFile);
-    }
-    if (classPath !== "") {
-      classPath.split(path.delimiter).forEach((globPattern: string) => {
-        glob.sync(globPattern).forEach((match: string) => {
-          classPathFiles.push(match);
-        });
-      });
-    }
-    let classPathString: string = classPathFiles.join(path.delimiter);
-    return classPathString;
   }
 
   private startManagedService(): void {
@@ -206,30 +277,6 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
-  // Stop the managed service
-  public stopManagedService(): void {
-    if (this.process) {
-      LT_OUTPUT_CHANNEL.appendLine("Closing managed service server.");
-      this.process.cancel();
-      this.process = undefined;
-    }
-  }
-
-  // Manage Ignored Words Lists
-  public isIgnoredWord(word: string): boolean {
-    return this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word);
-  }
-
-  // Is word ignored at the User Level?
-  public isGloballyIgnoredWord(word: string): boolean {
-    return this.globallyIgnoredWords.has(word.toLowerCase());
-  }
-
-  // Is word ignored at the Workspace Level?
-  public isWorkspaceIgnoredWord(word: string): boolean {
-    return this.workspaceIgnoredWords.has(word.toLowerCase());
-  }
-
   // Save words to settings
   private saveIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
     let wordArray: Array<string> = Array.from(words).sort();
@@ -254,47 +301,6 @@ export class ConfigurationManager implements Disposable {
   // Save word to Workspace Level ignored word list.
   private saveWorkspaceIgnoredWords(): void {
     this.saveIgnoredWords(this.workspaceIgnoredWords, ConfigurationManager.workspaceIgnoredWordsSection, ConfigurationTarget.Workspace);
-  }
-
-  // Add word to User Level ignored word list.
-  public ignoreWordGlobally(word: string): void {
-    let lowerCaseWord: string = word.toLowerCase();
-    if (!this.isGloballyIgnoredWord(lowerCaseWord)) {
-      this.globallyIgnoredWords.add(lowerCaseWord);
-      this.saveGloballyIgnoredWords();
-    }
-  }
-
-  // Add word to Workspace Level ignored word list.
-  public ignoreWordInWorkspace(word: string): void {
-    let lowerCaseWord: string = word.toLowerCase();
-    if (!this.isWorkspaceIgnoredWord(lowerCaseWord)) {
-      this.workspaceIgnoredWords.add(lowerCaseWord);
-      this.saveWorkspaceIgnoredWords();
-    }
-  }
-
-  // Remove word from User Level ignored word list.
-  public removeGloballyIgnoredWord(word: string): void {
-    let lowerCaseWord: string = word.toLowerCase();
-    if (this.isGloballyIgnoredWord(lowerCaseWord)) {
-      this.globallyIgnoredWords.delete(lowerCaseWord);
-      this.saveGloballyIgnoredWords();
-    }
-  }
-
-  // Remove word from Workspace Level ignored word list.
-  public removeWorkspaceIgnoredWord(word: string): void {
-    let lowerCaseWord: string = word.toLowerCase();
-    if (this.isWorkspaceIgnoredWord(lowerCaseWord)) {
-      this.workspaceIgnoredWords.delete(lowerCaseWord);
-      this.saveWorkspaceIgnoredWords();
-    }
-  }
-
-  // Show hints for ignored words?
-  public showIgnoredWordHints(): boolean {
-    return this.config.get(ConfigurationManager.ignoredWordHintSection) as boolean;
   }
 
 }
