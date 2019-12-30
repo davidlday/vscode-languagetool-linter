@@ -32,11 +32,11 @@ import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter"
 export class Linter implements CodeActionProvider {
   private readonly configManager: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
-  diagnosticCollection: DiagnosticCollection;
-  diagnosticMap: Map<string, Diagnostic[]> = new Map();
-  codeActionMap: Map<string, CodeAction[]> = new Map();
-  remarkBuilderOptions: any = remarkBuilder.defaults;
-  rehypeBuilderOptions: any = rehypeBuilder.defaults;
+  public diagnosticCollection: DiagnosticCollection;
+  public diagnosticMap: Map<string, Diagnostic[]> = new Map();
+  public codeActionMap: Map<string, CodeAction[]> = new Map();
+  public remarkBuilderOptions: any = remarkBuilder.defaults;
+  public rehypeBuilderOptions: any = rehypeBuilder.defaults;
 
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
@@ -67,7 +67,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Provide CodeActions for thw given Document and Range
-  provideCodeActions(
+  public provideCodeActions(
     document: TextDocument,
     range: Range,
     context: CodeActionContext,
@@ -92,11 +92,11 @@ export class Linter implements CodeActionProvider {
   }
 
   // Delete a set of diagnostics for the given Document URI
-  deleteFromDiagnosticCollection(uri: Uri): void {
+  public deleteFromDiagnosticCollection(uri: Uri): void {
     this.diagnosticCollection.delete(uri);
   }
 
-  requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
+  public requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
     if (this.configManager.isSupportedDocument(document)) {
       this.cancelLint(document);
       let uriString = document.uri.toString();
@@ -109,7 +109,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Cancel lint
-  cancelLint(document: TextDocument): void {
+  public cancelLint(document: TextDocument): void {
     let uriString = document.uri.toString();
     if (this.timeoutMap.has(uriString)) {
       let timeout = this.timeoutMap.get(uriString);
@@ -121,7 +121,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Build annotatedtext from Markdown
-  buildAnnotatedMarkdown(text: string): IAnnotatedtext {
+  public buildAnnotatedMarkdown(text: string): IAnnotatedtext {
     return remarkBuilder.build(text, this.remarkBuilderOptions);
   }
 
@@ -131,13 +131,13 @@ export class Linter implements CodeActionProvider {
   }
 
   // Build annotatedtext from PLAINTEXT
-  buildAnnotatedPlaintext(text: string): IAnnotatedtext {
+  public buildAnnotatedPlaintext(text: string): IAnnotatedtext {
     let textAnnotation: IAnnotation = { "text": text };
     return { "annotation": [textAnnotation] };
   }
 
   // Abstract annotated text builder
-  buildAnnotatedtext(document: TextDocument): IAnnotatedtext {
+  public buildAnnotatedtext(document: TextDocument): IAnnotatedtext {
     let annotatedtext: IAnnotatedtext = { "annotation": [] };
     switch (document.languageId) {
       case (MARKDOWN):
@@ -154,7 +154,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Perform Lint on Document
-  lintDocument(document: TextDocument): void {
+  public lintDocument(document: TextDocument): void {
     if (this.configManager.isSupportedDocument(document)) {
       if (document.languageId === "markdown") {
         let annotatedMarkdown: string = JSON.stringify(this.buildAnnotatedMarkdown(document.getText()));
@@ -203,7 +203,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Lint Annotated Text
-  lintAnnotatedText(document: TextDocument, annotatedText: string): void {
+  public lintAnnotatedText(document: TextDocument, annotatedText: string): void {
     if (this.configManager.isSupportedDocument(document)) {
       let ltPostDataDict: any = this.getPostDataTemplate();
       ltPostDataDict["data"] = annotatedText;
@@ -317,7 +317,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Reset the Diagnostic Collection
-  resetDiagnostics(): void {
+  public resetDiagnostics(): void {
     this.diagnosticCollection.clear();
     this.diagnosticMap.forEach((diags, file) => {
       this.diagnosticCollection.set(Uri.parse(file), diags);
@@ -326,14 +326,14 @@ export class Linter implements CodeActionProvider {
 
   // Is the rule a Spelling rule?
   // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
-  static isSpellingRule(ruleId: string): boolean {
+  public static isSpellingRule(ruleId: string): boolean {
     return ruleId.indexOf("MORFOLOGIK_RULE") !== -1 || ruleId.indexOf("SPELLER_RULE") !== -1
       || ruleId.indexOf("HUNSPELL_NO_SUGGEST_RULE") !== -1 || ruleId.indexOf("HUNSPELL_RULE") !== -1
       || ruleId.indexOf("FR_SPELLING_RULE") !== -1;
   }
 
   // Apply smart formatting to annotated text.
-  smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
+  public smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
     let newText: string = "";
     // Only run substitutions on text annotations.
     annotatedtext.annotation.forEach((annotation) => {
