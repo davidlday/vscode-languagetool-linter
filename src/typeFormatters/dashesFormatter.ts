@@ -18,11 +18,11 @@ import * as vscode from "vscode";
 import { ConfigurationManager } from "../common/configuration-manager";
 
 export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-  static readonly emDash: string = "—";
-  static readonly enDash: string = "–";
-  static readonly hyphen: string = "-";
+  public static readonly emDash: string = "—";
+  public static readonly enDash: string = "–";
+  public static readonly hyphen: string = "-";
   private readonly config: ConfigurationManager;
-  static readonly triggers: string[] = ["-"];
+  public static readonly triggers: string[] = ["-"];
 
   constructor(config: ConfigurationManager) {
     this.config = config;
