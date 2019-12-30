@@ -13,15 +13,17 @@ import * as path from "path";
 import * as glob from "glob";
 
 export class ConfigurationManager implements Disposable {
+
+  private static globalIgnoredWordsSection: string = "languageTool.ignoredWordsGlobal";
+  private static workspaceIgnoredWordsSection: string = "languageTool.ignoredWordsInWorkspace";
+  private static ignoredWordHintSection: string = "languageTool.ignoredWordHint";
+
   private config: WorkspaceConfiguration;
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
   private globallyIgnoredWords: Set<string>;
   private workspaceIgnoredWords: Set<string>;
-  private static globalIgnoredWordsSection: string = "languageTool.ignoredWordsGlobal";
-  private static workspaceIgnoredWordsSection: string = "languageTool.ignoredWordsInWorkspace";
-  private static ignoredWordHintSection: string = "languageTool.ignoredWordHint";
 
   constructor() {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
@@ -31,11 +33,11 @@ export class ConfigurationManager implements Disposable {
     this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
-  dispose(): void {
+  public dispose(): void {
     this.stopManagedService();
   }
 
-  reloadConfiguration(event: ConfigurationChangeEvent) {
+  public reloadConfiguration(event: ConfigurationChangeEvent) {
     this.config = workspace.getConfiguration(LT_CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     // Changed service type
@@ -68,28 +70,28 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Smart Format on Type
-  isSmartFormatOnType(): boolean {
+  public isSmartFormatOnType(): boolean {
     return this.config.get("smartFormat.onType") as boolean;
   }
 
   // Smart Format on Save
-  isSmartFormatOnSave(): boolean {
+  public isSmartFormatOnSave(): boolean {
     return this.config.get("smartFormat.onSave") as boolean;
   }
 
   // Is Language ID Supported?
-  isSupportedDocument(document: TextDocument): boolean {
+  public isSupportedDocument(document: TextDocument): boolean {
     if (document.uri.scheme === "file") {
       return (LT_DOCUMENT_LANGUAGE_IDS.indexOf(document.languageId) > -1);
     }
     return false;
   }
 
-  getServiceType(): string {
+  public getServiceType(): string {
     return this.get("serviceType") as string;
   }
 
-  getServiceParameters(): Map<string, string> {
+  public getServiceParameters(): Map<string, string> {
     let config: WorkspaceConfiguration = this.config;
     let parameters: Map<string, string> = new Map();
     LT_SERVICE_PARAMETERS.forEach(function (ltKey) {
@@ -128,11 +130,11 @@ export class ConfigurationManager implements Disposable {
     return this.managedPort;
   }
 
-  getUrl(): string | undefined {
+  public getUrl(): string | undefined {
     return this.serviceUrl;
   }
 
-  getLintOnChange(): boolean {
+  public getLintOnChange(): boolean {
     return this.config.get("lintOnChange") as boolean;
   }
 
@@ -144,7 +146,7 @@ export class ConfigurationManager implements Disposable {
     return this.config.get(key);
   }
 
-  getClassPath(): string {
+  public getClassPath(): string {
     let jarFile: string = this.get("managed.jarFile") as string;
     let classPath: string = this.get("managed.classPath") as string;
     let classPathFiles: string[] = [];
@@ -195,7 +197,7 @@ export class ConfigurationManager implements Disposable {
             LT_OUTPUT_CHANNEL.appendLine(data);
             LT_OUTPUT_CHANNEL.show(true);
           });
-          this.process.stdout.addListener("data", function (data: any) {
+          this.process.stdout.addListener("data", (data: any) => {
             LT_OUTPUT_CHANNEL.appendLine(data);
           });
           this.serviceUrl = this.findServiceUrl(this.getServiceType());
@@ -205,7 +207,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Stop the managed service
-  stopManagedService(): void {
+  public stopManagedService(): void {
     if (this.process) {
       LT_OUTPUT_CHANNEL.appendLine("Closing managed service server.");
       this.process.cancel();
@@ -214,17 +216,17 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Manage Ignored Words Lists
-  isIgnoredWord(word: string): boolean {
+  public isIgnoredWord(word: string): boolean {
     return this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word);
   }
 
   // Is word ignored at the User Level?
-  isGloballyIgnoredWord(word: string): boolean {
+  public isGloballyIgnoredWord(word: string): boolean {
     return this.globallyIgnoredWords.has(word.toLowerCase());
   }
 
   // Is word ignored at the Workspace Level?
-  isWorkspaceIgnoredWord(word: string): boolean {
+  public isWorkspaceIgnoredWord(word: string): boolean {
     return this.workspaceIgnoredWords.has(word.toLowerCase());
   }
 
@@ -255,7 +257,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Add word to User Level ignored word list.
-  ignoreWordGlobally(word: string): void {
+  public ignoreWordGlobally(word: string): void {
     let lowerCaseWord: string = word.toLowerCase();
     if (!this.isGloballyIgnoredWord(lowerCaseWord)) {
       this.globallyIgnoredWords.add(lowerCaseWord);
@@ -264,7 +266,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Add word to Workspace Level ignored word list.
-  ignoreWordInWorkspace(word: string): void {
+  public ignoreWordInWorkspace(word: string): void {
     let lowerCaseWord: string = word.toLowerCase();
     if (!this.isWorkspaceIgnoredWord(lowerCaseWord)) {
       this.workspaceIgnoredWords.add(lowerCaseWord);
@@ -273,7 +275,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Remove word from User Level ignored word list.
-  removeGloballyIgnoredWord(word: string): void {
+  public removeGloballyIgnoredWord(word: string): void {
     let lowerCaseWord: string = word.toLowerCase();
     if (this.isGloballyIgnoredWord(lowerCaseWord)) {
       this.globallyIgnoredWords.delete(lowerCaseWord);
@@ -282,7 +284,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Remove word from Workspace Level ignored word list.
-  removeWorkspaceIgnoredWord(word: string): void {
+  public removeWorkspaceIgnoredWord(word: string): void {
     let lowerCaseWord: string = word.toLowerCase();
     if (this.isWorkspaceIgnoredWord(lowerCaseWord)) {
       this.workspaceIgnoredWords.delete(lowerCaseWord);
@@ -291,7 +293,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Show hints for ignored words?
-  showIgnoredWordHints(): boolean {
+  public showIgnoredWordHints(): boolean {
     return this.config.get(ConfigurationManager.ignoredWordHintSection) as boolean;
   }
 
