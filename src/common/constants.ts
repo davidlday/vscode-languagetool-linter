@@ -4,23 +4,27 @@ export const MARKDOWN = "markdown";
 export const HTML = "html";
 export const PLAINTEXT = "plaintext";
 
-export const MARKDOWN_FILE: DocumentSelector = {language: MARKDOWN, scheme: "file"};
-export const MARKDOWN_UNTITLED: DocumentSelector = {language: MARKDOWN, scheme: "untitled"};
+export const MARKDOWN_FILE: DocumentSelector = { language: MARKDOWN, scheme: "file" };
+export const MARKDOWN_UNTITLED: DocumentSelector = { language: MARKDOWN, scheme: "untitled" };
 
-export const HTML_FILE: DocumentSelector = {language: HTML, scheme: "file"};
-export const HTML_UNTITLED: DocumentSelector = {language: HTML, scheme: "untitled"};
+export const HTML_FILE: DocumentSelector = { language: HTML, scheme: "file" };
+export const HTML_UNTITLED: DocumentSelector = { language: HTML, scheme: "untitled" };
 
-export const PLAINTEXT_FILE: DocumentSelector = {language: PLAINTEXT, scheme: "file"};
-export const PLAINTEXT_UNTITLED: DocumentSelector = {language: PLAINTEXT, scheme: "untitled"};
+export const PLAINTEXT_FILE: DocumentSelector = { language: PLAINTEXT, scheme: "file" };
+export const PLAINTEXT_UNTITLED: DocumentSelector = { language: PLAINTEXT, scheme: "untitled" };
 
-export const LT_DOCUMENT_LANGUAGE_IDS: string[] = [MARKDOWN, HTML, PLAINTEXT];
+export const LT_DOCUMENT_LANGUAGE_IDS: string[] = [
+  MARKDOWN,
+  HTML,
+  PLAINTEXT,
+];
 export const LT_DOCUMENT_SELECTORS: DocumentSelector[] = [
   MARKDOWN_FILE,
   MARKDOWN_UNTITLED,
   HTML_FILE,
   HTML_UNTITLED,
   PLAINTEXT_FILE,
-  PLAINTEXT_UNTITLED
+  PLAINTEXT_UNTITLED,
 ];
 
 export const LT_PUBLIC_URL = "https://languagetool.org/api";
@@ -31,7 +35,7 @@ export const LT_SERVICE_PARAMETERS: string[] = [
   "preferredVariants",
   "disabledCategories",
   "disabledRules",
-  "disabledCategories"
+  "disabledCategories",
 ];
 
 export const LT_TIMEOUT_MS = 500;
@@ -44,5 +48,9 @@ export const LT_CONFIGURATION_ROOT = "languageToolLinter";
 export const LT_SERVICE_EXTERNAL = "external";
 export const LT_SERVICE_MANAGED = "managed";
 export const LT_SERVICE_PUBLIC = "public";
-export const LT_SERVICE_TYPES: string[] = [LT_SERVICE_EXTERNAL, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC];
+export const LT_SERVICE_TYPES: string[] = [
+  LT_SERVICE_EXTERNAL,
+  LT_SERVICE_MANAGED,
+  LT_SERVICE_PUBLIC,
+];
 
