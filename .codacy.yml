@@ -1,0 +1,4 @@
+---
+engines:
+  tslint:
+    config: ./tslint.json
