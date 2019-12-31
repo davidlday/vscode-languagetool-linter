@@ -18,14 +18,16 @@ import * as vscode from "vscode";
 import { ConfigurationManager } from "../common/configuration-manager";
 
 export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
+
   public static readonly startDoubleQuote: string = "“";
   public static readonly endDoubleQuote: string = "”";
   public static readonly startSingleQuote: string = "‘";
   public static readonly endSingleQuote: string = "’";
   public static readonly doubleQuote: string = '"';
   public static readonly singleQuote: string = "'";
-  private readonly config: ConfigurationManager;
   public static readonly triggers: string[] = [QuotesFormattingProvider.doubleQuote, QuotesFormattingProvider.singleQuote];
+
+  private readonly config: ConfigurationManager;
 
   constructor(config: ConfigurationManager) {
     this.config = config;
