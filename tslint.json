@@ -1,5 +1,7 @@
 {
-  "extends": "tslint:recommended",
+
+  "defaultSeverity": "warning",
+  "extends": ["tslint:recommended"],
   "rules": {
     "messages-must-be-localized": true,
     "no-unused-expression": true,
@@ -60,5 +62,6 @@
     "no-redundant-jsdoc": false,
     "binary-expression-operand-order": false
   },
-  "defaultSeverity": "warning"
+  "jsRules": {},
+  "rulesDirectory": []
 }
