@@ -56,7 +56,7 @@
     "no-bitwise": false,
     "eofline": true,
     "switch-final-break": false,
-    "no-implicit-dependencies": [true, ["vscode"]],
+    "no-implicit-dependencies": [true, ["vscode", "vscode-test"]],
     "no-unnecessary-type-assertion": false,
     "no-submodule-imports": false,
     "no-redundant-jsdoc": false,
