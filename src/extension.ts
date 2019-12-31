@@ -15,14 +15,14 @@
  */
 
 import * as vscode from "vscode";
-import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
-import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
-import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";
-import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
-import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_TIMEOUT_MS, LT_SERVICE_MANAGED } from "./common/constants";
 import { ConfigurationManager } from "./common/configuration-manager";
-import { Linter } from "./linter/linter";
+import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_SERVICE_MANAGED, LT_TIMEOUT_MS } from "./common/constants";
 import { IAnnotatedtext } from "./linter/interfaces";
+import { Linter } from "./linter/linter";
+import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
+import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";
+import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
+import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
     '"': new QuotesFormattingProvider(configMan),
     "'": new QuotesFormattingProvider(configMan),
     "-": new DashesFormattingProvider(configMan),
-    ".": new EllipsesFormattingProvider(configMan)
+    ".": new EllipsesFormattingProvider(configMan),
   });
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
@@ -90,7 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Register Code Actions Provider for supported languages
   LT_DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
     context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider(selector, linter)
+      vscode.languages.registerCodeActionsProvider(selector, linter),
     );
 
     if (onTypeTriggers) {
@@ -100,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
           onTypeDispatcher,
           onTypeTriggers.first,
           ...onTypeTriggers.more,
-        )
+        ),
       );
     }
   });
@@ -114,51 +114,51 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register "Ignore Word Globally" TextEditorCommand
-  let ignoreWordGlobally = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordGlobally", (editor, edit, ...args) => {
+  const ignoreWordGlobally = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordGlobally", (editor, edit, ...args) => {
     configMan.ignoreWordGlobally(args[0]);
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(ignoreWordGlobally);
 
   // Register "Ignore Word in Workspace" TextEditorCommand
-  let ignoreWordInWorkspace = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordInWorkspace", (editor, edit, ...args) => {
+  const ignoreWordInWorkspace = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordInWorkspace", (editor, edit, ...args) => {
     configMan.ignoreWordInWorkspace(args[0]);
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(ignoreWordInWorkspace);
 
   // Register "Remove Globally Ignored Word" TextEditorCommand
-  let removeGloballyIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeGloballyIgnoredWord", (editor, edit, ...args) => {
+  const removeGloballyIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeGloballyIgnoredWord", (editor, edit, ...args) => {
     configMan.removeGloballyIgnoredWord(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(removeGloballyIgnoredWord);
 
   // Register "Remove Workspace Ignored Word" TextEditorCommand
-  let removeWorkspaceIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeWorkspaceIgnoredWord", (editor, edit, ...args) => {
+  const removeWorkspaceIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeWorkspaceIgnoredWord", (editor, edit, ...args) => {
     configMan.removeWorkspaceIgnoredWord(args[0]);
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(removeWorkspaceIgnoredWord);
 
   // Register "Lint Current Document" TextEditorCommand
-  let lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+  const lintCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.lintCurrentDocument", (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(lintCommand);
 
   // Register "Smart Format Document" TextEditorCommand
-  let smartFormatCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.smartFormatDocument", (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+  const smartFormatCommand = vscode.commands.registerTextEditorCommand("languagetoolLinter.smartFormatDocument", (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
     if (configMan.isSupportedDocument(editor.document)) {
       // Revert to regex here for cleaner code.
-      let text: string = editor.document.getText();
-      let lastOffset: number = text.length - 1;
-      let annotatedtext: IAnnotatedtext = linter.buildAnnotatedtext(editor.document);
-      let newText = linter.smartFormatAnnotatedtext(annotatedtext);
+      const text: string = editor.document.getText();
+      const lastOffset: number = text.length - 1;
+      const annotatedtext: IAnnotatedtext = linter.buildAnnotatedtext(editor.document);
+      const newText = linter.smartFormatAnnotatedtext(annotatedtext);
       // Replace the whole thing at once so undo applies to all changes.
       edit.replace(
         new vscode.Range(editor.document.positionAt(0), editor.document.positionAt(lastOffset)),
-        newText
+        newText,
       );
     }
   });
@@ -176,5 +176,3 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() { }
-
-
