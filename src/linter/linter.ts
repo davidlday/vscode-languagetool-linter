@@ -14,29 +14,35 @@
  *   limitations under the License.
  */
 
-import {
-  TextDocument, WorkspaceEdit, CodeAction, Location, Diagnostic, Position,
-  Range, CodeActionKind, DiagnosticSeverity, DiagnosticCollection, languages, Uri,
-  CodeActionProvider, CodeActionContext, CancellationToken, workspace
-} from "vscode";
-import { ConfigurationManager } from "../common/configuration-manager";
-import { LT_TIMEOUT_MS, LT_OUTPUT_CHANNEL, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME, MARKDOWN, HTML, PLAINTEXT } from "../common/constants";
-import * as rp from "request-promise-native";
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
-import { ILanguageToolResponse, ILanguageToolMatch, ILanguageToolReplacement, IAnnotatedtext, IAnnotation } from "./interfaces";
-import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";
+import * as rp from "request-promise-native";
+import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit } from "vscode";
+import { ConfigurationManager } from "../common/configuration-manager";
+import { HTML, LT_DIAGNOSTIC_SOURCE, LT_DISPLAY_NAME, LT_OUTPUT_CHANNEL, LT_TIMEOUT_MS, MARKDOWN } from "../common/constants";
 import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
 import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter";
+import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";
+import { IAnnotatedtext, IAnnotation, ILanguageToolMatch, ILanguageToolReplacement, ILanguageToolResponse } from "./interfaces";
 
 export class Linter implements CodeActionProvider {
-  private readonly configManager: ConfigurationManager;
-  private timeoutMap: Map<string, NodeJS.Timeout>;
+
+  // Is the rule a Spelling rule?
+  // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
+  public static isSpellingRule(ruleId: string): boolean {
+    return ruleId.indexOf("MORFOLOGIK_RULE") !== -1 || ruleId.indexOf("SPELLER_RULE") !== -1
+      || ruleId.indexOf("HUNSPELL_NO_SUGGEST_RULE") !== -1 || ruleId.indexOf("HUNSPELL_RULE") !== -1
+      || ruleId.indexOf("FR_SPELLING_RULE") !== -1;
+  }
+
   public diagnosticCollection: DiagnosticCollection;
   public diagnosticMap: Map<string, Diagnostic[]> = new Map();
   public codeActionMap: Map<string, CodeAction[]> = new Map();
   public remarkBuilderOptions: any = remarkBuilder.defaults;
   public rehypeBuilderOptions: any = rehypeBuilder.defaults;
+
+  private readonly configManager: ConfigurationManager;
+  private timeoutMap: Map<string, NodeJS.Timeout>;
 
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
@@ -45,6 +51,148 @@ export class Linter implements CodeActionProvider {
 
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
   }
+
+  // Provide CodeActions for thw given Document and Range
+  public provideCodeActions(
+    document: TextDocument,
+    range: Range,
+    context: CodeActionContext,
+    token: CancellationToken,
+  ): CodeAction[] {
+    const documentUri: string = document.uri.toString();
+    if (this.codeActionMap.has(documentUri) && this.codeActionMap.get(documentUri)) {
+      const documentCodeActions: CodeAction[] = this.codeActionMap.get(documentUri) || [];
+      const actions: CodeAction[] = [];
+      documentCodeActions.forEach((action) => {
+        if (action.diagnostics && context.diagnostics) {
+          const actionDiagnostic: Diagnostic = action.diagnostics[0];
+          if (range.contains(actionDiagnostic.range)) {
+            actions.push(action);
+          }
+        }
+      });
+      return actions;
+    } else {
+      return [];
+    }
+  }
+
+  // Delete a set of diagnostics for the given Document URI
+  public deleteFromDiagnosticCollection(uri: Uri): void {
+    this.diagnosticCollection.delete(uri);
+  }
+
+  public requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
+    if (this.configManager.isSupportedDocument(document)) {
+      this.cancelLint(document);
+      const uriString = document.uri.toString();
+      const timeout = setTimeout(() => {
+        this.lintDocument(document);
+        this.cancelLint(document);
+      }, timeoutDuration);
+      this.timeoutMap.set(uriString, timeout);
+    }
+  }
+
+  // Cancel lint
+  public cancelLint(document: TextDocument): void {
+    const uriString = document.uri.toString();
+    if (this.timeoutMap.has(uriString)) {
+      const timeout = this.timeoutMap.get(uriString);
+      if (timeout) {
+        clearTimeout(timeout);
+        this.timeoutMap.delete(uriString);
+      }
+    }
+  }
+
+  // Build annotatedtext from Markdown
+  public buildAnnotatedMarkdown(text: string): IAnnotatedtext {
+    return remarkBuilder.build(text, this.remarkBuilderOptions);
+  }
+
+  // Build annotatedtext from HTML
+  public buildAnnotatedHTML(text: string): IAnnotatedtext {
+    return rehypeBuilder.build(text, this.rehypeBuilderOptions);
+  }
+
+  // Build annotatedtext from PLAINTEXT
+  public buildAnnotatedPlaintext(plainText: string): IAnnotatedtext {
+    const textAnnotation: IAnnotation = { text: plainText };
+    return { annotation: [textAnnotation] };
+  }
+
+  // Abstract annotated text builder
+  public buildAnnotatedtext(document: TextDocument): IAnnotatedtext {
+    let annotatedtext: IAnnotatedtext = { annotation: [] };
+    switch (document.languageId) {
+      case (MARKDOWN):
+        annotatedtext = this.buildAnnotatedMarkdown(document.getText());
+        break;
+      case (HTML):
+        annotatedtext = this.buildAnnotatedHTML(document.getText());
+        break;
+      default:
+        annotatedtext = this.buildAnnotatedPlaintext(document.getText());
+        break;
+    }
+    return annotatedtext;
+  }
+
+  // Perform Lint on Document
+  public lintDocument(document: TextDocument): void {
+    if (this.configManager.isSupportedDocument(document)) {
+      if (document.languageId === "markdown") {
+        const annotatedMarkdown: string = JSON.stringify(this.buildAnnotatedMarkdown(document.getText()));
+        this.lintAnnotatedText(document, annotatedMarkdown);
+      } else if (document.languageId === "html") {
+        const annotatedHTML: string = JSON.stringify(this.buildAnnotatedHTML(document.getText()));
+        this.lintAnnotatedText(document, annotatedHTML);
+      } else {
+        const annotatedPlaintext: string = JSON.stringify(this.buildAnnotatedPlaintext(document.getText()));
+        this.lintAnnotatedText(document, annotatedPlaintext);
+      }
+    }
+  }
+
+  // Lint Annotated Text
+  public lintAnnotatedText(document: TextDocument, annotatedText: string): void {
+    if (this.configManager.isSupportedDocument(document)) {
+      const ltPostDataDict: any = this.getPostDataTemplate();
+      ltPostDataDict.data = annotatedText;
+      this.callLanguageTool(document, ltPostDataDict);
+    }
+  }
+
+  // Reset the Diagnostic Collection
+  public resetDiagnostics(): void {
+    this.diagnosticCollection.clear();
+    this.diagnosticMap.forEach((diags, file) => {
+      this.diagnosticCollection.set(Uri.parse(file), diags);
+    });
+  }
+
+  // Apply smart formatting to annotated text.
+  public smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
+    let newText: string = "";
+    // Only run substitutions on text annotations.
+    annotatedtext.annotation.forEach((annotation) => {
+      if (annotation.text) {
+        newText += annotation.text.replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
+          .replace(/'(?=[\w"“])/g, QuotesFormattingProvider.startSingleQuote)
+          .replace(/([\w.!?%,'’])"/g, "$1" + QuotesFormattingProvider.endDoubleQuote)
+          .replace(/([\w.!?%,"”])'/g, "$1" + QuotesFormattingProvider.endSingleQuote)
+          .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
+          .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
+          .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
+      } else if (annotation.markup) {
+        newText += annotation.markup;
+      }
+    });
+    return newText;
+  }
+
+  // Private instance methods
 
   // Custom markdown interpretation
   private customMarkdownInterpreter(text: string): string {
@@ -66,113 +214,10 @@ export class Linter implements CodeActionProvider {
     return interpretation;
   }
 
-  // Provide CodeActions for thw given Document and Range
-  public provideCodeActions(
-    document: TextDocument,
-    range: Range,
-    context: CodeActionContext,
-    token: CancellationToken
-  ): CodeAction[] {
-    let documentUri: string = document.uri.toString();
-    if (this.codeActionMap.has(documentUri) && this.codeActionMap.get(documentUri)) {
-      const documentCodeActions: CodeAction[] = this.codeActionMap.get(documentUri) || [];
-      let actions: CodeAction[] = [];
-      documentCodeActions.forEach(function (action) {
-        if (action.diagnostics && context.diagnostics) {
-          let actionDiagnostic: Diagnostic = action.diagnostics[0];
-          if (range.contains(actionDiagnostic.range)) {
-            actions.push(action);
-          }
-        }
-      });
-      return actions;
-    } else {
-      return [];
-    }
-  }
-
-  // Delete a set of diagnostics for the given Document URI
-  public deleteFromDiagnosticCollection(uri: Uri): void {
-    this.diagnosticCollection.delete(uri);
-  }
-
-  public requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
-    if (this.configManager.isSupportedDocument(document)) {
-      this.cancelLint(document);
-      const uriString = document.uri.toString();
-      let timeout = setTimeout(() => {
-        this.lintDocument(document);
-        this.cancelLint(document);
-      }, timeoutDuration);
-      this.timeoutMap.set(uriString, timeout);
-    }
-  }
-
-  // Cancel lint
-  public cancelLint(document: TextDocument): void {
-    const uriString = document.uri.toString();
-    if (this.timeoutMap.has(uriString)) {
-      let timeout = this.timeoutMap.get(uriString);
-      if (timeout) {
-        clearTimeout(timeout);
-        this.timeoutMap.delete(uriString);
-      }
-    }
-  }
-
-  // Build annotatedtext from Markdown
-  public buildAnnotatedMarkdown(text: string): IAnnotatedtext {
-    return remarkBuilder.build(text, this.remarkBuilderOptions);
-  }
-
-  // Build annotatedtext from HTML
-  buildAnnotatedHTML(text: string): IAnnotatedtext {
-    return rehypeBuilder.build(text, this.rehypeBuilderOptions);
-  }
-
-  // Build annotatedtext from PLAINTEXT
-  public buildAnnotatedPlaintext(text: string): IAnnotatedtext {
-    let textAnnotation: IAnnotation = { "text": text };
-    return { "annotation": [textAnnotation] };
-  }
-
-  // Abstract annotated text builder
-  public buildAnnotatedtext(document: TextDocument): IAnnotatedtext {
-    let annotatedtext: IAnnotatedtext = { "annotation": [] };
-    switch (document.languageId) {
-      case (MARKDOWN):
-        annotatedtext = this.buildAnnotatedMarkdown(document.getText());
-        break;
-      case (HTML):
-        annotatedtext = this.buildAnnotatedHTML(document.getText());
-        break;
-      default:
-        annotatedtext = this.buildAnnotatedPlaintext(document.getText());
-        break;
-    }
-    return annotatedtext;
-  }
-
-  // Perform Lint on Document
-  public lintDocument(document: TextDocument): void {
-    if (this.configManager.isSupportedDocument(document)) {
-      if (document.languageId === "markdown") {
-        let annotatedMarkdown: string = JSON.stringify(this.buildAnnotatedMarkdown(document.getText()));
-        this.lintAnnotatedText(document, annotatedMarkdown);
-      } else if (document.languageId === "html") {
-        let annotatedHTML: string = JSON.stringify(this.buildAnnotatedHTML(document.getText()));
-        this.lintAnnotatedText(document, annotatedHTML);
-      } else {
-        let annotatedPlaintext: string = JSON.stringify(this.buildAnnotatedPlaintext(document.getText()));
-        this.lintAnnotatedText(document, annotatedPlaintext);
-      }
-    }
-  }
-
   // Set ltPostDataTemplate from Configuration
   private getPostDataTemplate(): any {
-    let ltPostDataTemplate: any = {};
-    this.configManager.getServiceParameters().forEach(function (value, key) {
+    const ltPostDataTemplate: any = {};
+    this.configManager.getServiceParameters().forEach((value, key) => {
       ltPostDataTemplate[key] = value;
     });
     return ltPostDataTemplate;
@@ -180,12 +225,12 @@ export class Linter implements CodeActionProvider {
 
   // Call to LanguageTool Service
   private callLanguageTool(document: TextDocument, ltPostDataDict: any): void {
-    let url = this.configManager.getUrl();
+    const url = this.configManager.getUrl();
     if (url) {
-      let options: object = {
-        "form": ltPostDataDict,
-        "json": true,
-        "method": "POST"
+      const options: object = {
+        form: ltPostDataDict,
+        json: true,
+        method: "POST",
       };
       rp.post(url, options)
         .then((data) => {
@@ -202,30 +247,21 @@ export class Linter implements CodeActionProvider {
     }
   }
 
-  // Lint Annotated Text
-  public lintAnnotatedText(document: TextDocument, annotatedText: string): void {
-    if (this.configManager.isSupportedDocument(document)) {
-      let ltPostDataDict: any = this.getPostDataTemplate();
-      ltPostDataDict["data"] = annotatedText;
-      this.callLanguageTool(document, ltPostDataDict);
-    }
-  }
-
   // Convert LanguageTool Suggestions into QuickFix CodeActions
   private suggest(document: TextDocument, response: ILanguageToolResponse): void {
-    let matches = response.matches;
-    let diagnostics: Diagnostic[] = [];
-    let actions: CodeAction[] = [];
+    const matches = response.matches;
+    const diagnostics: Diagnostic[] = [];
+    const actions: CodeAction[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
-      let start: Position = document.positionAt(match.offset);
-      let end: Position = document.positionAt(match.offset + match.length);
-      let diagnosticRange: Range = new Range(start, end);
-      let diagnosticMessage: string = match.rule.id + ": " + match.message;
-      let diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
+      const start: Position = document.positionAt(match.offset);
+      const end: Position = document.positionAt(match.offset + match.length);
+      const diagnosticRange: Range = new Range(start, end);
+      const diagnosticMessage: string = match.rule.id + ": " + match.message;
+      const diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
       diagnostic.source = LT_DIAGNOSTIC_SOURCE;
       // Spelling Rules
       if (Linter.isSpellingRule(match.rule.id)) {
-        let spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
+        const spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
         if (spellingActions.length > 0) {
           diagnostics.push(diagnostic);
           spellingActions.forEach((action) => {
@@ -246,23 +282,23 @@ export class Linter implements CodeActionProvider {
 
   // Get CodeActions for Spelling Rules
   private getSpellingRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
-    let actions: CodeAction[] = [];
-    let word: string = document.getText(diagnostic.range);
+    const actions: CodeAction[] = [];
+    const word: string = document.getText(diagnostic.range);
     if (this.configManager.isIgnoredWord(word)) {
       if (this.configManager.showIgnoredWordHints()) {
         // Change severity for ignored words.
         diagnostic.severity = DiagnosticSeverity.Hint;
         if (this.configManager.isGloballyIgnoredWord(word)) {
-          let actionTitle: string = "Remove '" + word + "' from always ignored words.";
-          let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+          const actionTitle: string = "Remove '" + word + "' from always ignored words.";
+          const action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
           action.command = { title: actionTitle, command: "languagetoolLinter.removeGloballyIgnoredWord", arguments: [word] };
           action.diagnostics = [];
           action.diagnostics.push(diagnostic);
           actions.push(action);
         }
         if (this.configManager.isWorkspaceIgnoredWord(word)) {
-          let actionTitle: string = "Remove '" + word + "' from Workspace ignored words.";
-          let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+          const actionTitle: string = "Remove '" + word + "' from Workspace ignored words.";
+          const action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
           action.command = { title: actionTitle, command: "languagetoolLinter.removeWorkspaceIgnoredWord", arguments: [word] };
           action.diagnostics = [];
           action.diagnostics.push(diagnostic);
@@ -270,19 +306,19 @@ export class Linter implements CodeActionProvider {
         }
       }
     } else {
-      let actionTitle: string = "Always ignore '" + word + "'";
-      let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-      action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordGlobally", arguments: [word] };
-      action.diagnostics = [];
-      action.diagnostics.push(diagnostic);
-      actions.push(action);
+      const usrIgnoreActionTitle: string = "Always ignore '" + word + "'";
+      const usrIgnoreAction: CodeAction = new CodeAction(usrIgnoreActionTitle, CodeActionKind.QuickFix);
+      usrIgnoreAction.command = { title: usrIgnoreActionTitle, command: "languagetoolLinter.ignoreWordGlobally", arguments: [word] };
+      usrIgnoreAction.diagnostics = [];
+      usrIgnoreAction.diagnostics.push(diagnostic);
+      actions.push(usrIgnoreAction);
       if (workspace !== undefined) {
-        let actionTitle: string = "Ignore '" + word + "' in Workspace";
-        let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-        action.command = { title: actionTitle, command: "languagetoolLinter.ignoreWordInWorkspace", arguments: [word] };
-        action.diagnostics = [];
-        action.diagnostics.push(diagnostic);
-        actions.push(action);
+        const wsIgnoreActionTitle: string = "Ignore '" + word + "' in Workspace";
+        const wsIgnoreAction: CodeAction = new CodeAction(wsIgnoreActionTitle, CodeActionKind.QuickFix);
+        wsIgnoreAction.command = { title: wsIgnoreActionTitle, command: "languagetoolLinter.ignoreWordInWorkspace", arguments: [word] };
+        wsIgnoreAction.diagnostics = [];
+        wsIgnoreAction.diagnostics.push(diagnostic);
+        actions.push(wsIgnoreAction);
       }
       this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
         actions.push(action);
@@ -293,7 +329,7 @@ export class Linter implements CodeActionProvider {
 
   // Get all Rule CodeActions
   private getRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
-    let actions: CodeAction[] = [];
+    const actions: CodeAction[] = [];
     this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
       actions.push(action);
     });
@@ -302,11 +338,11 @@ export class Linter implements CodeActionProvider {
 
   // Get all edit CodeActions based on Replacements
   private getReplacementActions(document: TextDocument, diagnostic: Diagnostic, replacements: ILanguageToolReplacement[]): CodeAction[] {
-    let actions: CodeAction[] = [];
+    const actions: CodeAction[] = [];
     replacements.forEach((replacement: ILanguageToolReplacement) => {
-      let actionTitle: string = "'" + replacement.value + "'";
-      let action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
-      let edit: WorkspaceEdit = new WorkspaceEdit();
+      const actionTitle: string = "'" + replacement.value + "'";
+      const action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
+      const edit: WorkspaceEdit = new WorkspaceEdit();
       edit.replace(document.uri, diagnostic.range, replacement.value);
       action.edit = edit;
       action.diagnostics = [];
@@ -314,42 +350,6 @@ export class Linter implements CodeActionProvider {
       actions.push(action);
     });
     return actions;
-  }
-
-  // Reset the Diagnostic Collection
-  public resetDiagnostics(): void {
-    this.diagnosticCollection.clear();
-    this.diagnosticMap.forEach((diags, file) => {
-      this.diagnosticCollection.set(Uri.parse(file), diags);
-    });
-  }
-
-  // Is the rule a Spelling rule?
-  // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
-  public static isSpellingRule(ruleId: string): boolean {
-    return ruleId.indexOf("MORFOLOGIK_RULE") !== -1 || ruleId.indexOf("SPELLER_RULE") !== -1
-      || ruleId.indexOf("HUNSPELL_NO_SUGGEST_RULE") !== -1 || ruleId.indexOf("HUNSPELL_RULE") !== -1
-      || ruleId.indexOf("FR_SPELLING_RULE") !== -1;
-  }
-
-  // Apply smart formatting to annotated text.
-  public smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
-    let newText: string = "";
-    // Only run substitutions on text annotations.
-    annotatedtext.annotation.forEach((annotation) => {
-      if (annotation.text) {
-        newText += annotation.text.replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
-          .replace(/'(?=[\w"“])/g, QuotesFormattingProvider.startSingleQuote)
-          .replace(/([\w.!?%,'’])"/g, "$1" + QuotesFormattingProvider.endDoubleQuote)
-          .replace(/([\w.!?%,"”])'/g, "$1" + QuotesFormattingProvider.endSingleQuote)
-          .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
-          .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
-          .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
-      } else if (annotation.markup) {
-        newText += annotation.markup;
-      }
-    });
-    return newText;
   }
 
 }
