@@ -53,4 +53,3 @@ export const LT_SERVICE_TYPES: string[] = [
   LT_SERVICE_MANAGED,
   LT_SERVICE_PUBLIC,
 ];
-

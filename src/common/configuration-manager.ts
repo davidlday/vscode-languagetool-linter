@@ -1,16 +1,9 @@
-import {
-  TextDocument, WorkspaceConfiguration, workspace, ConfigurationChangeEvent,
-  Disposable, window, ConfigurationTarget
-} from "vscode";
-import {
-  LT_DOCUMENT_LANGUAGE_IDS, LT_CONFIGURATION_ROOT, LT_SERVICE_PARAMETERS,
-  LT_SERVICE_EXTERNAL, LT_CHECK_PATH, LT_SERVICE_MANAGED, LT_SERVICE_PUBLIC,
-  LT_PUBLIC_URL, LT_OUTPUT_CHANNEL
-} from "./constants";
-import * as portfinder from "portfinder";
 import * as execa from "execa";
-import * as path from "path";
 import * as glob from "glob";
+import * as path from "path";
+import * as portfinder from "portfinder";
+import { ConfigurationChangeEvent, ConfigurationTarget, Disposable, TextDocument, window, workspace, WorkspaceConfiguration } from "vscode";
+import { LT_CHECK_PATH, LT_CONFIGURATION_ROOT, LT_DOCUMENT_LANGUAGE_IDS, LT_OUTPUT_CHANNEL, LT_PUBLIC_URL, LT_SERVICE_EXTERNAL, LT_SERVICE_MANAGED, LT_SERVICE_PARAMETERS, LT_SERVICE_PUBLIC } from "./constants";
 
 export class ConfigurationManager implements Disposable {
 
@@ -96,10 +89,10 @@ export class ConfigurationManager implements Disposable {
   }
 
   public getServiceParameters(): Map<string, string> {
-    let config: WorkspaceConfiguration = this.config;
-    let parameters: Map<string, string> = new Map();
-    LT_SERVICE_PARAMETERS.forEach(function (ltKey) {
-      let configKey: string = "languageTool." + ltKey;
+    const config: WorkspaceConfiguration = this.config;
+    const parameters: Map<string, string> = new Map();
+    LT_SERVICE_PARAMETERS.forEach((ltKey) => {
+      const configKey: string = "languageTool." + ltKey;
       const value: string | undefined = config.get(configKey);
       if (value) {
         parameters.set(ltKey, value);
@@ -117,9 +110,9 @@ export class ConfigurationManager implements Disposable {
   }
 
   public getClassPath(): string {
-    let jarFile: string = this.get("managed.jarFile") as string;
-    let classPath: string = this.get("managed.classPath") as string;
-    let classPathFiles: string[] = [];
+    const jarFile: string = this.get("managed.jarFile") as string;
+    const classPath: string = this.get("managed.classPath") as string;
+    const classPathFiles: string[] = [];
     // DEPRECATED
     if (jarFile !== "") {
       window.showWarningMessage('"LanguageTool Linter > Managed: Jar File" is deprecated. Please use "LanguageTool > Managed: Class Path" instead.');
@@ -132,7 +125,7 @@ export class ConfigurationManager implements Disposable {
         });
       });
     }
-    let classPathString: string = classPathFiles.join(path.delimiter);
+    const classPathString: string = classPathFiles.join(path.delimiter);
     return classPathString;
   }
 
@@ -171,7 +164,7 @@ export class ConfigurationManager implements Disposable {
 
   // Add word to Workspace Level ignored word list.
   public ignoreWordInWorkspace(word: string): void {
-    let lowerCaseWord: string = word.toLowerCase();
+    const lowerCaseWord: string = word.toLowerCase();
     if (!this.isWorkspaceIgnoredWord(lowerCaseWord)) {
       this.workspaceIgnoredWords.add(lowerCaseWord);
       this.saveWorkspaceIgnoredWords();
@@ -180,7 +173,7 @@ export class ConfigurationManager implements Disposable {
 
   // Remove word from User Level ignored word list.
   public removeGloballyIgnoredWord(word: string): void {
-    let lowerCaseWord: string = word.toLowerCase();
+    const lowerCaseWord: string = word.toLowerCase();
     if (this.isGloballyIgnoredWord(lowerCaseWord)) {
       this.globallyIgnoredWords.delete(lowerCaseWord);
       this.saveGloballyIgnoredWords();
@@ -189,7 +182,7 @@ export class ConfigurationManager implements Disposable {
 
   // Remove word from Workspace Level ignored word list.
   public removeWorkspaceIgnoredWord(word: string): void {
-    let lowerCaseWord: string = word.toLowerCase();
+    const lowerCaseWord: string = word.toLowerCase();
     if (this.isWorkspaceIgnoredWord(lowerCaseWord)) {
       this.workspaceIgnoredWords.delete(lowerCaseWord);
       this.saveWorkspaceIgnoredWords();
@@ -208,7 +201,7 @@ export class ConfigurationManager implements Disposable {
       case LT_SERVICE_EXTERNAL:
         return this.getExternalUrl() + LT_CHECK_PATH;
       case LT_SERVICE_MANAGED:
-        let port = this.getManagedServicePort();
+        const port = this.getManagedServicePort();
         if (port) {
           return "http://localhost:" + this.getManagedServicePort() + LT_CHECK_PATH;
         } else {
@@ -239,7 +232,7 @@ export class ConfigurationManager implements Disposable {
 
   private startManagedService(): void {
     if (this.getServiceType() === LT_SERVICE_MANAGED) {
-      let classpath: string = this.getClassPath();
+      const classpath: string = this.getClassPath();
       this.stopManagedService();
       portfinder.getPort({ host: "127.0.0.1" }, (error: any, port: number) => {
         if (error) {
@@ -247,20 +240,20 @@ export class ConfigurationManager implements Disposable {
           LT_OUTPUT_CHANNEL.show(true);
         } else {
           this.setManagedServicePort(port);
-          let args: string[] = [
+          const args: string[] = [
             "-cp",
             classpath,
             "org.languagetool.server.HTTPServer",
             "--port",
-            port.toString()
+            port.toString(),
           ];
           LT_OUTPUT_CHANNEL.appendLine("Starting managed service.");
-          (this.process = execa("java", args)).catch((error: any) => {
-            if (error.isCanceled) {
+          (this.process = execa("java", args)).catch((err: any) => {
+            if (err.isCanceled) {
               LT_OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
-            } else if (error.failed) {
-              LT_OUTPUT_CHANNEL.appendLine("Managed service command failed: " + error.command);
-              LT_OUTPUT_CHANNEL.appendLine("Error Message: " + error.message);
+            } else if (err.failed) {
+              LT_OUTPUT_CHANNEL.appendLine("Managed service command failed: " + err.command);
+              LT_OUTPUT_CHANNEL.appendLine("Error Message: " + err.message);
               LT_OUTPUT_CHANNEL.show(true);
             }
           });
@@ -279,13 +272,13 @@ export class ConfigurationManager implements Disposable {
 
   // Save words to settings
   private saveIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
-    let wordArray: Array<string> = Array.from(words).sort();
+    const wordArray: string[] = Array.from(words).sort();
     this.config.update(section, wordArray, configurationTarget);
   }
 
   // Get Globally ingored words from settings.
   private getGloballyIgnoredWords(): Set<string> {
-    return new Set<string>(this.config.get<Array<string>>(ConfigurationManager.globalIgnoredWordsSection));
+    return new Set<string>(this.config.get<string[]>(ConfigurationManager.globalIgnoredWordsSection));
   }
 
   // Save word to User Level ignored word list.
@@ -295,7 +288,7 @@ export class ConfigurationManager implements Disposable {
 
   // Get Workspace ignored words from settings.
   private getWorkspaceIgnoredWords(): Set<string> {
-    return new Set<string>(this.config.get<Array<string>>(ConfigurationManager.workspaceIgnoredWordsSection));
+    return new Set<string>(this.config.get<string[]>(ConfigurationManager.workspaceIgnoredWordsSection));
   }
 
   // Save word to Workspace Level ignored word list.

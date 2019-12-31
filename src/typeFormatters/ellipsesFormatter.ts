@@ -20,8 +20,9 @@ import { ConfigurationManager } from "../common/configuration-manager";
 export class EllipsesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
   public static readonly ellipses: string = "…";
   public static readonly period: string = ".";
-  private readonly config: ConfigurationManager;
   public static readonly triggers: string[] = ["."];
+
+  private readonly config: ConfigurationManager;
 
   constructor(config: ConfigurationManager) {
     this.config = config;
@@ -47,5 +48,3 @@ export class EllipsesFormattingProvider implements vscode.OnTypeFormattingEditPr
     return [];
   }
 }
-
-

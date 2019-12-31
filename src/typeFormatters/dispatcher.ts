@@ -16,13 +16,13 @@ export class OnTypeFormattingDispatcher implements OnTypeFormattingEditProvider 
   }
 
   public provideOnTypeFormattingEdits(document: TextDocument, position: Position,
-      ch: string, options: FormattingOptions, cancellationToken: CancellationToken
+      ch: string, options: FormattingOptions, cancellationToken: CancellationToken,
     ): ProviderResult<TextEdit[]> {
     const provider = this.providers[ch];
 
     if (provider) {
       return provider.provideOnTypeFormattingEdits(
-        document, position, ch, options, cancellationToken
+        document, position, ch, options, cancellationToken,
       );
     }
 
@@ -33,11 +33,11 @@ export class OnTypeFormattingDispatcher implements OnTypeFormattingEditProvider 
     const keys = Object.keys(this.providers);
     keys.sort(); // Make output deterministic
 
-    const first = keys.shift();
+    const firstKey = keys.shift();
 
-    if (first) {
+    if (firstKey) {
       return {
-        first: first,
+        first: firstKey,
         more: keys,
       };
     }

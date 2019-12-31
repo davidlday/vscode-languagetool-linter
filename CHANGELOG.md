@@ -13,6 +13,8 @@ Changes not yet released.
 ### Fixed
 
 * Smart Format command name updated
+* TSLint configuration updated
+* Codacy checks use repo configuration
 
 ### Added
 

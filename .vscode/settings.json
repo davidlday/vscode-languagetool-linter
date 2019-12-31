@@ -16,6 +16,7 @@
         "annotatedtext",
         "annotatedtext-remark",
         "api",
+        "codacy",
         "de-at",
         "de-de",
         "globbing",
@@ -28,6 +29,7 @@
         "pacman",
         "plaintext",
         "socio-economic",
+        "tslint",
         "voss",
         "webpack",
         "yaml"
