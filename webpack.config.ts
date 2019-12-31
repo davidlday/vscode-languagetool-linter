@@ -2,10 +2,10 @@
 
 "use strict";
 
-// tslint:disable-next-line: no-implicit-dependencies
-import { LicenseWebpackPlugin } from "license-webpack-plugin";
-import path from "path";
-// const LicenseWebpackPlugin = require("license-webpack-plugin").LicenseWebpackPlugin;
+// tslint:disable-next-line: no-var-requires
+const path = require("path");
+// tslint:disable-next-line: no-var-requires no-implicit-dependencies
+const LicenseWebpackPlugin = require("license-webpack-plugin").LicenseWebpackPlugin;
 
 // tslint:disable-next-line: jsdoc-format
 /**@type {import("webpack").Configuration}*/
