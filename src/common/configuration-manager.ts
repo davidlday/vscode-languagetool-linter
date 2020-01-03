@@ -105,8 +105,16 @@ export class ConfigurationManager implements Disposable {
     return this.serviceUrl;
   }
 
-  public getLintOnChange(): boolean {
+  public isLintOnChange(): boolean {
     return this.config.get("lintOnChange") as boolean;
+  }
+
+  public isLintOnOpen(): boolean {
+    return this.config.get("lintOnOpen") as boolean;
+  }
+
+  public isLintOnSave(): boolean {
+    return this.config.get("lintOnSave") as boolean;
   }
 
   public getClassPath(): string {

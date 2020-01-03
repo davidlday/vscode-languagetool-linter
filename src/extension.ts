@@ -51,7 +51,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidOpenTextDocument event - request lint
   context.subscriptions.push(vscode.workspace.onDidOpenTextDocument((document) => {
-    linter.requestLint(document);
+    if (configMan.isLintOnOpen()) {
+     linter.requestLint(document);
+    }
   }));
 
   // Register onDidChangeActiveTextEditor event - request lint
@@ -61,6 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }));
 
+  // Register onWillSaveTextDocument event - smart format if enabled
   context.subscriptions.push(vscode.workspace.onWillSaveTextDocument((event) => {
     if (configMan.isSmartFormatOnSave()) {
       vscode.commands.executeCommand("languagetoolLinter.smartFormatDocument");
@@ -69,15 +72,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => {
-    linter.requestLint(document);
+    if (configMan.isLintOnSave()) {
+      linter.requestLint(document);
+    }
   }));
 
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => {
-    // if (ltConfig.get("lintOnChange")) {
-    if (configMan.getLintOnChange()) {
+    if (configMan.isLintOnChange()) {
       linter.requestLint(event.document);
-      // requestLint(event.document);
     }
   }));
 
