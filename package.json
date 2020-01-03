@@ -81,6 +81,16 @@
           "default": false,
           "description": "Lint every time the document changes. Use with caution."
         },
+        "languageToolLinter.lintOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Lint every time the document changes. Use with caution."
+        },
+        "languageToolLinter.lintOnOpen": {
+          "type": "boolean",
+          "default": false,
+          "description": "Lint every time the document changes. Use with caution."
+        },
         "languageToolLinter.serviceType": {
           "type": "string",
           "default": "external",
@@ -104,7 +114,7 @@
         "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
-          "description": "Path to languagetool-server.jar on your local machine."
+          "description": "DEPRECATED. Path to languagetool-server.jar on your local machine."
         },
         "languageToolLinter.managed.classPath": {
           "type": "string",
