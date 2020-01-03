@@ -83,13 +83,13 @@
         },
         "languageToolLinter.lintOnSave": {
           "type": "boolean",
-          "default": false,
-          "description": "Lint every time the document changes. Use with caution."
+          "default": true,
+          "description": "Lint documents when they're saved."
         },
         "languageToolLinter.lintOnOpen": {
           "type": "boolean",
           "default": false,
-          "description": "Lint every time the document changes. Use with caution."
+          "description": "Lint documents when they're opened."
         },
         "languageToolLinter.serviceType": {
           "type": "string",
