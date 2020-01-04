@@ -2,8 +2,14 @@ import * as execa from "execa";
 import * as glob from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
-import { ConfigurationChangeEvent, ConfigurationTarget, Disposable, TextDocument, window, workspace, WorkspaceConfiguration } from "vscode";
-import { LT_CHECK_PATH, LT_CONFIGURATION_ROOT, LT_DOCUMENT_LANGUAGE_IDS, LT_OUTPUT_CHANNEL, LT_PUBLIC_URL, LT_SERVICE_EXTERNAL, LT_SERVICE_MANAGED, LT_SERVICE_PARAMETERS, LT_SERVICE_PUBLIC } from "./constants";
+import {
+  ConfigurationChangeEvent, ConfigurationTarget, DiagnosticSeverity, Disposable,
+  TextDocument, window, workspace, WorkspaceConfiguration,
+} from "vscode";
+import {
+  LT_CHECK_PATH, LT_CONFIGURATION_ROOT, LT_DOCUMENT_LANGUAGE_IDS, LT_OUTPUT_CHANNEL,
+  LT_PUBLIC_URL, LT_SERVICE_EXTERNAL, LT_SERVICE_MANAGED, LT_SERVICE_PARAMETERS, LT_SERVICE_PUBLIC,
+} from "./constants";
 
 export class ConfigurationManager implements Disposable {
 
@@ -115,6 +121,20 @@ export class ConfigurationManager implements Disposable {
 
   public isLintOnSave(): boolean {
     return this.config.get("lintOnSave") as boolean;
+  }
+
+  public getDiagnosticSeverity(): DiagnosticSeverity {
+    const severity = this.config.get("diagnosticSeverity");
+    if (severity === "information") {
+      return DiagnosticSeverity.Information;
+    } else if (severity === "error") {
+      return DiagnosticSeverity.Error;
+    } else if (severity === "warning") {
+      return DiagnosticSeverity.Warning;
+    } else {
+      window.showWarningMessage('"LanguageTool Linter > Diagnostic Severity" is unknown. Defaulting to "Warning".');
+      return DiagnosticSeverity.Warning;
+    }
   }
 
   public getClassPath(): string {

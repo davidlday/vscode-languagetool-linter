@@ -71,6 +71,16 @@
           "default": false,
           "description": "Run smart format when you save for quotes (“”,‘’), em-dashes and en-dashes, and ellipses (…)."
         },
+        "languageToolLinter.diagnosticSeverity": {
+          "type": "string",
+          "default": "warning",
+          "description": "",
+          "enum": [
+            "information",
+            "warning",
+            "error"
+          ]
+        },
         "languageToolLinter.enabled": {
           "type": "boolean",
           "default": true,
