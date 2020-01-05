@@ -82,6 +82,7 @@ export class Linter implements CodeActionProvider {
     this.diagnosticCollection.delete(uri);
   }
 
+  // Request a lint for a document
   public requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
     if (this.configManager.isSupportedDocument(document)) {
       this.cancelLint(document);
@@ -96,14 +97,15 @@ export class Linter implements CodeActionProvider {
 
   // Cancel lint
   public cancelLint(document: TextDocument): void {
-    const uriString = document.uri.toString();
+    const uriString: string = document.uri.toString();
     if (this.timeoutMap.has(uriString)) {
-      const timeout = this.timeoutMap.get(uriString);
-      if (timeout) {
+      if (this.timeoutMap.has(uriString)) {
+        const timeout: NodeJS.Timeout = this.timeoutMap.get(uriString) as NodeJS.Timeout;
         clearTimeout(timeout);
         this.timeoutMap.delete(uriString);
       }
     }
+    this.clearDiagnostics(document);
   }
 
   // Build annotatedtext from Markdown
@@ -212,6 +214,15 @@ export class Linter implements CodeActionProvider {
       interpretation += "** ";
     }
     return interpretation;
+  }
+
+  // Remove diagnostics for a document
+  private clearDiagnostics(document: TextDocument): void {
+    const uri: Uri = document.uri;
+    const uriString: string = uri.toString();
+    this.diagnosticMap.delete(uriString);
+    this.codeActionMap.delete(uriString);
+    this.diagnosticCollection.delete(uri);
   }
 
   // Set ltPostDataTemplate from Configuration
