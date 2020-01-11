@@ -126,15 +126,29 @@
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
+        "languageToolLinter.managed.classPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
+        },
         "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
           "description": "DEPRECATED. Path to languagetool-server.jar on your local machine."
         },
-        "languageToolLinter.managed.classPath": {
-          "type": "string",
-          "default": "",
-          "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
+        "languageToolLinter.managed.portMinimum": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 9500,
+          "description": "Minimum port number to use for managed service."
+        },
+        "languageToolLinter.managed.portMaximum": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 65535,
+          "description": "Minimum port number to use for managed service."
         },
         "languageToolLinter.languageTool.language": {
           "type": "string",

@@ -57,7 +57,9 @@ export class ConfigurationManager implements Disposable {
     // Changed class path for managed service
     if (this.getServiceType() === LT_SERVICE_MANAGED
       && (event.affectsConfiguration("languageToolLinter.managed.classPath")
-        || event.affectsConfiguration("languageToolLinter.managed.jarFile"))) {
+        || event.affectsConfiguration("languageToolLinter.managed.jarFile")
+        || event.affectsConfiguration("languageToolLinter.managed.portMinimum")
+        || event.affectsConfiguration("languageToolLinter.managed.portMaximum"))) {
       this.startManagedService();
     }
     // Only allow preferred variants when language === auto
@@ -262,43 +264,57 @@ export class ConfigurationManager implements Disposable {
     return this.config.get(key);
   }
 
+  private getMinimumPort(): number {
+    return this.config.get("managed.portMinimum") as number;
+  }
+
+  private getMaximumPort(): number {
+    return this.config.get("managed.portMaximum") as number;
+  }
+
   private startManagedService(): void {
     if (this.getServiceType() === LT_SERVICE_MANAGED) {
       const classpath: string = this.getClassPath();
+      const minimumPort: number = this.getMinimumPort();
+      const maximumPort: number = this.getMaximumPort();
       this.stopManagedService();
-      portfinder.getPort({ host: "127.0.0.1" }, (error: any, port: number) => {
-        if (error) {
-          LT_OUTPUT_CHANNEL.appendLine("Error getting open port: " + error.message);
-          LT_OUTPUT_CHANNEL.show(true);
-        } else {
-          this.setManagedServicePort(port);
-          const args: string[] = [
-            "-cp",
-            classpath,
-            "org.languagetool.server.HTTPServer",
-            "--port",
-            port.toString(),
-          ];
-          LT_OUTPUT_CHANNEL.appendLine("Starting managed service.");
-          (this.process = execa("java", args)).catch((err: any) => {
-            if (err.isCanceled) {
-              LT_OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
-            } else if (err.failed) {
-              LT_OUTPUT_CHANNEL.appendLine("Managed service command failed: " + err.command);
-              LT_OUTPUT_CHANNEL.appendLine("Error Message: " + err.message);
-              LT_OUTPUT_CHANNEL.show(true);
-            }
-          });
-          this.process.stderr.addListener("data", (data: any) => {
-            LT_OUTPUT_CHANNEL.appendLine(data);
+      if (minimumPort > maximumPort) {
+        window.showWarningMessage("LanguageTool Linter - The minimum port is greater than the maximum port. Cancelling start of managed service. Please adjust your settings and try again.");
+      } else {
+        portfinder.getPort({ host: "127.0.0.1", port: minimumPort, stopPort: maximumPort }, (error: any, port: number) => {
+          if (error) {
+            LT_OUTPUT_CHANNEL.appendLine("Error getting open port: " + error.message);
             LT_OUTPUT_CHANNEL.show(true);
-          });
-          this.process.stdout.addListener("data", (data: any) => {
-            LT_OUTPUT_CHANNEL.appendLine(data);
-          });
-          this.serviceUrl = this.findServiceUrl(this.getServiceType());
-        }
-      });
+          } else {
+            this.setManagedServicePort(port);
+            const args: string[] = [
+              "-cp",
+              classpath,
+              "org.languagetool.server.HTTPServer",
+              "--port",
+              port.toString(),
+            ];
+            LT_OUTPUT_CHANNEL.appendLine("Starting managed service.");
+            (this.process = execa("java", args)).catch((err: any) => {
+              if (err.isCanceled) {
+                LT_OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
+              } else if (err.failed) {
+                LT_OUTPUT_CHANNEL.appendLine("Managed service command failed: " + err.command);
+                LT_OUTPUT_CHANNEL.appendLine("Error Message: " + err.message);
+                LT_OUTPUT_CHANNEL.show(true);
+              }
+            });
+            this.process.stderr.addListener("data", (data: any) => {
+              LT_OUTPUT_CHANNEL.appendLine(data);
+              LT_OUTPUT_CHANNEL.show(true);
+            });
+            this.process.stdout.addListener("data", (data: any) => {
+              LT_OUTPUT_CHANNEL.appendLine(data);
+            });
+            this.serviceUrl = this.findServiceUrl(this.getServiceType());
+          }
+        });
+      }
     }
   }
 
