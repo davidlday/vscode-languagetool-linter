@@ -8,5 +8,6 @@
     ],
     "languageToolLinter.languageTool.disabledRules": "DASH_RULE",
     "languageToolLinter.lintOnOpen": true,
-    "languageToolLinter.lintOnChange": true
+    "languageToolLinter.lintOnChange": true,
+    "languageToolLinter.managed.classPath": "/usr/local/opt/languagetool/libexec/languagetool-server.jar"
 }
