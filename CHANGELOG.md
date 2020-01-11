@@ -6,19 +6,23 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 Changes not yet released.
 
-### Added
-
-* Webpack for performance goodness
-
 ### Fixed
 
 * Smart Format command name updated
 * TSLint configuration updated
 * Codacy checks use repo configuration
+* Reduced unnecessary linting by removing `onDidChangeActiveTextEditor` subscription and only subscribing to `onDidChangeTextDocument`
+* Diagnostics cleared when document is closed to eliminate messages appearing after document is closed [#64](https://github.com/davidlday/vscode-languagetool-linter/issues/64)
+* Diagnostics cleared when a lint is cancelled to hide messages while typing
+* Smart Format on Save no longer appending newline at end [#81](https://github.com/davidlday/vscode-languagetool-linter/issues/81)
 
 ### Added
 
 * Smart Format on Save option
+* Lint on Save setting [#80](https://github.com/davidlday/vscode-languagetool-linter/issues/80)
+* Lint on Open setting [#80](https://github.com/davidlday/vscode-languagetool-linter/issues/80)
+* Diagnostic Severity setting [#79](https://github.com/davidlday/vscode-languagetool-linter/issues/79)
+* Webpack for performance goodness
 
 ## [0.10.0] - 2019-12-07
 
