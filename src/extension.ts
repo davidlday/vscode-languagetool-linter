@@ -56,12 +56,20 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }));
 
-  // Register onDidChangeActiveTextEditor event - request lint
-  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor) => {
-    if (editor) {
-      linter.requestLint(editor.document);
+  // Register onDidChangeTextDocument event - request lint with default timeout
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => {
+    if (configMan.isLintOnChange()) {
+      linter.requestLint(event.document);
     }
   }));
+
+  // Causes linting on too many events, such as switching tabs
+  // // Register onDidChangeActiveTextEditor event - request lint
+  // context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor) => {
+  //   if (editor !== undefined && configMan.isLintOnChange()) {
+  //     linter.requestLint(editor.document);
+  //   }
+  // }));
 
   // Register onWillSaveTextDocument event - smart format if enabled
   context.subscriptions.push(vscode.workspace.onWillSaveTextDocument((event) => {
@@ -77,17 +85,10 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }));
 
-  // Register onDidChangeTextDocument event - request lint with default timeout
-  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => {
-    if (configMan.isLintOnChange()) {
-      linter.requestLint(event.document);
-    }
-  }));
-
   // Register onDidCloseTextDocument event - cancel any pending lint
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument( (document: vscode.TextDocument) => {
     linter.cancelLint(document);
-    linter.deleteFromDiagnosticCollection(document.uri);
+    linter.deleteDiagnotics(document.uri);
   }));
 
   // Register Code Actions Provider for supported languages
@@ -155,7 +156,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (configMan.isSupportedDocument(editor.document)) {
       // Revert to regex here for cleaner code.
       const text: string = editor.document.getText();
-      const lastOffset: number = text.length - 1;
+      const lastOffset: number = text.length;
       const annotatedtext: IAnnotatedtext = linter.buildAnnotatedtext(editor.document);
       const newText = linter.smartFormatAnnotatedtext(annotatedtext);
       // Replace the whole thing at once so undo applies to all changes.
