@@ -14,6 +14,7 @@ Changes not yet released.
 * Reduced unnecessary linting by removing `onDidChangeActiveTextEditor` subscription and only subscribing to `onDidChangeTextDocument`
 * Diagnostics cleared when document is closed to eliminate messages appearing after document is closed [#64](https://github.com/davidlday/vscode-languagetool-linter/issues/64)
 * Smart Format on Save no longer appending newline at end [#81](https://github.com/davidlday/vscode-languagetool-linter/issues/81)
+* Conditions for smart double quotes [#84](https://github.com/davidlday/vscode-languagetool-linter/issues/84)
 
 ### Added
 
