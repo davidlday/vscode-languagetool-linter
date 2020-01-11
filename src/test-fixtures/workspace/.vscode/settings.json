@@ -6,5 +6,7 @@
         "misspeeled",
         "yaml"
     ],
-    "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
+    "languageToolLinter.languageTool.disabledRules": "DASH_RULE",
+    "languageToolLinter.lintOnOpen": true,
+    "languageToolLinter.lintOnChange": true
 }
