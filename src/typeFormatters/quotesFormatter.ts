@@ -48,9 +48,9 @@ export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProv
     if (this.config.isSmartFormatOnType()) {
       switch (ch) {
         case QuotesFormattingProvider.doubleQuote:
-          if (prevCh === " ") {
+          if ([" ", QuotesFormattingProvider.singleQuote, QuotesFormattingProvider.startSingleQuote].indexOf(prevCh) !== -1) {
             return [new vscode.TextEdit(chRange, QuotesFormattingProvider.startDoubleQuote)];
-          } else if (nextCh === " ") {
+          } else {
             return [new vscode.TextEdit(chRange, QuotesFormattingProvider.endDoubleQuote)];
           }
           break;
