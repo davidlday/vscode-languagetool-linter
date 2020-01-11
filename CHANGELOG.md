@@ -13,7 +13,6 @@ Changes not yet released.
 * Codacy checks use repo configuration
 * Reduced unnecessary linting by removing `onDidChangeActiveTextEditor` subscription and only subscribing to `onDidChangeTextDocument`
 * Diagnostics cleared when document is closed to eliminate messages appearing after document is closed [#64](https://github.com/davidlday/vscode-languagetool-linter/issues/64)
-* Diagnostics cleared when a lint is cancelled to hide messages while typing
 * Smart Format on Save no longer appending newline at end [#81](https://github.com/davidlday/vscode-languagetool-linter/issues/81)
 
 ### Added
@@ -23,6 +22,7 @@ Changes not yet released.
 * Lint on Open setting [#80](https://github.com/davidlday/vscode-languagetool-linter/issues/80)
 * Diagnostic Severity setting [#79](https://github.com/davidlday/vscode-languagetool-linter/issues/79)
 * Webpack for performance goodness
+* Hide Diagnostics on Change clears when document changes to hide messages while typing
 
 ## [0.10.0] - 2019-12-07
 
