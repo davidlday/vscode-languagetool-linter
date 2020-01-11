@@ -3,7 +3,6 @@
   "defaultSeverity": "warning",
   "extends": ["tslint:recommended"],
   "rules": {
-    "messages-must-be-localized": true,
     "no-unused-expression": true,
     "no-duplicate-variable": true,
     "curly": true,

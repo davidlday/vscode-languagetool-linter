@@ -78,10 +78,11 @@ export class Linter implements CodeActionProvider {
   }
 
   // Delete a set of diagnostics for the given Document URI
-  public deleteFromDiagnosticCollection(uri: Uri): void {
+  public deleteDiagnotics(uri: Uri): void {
     this.diagnosticCollection.delete(uri);
   }
 
+  // Request a lint for a document
   public requestLint(document: TextDocument, timeoutDuration: number = LT_TIMEOUT_MS): void {
     if (this.configManager.isSupportedDocument(document)) {
       this.cancelLint(document);
@@ -96,14 +97,15 @@ export class Linter implements CodeActionProvider {
 
   // Cancel lint
   public cancelLint(document: TextDocument): void {
-    const uriString = document.uri.toString();
+    const uriString: string = document.uri.toString();
     if (this.timeoutMap.has(uriString)) {
-      const timeout = this.timeoutMap.get(uriString);
-      if (timeout) {
+      if (this.timeoutMap.has(uriString)) {
+        const timeout: NodeJS.Timeout = this.timeoutMap.get(uriString) as NodeJS.Timeout;
         clearTimeout(timeout);
         this.timeoutMap.delete(uriString);
       }
     }
+    this.clearDiagnostics(document);
   }
 
   // Build annotatedtext from Markdown
@@ -214,6 +216,15 @@ export class Linter implements CodeActionProvider {
     return interpretation;
   }
 
+  // Remove diagnostics for a document
+  private clearDiagnostics(document: TextDocument): void {
+    const uri: Uri = document.uri;
+    const uriString: string = uri.toString();
+    this.diagnosticMap.delete(uriString);
+    this.codeActionMap.delete(uriString);
+    this.deleteDiagnotics(uri);
+  }
+
   // Set ltPostDataTemplate from Configuration
   private getPostDataTemplate(): any {
     const ltPostDataTemplate: any = {};
@@ -255,9 +266,10 @@ export class Linter implements CodeActionProvider {
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
+      const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.rule.id + ": " + match.message;
-      const diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, DiagnosticSeverity.Warning);
+      const diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, diagnosticSeverity);
       diagnostic.source = LT_DIAGNOSTIC_SOURCE;
       // Spelling Rules
       if (Linter.isSpellingRule(match.rule.id)) {
