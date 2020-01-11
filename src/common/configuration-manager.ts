@@ -111,6 +111,10 @@ export class ConfigurationManager implements Disposable {
     return this.serviceUrl;
   }
 
+  public isHideDiagnosticsOnChange(): boolean {
+    return this.config.get("hideDiagnosticsOnChange") as boolean;
+  }
+
   public isLintOnChange(): boolean {
     return this.config.get("lintOnChange") as boolean;
   }

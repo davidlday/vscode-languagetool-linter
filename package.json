@@ -86,6 +86,11 @@
           "default": true,
           "description": "Allow to enable languageTool on specific workspaces"
         },
+        "languageToolLinter.hideDiagnosticsOnChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide diagnostic messages on document changes. Most noticable when used with 'Lint on Change'."
+        },
         "languageToolLinter.lintOnChange": {
           "type": "boolean",
           "default": false,

@@ -77,8 +77,11 @@ export class Linter implements CodeActionProvider {
     }
   }
 
-  // Delete a set of diagnostics for the given Document URI
-  public deleteDiagnotics(uri: Uri): void {
+  // Remove diagnostics for a Document URI
+  public clearDiagnostics(uri: Uri): void {
+    const uriString: string = uri.toString();
+    this.diagnosticMap.delete(uriString);
+    this.codeActionMap.delete(uriString);
     this.diagnosticCollection.delete(uri);
   }
 
@@ -105,7 +108,6 @@ export class Linter implements CodeActionProvider {
         this.timeoutMap.delete(uriString);
       }
     }
-    this.clearDiagnostics(document);
   }
 
   // Build annotatedtext from Markdown
@@ -214,15 +216,6 @@ export class Linter implements CodeActionProvider {
       interpretation += "** ";
     }
     return interpretation;
-  }
-
-  // Remove diagnostics for a document
-  private clearDiagnostics(document: TextDocument): void {
-    const uri: Uri = document.uri;
-    const uriString: string = uri.toString();
-    this.diagnosticMap.delete(uriString);
-    this.codeActionMap.delete(uriString);
-    this.deleteDiagnotics(uri);
   }
 
   // Set ltPostDataTemplate from Configuration

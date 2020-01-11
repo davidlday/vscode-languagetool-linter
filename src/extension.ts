@@ -59,6 +59,9 @@ export function activate(context: vscode.ExtensionContext) {
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => {
     if (configMan.isLintOnChange()) {
+      if (configMan.isHideDiagnosticsOnChange()) {
+        linter.clearDiagnostics(event.document.uri);
+      }
       linter.requestLint(event.document);
     }
   }));
@@ -88,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Register onDidCloseTextDocument event - cancel any pending lint
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument( (document: vscode.TextDocument) => {
     linter.cancelLint(document);
-    linter.deleteDiagnotics(document.uri);
+    linter.clearDiagnostics(document.uri);
   }));
 
   // Register Code Actions Provider for supported languages
