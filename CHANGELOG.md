@@ -6,6 +6,8 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 Changes not yet released.
 
+## [0.11.0] - 2020-01-11
+
 ### Fixed
 
 * Smart Format command name updated
