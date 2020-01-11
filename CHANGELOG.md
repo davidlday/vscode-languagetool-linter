@@ -23,6 +23,7 @@ Changes not yet released.
 * Diagnostic Severity setting [#79](https://github.com/davidlday/vscode-languagetool-linter/issues/79)
 * Webpack for performance goodness
 * Hide Diagnostics on Change clears when document changes to hide messages while typing
+* Minimum and maximum port settings for the managed service [#78]https://github.com/davidlday/vscode-languagetool-linter/issues/78()
 
 ## [0.10.0] - 2019-12-07
 
