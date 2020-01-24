@@ -243,7 +243,6 @@ export class Linter implements CodeActionProvider {
         .catch((err) => {
           LT_OUTPUT_CHANNEL.appendLine("Error connecting to " + url);
           LT_OUTPUT_CHANNEL.appendLine(err);
-          LT_OUTPUT_CHANNEL.show(true);
         });
     } else {
       LT_OUTPUT_CHANNEL.appendLine("No LanguageTool URL provided. Please check your settings and try again.");
