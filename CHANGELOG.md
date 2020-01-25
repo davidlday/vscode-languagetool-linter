@@ -9,6 +9,7 @@ Changes not yet released.
 ### Changed
 
 * Output channel no longer forced open on errors
+* Ignored Word Configuration items specified as strings
 
 ## [0.11.0] - 2020-01-11
 
