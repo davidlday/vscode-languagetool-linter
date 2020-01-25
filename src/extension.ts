@@ -27,15 +27,6 @@ import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
 
-  const DOCUMENT_SELECTORS: vscode.DocumentSelector[] = [
-    Constants.SELECTOR_MARKDOWN_FILE,
-    Constants.SELECTOR_MARKDOWN_UNTITLED,
-    Constants.SELECTOR_HTML_FILE,
-    Constants.SELECTOR_HTML_UNTITLED,
-    Constants.SELECTOR_PLAINTEXT_FILE,
-    Constants.SELECTOR_PLAINTEXT_UNTITLED,
-  ];
-
   const configMan: ConfigurationManager = new ConfigurationManager();
   const linter: Linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
@@ -104,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register Code Actions Provider for supported languages
-  DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
+  Constants.DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
     context.subscriptions.push(
       vscode.languages.registerCodeActionsProvider(selector, linter),
     );
@@ -131,14 +122,14 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register "Ignore Word Globally" TextEditorCommand
   const ignoreWordGlobally = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordGlobally", (editor, edit, ...args) => {
-    configMan.ignoreWordGlobally(args[0]);
+    configMan.ignoreWordGlobally(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(ignoreWordGlobally);
 
   // Register "Ignore Word in Workspace" TextEditorCommand
   const ignoreWordInWorkspace = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordInWorkspace", (editor, edit, ...args) => {
-    configMan.ignoreWordInWorkspace(args[0]);
+    configMan.ignoreWordInWorkspace(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(ignoreWordInWorkspace);
@@ -152,7 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register "Remove Workspace Ignored Word" TextEditorCommand
   const removeWorkspaceIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeWorkspaceIgnoredWord", (editor, edit, ...args) => {
-    configMan.removeWorkspaceIgnoredWord(args[0]);
+    configMan.removeWorkspaceIgnoredWord(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(removeWorkspaceIgnoredWord);
