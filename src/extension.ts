@@ -16,7 +16,7 @@
 
 import * as vscode from "vscode";
 import { ConfigurationManager } from "./common/configuration-manager";
-import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_SERVICE_MANAGED, LT_TIMEOUT_MS } from "./common/constants";
+import * as Constants from "./common/constants";
 import { IAnnotatedtext } from "./linter/interfaces";
 import { Linter } from "./linter/linter";
 import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
@@ -26,6 +26,15 @@ import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext) {
+
+  const DOCUMENT_SELECTORS: vscode.DocumentSelector[] = [
+    Constants.MARKDOWN_FILE,
+    Constants.MARKDOWN_UNTITLED,
+    Constants.HTML_FILE,
+    Constants.HTML_UNTITLED,
+    Constants.PLAINTEXT_FILE,
+    Constants.PLAINTEXT_UNTITLED,
+  ];
 
   const configMan: ConfigurationManager = new ConfigurationManager();
   const linter: Linter = new Linter(configMan);
@@ -39,8 +48,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(configMan);
 
-  context.subscriptions.push(LT_OUTPUT_CHANNEL);
-  LT_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
+  context.subscriptions.push(Constants.OUTPUT_CHANNEL);
+  Constants.OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
 
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => {
@@ -95,7 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register Code Actions Provider for supported languages
-  LT_DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
+  DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
     context.subscriptions.push(
       vscode.languages.registerCodeActionsProvider(selector, linter),
     );
@@ -173,8 +182,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {
-    let firstDelay = LT_TIMEOUT_MS;
-    if (configMan.getServiceType() === LT_SERVICE_MANAGED) {
+    let firstDelay = Constants.TIMEOUT_MS;
+    if (configMan.getServiceType() === ConfigurationManager.SERVICE_TYPE_MANAGED) {
       // Add a second to give the service time to start up.
       firstDelay += 1000;
     }

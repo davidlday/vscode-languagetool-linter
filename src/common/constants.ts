@@ -1,4 +1,23 @@
+/****
+ *    Copyright 2019 David L. Day
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
 import { DocumentSelector, OutputChannel, window } from "vscode";
+
+export const TIMEOUT_MS = 500;
+export const OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel("LanguageTool Linter");
 
 export const MARKDOWN = "markdown";
 export const HTML = "html";
@@ -12,44 +31,3 @@ export const HTML_UNTITLED: DocumentSelector = { language: HTML, scheme: "untitl
 
 export const PLAINTEXT_FILE: DocumentSelector = { language: PLAINTEXT, scheme: "file" };
 export const PLAINTEXT_UNTITLED: DocumentSelector = { language: PLAINTEXT, scheme: "untitled" };
-
-export const LT_DOCUMENT_LANGUAGE_IDS: string[] = [
-  MARKDOWN,
-  HTML,
-  PLAINTEXT,
-];
-export const LT_DOCUMENT_SELECTORS: DocumentSelector[] = [
-  MARKDOWN_FILE,
-  MARKDOWN_UNTITLED,
-  HTML_FILE,
-  HTML_UNTITLED,
-  PLAINTEXT_FILE,
-  PLAINTEXT_UNTITLED,
-];
-
-export const LT_PUBLIC_URL = "https://languagetool.org/api";
-export const LT_CHECK_PATH = "/v2/check";
-export const LT_SERVICE_PARAMETERS: string[] = [
-  "language",
-  "motherTongue",
-  "preferredVariants",
-  "disabledCategories",
-  "disabledRules",
-  "disabledCategories",
-];
-
-export const LT_TIMEOUT_MS = 500;
-export const LT_DIAGNOSTIC_SOURCE = "LanguageTool";
-export const LT_DISPLAY_NAME = "languagetool-linter";
-export const LT_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel("LanguageTool Linter");
-
-export const LT_CONFIGURATION_ROOT = "languageToolLinter";
-
-export const LT_SERVICE_EXTERNAL = "external";
-export const LT_SERVICE_MANAGED = "managed";
-export const LT_SERVICE_PUBLIC = "public";
-export const LT_SERVICE_TYPES: string[] = [
-  LT_SERVICE_EXTERNAL,
-  LT_SERVICE_MANAGED,
-  LT_SERVICE_PUBLIC,
-];
