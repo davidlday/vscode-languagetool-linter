@@ -6,6 +6,10 @@ All notable changes to the “languagetool-linter” extension will be documente
 
 Changes not yet released.
 
+### Changed
+
+* Output channel no longer forced open on errors
+
 ## [0.11.0] - 2020-01-11
 
 ### Fixed
