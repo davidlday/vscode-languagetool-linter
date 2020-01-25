@@ -15,8 +15,8 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "./common/configuration-manager";
-import * as Constants from "./common/constants";
+import * as Constants from "./configuration/constants";
+import { ConfigurationManager } from "./configuration/manager";
 import { IAnnotatedtext } from "./linter/interfaces";
 import { Linter } from "./linter/linter";
 import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
@@ -28,12 +28,12 @@ import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 export function activate(context: vscode.ExtensionContext) {
 
   const DOCUMENT_SELECTORS: vscode.DocumentSelector[] = [
-    Constants.MARKDOWN_FILE,
-    Constants.MARKDOWN_UNTITLED,
-    Constants.HTML_FILE,
-    Constants.HTML_UNTITLED,
-    Constants.PLAINTEXT_FILE,
-    Constants.PLAINTEXT_UNTITLED,
+    Constants.SELECTOR_MARKDOWN_FILE,
+    Constants.SELECTOR_MARKDOWN_UNTITLED,
+    Constants.SELECTOR_HTML_FILE,
+    Constants.SELECTOR_HTML_UNTITLED,
+    Constants.SELECTOR_PLAINTEXT_FILE,
+    Constants.SELECTOR_PLAINTEXT_UNTITLED,
   ];
 
   const configMan: ConfigurationManager = new ConfigurationManager();
@@ -48,8 +48,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(configMan);
 
-  context.subscriptions.push(Constants.OUTPUT_CHANNEL);
-  Constants.OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
+  context.subscriptions.push(Constants.EXTENSION_OUTPUT_CHANNEL);
+  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
 
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => {
@@ -182,8 +182,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {
-    let firstDelay = Constants.TIMEOUT_MS;
-    if (configMan.getServiceType() === ConfigurationManager.SERVICE_TYPE_MANAGED) {
+    let firstDelay = Constants.EXTENSION_TIMEOUT_MS;
+    if (configMan.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
       // Add a second to give the service time to start up.
       firstDelay += 1000;
     }

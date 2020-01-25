@@ -15,7 +15,7 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "../common/configuration-manager";
+import { ConfigurationManager } from "../configuration/manager";
 
 export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
 

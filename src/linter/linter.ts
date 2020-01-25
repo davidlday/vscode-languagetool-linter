@@ -18,8 +18,8 @@ import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
 import * as rp from "request-promise-native";
 import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit } from "vscode";
-import { ConfigurationManager } from "../common/configuration-manager";
-import { HTML, MARKDOWN, OUTPUT_CHANNEL, TIMEOUT_MS } from "../common/constants";
+import * as Constants from "../configuration/constants";
+import { ConfigurationManager } from "../configuration/manager";
 import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
 import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter";
 import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";
@@ -27,8 +27,8 @@ import { IAnnotatedtext, IAnnotation, ILanguageToolMatch, ILanguageToolReplaceme
 
 export class Linter implements CodeActionProvider {
 
-  public static DISPLAY_NAME: string = "languagetool-linter";
-  public static DIAGNOSTIC_SOURCE: string = "LanguageTool";
+  // public static DISPLAY_NAME: string = "languagetool-linter";
+  // public static DIAGNOSTIC_SOURCE: string = "LanguageTool";
 
   // Is the rule a Spelling rule?
   // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
@@ -50,7 +50,7 @@ export class Linter implements CodeActionProvider {
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
     this.timeoutMap = new Map<string, NodeJS.Timeout>();
-    this.diagnosticCollection = languages.createDiagnosticCollection(Linter.DISPLAY_NAME);
+    this.diagnosticCollection = languages.createDiagnosticCollection(Constants.EXTENSION_DISPLAY_NAME);
 
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
   }
@@ -89,7 +89,7 @@ export class Linter implements CodeActionProvider {
   }
 
   // Request a lint for a document
-  public requestLint(document: TextDocument, timeoutDuration: number = TIMEOUT_MS): void {
+  public requestLint(document: TextDocument, timeoutDuration: number = Constants.EXTENSION_TIMEOUT_MS): void {
     if (this.configManager.isSupportedDocument(document)) {
       this.cancelLint(document);
       const uriString = document.uri.toString();
@@ -133,10 +133,10 @@ export class Linter implements CodeActionProvider {
   public buildAnnotatedtext(document: TextDocument): IAnnotatedtext {
     let annotatedtext: IAnnotatedtext = { annotation: [] };
     switch (document.languageId) {
-      case (MARKDOWN):
+      case (Constants.LANGUAGE_ID_MARKDOWN):
         annotatedtext = this.buildAnnotatedMarkdown(document.getText());
         break;
-      case (HTML):
+      case (Constants.LANGUAGE_ID_HTML):
         annotatedtext = this.buildAnnotatedHTML(document.getText());
         break;
       default:
@@ -244,12 +244,12 @@ export class Linter implements CodeActionProvider {
           this.suggest(document, data);
         })
         .catch((err) => {
-          OUTPUT_CHANNEL.appendLine("Error connecting to " + url);
-          OUTPUT_CHANNEL.appendLine(err);
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Error connecting to " + url);
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(err);
         });
     } else {
-      OUTPUT_CHANNEL.appendLine("No LanguageTool URL provided. Please check your settings and try again.");
-      OUTPUT_CHANNEL.show(true);
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("No LanguageTool URL provided. Please check your settings and try again.");
+      Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
     }
   }
 
@@ -265,7 +265,7 @@ export class Linter implements CodeActionProvider {
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.rule.id + ": " + match.message;
       const diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, diagnosticSeverity);
-      diagnostic.source = Linter.DIAGNOSTIC_SOURCE;
+      diagnostic.source = Constants.EXTENSION_DIAGNOSTIC_SOURCE;
       // Spelling Rules
       if (Linter.isSpellingRule(match.rule.id)) {
         const spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);

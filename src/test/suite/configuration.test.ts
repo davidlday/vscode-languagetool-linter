@@ -1,12 +1,12 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { ConfigurationManager } from "../../common/configuration-manager";
-// import * as constants from "../../common/constants";
+import * as Constants from "../../configuration/constants";
+import { ConfigurationManager } from "../../configuration/manager";
 
 suite("ConfigurationManager Test Suite", () => {
 
   test("ConfigurationManager should load configuration", () => {
-    assert.ok(vscode.workspace.getConfiguration(ConfigurationManager.CONFIGURATION_ROOT));
+    assert.ok(vscode.workspace.getConfiguration(Constants.CONFIGURATION_ROOT));
   });
 
   test("ConfigurationManager should return the default service URL", () => {

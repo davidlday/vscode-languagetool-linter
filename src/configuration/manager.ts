@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
- import * as execa from "execa";
+import * as execa from "execa";
 import * as glob from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
@@ -26,36 +26,6 @@ import * as Constants from "./constants";
 
 export class ConfigurationManager implements Disposable {
 
-  // Configuration Strings
-  public static CONFIGURATION_ROOT: string = "languageToolLinter";
-  public static CONFIGURATION_GLOBAL_IGNORED_WORDS: string = "languageTool.ignoredWordsGlobal";
-  public static CONFIGURATION_WORKSPACE_IGNORED_WORDS: string = "languageTool.ignoredWordsInWorkspace";
-  public static CONFIGURATION_IGNORED_WORD_HINT: string = "languageTool.ignoredWordHint";
-  public static CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
-    Constants.MARKDOWN,
-    Constants.HTML,
-    Constants.PLAINTEXT,
-  ];
-
-  // LanguageTool Services
-  public static SERVICE_PUBLIC_URL = "https://languagetool.org/api";
-  public static SERVICE_CHECK_PATH = "/v2/check";
-  public static SERVICE_TYPE_EXTERNAL = "external";
-  public static SERVICE_TYPE_MANAGED = "managed";
-  public static SERVICE_TYPE_PUBLIC = "public";
-  public static SERVICE_TYPES: string[] = [
-    ConfigurationManager.SERVICE_TYPE_EXTERNAL,
-    ConfigurationManager.SERVICE_TYPE_MANAGED,
-    ConfigurationManager.SERVICE_TYPE_PUBLIC,
-  ];
-  public static SERVICE_PARAMETERS: string[] = [
-    "language",
-    "motherTongue",
-    "preferredVariants",
-    "disabledCategories",
-    "disabledRules",
-  ];
-
   // Private Members
   private config: WorkspaceConfiguration;
   private serviceUrl: string | undefined;
@@ -66,7 +36,7 @@ export class ConfigurationManager implements Disposable {
 
   // Constructor
   constructor() {
-    this.config = workspace.getConfiguration(ConfigurationManager.CONFIGURATION_ROOT);
+    this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
     this.globallyIgnoredWords = this.getGloballyIgnoredWords();
@@ -84,7 +54,7 @@ export class ConfigurationManager implements Disposable {
     // Changed service type
     if (event.affectsConfiguration("languageToolLinter.serviceType")) {
       switch (this.getServiceType()) {
-        case ConfigurationManager.SERVICE_TYPE_MANAGED:
+        case Constants.SERVICE_TYPE_MANAGED:
           this.startManagedService();
           break;
         default:
@@ -93,7 +63,7 @@ export class ConfigurationManager implements Disposable {
       }
     }
     // Changed class path for managed service
-    if (this.getServiceType() === ConfigurationManager.SERVICE_TYPE_MANAGED
+    if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED
       && (event.affectsConfiguration("languageToolLinter.managed.classPath")
         || event.affectsConfiguration("languageToolLinter.managed.jarFile")
         || event.affectsConfiguration("languageToolLinter.managed.portMinimum")
@@ -114,11 +84,10 @@ export class ConfigurationManager implements Disposable {
       && this.globallyIgnoredWords !== this.getGloballyIgnoredWords()) {
       this.saveGloballyIgnoredWords();
     }
-    this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
-    // Workspace Ignored Words updated in settings
-    if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsInWorkspace")
-      && this.workspaceIgnoredWords !== this.getWorkspaceIgnoredWords()) {
-      this.saveWorkspaceIgnoredWords();
+    // Workspace Ignored Words updated
+    if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsInWorkspace")) {
+      this.cleanWorkspaceIgnoredWords();
+      this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
     }
   }
 
@@ -135,7 +104,7 @@ export class ConfigurationManager implements Disposable {
   // Is Language ID Supported?
   public isSupportedDocument(document: TextDocument): boolean {
     if (document.uri.scheme === "file") {
-      return (ConfigurationManager.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.indexOf(document.languageId) > -1);
+      return (Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.indexOf(document.languageId) > -1);
     }
     return false;
   }
@@ -147,7 +116,7 @@ export class ConfigurationManager implements Disposable {
   public getServiceParameters(): Map<string, string> {
     const config: WorkspaceConfiguration = this.config;
     const parameters: Map<string, string> = new Map();
-    ConfigurationManager.SERVICE_PARAMETERS.forEach((ltKey) => {
+    Constants.SERVICE_PARAMETERS.forEach((ltKey) => {
       const configKey: string = "languageTool." + ltKey;
       const value: string | undefined = config.get(configKey);
       if (value) {
@@ -214,7 +183,7 @@ export class ConfigurationManager implements Disposable {
   // Stop the managed service
   public stopManagedService(): void {
     if (this.process) {
-      Constants.OUTPUT_CHANNEL.appendLine("Closing managed service server.");
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Closing managed service server.");
       this.process.cancel();
       this.process = undefined;
     }
@@ -273,24 +242,24 @@ export class ConfigurationManager implements Disposable {
 
   // Show hints for ignored words?
   public showIgnoredWordHints(): boolean {
-    return this.config.get(ConfigurationManager.CONFIGURATION_IGNORED_WORD_HINT) as boolean;
+    return this.config.get(Constants.CONFIGURATION_IGNORED_WORD_HINT) as boolean;
   }
 
   // Private instance methods
 
   private findServiceUrl(serviceType: string): string | undefined {
     switch (serviceType) {
-      case ConfigurationManager.SERVICE_TYPE_EXTERNAL:
-        return this.getExternalUrl() + ConfigurationManager.SERVICE_CHECK_PATH;
-      case ConfigurationManager.SERVICE_TYPE_MANAGED:
+      case Constants.SERVICE_TYPE_EXTERNAL:
+        return this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
+      case Constants.SERVICE_TYPE_MANAGED:
         const port = this.getManagedServicePort();
         if (port) {
-          return "http://localhost:" + this.getManagedServicePort() + ConfigurationManager.SERVICE_CHECK_PATH;
+          return "http://localhost:" + this.getManagedServicePort() + Constants.SERVICE_CHECK_PATH;
         } else {
           return undefined;
         }
-      case ConfigurationManager.SERVICE_TYPE_PUBLIC:
-        return ConfigurationManager.SERVICE_PUBLIC_URL + ConfigurationManager.SERVICE_CHECK_PATH;
+      case Constants.SERVICE_TYPE_PUBLIC:
+        return Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
       default:
         return undefined;
     }
@@ -321,7 +290,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   private startManagedService(): void {
-    if (this.getServiceType() === ConfigurationManager.SERVICE_TYPE_MANAGED) {
+    if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
       const classpath: string = this.getClassPath();
       const minimumPort: number = this.getMinimumPort();
       const maximumPort: number = this.getMaximumPort();
@@ -331,8 +300,8 @@ export class ConfigurationManager implements Disposable {
       } else {
         portfinder.getPort({ host: "127.0.0.1", port: minimumPort, stopPort: maximumPort }, (error: any, port: number) => {
           if (error) {
-            Constants.OUTPUT_CHANNEL.appendLine("Error getting open port: " + error.message);
-            Constants.OUTPUT_CHANNEL.show(true);
+            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Error getting open port: " + error.message);
+            Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
           } else {
             this.setManagedServicePort(port);
             const args: string[] = [
@@ -342,22 +311,22 @@ export class ConfigurationManager implements Disposable {
               "--port",
               port.toString(),
             ];
-            Constants.OUTPUT_CHANNEL.appendLine("Starting managed service.");
+            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Starting managed service.");
             (this.process = execa("java", args)).catch((err: any) => {
               if (err.isCanceled) {
-                Constants.OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
               } else if (err.failed) {
-                Constants.OUTPUT_CHANNEL.appendLine("Managed service command failed: " + err.command);
-                Constants.OUTPUT_CHANNEL.appendLine("Error Message: " + err.message);
-                Constants.OUTPUT_CHANNEL.show(true);
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Managed service command failed: " + err.command);
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Error Message: " + err.message);
+                Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
               }
             });
             this.process.stderr.addListener("data", (data: any) => {
-              Constants.OUTPUT_CHANNEL.appendLine(data);
-              Constants.OUTPUT_CHANNEL.show(true);
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+              Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
             });
             this.process.stdout.addListener("data", (data: any) => {
-              Constants.OUTPUT_CHANNEL.appendLine(data);
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
             });
             this.serviceUrl = this.findServiceUrl(this.getServiceType());
           }
@@ -369,28 +338,43 @@ export class ConfigurationManager implements Disposable {
   // Save words to settings
   private saveIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
     const wordArray: string[] = Array.from(words).map((word) => word.toLowerCase()).sort();
-    Constants.OUTPUT_CHANNEL.append(wordArray.join(":"));
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(wordArray.join(":"));
     this.config.update(section, wordArray, configurationTarget);
   }
 
   // Get Globally ingored words from settings.
   private getGloballyIgnoredWords(): Set<string> {
-    return new Set<string>(this.config.get<string[]>(ConfigurationManager.CONFIGURATION_GLOBAL_IGNORED_WORDS));
+    return new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS));
   }
 
   // Save word to User Level ignored word list.
   private saveGloballyIgnoredWords(): void {
-    this.saveIgnoredWords(this.globallyIgnoredWords, ConfigurationManager.CONFIGURATION_GLOBAL_IGNORED_WORDS, ConfigurationTarget.Global);
+    this.saveIgnoredWords(this.globallyIgnoredWords, Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS, ConfigurationTarget.Global);
   }
 
   // Get Workspace ignored words from settings.
   private getWorkspaceIgnoredWords(): Set<string> {
-    return new Set<string>(this.config.get<string[]>(ConfigurationManager.CONFIGURATION_WORKSPACE_IGNORED_WORDS));
+    return new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS));
   }
 
   // Save word to Workspace Level ignored word list.
   private saveWorkspaceIgnoredWords(): void {
-    this.saveIgnoredWords(this.workspaceIgnoredWords, ConfigurationManager.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace);
+    if (this.workspaceIgnoredWords !== this.getWorkspaceIgnoredWords()) {
+      this.saveIgnoredWords(this.workspaceIgnoredWords, Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace);
+    }
+  }
+
+  // Clean the word list in the configuration
+  private cleanIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
+    const wordArray: string[] = Array.from(words).map((word) => word.toLowerCase()).sort();
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(wordArray.join(":"));
+    this.config.update(section, wordArray, configurationTarget);
+  }
+
+  // Clean the word list in the configuration
+  private cleanWorkspaceIgnoredWords(): void {
+    const workSpaceIgnoredWords: Set<string> = this.getWorkspaceIgnoredWords();
+    this.cleanIgnoredWords(workSpaceIgnoredWords, Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace )
   }
 
 }
