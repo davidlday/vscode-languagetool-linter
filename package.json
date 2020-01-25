@@ -361,12 +361,18 @@
         },
         "languageToolLinter.languageTool.ignoredWordsGlobal": {
           "type": "array",
+          "items": {
+            "type": "string"
+          },
           "scope": "application",
           "default": [],
           "description": "Global list of words to ignore in spellcheck."
         },
         "languageToolLinter.languageTool.ignoredWordsInWorkspace": {
           "type": "array",
+          "items": {
+            "type": "string"
+          },
           "scope": "window",
           "default": [],
           "description": "Workspace list of words to ignore in spellcheck. This setting is ignored at the User (Global) level."
