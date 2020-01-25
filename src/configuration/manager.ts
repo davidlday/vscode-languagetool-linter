@@ -31,16 +31,16 @@ export class ConfigurationManager implements Disposable {
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
-  private globallyIgnoredWords: Set<string>;
-  private workspaceIgnoredWords: Set<string>;
+  // private globallyIgnoredWords: Set<string>;
+  // private workspaceIgnoredWords: Set<string>;
 
   // Constructor
   constructor() {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
-    this.globallyIgnoredWords = this.getGloballyIgnoredWords();
-    this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
+    // this.globallyIgnoredWords = this.getGloballyIgnoredWords();
+    // this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
   // Public instance methods
@@ -50,6 +50,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   public reloadConfiguration(event: ConfigurationChangeEvent) {
+    this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     // Changed service type
     if (event.affectsConfiguration("languageToolLinter.serviceType")) {
@@ -78,17 +79,16 @@ export class ConfigurationManager implements Disposable {
         window.showErrorMessage("Cannot use preferred variants unless language is set to auto. Please review your configuration settings for LanguageTool.");
       }
     }
-    this.globallyIgnoredWords = this.getGloballyIgnoredWords();
-    // Globally Ignored Words updated in settings
-    if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsGlobal")
-      && this.globallyIgnoredWords !== this.getGloballyIgnoredWords()) {
-      this.saveGloballyIgnoredWords();
-    }
-    // Workspace Ignored Words updated
-    if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsInWorkspace")) {
-      this.cleanWorkspaceIgnoredWords();
-      this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
-    }
+    // // Globally Ignored Words updated in settings
+    // if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsGlobal")) {
+    //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Globally ignored words changed.");
+    //   this.globallyIgnoredWords = this.getGloballyIgnoredWords();
+    // }
+    // // Workspace Ignored Words updated
+    // if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsInWorkspace")) {
+    //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Workspace ignored words changed.");
+    //   this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
+    // }
   }
 
   // Smart Format on Type
@@ -196,47 +196,53 @@ export class ConfigurationManager implements Disposable {
 
   // Is word ignored at the User Level?
   public isGloballyIgnoredWord(word: string): boolean {
-    return this.globallyIgnoredWords.has(word.toLowerCase());
+    const globallyIgnoredWords: Set<string> = this.getGloballyIgnoredWords();
+    return globallyIgnoredWords.has(word.toLowerCase());
   }
 
   // Is word ignored at the Workspace Level?
   public isWorkspaceIgnoredWord(word: string): boolean {
-    return this.workspaceIgnoredWords.has(word.toLowerCase());
+    const workspaceIgnoredWords: Set<string> = this.getWorkspaceIgnoredWords();
+    return workspaceIgnoredWords.has(word.toLowerCase());
   }
 
   // Add word to User Level ignored word list.
   public ignoreWordGlobally(word: string): void {
     const lowerCaseWord: string = word.toLowerCase();
-    if (!this.isGloballyIgnoredWord(lowerCaseWord)) {
-      this.globallyIgnoredWords.add(lowerCaseWord);
-      this.saveGloballyIgnoredWords();
+    const globallyIgnoredWords: Set<string> = this.getGloballyIgnoredWords();
+    if (!globallyIgnoredWords.has(lowerCaseWord)) {
+      globallyIgnoredWords.add(lowerCaseWord);
+      this.saveGloballyIgnoredWords(globallyIgnoredWords);
     }
   }
 
   // Add word to Workspace Level ignored word list.
   public ignoreWordInWorkspace(word: string): void {
     const lowerCaseWord: string = word.toLowerCase();
-    if (!this.isWorkspaceIgnoredWord(lowerCaseWord)) {
-      this.workspaceIgnoredWords.add(lowerCaseWord);
-      this.saveWorkspaceIgnoredWords();
+    const workspaceIgnoredWords: Set<string> = this.getWorkspaceIgnoredWords();
+    if (!workspaceIgnoredWords.has(lowerCaseWord)) {
+      workspaceIgnoredWords.add(lowerCaseWord);
+      this.saveWorkspaceIgnoredWords(workspaceIgnoredWords);
     }
   }
 
   // Remove word from User Level ignored word list.
   public removeGloballyIgnoredWord(word: string): void {
     const lowerCaseWord: string = word.toLowerCase();
-    if (this.isGloballyIgnoredWord(lowerCaseWord)) {
-      this.globallyIgnoredWords.delete(lowerCaseWord);
-      this.saveGloballyIgnoredWords();
+    const globallyIgnoredWords: Set<string> = this.getGloballyIgnoredWords();
+    if (globallyIgnoredWords.has(lowerCaseWord)) {
+      globallyIgnoredWords.delete(lowerCaseWord);
+      this.saveGloballyIgnoredWords(globallyIgnoredWords);
     }
   }
 
   // Remove word from Workspace Level ignored word list.
   public removeWorkspaceIgnoredWord(word: string): void {
     const lowerCaseWord: string = word.toLowerCase();
-    if (this.isWorkspaceIgnoredWord(lowerCaseWord)) {
-      this.workspaceIgnoredWords.delete(lowerCaseWord);
-      this.saveWorkspaceIgnoredWords();
+    const workspaceIgnoredWords: Set<string> = this.getWorkspaceIgnoredWords();
+    if (workspaceIgnoredWords.has(lowerCaseWord)) {
+      workspaceIgnoredWords.delete(lowerCaseWord);
+      this.saveWorkspaceIgnoredWords(workspaceIgnoredWords);
     }
   }
 
@@ -338,43 +344,32 @@ export class ConfigurationManager implements Disposable {
   // Save words to settings
   private saveIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
     const wordArray: string[] = Array.from(words).map((word) => word.toLowerCase()).sort();
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(wordArray.join(":"));
     this.config.update(section, wordArray, configurationTarget);
+  }
+
+  // Save word to User Level ignored word list.
+  private saveGloballyIgnoredWords(globallyIgnoredWords: Set<string>): void {
+    this.saveIgnoredWords(globallyIgnoredWords, Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS, ConfigurationTarget.Global);
+  }
+  // Save word to Workspace Level ignored word list.
+  private saveWorkspaceIgnoredWords(workspaceIgnoredWords: Set<string>): void {
+    this.saveIgnoredWords(workspaceIgnoredWords, Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace);
+  }
+
+  // Get ignored words from settings.
+  private getIgnoredWords(section: string): Set<string> {
+    const wordArray: string[] = this.config.get<string[]>(section) as string[];
+    return new Set<string>(wordArray.map((word) => word.toLowerCase()).sort());
   }
 
   // Get Globally ingored words from settings.
   private getGloballyIgnoredWords(): Set<string> {
-    return new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS));
-  }
-
-  // Save word to User Level ignored word list.
-  private saveGloballyIgnoredWords(): void {
-    this.saveIgnoredWords(this.globallyIgnoredWords, Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS, ConfigurationTarget.Global);
+    return this.getIgnoredWords(Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS);
   }
 
   // Get Workspace ignored words from settings.
   private getWorkspaceIgnoredWords(): Set<string> {
-    return new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS));
-  }
-
-  // Save word to Workspace Level ignored word list.
-  private saveWorkspaceIgnoredWords(): void {
-    if (this.workspaceIgnoredWords !== this.getWorkspaceIgnoredWords()) {
-      this.saveIgnoredWords(this.workspaceIgnoredWords, Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace);
-    }
-  }
-
-  // Clean the word list in the configuration
-  private cleanIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
-    const wordArray: string[] = Array.from(words).map((word) => word.toLowerCase()).sort();
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(wordArray.join(":"));
-    this.config.update(section, wordArray, configurationTarget);
-  }
-
-  // Clean the word list in the configuration
-  private cleanWorkspaceIgnoredWords(): void {
-    const workSpaceIgnoredWords: Set<string> = this.getWorkspaceIgnoredWords();
-    this.cleanIgnoredWords(workSpaceIgnoredWords, Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace )
+    return this.getIgnoredWords(Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS);
   }
 
 }
