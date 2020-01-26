@@ -15,8 +15,8 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "./common/configuration-manager";
-import { LT_DOCUMENT_SELECTORS, LT_OUTPUT_CHANNEL, LT_SERVICE_MANAGED, LT_TIMEOUT_MS } from "./common/constants";
+import * as Constants from "./configuration/constants";
+import { ConfigurationManager } from "./configuration/manager";
 import { IAnnotatedtext } from "./linter/interfaces";
 import { Linter } from "./linter/linter";
 import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
@@ -39,8 +39,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(configMan);
 
-  context.subscriptions.push(LT_OUTPUT_CHANNEL);
-  LT_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
+  context.subscriptions.push(Constants.EXTENSION_OUTPUT_CHANNEL);
+  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
 
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => {
@@ -95,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // Register Code Actions Provider for supported languages
-  LT_DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
+  Constants.DOCUMENT_SELECTORS.forEach( (selector: vscode.DocumentSelector) => {
     context.subscriptions.push(
       vscode.languages.registerCodeActionsProvider(selector, linter),
     );
@@ -122,14 +122,14 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register "Ignore Word Globally" TextEditorCommand
   const ignoreWordGlobally = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordGlobally", (editor, edit, ...args) => {
-    configMan.ignoreWordGlobally(args[0]);
+    configMan.ignoreWordGlobally(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(ignoreWordGlobally);
 
   // Register "Ignore Word in Workspace" TextEditorCommand
   const ignoreWordInWorkspace = vscode.commands.registerTextEditorCommand("languagetoolLinter.ignoreWordInWorkspace", (editor, edit, ...args) => {
-    configMan.ignoreWordInWorkspace(args[0]);
+    configMan.ignoreWordInWorkspace(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(ignoreWordInWorkspace);
@@ -143,7 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register "Remove Workspace Ignored Word" TextEditorCommand
   const removeWorkspaceIgnoredWord = vscode.commands.registerTextEditorCommand("languagetoolLinter.removeWorkspaceIgnoredWord", (editor, edit, ...args) => {
-    configMan.removeWorkspaceIgnoredWord(args[0]);
+    configMan.removeWorkspaceIgnoredWord(args.shift());
     linter.requestLint(editor.document, 0);
   });
   context.subscriptions.push(removeWorkspaceIgnoredWord);
@@ -173,8 +173,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {
-    let firstDelay = LT_TIMEOUT_MS;
-    if (configMan.getServiceType() === LT_SERVICE_MANAGED) {
+    let firstDelay = Constants.EXTENSION_TIMEOUT_MS;
+    if (configMan.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
       // Add a second to give the service time to start up.
       firstDelay += 1000;
     }

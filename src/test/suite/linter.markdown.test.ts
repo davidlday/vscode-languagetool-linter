@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
-import { ConfigurationManager } from "../../common/configuration-manager";
+import { ConfigurationManager } from "../../configuration/manager";
 import { Linter } from "../../linter/linter";
 
 suite("Linter Markdown Test Suite", () => {

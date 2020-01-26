@@ -2,6 +2,9 @@
 
 All notable changes to the “languagetool-linter” extension will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [Unreleased]
 
 Changes not yet released.
@@ -9,6 +12,8 @@ Changes not yet released.
 ### Changed
 
 * Output channel no longer forced open on errors
+* Ignored Word Configuration items specified as strings
+* Refactored constants and configuration manager
 
 ## [0.11.0] - 2020-01-11
 
