@@ -49,6 +49,7 @@ export const DOCUMENT_SELECTORS: DocumentSelector[] = [
 
 // Configuration Strings
 export const CONFIGURATION_ROOT: string = "languageToolLinter";
+export const CONFIGURATION_IGNORED_RULES: string = "languageTool.ignoredRules";
 export const CONFIGURATION_GLOBAL_IGNORED_WORDS: string = "languageTool.ignoredWordsGlobal";
 export const CONFIGURATION_WORKSPACE_IGNORED_WORDS: string = "languageTool.ignoredWordsInWorkspace";
 export const CONFIGURATION_IGNORED_WORD_HINT: string = "languageTool.ignoredWordHint";
