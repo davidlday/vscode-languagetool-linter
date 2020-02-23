@@ -341,6 +341,36 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
+  // Get a list of ignored rules
+  private getIgnoredRules(): Set<string> {
+    const inspection = this.config.inspect("languageTool.ignoredRules");
+    const globalRules: string[] = inspection?.globalValue as string[];
+    const workspaceRules: string[] = inspection?.workspaceValue as string[];
+    const workspaceFolderRules: string[] = inspection?.workspaceFolderValue as string[];
+    const rules: Set<string> = new Set<string>();
+    globalRules.forEach((rule) => rules.add(rule.toUpperCase()));
+    workspaceRules.forEach((rule) => rules.add(rule.toUpperCase()));
+    workspaceFolderRules.forEach((rule) => rules.add(rule.toUpperCase()));
+    return rules;
+  }
+
+  private saveIgnoredRules(rules: Set<string>, configurationTarget: ConfigurationTarget): void {
+    const ruleArray: string[] = Array.from(rules).map((rule) => rule.toUpperCase()).sort();
+    this.config.update(Constants.CONFIGURATION_IGNORED_RULES, ruleArray, configurationTarget);
+  }
+
+  private saveGloballyIgnoredRules(rules: Set<string>): void {
+    this.saveIgnoredRules(rules, ConfigurationTarget.Global);
+  }
+
+  private saveWorkspaceIgnoredRules(rules: Set<string>): void {
+    this.saveIgnoredRules(rules, ConfigurationTarget.Workspace);
+  }
+
+  private saveWorkspaceFolderIgnoredRules(rules: Set<string>): void {
+    this.saveIgnoredRules(rules, ConfigurationTarget.WorkspaceFolder);
+  }
+
   // Save words to settings
   private saveIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
     const wordArray: string[] = Array.from(words).map((word) => word.toLowerCase()).sort();
@@ -351,6 +381,7 @@ export class ConfigurationManager implements Disposable {
   private saveGloballyIgnoredWords(globallyIgnoredWords: Set<string>): void {
     this.saveIgnoredWords(globallyIgnoredWords, Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS, ConfigurationTarget.Global);
   }
+
   // Save word to Workspace Level ignored word list.
   private saveWorkspaceIgnoredWords(workspaceIgnoredWords: Set<string>): void {
     this.saveIgnoredWords(workspaceIgnoredWords, Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace);
