@@ -417,7 +417,7 @@
     "execa": "^4.0.0",
     "glob": "^7.1.6",
     "portfinder": "^1.0.25",
-    "request": "^2.88.0",
+    "request": "^2.88.2",
     "request-promise-native": "^1.0.8"
   }
 }
