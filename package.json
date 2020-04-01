@@ -397,7 +397,7 @@
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
-    "@types/mocha": "^7.0.1",
+    "@types/mocha": "^7.0.2",
     "@types/node": "^10.17.13",
     "@types/request-promise-native": "^1.0.17",
     "@types/vscode": "^1.39.0",
