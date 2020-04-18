@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x, 12.x]
+    name: Build on Ubuntu
     env:
       DISPLAY: ":99.0"
       CI: true
@@ -31,10 +32,32 @@ jobs:
     - run: vsce package
 
   macos-build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         node-version: [10.x, 12.x]
+    name: Build on MacOS
+    env:
+      CI: true
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install -g typescript vsce
+    - run: npm ci
+    - run: npm run vscode:prepublish
+    - run: npm run test-compile
+    - run: npm test
+    - run: vsce package
+
+  windows-build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+    name: Build on Windows
     env:
       CI: true
     steps:
