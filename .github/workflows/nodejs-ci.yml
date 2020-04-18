@@ -36,7 +36,6 @@ jobs:
       matrix:
         node-version: [10.x, 12.x]
     env:
-      DISPLAY: ":99.0"
       CI: true
     steps:
     - uses: actions/checkout@v2
