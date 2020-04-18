@@ -1,6 +1,7 @@
 # LanguageTool Linter for Visual Studio Code
 
 [![Build Status](https://travis-ci.org/davidlday/vscode-languagetool-linter.svg?branch=master)](https://travis-ci.org/davidlday/vscode-languagetool-linter)
+![Node.js CI](https://github.com/davidlday/vscode-languagetool-linter/workflows/Node.js%20CI/badge.svg)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1f9fb350738a438ba0d4142896733026)](https://www.codacy.com/manual/davidlday/vscode-languagetool-linter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=davidlday/vscode-languagetool-linter&amp;utm_campaign=Badge_Grade)
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 [![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
