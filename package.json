@@ -416,7 +416,7 @@
     "annotatedtext-remark": "^0.4.0",
     "execa": "^4.0.0",
     "glob": "^7.1.6",
-    "portfinder": "^1.0.25",
+    "portfinder": "^1.0.26",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.8"
   }
