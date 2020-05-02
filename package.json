@@ -403,7 +403,7 @@
     "@types/vscode": "^1.39.0",
     "@types/webpack": "^4.41.12",
     "license-webpack-plugin": "^2.1.4",
-    "mocha": "^7.1.1",
+    "mocha": "^7.1.2",
     "ts-loader": "^7.0.0",
     "tslint": "^6.1.1",
     "typescript": "^3.8.3",
