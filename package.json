@@ -413,7 +413,7 @@
   },
   "dependencies": {
     "annotatedtext-rehype": "^0.1.2",
-    "annotatedtext-remark": "^0.4.0",
+    "annotatedtext-remark": "^0.4.1",
     "execa": "^4.0.0",
     "glob": "^7.1.6",
     "portfinder": "^1.0.26",
