@@ -17,7 +17,7 @@
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
 import * as rp from "request-promise-native";
-import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit } from "vscode";
+import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit, CodeActionProviderMetadata, DiagnosticRelatedInformation } from "vscode";
 import * as Constants from "../configuration/constants";
 import { ConfigurationManager } from "../configuration/manager";
 import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
@@ -39,8 +39,6 @@ export class Linter implements CodeActionProvider {
   }
 
   public diagnosticCollection: DiagnosticCollection;
-  public diagnosticMap: Map<string, Diagnostic[]> = new Map();
-  public codeActionMap: Map<string, CodeAction[]> = new Map();
   public remarkBuilderOptions: any = remarkBuilder.defaults;
   public rehypeBuilderOptions: any = rehypeBuilder.defaults;
 
@@ -51,7 +49,6 @@ export class Linter implements CodeActionProvider {
     this.configManager = configManager;
     this.timeoutMap = new Map<string, NodeJS.Timeout>();
     this.diagnosticCollection = languages.createDiagnosticCollection(Constants.EXTENSION_DISPLAY_NAME);
-
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
   }
 
@@ -63,28 +60,33 @@ export class Linter implements CodeActionProvider {
     token: CancellationToken,
   ): CodeAction[] {
     const documentUri: string = document.uri.toString();
-    if (this.codeActionMap.has(documentUri) && this.codeActionMap.get(documentUri)) {
-      const documentCodeActions: CodeAction[] = this.codeActionMap.get(documentUri) || [];
-      const actions: CodeAction[] = [];
-      documentCodeActions.forEach((action) => {
-        if (action.diagnostics && context.diagnostics) {
-          const actionDiagnostic: Diagnostic = action.diagnostics[0];
-          if (range.contains(actionDiagnostic.range)) {
-            actions.push(action);
+    const diagnostics = context.diagnostics || [];
+    const actions: CodeAction[] = [];
+    diagnostics
+      .filter((diagnostic) => diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE)
+      .forEach((diagnostic) => {
+        // @ts-ignore
+        const match: ILanguageToolMatch = diagnostic.match || null;
+        if (Linter.isSpellingRule(match.rule.id)) {
+          const spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic);
+          if (spellingActions.length > 0) {
+            // diagnostics.push(diagnostic);
+            spellingActions.forEach((action) => {
+              actions.push(action);
+            });
           }
+        } else {
+          // diagnostics.push(diagnostic);
+          this.getRuleActions(document, diagnostic).forEach((action) => {
+            actions.push(action);
+          });
         }
       });
-      return actions;
-    } else {
-      return [];
-    }
+    return actions;
   }
 
   // Remove diagnostics for a Document URI
   public clearDiagnostics(uri: Uri): void {
-    const uriString: string = uri.toString();
-    this.diagnosticMap.delete(uriString);
-    this.codeActionMap.delete(uriString);
     this.diagnosticCollection.delete(uri);
   }
 
@@ -171,14 +173,6 @@ export class Linter implements CodeActionProvider {
     }
   }
 
-  // Reset the Diagnostic Collection
-  public resetDiagnostics(): void {
-    this.diagnosticCollection.clear();
-    this.diagnosticMap.forEach((diags, file) => {
-      this.diagnosticCollection.set(Uri.parse(file), diags);
-    });
-  }
-
   // Apply smart formatting to annotated text.
   public smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
     let newText: string = "";
@@ -257,7 +251,7 @@ export class Linter implements CodeActionProvider {
   private suggest(document: TextDocument, response: ILanguageToolResponse): void {
     const matches = response.matches;
     const diagnostics: Diagnostic[] = [];
-    const actions: CodeAction[] = [];
+    // const actions: CodeAction[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
@@ -266,35 +260,41 @@ export class Linter implements CodeActionProvider {
       const diagnosticMessage: string = match.rule.id + ": " + match.message;
       const diagnostic: Diagnostic = new Diagnostic(diagnosticRange, diagnosticMessage, diagnosticSeverity);
       diagnostic.source = Constants.EXTENSION_DIAGNOSTIC_SOURCE;
+      // @ts-ignore
+      diagnostic.match = match;
+      diagnostics.push(diagnostic);
+      if (Linter.isSpellingRule(match.rule.id) &&
+            this.configManager.isIgnoredWord(document.getText(diagnostic.range)) &&
+            this.configManager.showIgnoredWordHints()) {
+              diagnostic.severity = DiagnosticSeverity.Hint;
+            }
       // Spelling Rules
-      if (Linter.isSpellingRule(match.rule.id)) {
-        const spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
-        if (spellingActions.length > 0) {
-          diagnostics.push(diagnostic);
-          spellingActions.forEach((action) => {
-            actions.push(action);
-          });
-        }
-      } else {
-        diagnostics.push(diagnostic);
-        this.getRuleActions(document, diagnostic, match).forEach((action) => {
-          actions.push(action);
-        });
-      }
+      // if (Linter.isSpellingRule(match.rule.id)) {
+      //   const spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
+      //   if (spellingActions.length > 0) {
+      //     diagnostics.push(diagnostic);
+      //     spellingActions.forEach((action) => {
+      //       actions.push(action);
+      //     });
+      //   }
+      // } else {
+      //   diagnostics.push(diagnostic);
+      //   this.getRuleActions(document, diagnostic, match).forEach((action) => {
+      //     actions.push(action);
+      //   });
+      // }
     });
-    this.codeActionMap.set(document.uri.toString(), actions);
-    this.diagnosticMap.set(document.uri.toString(), diagnostics);
-    this.resetDiagnostics();
+    this.diagnosticCollection.set(document.uri, diagnostics);
   }
 
   // Get CodeActions for Spelling Rules
-  private getSpellingRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
+  private getSpellingRuleActions(document: TextDocument, diagnostic: Diagnostic): CodeAction[] {
     const actions: CodeAction[] = [];
+    // @ts-ignore
+    const match: ILanguageToolMatch = diagnostic.match || null;
     const word: string = document.getText(diagnostic.range);
     if (this.configManager.isIgnoredWord(word)) {
       if (this.configManager.showIgnoredWordHints()) {
-        // Change severity for ignored words.
-        diagnostic.severity = DiagnosticSeverity.Hint;
         if (this.configManager.isGloballyIgnoredWord(word)) {
           const actionTitle: string = "Remove '" + word + "' from always ignored words.";
           const action: CodeAction = new CodeAction(actionTitle, CodeActionKind.QuickFix);
@@ -335,7 +335,9 @@ export class Linter implements CodeActionProvider {
   }
 
   // Get all Rule CodeActions
-  private getRuleActions(document: TextDocument, diagnostic: Diagnostic, match: ILanguageToolMatch): CodeAction[] {
+  private getRuleActions(document: TextDocument, diagnostic: Diagnostic): CodeAction[] {
+    // @ts-ignore
+    const match: ILanguageToolMatch = diagnostic.match;
     const actions: CodeAction[] = [];
     this.getReplacementActions(document, diagnostic, match.replacements).forEach((action: CodeAction) => {
       actions.push(action);
