@@ -42,6 +42,9 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(Constants.EXTENSION_OUTPUT_CHANNEL);
   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
 
+  // Register Diagnostics Collection
+  context.subscriptions.push(linter.diagnosticCollection);
+
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => {
     if (event.affectsConfiguration("languageToolLinter")) {
@@ -114,10 +117,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidCloseTextDocument event
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument( (document: vscode.TextDocument) => {
-    if (linter.diagnosticMap.has(document.uri.toString())) {
-      linter.diagnosticMap.delete(document.uri.toString());
-    }
-    linter.resetDiagnostics();
+    linter.clearDiagnostics(document.uri);
+    // if (linter.diagnosticMap.has(document.uri.toString())) {
+    //   linter.diagnosticMap.delete(document.uri.toString());
+    // }
+    // linter.resetDiagnostics();
   }));
 
   // Register "Ignore Word Globally" TextEditorCommand
