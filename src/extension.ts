@@ -29,6 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const configMan: ConfigurationManager = new ConfigurationManager();
   const linter: Linter = new Linter(configMan);
+  // linter.subscrip
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
     '"': new QuotesFormattingProvider(configMan),
     "'": new QuotesFormattingProvider(configMan),
@@ -41,9 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(Constants.EXTENSION_OUTPUT_CHANNEL);
   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("LanguageTool Linter Activated!");
-
-  // Register Diagnostics Collection
-  context.subscriptions.push(linter.diagnosticCollection);
 
   // Register onDidChangeconfiguration event
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => {
@@ -69,13 +67,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }));
 
-  // Causes linting on too many events, such as switching tabs
-  // // Register onDidChangeActiveTextEditor event - request lint
-  // context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor) => {
-  //   if (editor !== undefined && configMan.isLintOnChange()) {
-  //     linter.requestLint(editor.document);
-  //   }
-  // }));
+  // Register onDidChangeActiveTextEditor event - request lint
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor) => {
+    if (editor !== undefined && configMan.isLintOnChange()) {
+      linter.requestLint(editor.document);
+    }
+  }));
 
   // Register onWillSaveTextDocument event - smart format if enabled
   context.subscriptions.push(vscode.workspace.onWillSaveTextDocument((event) => {

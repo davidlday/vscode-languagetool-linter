@@ -17,7 +17,7 @@
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
 import * as rp from "request-promise-native";
-import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit, CodeActionProviderMetadata, DiagnosticRelatedInformation } from "vscode";
+import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit, CodeActionProviderMetadata, DiagnosticRelatedInformation, ExtensionContext } from "vscode";
 import * as Constants from "../configuration/constants";
 import { ConfigurationManager } from "../configuration/manager";
 import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
@@ -70,13 +70,11 @@ export class Linter implements CodeActionProvider {
         if (Linter.isSpellingRule(match.rule.id)) {
           const spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic);
           if (spellingActions.length > 0) {
-            // diagnostics.push(diagnostic);
             spellingActions.forEach((action) => {
               actions.push(action);
             });
           }
         } else {
-          // diagnostics.push(diagnostic);
           this.getRuleActions(document, diagnostic).forEach((action) => {
             actions.push(action);
           });
