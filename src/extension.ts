@@ -66,13 +66,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }));
 
-  // Causes linting on too many events, such as switching tabs
-  // // Register onDidChangeActiveTextEditor event - request lint
-  // context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor) => {
-  //   if (editor !== undefined && configMan.isLintOnChange()) {
-  //     linter.requestLint(editor.document);
-  //   }
-  // }));
+  // Register onDidChangeActiveTextEditor event - request lint
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor) => {
+    if (editor !== undefined && configMan.isLintOnChange()) {
+      linter.requestLint(editor.document);
+    }
+  }));
 
   // Register onWillSaveTextDocument event - smart format if enabled
   context.subscriptions.push(vscode.workspace.onWillSaveTextDocument((event) => {
@@ -114,10 +113,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register onDidCloseTextDocument event
   context.subscriptions.push(vscode.workspace.onDidCloseTextDocument( (document: vscode.TextDocument) => {
-    if (linter.diagnosticMap.has(document.uri.toString())) {
-      linter.diagnosticMap.delete(document.uri.toString());
-    }
-    linter.resetDiagnostics();
+    linter.clearDiagnostics(document.uri);
+    // if (linter.diagnosticMap.has(document.uri.toString())) {
+    //   linter.diagnosticMap.delete(document.uri.toString());
+    // }
+    // linter.resetDiagnostics();
   }));
 
   // Register "Ignore Word Globally" TextEditorCommand
