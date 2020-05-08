@@ -1,6 +1,3 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: Node.js CI
 
 on:
@@ -26,7 +23,7 @@ jobs:
     - run: npm run vscode:prepublish
     - run: npm run test-compile
     - run: npm test
-    - run: vsce package
+    - run: vsce package --out ./dist/
 
   macos-build:
     runs-on: macos-latest
@@ -43,7 +40,7 @@ jobs:
     - run: npm run vscode:prepublish
     - run: npm run test-compile
     - run: npm test
-    - run: vsce package
+    - run: vsce package --out ./dist/
 
   windows-build:
     runs-on: windows-latest
@@ -64,5 +61,5 @@ jobs:
     - run: npm run vscode:prepublish
     - run: npm run test-compile
     - run: npm test
-    - run: vsce package
+    - run: vsce package --out ./dist/
 
