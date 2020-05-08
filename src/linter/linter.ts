@@ -17,7 +17,7 @@
 import * as rehypeBuilder from "annotatedtext-rehype";
 import * as remarkBuilder from "annotatedtext-remark";
 import * as rp from "request-promise-native";
-import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit, CodeActionProviderMetadata, DiagnosticRelatedInformation, ExtensionContext } from "vscode";
+import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProvider, Diagnostic, DiagnosticCollection, DiagnosticSeverity, languages, Position, Range, TextDocument, Uri, workspace, WorkspaceEdit } from "vscode";
 import * as Constants from "../configuration/constants";
 import { ConfigurationManager } from "../configuration/manager";
 import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
@@ -59,7 +59,6 @@ export class Linter implements CodeActionProvider {
     context: CodeActionContext,
     token: CancellationToken,
   ): CodeAction[] {
-    const documentUri: string = document.uri.toString();
     const diagnostics = context.diagnostics || [];
     const actions: CodeAction[] = [];
     diagnostics
