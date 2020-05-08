@@ -1,0 +1,41 @@
+name: VSCE Publish
+
+on:
+  release:
+    types: [created]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build on Ubuntu
+    env:
+      DISPLAY: ":99.0"
+      CI: true
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+    - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      name: Start Xvfb
+    - run: npm install -g typescript vsce
+    - run: npm ci
+    - run: npm run vscode:prepublish
+    - run: npm run test-compile
+    - run: npm test
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+    - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      name: Start Xvfb
+    - run: npm install -g typescript vsce
+    - run: npm ci
+    - run: vsce package
+    - run: vsce publish --pat ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}

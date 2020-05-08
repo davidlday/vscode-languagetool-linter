@@ -13,6 +13,12 @@ Changes not yet released.
 
 * Keyboard shortcuts and light bulb now working on LanguageTool problems [#120](https://github.com/davidlday/vscode-languagetool-linter/issues/120)
 
+## [0.12.1] - 2020-05-07
+
+### Changed
+
+* Testing release via GitHub Actions
+
 ## [0.12.0] - 2020-01-26
 
 ### Changed
