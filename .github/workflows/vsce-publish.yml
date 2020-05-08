@@ -38,4 +38,4 @@ jobs:
     - run: npm install -g typescript vsce
     - run: npm ci
     - run: vsce package --out ./dist/
-    - run: vsce publish --packagePath ./dist/ --pat ${secrets.VSCODE_PERSONAL_ACCESS_TOKEN}
+    - run: vsce publish --packagePath ./dist/ --pat ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
