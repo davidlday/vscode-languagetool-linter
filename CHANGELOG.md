@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changes not yet released.
 
+## [0.13.0] - 2020-05-08
+
 ### Fixed
 
 * Keyboard shortcuts and light bulb now working on LanguageTool problems [#120](https://github.com/davidlday/vscode-languagetool-linter/issues/120)
