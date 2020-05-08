@@ -3,25 +3,22 @@
 
 name: Node.js CI
 
-on: [push, pull_request]
+on:
+  pull_request
 
 jobs:
 
   ubuntu-build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x]
     name: Build on Ubuntu
     env:
       DISPLAY: ":99.0"
       CI: true
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 12
     - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       name: Start Xvfb
     - run: npm install -g typescript vsce
@@ -33,18 +30,14 @@ jobs:
 
   macos-build:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x]
     name: Build on MacOS
     env:
       CI: true
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 12
     - run: npm install -g typescript vsce
     - run: npm ci
     - run: npm run vscode:prepublish
@@ -54,9 +47,6 @@ jobs:
 
   windows-build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x]
     name: Build on Windows
     env:
       CI: true
@@ -66,10 +56,9 @@ jobs:
         git config --global core.autocrlf false
         git config --global core.eol lf
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 12
     - run: npm install -g typescript vsce
     - run: npm ci
     - run: npm run vscode:prepublish
