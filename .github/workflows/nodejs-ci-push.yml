@@ -1,7 +1,4 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
-name: Node.js CI
+name: Node.js CI - Push
 
 on:
   push
@@ -26,4 +23,4 @@ jobs:
     - run: npm run vscode:prepublish
     - run: npm run test-compile
     - run: npm test
-    - run: vsce package
+    - run: vsce package --out ./dist/
