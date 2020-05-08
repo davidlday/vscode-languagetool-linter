@@ -24,3 +24,4 @@ jobs:
     - run: npm run test-compile
     - run: npm test
     - run: vsce package --out ./dist/
+    - run: ls -alh ./dist/
