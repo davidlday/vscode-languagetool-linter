@@ -1,5 +1,9 @@
 # LanguageTool Linter for Visual Studio Code
 
+<!--
+NOTE: SVGs not allowed in README on extensions.
+[![Node.js CI](https://github.com/davidlday/vscode-languagetool-linter/workflows/Node.js%20CI/badge.svg)](https://github.com/davidlday/vscode-languagetool-linter/actions?query=workflow%3A%22Node.js+CI%22)
+-->
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/davidlday/vscode-languagetool-linter/Node.js%20CI)](https://github.com/davidlday/vscode-languagetool-linter/actions)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1f9fb350738a438ba0d4142896733026)](https://www.codacy.com/manual/davidlday/vscode-languagetool-linter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=davidlday/vscode-languagetool-linter&amp;utm_campaign=Badge_Grade)
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)

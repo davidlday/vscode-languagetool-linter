@@ -70,4 +70,12 @@ suite("Linter Markdown Test Suite", () => {
     assert.deepStrictEqual(actual, expected);
   });
 
+  test("Linter should return annotated text for Markdown with Escape Characters (\\)", () => {
+    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/escape-character.json"), "utf8"));
+    const text = fs.readFileSync(path.resolve(__dirname, testWorkspace + "/markdown/escape-character.md"), "utf8");
+    const actual = linter.buildAnnotatedMarkdown(text);
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(actual), "utf8");
+    assert.deepStrictEqual(actual, expected);
+  });
+
 });
