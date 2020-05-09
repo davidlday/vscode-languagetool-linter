@@ -1,0 +1,282 @@
+{
+  "annotation": [
+    {
+      "markup": "<h1 id=\"backslash--special-char--shifted-highlight\">",
+      "interpretAs": "",
+      "offset": {
+        "start": 0,
+        "end": 52
+      }
+    },
+    {
+      "text": "Backslash + Special Char = Shifted Highlight",
+      "offset": {
+        "start": 52,
+        "end": 96
+      }
+    },
+    {
+      "markup": "</h1>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 96,
+        "end": 101
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 101,
+        "end": 102
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 102,
+        "end": 105
+      }
+    },
+    {
+      "text": "This is a inccoreect sentence.",
+      "offset": {
+        "start": 105,
+        "end": 135
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 135,
+        "end": 139
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 139,
+        "end": 140
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 140,
+        "end": 143
+      }
+    },
+    {
+      "text": "Here is the culprit: \\-.",
+      "offset": {
+        "start": 143,
+        "end": 167
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 167,
+        "end": 171
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 171,
+        "end": 172
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 172,
+        "end": 175
+      }
+    },
+    {
+      "text": "This is annother incorrect sentence.",
+      "offset": {
+        "start": 175,
+        "end": 211
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 211,
+        "end": 215
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 215,
+        "end": 216
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 216,
+        "end": 219
+      }
+    },
+    {
+      "text": "Here is another culprit: \\;.",
+      "offset": {
+        "start": 219,
+        "end": 247
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 247,
+        "end": 251
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 251,
+        "end": 252
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 252,
+        "end": 255
+      }
+    },
+    {
+      "text": "This is annother incorrect sentence.",
+      "offset": {
+        "start": 255,
+        "end": 291
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 291,
+        "end": 295
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 295,
+        "end": 296
+      }
+    },
+    {
+      "markup": "<ul>",
+      "interpretAs": "",
+      "offset": {
+        "start": 296,
+        "end": 300
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 300,
+        "end": 301
+      }
+    },
+    {
+      "markup": "<li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 301,
+        "end": 305
+      }
+    },
+    {
+      "text": "Is this yet another?",
+      "offset": {
+        "start": 305,
+        "end": 325
+      }
+    },
+    {
+      "markup": "</li>",
+      "interpretAs": "",
+      "offset": {
+        "start": 325,
+        "end": 330
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 330,
+        "end": 331
+      }
+    },
+    {
+      "markup": "</ul>",
+      "interpretAs": "",
+      "offset": {
+        "start": 331,
+        "end": 336
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 336,
+        "end": 337
+      }
+    },
+    {
+      "markup": "<p>",
+      "interpretAs": "",
+      "offset": {
+        "start": 337,
+        "end": 340
+      }
+    },
+    {
+      "text": "This is annother incorrect sentence.",
+      "offset": {
+        "start": 340,
+        "end": 376
+      }
+    },
+    {
+      "markup": "</p>",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 376,
+        "end": 380
+      }
+    },
+    {
+      "text": "\n",
+      "offset": {
+        "start": 380,
+        "end": 381
+      }
+    },
+    {
+      "markup": "",
+      "interpretAs": "",
+      "offset": {
+        "start": 381,
+        "end": 381
+      }
+    }
+  ]
+}

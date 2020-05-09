@@ -1,0 +1,192 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "Backslash + Special Char = Shifted Highlight",
+      "offset": {
+        "start": 2,
+        "end": 46
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 46,
+        "end": 48
+      }
+    },
+    {
+      "text": "This is a inccoreect sentence.",
+      "offset": {
+        "start": 48,
+        "end": 78
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 78,
+        "end": 80
+      }
+    },
+    {
+      "text": "Here is the culprit: ",
+      "offset": {
+        "start": 80,
+        "end": 101
+      }
+    },
+    {
+      "markup": "",
+      "interpretAs": "",
+      "offset": {
+        "start": 101,
+        "end": 101
+      }
+    },
+    {
+      "text": "\\-",
+      "offset": {
+        "start": 101,
+        "end": 103
+      }
+    },
+    {
+      "markup": "",
+      "interpretAs": "",
+      "offset": {
+        "start": 103,
+        "end": 103
+      }
+    },
+    {
+      "text": ".",
+      "offset": {
+        "start": 103,
+        "end": 104
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 104,
+        "end": 106
+      }
+    },
+    {
+      "text": "This is annother incorrect sentence.",
+      "offset": {
+        "start": 106,
+        "end": 142
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 142,
+        "end": 144
+      }
+    },
+    {
+      "text": "Here is another culprit: ",
+      "offset": {
+        "start": 144,
+        "end": 169
+      }
+    },
+    {
+      "markup": "",
+      "interpretAs": "",
+      "offset": {
+        "start": 169,
+        "end": 169
+      }
+    },
+    {
+      "text": "\\;",
+      "offset": {
+        "start": 169,
+        "end": 171
+      }
+    },
+    {
+      "markup": "",
+      "interpretAs": "",
+      "offset": {
+        "start": 171,
+        "end": 171
+      }
+    },
+    {
+      "text": ".",
+      "offset": {
+        "start": 171,
+        "end": 172
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 172,
+        "end": 174
+      }
+    },
+    {
+      "text": "This is annother incorrect sentence.",
+      "offset": {
+        "start": 174,
+        "end": 210
+      }
+    },
+    {
+      "markup": "\n\n* ",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 210,
+        "end": 214
+      }
+    },
+    {
+      "text": "Is this yet another?",
+      "offset": {
+        "start": 214,
+        "end": 234
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 234,
+        "end": 236
+      }
+    },
+    {
+      "text": "This is annother incorrect sentence.",
+      "offset": {
+        "start": 236,
+        "end": 272
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 272,
+        "end": 273
+      }
+    }
+  ]
+}
