@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changes not yet released.
 
+## [0.14.0] - 2020-05-09
+
+### Fixed
+
+* Backslashes in markdown plus a valid escape character no longer shifting diagnostic highlighting [#132](https://github.com/davidlday/vscode-languagetool-linter/issues/132)
+
 ## [0.13.0] - 2020-05-08
 
 ### Fixed
