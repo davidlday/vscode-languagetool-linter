@@ -21,8 +21,8 @@ export const EXTENSION_TIMEOUT_MS = 500;
 export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel(
   "LanguageTool Linter"
 );
-export const EXTENSION_DISPLAY_NAME: string = "languagetool-linter";
-export const EXTENSION_DIAGNOSTIC_SOURCE: string = "LanguageTool";
+export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
+export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
 // Programming Language IDs
 export const LANGUAGE_ID_MARKDOWN = "markdown";
@@ -30,8 +30,8 @@ export const LANGUAGE_ID_HTML = "html";
 export const LANGUAGE_ID_PLAINTEXT = "plaintext";
 
 // File Scheme
-export const SCHEME_FILE: string = "file";
-export const SCHEME_UNTITLED: string = "untitled";
+export const SCHEME_FILE = "file";
+export const SCHEME_UNTITLED = "untitled";
 
 // Document Selectors
 export const SELECTOR_MARKDOWN_FILE: DocumentSelector = {
@@ -68,13 +68,12 @@ export const DOCUMENT_SELECTORS: DocumentSelector[] = [
 ];
 
 // Configuration Strings
-export const CONFIGURATION_ROOT: string = "languageToolLinter";
-export const CONFIGURATION_GLOBAL_IGNORED_WORDS: string =
+export const CONFIGURATION_ROOT = "languageToolLinter";
+export const CONFIGURATION_GLOBAL_IGNORED_WORDS =
   "languageTool.ignoredWordsGlobal";
-export const CONFIGURATION_WORKSPACE_IGNORED_WORDS: string =
+export const CONFIGURATION_WORKSPACE_IGNORED_WORDS =
   "languageTool.ignoredWordsInWorkspace";
-export const CONFIGURATION_IGNORED_WORD_HINT: string =
-  "languageTool.ignoredWordHint";
+export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_MARKDOWN,
   LANGUAGE_ID_HTML,
