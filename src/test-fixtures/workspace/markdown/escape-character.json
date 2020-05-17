@@ -99,39 +99,9 @@
       }
     },
     {
-      "text": "Here is another culprit: ",
+      "text": "Here is another culprit: \\;.",
       "offset": {
         "start": 144,
-        "end": 169
-      }
-    },
-    {
-      "markup": "",
-      "interpretAs": "",
-      "offset": {
-        "start": 169,
-        "end": 169
-      }
-    },
-    {
-      "text": "\\;",
-      "offset": {
-        "start": 169,
-        "end": 171
-      }
-    },
-    {
-      "markup": "",
-      "interpretAs": "",
-      "offset": {
-        "start": 171,
-        "end": 171
-      }
-    },
-    {
-      "text": ".",
-      "offset": {
-        "start": 171,
         "end": 172
       }
     },
