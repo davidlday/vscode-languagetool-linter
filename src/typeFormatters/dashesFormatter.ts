@@ -17,8 +17,8 @@
 import * as vscode from "vscode";
 import { ConfigurationManager } from "../configuration/manager";
 
-export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-
+export class DashesFormattingProvider
+  implements vscode.OnTypeFormattingEditProvider {
   public static readonly emDash: string = "—";
   public static readonly enDash: string = "–";
   public static readonly hyphen: string = "-";
@@ -35,20 +35,34 @@ export class DashesFormattingProvider implements vscode.OnTypeFormattingEditProv
     position: vscode.Position,
     ch: string,
     options: vscode.FormattingOptions,
-    cancellationToken: vscode.CancellationToken): vscode.TextEdit[] {
-
+    cancellationToken: vscode.CancellationToken
+  ): vscode.TextEdit[] {
     const line: vscode.TextLine = document.lineAt(position.line);
-    const range: vscode.Range = new vscode.Range(position.line, position.character - 2, position.line, position.character);
-    const prevCh: string = (position.character > 0) ? line.text.charAt(position.character - 2) : " ";
-    const prevPrevCh: string = (position.character > 1) ? line.text.charAt(position.character - 3) : " ";
+    const range: vscode.Range = new vscode.Range(
+      position.line,
+      position.character - 2,
+      position.line,
+      position.character
+    );
+    const prevCh: string =
+      position.character > 0 ? line.text.charAt(position.character - 2) : " ";
+    const prevPrevCh: string =
+      position.character > 1 ? line.text.charAt(position.character - 3) : " ";
 
     if (this.config.isSmartFormatOnType()) {
       if (prevCh === DashesFormattingProvider.enDash) {
         return [new vscode.TextEdit(range, DashesFormattingProvider.emDash)];
       } else if (prevCh === DashesFormattingProvider.hyphen) {
         if (prevPrevCh === DashesFormattingProvider.hyphen) {
-          const expandedRange: vscode.Range = new vscode.Range(position.line, position.character - 3, position.line, position.character);
-          return [new vscode.TextEdit(expandedRange, DashesFormattingProvider.emDash)];
+          const expandedRange: vscode.Range = new vscode.Range(
+            position.line,
+            position.character - 3,
+            position.line,
+            position.character
+          );
+          return [
+            new vscode.TextEdit(expandedRange, DashesFormattingProvider.emDash),
+          ];
         } else {
           return [new vscode.TextEdit(range, DashesFormattingProvider.enDash)];
         }
