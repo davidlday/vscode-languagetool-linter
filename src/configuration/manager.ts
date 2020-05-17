@@ -86,7 +86,8 @@ export class ConfigurationManager implements Disposable {
         this.config.get("languageTool.preferredVariants", "") !== ""
       ) {
         window.showErrorMessage(
-          "Cannot use preferred variants unless language is set to auto. Please review your configuration settings for LanguageTool."
+          "Cannot use preferred variants unless language is set to auto. \
+          Please review your configuration settings for LanguageTool."
         );
       }
     }
@@ -174,7 +175,8 @@ export class ConfigurationManager implements Disposable {
     // DEPRECATED
     if (jarFile !== "") {
       window.showWarningMessage(
-        '"LanguageTool Linter > Managed: Jar File" is deprecated. Please use "LanguageTool > Managed: Class Path" instead.'
+        '"LanguageTool Linter > Managed: Jar File" is deprecated. \
+        Please use "LanguageTool > Managed: Class Path" instead.'
       );
       classPathFiles.push(jarFile);
     }
@@ -322,7 +324,8 @@ export class ConfigurationManager implements Disposable {
       this.stopManagedService();
       if (minimumPort > maximumPort) {
         window.showWarningMessage(
-          "LanguageTool Linter - The minimum port is greater than the maximum port. Cancelling start of managed service. Please adjust your settings and try again."
+          "LanguageTool Linter - The minimum port is greater than the maximum port. \
+          Cancelling start of managed service. Please adjust your settings and try again."
         );
       } else {
         portfinder.getPort(
