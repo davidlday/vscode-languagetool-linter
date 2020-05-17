@@ -25,7 +25,7 @@ import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
 import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 
 // Wonder Twin Powers, Activate!
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   const configMan: ConfigurationManager = new ConfigurationManager();
   const linter: Linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({

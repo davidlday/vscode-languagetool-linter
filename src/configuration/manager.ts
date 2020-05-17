@@ -50,7 +50,7 @@ export class ConfigurationManager implements Disposable {
     this.stopManagedService();
   }
 
-  public reloadConfiguration(event: ConfigurationChangeEvent) {
+  public reloadConfiguration(event: ConfigurationChangeEvent): void {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     // Changed service type
