@@ -14,12 +14,16 @@ suite("Extension Test Suite", () => {
 
   test("Extension should activate", function() {
     this.timeout(60000);
-    const ext: any = vscode.extensions.getExtension(
+    const ext: vscode.Extension<any> | undefined = vscode.extensions.getExtension(
       "davidlday.languagetool-linter"
     );
-    return ext.activate().then((api: any) => {
-      assert.ok(true);
-    });
+    if (ext) {
+      ext.activate().then((api: any) => {
+        assert.ok(true);
+      });
+    } else {
+      assert.ok(false);
+    }
   });
 
   test("Extension should register all commands", () => {
