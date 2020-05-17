@@ -12,7 +12,7 @@ suite("Extension Test Suite", () => {
     assert.ok(vscode.extensions.getExtension("davidlday.languagetool-linter"));
   });
 
-  test("Extension should activate", function () {
+  test("Extension should activate", function() {
     this.timeout(60000);
     const ext: any = vscode.extensions.getExtension(
       "davidlday.languagetool-linter"
