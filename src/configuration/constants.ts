@@ -18,7 +18,9 @@ import { DocumentSelector, OutputChannel, window } from "vscode";
 
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
-export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel("LanguageTool Linter");
+export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel(
+  "LanguageTool Linter"
+);
 export const EXTENSION_DISPLAY_NAME: string = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE: string = "LanguageTool";
 
@@ -32,12 +34,30 @@ export const SCHEME_FILE: string = "file";
 export const SCHEME_UNTITLED: string = "untitled";
 
 // Document Selectors
-export const SELECTOR_MARKDOWN_FILE: DocumentSelector = { language: LANGUAGE_ID_MARKDOWN, scheme: SCHEME_FILE };
-export const SELECTOR_MARKDOWN_UNTITLED: DocumentSelector = { language: LANGUAGE_ID_MARKDOWN, scheme: SCHEME_UNTITLED };
-export const SELECTOR_HTML_FILE: DocumentSelector = { language: LANGUAGE_ID_HTML, scheme: SCHEME_FILE };
-export const SELECTOR_HTML_UNTITLED: DocumentSelector = { language: LANGUAGE_ID_HTML, scheme: SCHEME_UNTITLED };
-export const SELECTOR_PLAINTEXT_FILE: DocumentSelector = { language: LANGUAGE_ID_PLAINTEXT, scheme: SCHEME_FILE };
-export const SELECTOR_PLAINTEXT_UNTITLED: DocumentSelector = { language: LANGUAGE_ID_PLAINTEXT, scheme: SCHEME_UNTITLED };
+export const SELECTOR_MARKDOWN_FILE: DocumentSelector = {
+  language: LANGUAGE_ID_MARKDOWN,
+  scheme: SCHEME_FILE,
+};
+export const SELECTOR_MARKDOWN_UNTITLED: DocumentSelector = {
+  language: LANGUAGE_ID_MARKDOWN,
+  scheme: SCHEME_UNTITLED,
+};
+export const SELECTOR_HTML_FILE: DocumentSelector = {
+  language: LANGUAGE_ID_HTML,
+  scheme: SCHEME_FILE,
+};
+export const SELECTOR_HTML_UNTITLED: DocumentSelector = {
+  language: LANGUAGE_ID_HTML,
+  scheme: SCHEME_UNTITLED,
+};
+export const SELECTOR_PLAINTEXT_FILE: DocumentSelector = {
+  language: LANGUAGE_ID_PLAINTEXT,
+  scheme: SCHEME_FILE,
+};
+export const SELECTOR_PLAINTEXT_UNTITLED: DocumentSelector = {
+  language: LANGUAGE_ID_PLAINTEXT,
+  scheme: SCHEME_UNTITLED,
+};
 export const DOCUMENT_SELECTORS: DocumentSelector[] = [
   SELECTOR_MARKDOWN_FILE,
   SELECTOR_MARKDOWN_UNTITLED,
@@ -49,9 +69,12 @@ export const DOCUMENT_SELECTORS: DocumentSelector[] = [
 
 // Configuration Strings
 export const CONFIGURATION_ROOT: string = "languageToolLinter";
-export const CONFIGURATION_GLOBAL_IGNORED_WORDS: string = "languageTool.ignoredWordsGlobal";
-export const CONFIGURATION_WORKSPACE_IGNORED_WORDS: string = "languageTool.ignoredWordsInWorkspace";
-export const CONFIGURATION_IGNORED_WORD_HINT: string = "languageTool.ignoredWordHint";
+export const CONFIGURATION_GLOBAL_IGNORED_WORDS: string =
+  "languageTool.ignoredWordsGlobal";
+export const CONFIGURATION_WORKSPACE_IGNORED_WORDS: string =
+  "languageTool.ignoredWordsInWorkspace";
+export const CONFIGURATION_IGNORED_WORD_HINT: string =
+  "languageTool.ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_MARKDOWN,
   LANGUAGE_ID_HTML,

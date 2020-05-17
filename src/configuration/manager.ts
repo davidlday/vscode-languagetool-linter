@@ -19,28 +19,29 @@ import * as glob from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
 import {
-  ConfigurationChangeEvent, ConfigurationTarget, DiagnosticSeverity, Disposable,
-  TextDocument, window, workspace, WorkspaceConfiguration,
+  ConfigurationChangeEvent,
+  ConfigurationTarget,
+  DiagnosticSeverity,
+  Disposable,
+  TextDocument,
+  window,
+  workspace,
+  WorkspaceConfiguration,
 } from "vscode";
 import * as Constants from "./constants";
 
 export class ConfigurationManager implements Disposable {
-
   // Private Members
   private config: WorkspaceConfiguration;
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
-  // private globallyIgnoredWords: Set<string>;
-  // private workspaceIgnoredWords: Set<string>;
 
   // Constructor
   constructor() {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
-    // this.globallyIgnoredWords = this.getGloballyIgnoredWords();
-    // this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
   }
 
   // Public instance methods
@@ -64,31 +65,31 @@ export class ConfigurationManager implements Disposable {
       }
     }
     // Changed class path for managed service
-    if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED
-      && (event.affectsConfiguration("languageToolLinter.managed.classPath")
-        || event.affectsConfiguration("languageToolLinter.managed.jarFile")
-        || event.affectsConfiguration("languageToolLinter.managed.portMinimum")
-        || event.affectsConfiguration("languageToolLinter.managed.portMaximum"))) {
+    if (
+      this.getServiceType() === Constants.SERVICE_TYPE_MANAGED &&
+      (event.affectsConfiguration("languageToolLinter.managed.classPath") ||
+        event.affectsConfiguration("languageToolLinter.managed.jarFile") ||
+        event.affectsConfiguration("languageToolLinter.managed.portMinimum") ||
+        event.affectsConfiguration("languageToolLinter.managed.portMaximum"))
+    ) {
       this.startManagedService();
     }
     // Only allow preferred variants when language === auto
-    if (event.affectsConfiguration("languageToolLinter.languageTool.preferredVariants")
-      || event.affectsConfiguration("languageToolLinter.languageTool.language")) {
-      if (this.config.get("languageTool.language") !== "auto"
-        && this.config.get("languageTool.preferredVariants", "") !== "") {
-        window.showErrorMessage("Cannot use preferred variants unless language is set to auto. Please review your configuration settings for LanguageTool.");
+    if (
+      event.affectsConfiguration(
+        "languageToolLinter.languageTool.preferredVariants"
+      ) ||
+      event.affectsConfiguration("languageToolLinter.languageTool.language")
+    ) {
+      if (
+        this.config.get("languageTool.language") !== "auto" &&
+        this.config.get("languageTool.preferredVariants", "") !== ""
+      ) {
+        window.showErrorMessage(
+          "Cannot use preferred variants unless language is set to auto. Please review your configuration settings for LanguageTool."
+        );
       }
     }
-    // // Globally Ignored Words updated in settings
-    // if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsGlobal")) {
-    //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Globally ignored words changed.");
-    //   this.globallyIgnoredWords = this.getGloballyIgnoredWords();
-    // }
-    // // Workspace Ignored Words updated
-    // if (event.affectsConfiguration("languageToolLinter.languageTool.ignoredWordsInWorkspace")) {
-    //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Workspace ignored words changed.");
-    //   this.workspaceIgnoredWords = this.getWorkspaceIgnoredWords();
-    // }
   }
 
   // Smart Format on Type
@@ -104,7 +105,11 @@ export class ConfigurationManager implements Disposable {
   // Is Language ID Supported?
   public isSupportedDocument(document: TextDocument): boolean {
     if (document.uri.scheme === "file") {
-      return (Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.indexOf(document.languageId) > -1);
+      return (
+        Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.indexOf(
+          document.languageId
+        ) > -1
+      );
     }
     return false;
   }
@@ -155,7 +160,9 @@ export class ConfigurationManager implements Disposable {
     } else if (severity === "warning") {
       return DiagnosticSeverity.Warning;
     } else {
-      window.showWarningMessage('"LanguageTool Linter > Diagnostic Severity" is unknown. Defaulting to "Warning".');
+      window.showWarningMessage(
+        '"LanguageTool Linter > Diagnostic Severity" is unknown. Defaulting to "Warning".'
+      );
       return DiagnosticSeverity.Warning;
     }
   }
@@ -166,7 +173,9 @@ export class ConfigurationManager implements Disposable {
     const classPathFiles: string[] = [];
     // DEPRECATED
     if (jarFile !== "") {
-      window.showWarningMessage('"LanguageTool Linter > Managed: Jar File" is deprecated. Please use "LanguageTool > Managed: Class Path" instead.');
+      window.showWarningMessage(
+        '"LanguageTool Linter > Managed: Jar File" is deprecated. Please use "LanguageTool > Managed: Class Path" instead.'
+      );
       classPathFiles.push(jarFile);
     }
     if (classPath !== "") {
@@ -183,7 +192,9 @@ export class ConfigurationManager implements Disposable {
   // Stop the managed service
   public stopManagedService(): void {
     if (this.process) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Closing managed service server.");
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+        "Closing managed service server."
+      );
       this.process.cancel();
       this.process = undefined;
     }
@@ -191,7 +202,9 @@ export class ConfigurationManager implements Disposable {
 
   // Manage Ignored Words Lists
   public isIgnoredWord(word: string): boolean {
-    return this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word);
+    return (
+      this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word)
+    );
   }
 
   // Is word ignored at the User Level?
@@ -248,7 +261,9 @@ export class ConfigurationManager implements Disposable {
 
   // Show hints for ignored words?
   public showIgnoredWordHints(): boolean {
-    return this.config.get(Constants.CONFIGURATION_IGNORED_WORD_HINT) as boolean;
+    return this.config.get(
+      Constants.CONFIGURATION_IGNORED_WORD_HINT
+    ) as boolean;
   }
 
   // Private instance methods
@@ -260,7 +275,11 @@ export class ConfigurationManager implements Disposable {
       case Constants.SERVICE_TYPE_MANAGED:
         const port = this.getManagedServicePort();
         if (port) {
-          return "http://localhost:" + this.getManagedServicePort() + Constants.SERVICE_CHECK_PATH;
+          return (
+            "http://localhost:" +
+            this.getManagedServicePort() +
+            Constants.SERVICE_CHECK_PATH
+          );
         } else {
           return undefined;
         }
@@ -302,58 +321,87 @@ export class ConfigurationManager implements Disposable {
       const maximumPort: number = this.getMaximumPort();
       this.stopManagedService();
       if (minimumPort > maximumPort) {
-        window.showWarningMessage("LanguageTool Linter - The minimum port is greater than the maximum port. Cancelling start of managed service. Please adjust your settings and try again.");
+        window.showWarningMessage(
+          "LanguageTool Linter - The minimum port is greater than the maximum port. Cancelling start of managed service. Please adjust your settings and try again."
+        );
       } else {
-        portfinder.getPort({ host: "127.0.0.1", port: minimumPort, stopPort: maximumPort }, (error: any, port: number) => {
-          if (error) {
-            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Error getting open port: " + error.message);
-            Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-          } else {
-            this.setManagedServicePort(port);
-            const args: string[] = [
-              "-cp",
-              classpath,
-              "org.languagetool.server.HTTPServer",
-              "--port",
-              port.toString(),
-            ];
-            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Starting managed service.");
-            (this.process = execa("java", args)).catch((err: any) => {
-              if (err.isCanceled) {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Managed service process stopped.");
-              } else if (err.failed) {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Managed service command failed: " + err.command);
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("Error Message: " + err.message);
-                Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-              }
-            });
-            this.process.stderr.addListener("data", (data: any) => {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+        portfinder.getPort(
+          { host: "127.0.0.1", port: minimumPort, stopPort: maximumPort },
+          (error: any, port: number) => {
+            if (error) {
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                "Error getting open port: " + error.message
+              );
               Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-            });
-            this.process.stdout.addListener("data", (data: any) => {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-            });
-            this.serviceUrl = this.findServiceUrl(this.getServiceType());
+            } else {
+              this.setManagedServicePort(port);
+              const args: string[] = [
+                "-cp",
+                classpath,
+                "org.languagetool.server.HTTPServer",
+                "--port",
+                port.toString(),
+              ];
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                "Starting managed service."
+              );
+              (this.process = execa("java", args)).catch((err: any) => {
+                if (err.isCanceled) {
+                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                    "Managed service process stopped."
+                  );
+                } else if (err.failed) {
+                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                    "Managed service command failed: " + err.command
+                  );
+                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                    "Error Message: " + err.message
+                  );
+                  Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+                }
+              });
+              this.process.stderr.addListener("data", (data: any) => {
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+              });
+              this.process.stdout.addListener("data", (data: any) => {
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+              });
+              this.serviceUrl = this.findServiceUrl(this.getServiceType());
+            }
           }
-        });
+        );
       }
     }
   }
 
   // Save words to settings
-  private saveIgnoredWords(words: Set<string>, section: string, configurationTarget: ConfigurationTarget): void {
-    const wordArray: string[] = Array.from(words).map((word) => word.toLowerCase()).sort();
+  private saveIgnoredWords(
+    words: Set<string>,
+    section: string,
+    configurationTarget: ConfigurationTarget
+  ): void {
+    const wordArray: string[] = Array.from(words)
+      .map((word) => word.toLowerCase())
+      .sort();
     this.config.update(section, wordArray, configurationTarget);
   }
 
   // Save word to User Level ignored word list.
   private saveGloballyIgnoredWords(globallyIgnoredWords: Set<string>): void {
-    this.saveIgnoredWords(globallyIgnoredWords, Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS, ConfigurationTarget.Global);
+    this.saveIgnoredWords(
+      globallyIgnoredWords,
+      Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS,
+      ConfigurationTarget.Global
+    );
   }
   // Save word to Workspace Level ignored word list.
   private saveWorkspaceIgnoredWords(workspaceIgnoredWords: Set<string>): void {
-    this.saveIgnoredWords(workspaceIgnoredWords, Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS, ConfigurationTarget.Workspace);
+    this.saveIgnoredWords(
+      workspaceIgnoredWords,
+      Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS,
+      ConfigurationTarget.Workspace
+    );
   }
 
   // Get ignored words from settings.
@@ -369,7 +417,8 @@ export class ConfigurationManager implements Disposable {
 
   // Get Workspace ignored words from settings.
   private getWorkspaceIgnoredWords(): Set<string> {
-    return this.getIgnoredWords(Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS);
+    return this.getIgnoredWords(
+      Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS
+    );
   }
-
 }
