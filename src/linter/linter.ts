@@ -367,9 +367,9 @@ export class Linter implements CodeActionProvider {
             CodeActionKind.QuickFix
           );
           action.command = {
-            title: actionTitle,
-            command: "languagetoolLinter.removeGloballyIgnoredWord",
             arguments: [word],
+            command: "languagetoolLinter.removeGloballyIgnoredWord",
+            title: actionTitle,
           };
           action.diagnostics = [];
           action.diagnostics.push(diagnostic);
@@ -383,9 +383,9 @@ export class Linter implements CodeActionProvider {
             CodeActionKind.QuickFix
           );
           action.command = {
-            title: actionTitle,
-            command: "languagetoolLinter.removeWorkspaceIgnoredWord",
             arguments: [word],
+            command: "languagetoolLinter.removeWorkspaceIgnoredWord",
+            title: actionTitle,
           };
           action.diagnostics = [];
           action.diagnostics.push(diagnostic);
@@ -399,9 +399,9 @@ export class Linter implements CodeActionProvider {
         CodeActionKind.QuickFix
       );
       usrIgnoreAction.command = {
-        title: usrIgnoreActionTitle,
-        command: "languagetoolLinter.ignoreWordGlobally",
         arguments: [word],
+        command: "languagetoolLinter.ignoreWordGlobally",
+        title: usrIgnoreActionTitle,
       };
       usrIgnoreAction.diagnostics = [];
       usrIgnoreAction.diagnostics.push(diagnostic);
@@ -414,9 +414,9 @@ export class Linter implements CodeActionProvider {
           CodeActionKind.QuickFix
         );
         wsIgnoreAction.command = {
-          title: wsIgnoreActionTitle,
-          command: "languagetoolLinter.ignoreWordInWorkspace",
           arguments: [word],
+          command: "languagetoolLinter.ignoreWordInWorkspace",
+          title: wsIgnoreActionTitle,
         };
         wsIgnoreAction.diagnostics = [];
         wsIgnoreAction.diagnostics.push(diagnostic);
