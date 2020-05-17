@@ -15,11 +15,11 @@
 		"noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */
 	},
 	"include": [
-		"src/**/*",
+		"src/**/*"
 	],
 	"exclude": [
 		"node_modules",
 		".vscode-test",
-		"webpack.config.ts",
+		"webpack.config.ts"
 	]
 }
