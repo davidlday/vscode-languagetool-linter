@@ -1,7 +1,8 @@
 {
-
   "defaultSeverity": "warning",
-  "extends": ["tslint:recommended"],
+  "extends": [
+    "tslint:recommended"
+  ],
   "rules": {
     "no-unused-expression": true,
     "no-duplicate-variable": true,
@@ -55,7 +56,12 @@
     "no-bitwise": false,
     "eofline": true,
     "switch-final-break": false,
-    "no-implicit-dependencies": [true, ["vscode"]],
+    "no-implicit-dependencies": [
+      true,
+      [
+        "vscode"
+      ]
+    ],
     "no-unnecessary-type-assertion": false,
     "no-submodule-imports": false,
     "no-redundant-jsdoc": false,
