@@ -4,7 +4,6 @@ import * as Constants from "../../configuration/constants";
 import { ConfigurationManager } from "../../configuration/manager";
 
 suite("ConfigurationManager Test Suite", () => {
-
   test("ConfigurationManager should load configuration", () => {
     assert.ok(vscode.workspace.getConfiguration(Constants.CONFIGURATION_ROOT));
   });
@@ -14,5 +13,4 @@ suite("ConfigurationManager Test Suite", () => {
     const config: ConfigurationManager = new ConfigurationManager();
     assert.equal(EXPECTED_DEFAULT_URL, config.getUrl());
   });
-
 });
