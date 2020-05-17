@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changes not yet released.
 
+### Maintenance
+
+* updated dependencies
+* prettier code
+
+### Security
+
+* npm audit fix
+
 ## [0.14.0] - 2020-05-09
 
 ### Fixed
