@@ -5,24 +5,40 @@
 
 "use strict";
 
-import { CancellationToken, FormattingOptions, OnTypeFormattingEditProvider,
-  Position, ProviderResult, TextDocument, TextEdit } from "vscode";
+import {
+  CancellationToken,
+  FormattingOptions,
+  OnTypeFormattingEditProvider,
+  Position,
+  ProviderResult,
+  TextDocument,
+  TextEdit,
+} from "vscode";
 
-export class OnTypeFormattingDispatcher implements OnTypeFormattingEditProvider {
+export class OnTypeFormattingDispatcher
+  implements OnTypeFormattingEditProvider {
   private readonly providers: Record<string, OnTypeFormattingEditProvider>;
 
   constructor(providers: Record<string, OnTypeFormattingEditProvider>) {
     this.providers = providers;
   }
 
-  public provideOnTypeFormattingEdits(document: TextDocument, position: Position,
-      ch: string, options: FormattingOptions, cancellationToken: CancellationToken,
-    ): ProviderResult<TextEdit[]> {
+  public provideOnTypeFormattingEdits(
+    document: TextDocument,
+    position: Position,
+    ch: string,
+    options: FormattingOptions,
+    cancellationToken: CancellationToken
+  ): ProviderResult<TextEdit[]> {
     const provider = this.providers[ch];
 
     if (provider) {
       return provider.provideOnTypeFormattingEdits(
-        document, position, ch, options, cancellationToken,
+        document,
+        position,
+        ch,
+        options,
+        cancellationToken
       );
     }
 

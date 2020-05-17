@@ -3,10 +3,7 @@ import * as assert from "assert";
 import { before } from "mocha";
 import * as vscode from "vscode";
 
-// import * as languagetooLinter from '../';
-
 suite("Extension Test Suite", () => {
-
   before(() => {
     vscode.window.showInformationMessage("Start all tests.");
   });
@@ -17,15 +14,22 @@ suite("Extension Test Suite", () => {
 
   test("Extension should activate", function() {
     this.timeout(60000);
-    const ext: any = vscode.extensions.getExtension("davidlday.languagetool-linter");
-    return ext.activate().then((api: any) => {
-      assert.ok(true);
-    });
+    const ext: vscode.Extension<any> | undefined = vscode.extensions.getExtension(
+      "davidlday.languagetool-linter"
+    );
+    if (ext) {
+      ext.activate().then((api: any) => {
+        assert.ok(true);
+      });
+    } else {
+      assert.ok(false);
+    }
   });
 
   test("Extension should register all commands", () => {
     return vscode.commands.getCommands(true).then((commands) => {
-      const EXPECTED_COMMANDS: string[] = ["languagetoolLinter.lintCurrentDocument",
+      const EXPECTED_COMMANDS: string[] = [
+        "languagetoolLinter.lintCurrentDocument",
         "languagetoolLinter.smartFormatDocument",
         "languagetoolLinter.ignoreWordGlobally",
         "languagetoolLinter.ignoreWordInWorkspace",
@@ -33,10 +37,16 @@ suite("Extension Test Suite", () => {
         "languagetoolLinter.removeWorkspaceIgnoredWord",
       ];
       const FOUND_COMMANDS = commands.filter((value) => {
-        return EXPECTED_COMMANDS.indexOf(value) >= 0 || value.startsWith("languagetoolLinter.");
+        return (
+          EXPECTED_COMMANDS.indexOf(value) >= 0 ||
+          value.startsWith("languagetoolLinter.")
+        );
       });
-      assert.equal(FOUND_COMMANDS.length , EXPECTED_COMMANDS.length, "Either not all commands are registered or new commands have not been added to this test.");
+      assert.equal(
+        FOUND_COMMANDS.length,
+        EXPECTED_COMMANDS.length,
+        "Either not all commands are registered or new commands have not been added to this test."
+      );
     });
   });
-
 });
