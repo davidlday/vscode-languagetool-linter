@@ -400,7 +400,7 @@
     "@types/mocha": "^7.0.2",
     "@types/node": "^10.17.21",
     "@types/request-promise-native": "^1.0.17",
-    "@types/vscode": "^1.39.0",
+    "@types/vscode": "^1.45.1",
     "@types/webpack": "^4.41.13",
     "license-webpack-plugin": "^2.2.0",
     "mocha": "^7.1.2",
