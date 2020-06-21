@@ -175,14 +175,32 @@ export function activate(context: vscode.ExtensionContext): void {
   );
   context.subscriptions.push(removeWorkspaceIgnoredWord);
 
-  // Register "Lint Current Document" TextEditorCommand
-  const lintCommand = vscode.commands.registerTextEditorCommand(
-    "languagetoolLinter.lintCurrentDocument",
+  // Register "Check Current Document" TextEditorCommand
+  const checkDocument = vscode.commands.registerTextEditorCommand(
+    "languagetoolLinter.checkDocument",
     (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
       linter.requestLint(editor.document, 0);
     }
   );
-  context.subscriptions.push(lintCommand);
+  context.subscriptions.push(checkDocument);
+
+  // Register "Check as Plain Text Document" TextEditorCommand
+  const checkDocumentAsPlainText = vscode.commands.registerTextEditorCommand(
+    "languagetoolLinter.checkDocumentAsPlainText",
+    (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+      linter.requestLintAsPlainText(editor.document, 0);
+    }
+  );
+  context.subscriptions.push(checkDocumentAsPlainText);
+
+  // Register "Clear LanguageTool Diagnostics" TextEditorCommand
+  const clearDocumentDiagnostics = vscode.commands.registerTextEditorCommand(
+    "languagetoolLinter.clearDocumentDiagnostics",
+    (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+      linter.clearDiagnostics(editor.document.uri);
+    }
+  );
+  context.subscriptions.push(clearDocumentDiagnostics);
 
   // Register "Smart Format Document" TextEditorCommand
   const smartFormatCommand = vscode.commands.registerTextEditorCommand(
