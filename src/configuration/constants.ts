@@ -50,21 +50,21 @@ export const SELECTOR_HTML_UNTITLED: DocumentSelector = {
   language: LANGUAGE_ID_HTML,
   scheme: SCHEME_UNTITLED,
 };
-export const SELECTOR_PLAINTEXT_FILE: DocumentSelector = {
-  language: LANGUAGE_ID_PLAINTEXT,
-  scheme: SCHEME_FILE,
-};
-export const SELECTOR_PLAINTEXT_UNTITLED: DocumentSelector = {
-  language: LANGUAGE_ID_PLAINTEXT,
-  scheme: SCHEME_UNTITLED,
-};
+// export const SELECTOR_PLAINTEXT_FILE: DocumentSelector = {
+//   language: LANGUAGE_ID_PLAINTEXT,
+//   scheme: SCHEME_FILE,
+// };
+// export const SELECTOR_PLAINTEXT_UNTITLED: DocumentSelector = {
+//   language: LANGUAGE_ID_PLAINTEXT,
+//   scheme: SCHEME_UNTITLED,
+// };
 export const DOCUMENT_SELECTORS: DocumentSelector[] = [
   SELECTOR_MARKDOWN_FILE,
   SELECTOR_MARKDOWN_UNTITLED,
   SELECTOR_HTML_FILE,
   SELECTOR_HTML_UNTITLED,
-  SELECTOR_PLAINTEXT_FILE,
-  SELECTOR_PLAINTEXT_UNTITLED,
+  // SELECTOR_PLAINTEXT_FILE,
+  // SELECTOR_PLAINTEXT_UNTITLED,
 ];
 
 // Configuration Strings
@@ -77,10 +77,10 @@ export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_MARKDOWN,
   LANGUAGE_ID_HTML,
-  LANGUAGE_ID_PLAINTEXT,
+  // LANGUAGE_ID_PLAINTEXT,
 ];
-export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plaintext.enabled";
-export const CONFIGURATION_PLAIN_TEXT_IDS = "plaintext.languageIds";
+export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
+export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
 
 // LanguageTool Services
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
