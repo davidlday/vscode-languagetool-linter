@@ -105,14 +105,36 @@ export class ConfigurationManager implements Disposable {
 
   // Is Language ID Supported?
   public isSupportedDocument(document: TextDocument): boolean {
-    if (document.uri.scheme === "file") {
-      return (
-        Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.indexOf(
+    if (
+      document.uri.scheme === Constants.SCHEME_FILE ||
+      document.uri.scheme === Constants.SCHEME_UNTITLED
+    ) {
+      if (
+        this.isPlainTextId(document.languageId) &&
+        this.isPlainTextEnabled()
+      ) {
+        return true;
+      } else {
+        return Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.includes(
           document.languageId
-        ) > -1
-      );
+        );
+      }
     }
     return false;
+  }
+
+  // Is Plain Text Checking Enabled?
+  public isPlainTextEnabled(): boolean {
+    return this.config.get(
+      Constants.CONFIGURATION_PLAIN_TEXT_ENABLED
+    ) as boolean;
+  }
+
+  // Is the Language ID Considered "Plain Text"?
+  public isPlainTextId(languageId: string): boolean {
+    const languageIds: string[] =
+      this.config.get(Constants.CONFIGURATION_PLAIN_TEXT_IDS) || [];
+    return languageIds.includes(languageId);
   }
 
   public getServiceType(): string {
