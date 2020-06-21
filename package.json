@@ -161,17 +161,6 @@
           "default": false,
           "description": "Lint documents when they're opened."
         },
-        "languageToolLinter.plainTextLanguageIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "plaintext",
-            "json"
-          ],
-          "description": "Language IDs to treat as plaintext."
-        },
         "languageToolLinter.serviceType": {
           "type": "string",
           "default": "external",
