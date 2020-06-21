@@ -40,15 +40,26 @@
     "onLanguage:plaintext",
     "onLanguage:markdown",
     "onLanguage:html",
-    "onCommand:languagetoolLinter.lintCurrentDocument",
+    "onCommand:languagetoolLinter.checkDocument",
+    "onCommand:languagetoolLinter.checkDocumentAsPlainText",
     "onCommand:languagetoolLinter.smartFormatDocument"
   ],
   "main": "./dist/extension",
   "contributes": {
     "commands": [
       {
-        "command": "languagetoolLinter.lintCurrentDocument",
-        "title": "Lint Current Document",
+        "command": "languagetoolLinter.checkDocument",
+        "title": "Check Document",
+        "category": "LanguageTool Linter"
+      },
+      {
+        "command": "languagetoolLinter.checkDocumentAsPlainText",
+        "title": "Force Check as Plain Text Document",
+        "category": "LanguageTool Linter"
+      },
+      {
+        "command": "languagetoolLinter.clearDocumentDiagnostics",
+        "title": "Clear Document Diagnostics",
         "category": "LanguageTool Linter"
       },
       {
@@ -57,6 +68,50 @@
         "category": "LanguageTool Linter"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "languagetoolLinter.checkDocument",
+          "when": "editorLangId == markdown || editorLangId == html"
+        },
+        {
+          "command": "languagetoolLinter.checkDocumentAsPlainText",
+          "when": "editorLangId != markdown && editorLangId != html"
+        },
+        {
+          "command": "languagetoolLinter.clearDocumentDiagnostics"
+        },
+        {
+          "command": "languagetoolLinter.smartFormatDocument",
+          "when": "editorLangId == markdown || editorLangId == html"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "languagetoolLinter.checkDocument",
+          "title": "LanguageTool: Check Document",
+          "when": "editorLangId == markdown || editorLangId == html",
+          "group": "LanguageTool"
+        },
+        {
+          "command": "languagetoolLinter.checkDocumentAsPlainText",
+          "title": "LanguageTool: Force Check as Plain Text Document",
+          "when": "editorLangId != markdown && editorLangId != html",
+          "group": "LanguageTool"
+        },
+        {
+          "command": "languagetoolLinter.clearDocumentDiagnostics",
+          "title": "LanguageTool: Clear Document Diagnotics",
+          "group": "LanguageTool"
+        },
+        {
+          "command": "languagetoolLinter.smartFormatDocument",
+          "title": "LanguageTool: Smart Format Document",
+          "when": "editorLangId == markdown || editorLangId == html",
+          "group": "LanguageTool"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "LanguageTool Linter",
@@ -381,6 +436,21 @@
           "type": "boolean",
           "default": true,
           "description": "Shows a hint for ignored words, providing a Quick Fix to remove the word from the ignored list."
+        },
+        "languageToolLinter.plainText.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable linting of documents as plain text. The entire document is sent to LanguageTool as-is. Use Plain Text > Language IDs to determine which documents are considered Plain Text."
+        },
+        "languageToolLinter.plainText.languageIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "plaintext"
+          ],
+          "markdownDescription": "A list of [Language IDs](https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers) to treat as plain text."
         }
       }
     }

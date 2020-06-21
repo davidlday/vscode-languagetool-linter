@@ -9,7 +9,7 @@ suite("Linter Markdown Test Suite", () => {
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,
-    "../../../src/test-fixtures/workspace"
+    "../../../src/test-fixtures/workspace",
   );
 
   test("Linter should instantiate", () => {
@@ -20,12 +20,12 @@ suite("Linter Markdown Test Suite", () => {
     const expected = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/markdown/backticks.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/backticks.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.json"), JSON.stringify(actual), "utf8");
@@ -37,14 +37,14 @@ suite("Linter Markdown Test Suite", () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          testWorkspace + "/markdown/bold-or-italics.json"
+          testWorkspace + "/markdown/bold-or-italics.json",
         ),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/bold-or-italics.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/bold-or-italics.json"), JSON.stringify(actual), "utf8");
@@ -55,12 +55,12 @@ suite("Linter Markdown Test Suite", () => {
     const expected = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/markdown/comments.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/comments.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/comments.json"), JSON.stringify(actual), "utf8");
@@ -71,12 +71,12 @@ suite("Linter Markdown Test Suite", () => {
     const expected = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/markdown/front-matter.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/front-matter.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/front-matter.json"), JSON.stringify(actual), "utf8");
@@ -87,12 +87,12 @@ suite("Linter Markdown Test Suite", () => {
     const expected = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/markdown/headers.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/headers.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/headers.json"), JSON.stringify(actual), "utf8");
@@ -103,12 +103,12 @@ suite("Linter Markdown Test Suite", () => {
     const expected = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.json"), JSON.stringify(actual), "utf8");
@@ -120,14 +120,14 @@ suite("Linter Markdown Test Suite", () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          testWorkspace + "/markdown/unordered-lists.json"
+          testWorkspace + "/markdown/unordered-lists.json",
         ),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(actual), "utf8");
@@ -139,14 +139,14 @@ suite("Linter Markdown Test Suite", () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          testWorkspace + "/markdown/escape-character.json"
+          testWorkspace + "/markdown/escape-character.json",
         ),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/escape-character.md"),
-      "utf8"
+      "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(actual), "utf8");

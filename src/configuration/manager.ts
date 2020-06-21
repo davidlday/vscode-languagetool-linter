@@ -77,7 +77,7 @@ export class ConfigurationManager implements Disposable {
     // Only allow preferred variants when language === auto
     if (
       event.affectsConfiguration(
-        "languageToolLinter.languageTool.preferredVariants"
+        "languageToolLinter.languageTool.preferredVariants",
       ) ||
       event.affectsConfiguration("languageToolLinter.languageTool.language")
     ) {
@@ -87,7 +87,7 @@ export class ConfigurationManager implements Disposable {
       ) {
         window.showErrorMessage(
           "Cannot use preferred variants unless language is set to auto. \
-          Please review your configuration settings for LanguageTool."
+          Please review your configuration settings for LanguageTool.",
         );
       }
     }
@@ -105,14 +105,36 @@ export class ConfigurationManager implements Disposable {
 
   // Is Language ID Supported?
   public isSupportedDocument(document: TextDocument): boolean {
-    if (document.uri.scheme === "file") {
-      return (
-        Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.indexOf(
-          document.languageId
-        ) > -1
-      );
+    if (
+      document.uri.scheme === Constants.SCHEME_FILE ||
+      document.uri.scheme === Constants.SCHEME_UNTITLED
+    ) {
+      if (
+        this.isPlainTextId(document.languageId) &&
+        this.isPlainTextEnabled()
+      ) {
+        return true;
+      } else {
+        return Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.includes(
+          document.languageId,
+        );
+      }
     }
     return false;
+  }
+
+  // Is Plain Text Checking Enabled?
+  public isPlainTextEnabled(): boolean {
+    return this.config.get(
+      Constants.CONFIGURATION_PLAIN_TEXT_ENABLED,
+    ) as boolean;
+  }
+
+  // Is the Language ID Considered "Plain Text"?
+  public isPlainTextId(languageId: string): boolean {
+    const languageIds: string[] =
+      this.config.get(Constants.CONFIGURATION_PLAIN_TEXT_IDS) || [];
+    return languageIds.includes(languageId);
   }
 
   public getServiceType(): string {
@@ -162,7 +184,7 @@ export class ConfigurationManager implements Disposable {
       return DiagnosticSeverity.Warning;
     } else {
       window.showWarningMessage(
-        '"LanguageTool Linter > Diagnostic Severity" is unknown. Defaulting to "Warning".'
+        '"LanguageTool Linter > Diagnostic Severity" is unknown. Defaulting to "Warning".',
       );
       return DiagnosticSeverity.Warning;
     }
@@ -176,7 +198,7 @@ export class ConfigurationManager implements Disposable {
     if (jarFile !== "") {
       window.showWarningMessage(
         '"LanguageTool Linter > Managed: Jar File" is deprecated. \
-        Please use "LanguageTool > Managed: Class Path" instead.'
+        Please use "LanguageTool > Managed: Class Path" instead.',
       );
       classPathFiles.push(jarFile);
     }
@@ -195,7 +217,7 @@ export class ConfigurationManager implements Disposable {
   public stopManagedService(): void {
     if (this.process) {
       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "Closing managed service server."
+        "Closing managed service server.",
       );
       this.process.cancel();
       this.process = undefined;
@@ -264,7 +286,7 @@ export class ConfigurationManager implements Disposable {
   // Show hints for ignored words?
   public showIgnoredWordHints(): boolean {
     return this.config.get(
-      Constants.CONFIGURATION_IGNORED_WORD_HINT
+      Constants.CONFIGURATION_IGNORED_WORD_HINT,
     ) as boolean;
   }
 
@@ -325,7 +347,7 @@ export class ConfigurationManager implements Disposable {
       if (minimumPort > maximumPort) {
         window.showWarningMessage(
           "LanguageTool Linter - The minimum port is greater than the maximum port. \
-          Cancelling start of managed service. Please adjust your settings and try again."
+          Cancelling start of managed service. Please adjust your settings and try again.",
         );
       } else {
         portfinder.getPort(
@@ -333,7 +355,7 @@ export class ConfigurationManager implements Disposable {
           (error: any, port: number) => {
             if (error) {
               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                "Error getting open port: " + error.message
+                "Error getting open port: " + error.message,
               );
               Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
             } else {
@@ -346,19 +368,19 @@ export class ConfigurationManager implements Disposable {
                 port.toString(),
               ];
               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                "Starting managed service."
+                "Starting managed service.",
               );
               (this.process = execa("java", args)).catch((err: any) => {
                 if (err.isCanceled) {
                   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                    "Managed service process stopped."
+                    "Managed service process stopped.",
                   );
                 } else if (err.failed) {
                   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                    "Managed service command failed: " + err.command
+                    "Managed service command failed: " + err.command,
                   );
                   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                    "Error Message: " + err.message
+                    "Error Message: " + err.message,
                   );
                   Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
                 }
@@ -372,7 +394,7 @@ export class ConfigurationManager implements Disposable {
               });
               this.serviceUrl = this.findServiceUrl(this.getServiceType());
             }
-          }
+          },
         );
       }
     }
@@ -382,7 +404,7 @@ export class ConfigurationManager implements Disposable {
   private saveIgnoredWords(
     words: Set<string>,
     section: string,
-    configurationTarget: ConfigurationTarget
+    configurationTarget: ConfigurationTarget,
   ): void {
     const wordArray: string[] = Array.from(words)
       .map((word) => word.toLowerCase())
@@ -395,7 +417,7 @@ export class ConfigurationManager implements Disposable {
     this.saveIgnoredWords(
       globallyIgnoredWords,
       Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS,
-      ConfigurationTarget.Global
+      ConfigurationTarget.Global,
     );
   }
   // Save word to Workspace Level ignored word list.
@@ -403,7 +425,7 @@ export class ConfigurationManager implements Disposable {
     this.saveIgnoredWords(
       workspaceIgnoredWords,
       Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS,
-      ConfigurationTarget.Workspace
+      ConfigurationTarget.Workspace,
     );
   }
 
@@ -421,7 +443,7 @@ export class ConfigurationManager implements Disposable {
   // Get Workspace ignored words from settings.
   private getWorkspaceIgnoredWords(): Set<string> {
     return this.getIgnoredWords(
-      Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS
+      Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS,
     );
   }
 }

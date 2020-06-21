@@ -10,7 +10,7 @@ suite("Linter HTML Test Suite", () => {
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,
-    "../../../src/test-fixtures/workspace"
+    "../../../src/test-fixtures/workspace",
   );
 
   test("Linter should instantiate", () => {
@@ -21,12 +21,12 @@ suite("Linter HTML Test Suite", () => {
     const expected: JSON = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/html/basic.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text: string = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/html/basic.html"),
-      "utf8"
+      "utf8",
     );
     const actual: IAnnotatedtext = linter.buildAnnotatedHTML(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.json"), JSON.stringify(actual), "utf8");
@@ -37,12 +37,12 @@ suite("Linter HTML Test Suite", () => {
     const expected: JSON = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/html/escape-character.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text: string = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/html/escape-character.html"),
-      "utf8"
+      "utf8",
     );
     const actual: IAnnotatedtext = linter.buildAnnotatedHTML(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.json"), JSON.stringify(actual), "utf8");

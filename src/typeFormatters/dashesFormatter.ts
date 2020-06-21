@@ -35,14 +35,14 @@ export class DashesFormattingProvider
     position: vscode.Position,
     ch: string,
     options: vscode.FormattingOptions,
-    cancellationToken: vscode.CancellationToken
+    cancellationToken: vscode.CancellationToken,
   ): vscode.TextEdit[] {
     const line: vscode.TextLine = document.lineAt(position.line);
     const range: vscode.Range = new vscode.Range(
       position.line,
       position.character - 2,
       position.line,
-      position.character
+      position.character,
     );
     const prevCh: string =
       position.character > 0 ? line.text.charAt(position.character - 2) : " ";
@@ -58,7 +58,7 @@ export class DashesFormattingProvider
             position.line,
             position.character - 3,
             position.line,
-            position.character
+            position.character,
           );
           return [
             new vscode.TextEdit(expandedRange, DashesFormattingProvider.emDash),

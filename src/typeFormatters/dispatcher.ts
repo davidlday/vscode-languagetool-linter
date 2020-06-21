@@ -28,7 +28,7 @@ export class OnTypeFormattingDispatcher
     position: Position,
     ch: string,
     options: FormattingOptions,
-    cancellationToken: CancellationToken
+    cancellationToken: CancellationToken,
   ): ProviderResult<TextEdit[]> {
     const provider = this.providers[ch];
 
@@ -38,7 +38,7 @@ export class OnTypeFormattingDispatcher
         position,
         ch,
         options,
-        cancellationToken
+        cancellationToken,
       );
     }
 

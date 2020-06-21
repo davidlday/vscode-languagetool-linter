@@ -41,14 +41,14 @@ export class QuotesFormattingProvider
     position: vscode.Position,
     ch: string,
     options: vscode.FormattingOptions,
-    cancellationToken: vscode.CancellationToken
+    cancellationToken: vscode.CancellationToken,
   ): vscode.TextEdit[] {
     const line: vscode.TextLine = document.lineAt(position.line);
     const chRange: vscode.Range = new vscode.Range(
       position.line,
       position.character - 1,
       position.line,
-      position.character
+      position.character,
     );
     const prevCh: string =
       position.character > 1 ? line.text.charAt(position.character - 2) : " ";
@@ -70,14 +70,14 @@ export class QuotesFormattingProvider
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.startDoubleQuote
+                QuotesFormattingProvider.startDoubleQuote,
               ),
             ];
           } else {
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.endDoubleQuote
+                QuotesFormattingProvider.endDoubleQuote,
               ),
             ];
           }
@@ -93,14 +93,14 @@ export class QuotesFormattingProvider
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.startSingleQuote
+                QuotesFormattingProvider.startSingleQuote,
               ),
             ];
           } else {
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.endSingleQuote
+                QuotesFormattingProvider.endSingleQuote,
               ),
             ];
           }
