@@ -12,9 +12,11 @@ suite("Extension Test Suite", () => {
     assert.ok(vscode.extensions.getExtension("davidlday.languagetool-linter"));
   });
 
-  test("Extension should activate", function() {
+  test("Extension should activate", function () {
     this.timeout(60000);
-    const ext: vscode.Extension<any> | undefined = vscode.extensions.getExtension(
+    const ext:
+      | vscode.Extension<any>
+      | undefined = vscode.extensions.getExtension(
       "davidlday.languagetool-linter"
     );
     if (ext) {
@@ -29,7 +31,9 @@ suite("Extension Test Suite", () => {
   test("Extension should register all commands", () => {
     return vscode.commands.getCommands(true).then((commands) => {
       const EXPECTED_COMMANDS: string[] = [
-        "languagetoolLinter.lintCurrentDocument",
+        "languagetoolLinter.checkDocument",
+        "languagetoolLinter.checkDocumentAsPlainText",
+        "languagetoolLinter.clearDocumentDiagnostics",
         "languagetoolLinter.smartFormatDocument",
         "languagetoolLinter.ignoreWordGlobally",
         "languagetoolLinter.ignoreWordInWorkspace",
