@@ -127,10 +127,21 @@ export class Linter implements CodeActionProvider {
       const uriString = document.uri.toString();
       const timeout = setTimeout(() => {
         this.lintDocument(document);
-        this.cancelLint(document);
       }, timeoutDuration);
       this.timeoutMap.set(uriString, timeout);
     }
+  }
+  // Force request a lint for a document as plain text regardless of language id
+  public requestLintAsPlainText(
+    document: TextDocument,
+    timeoutDuration: number = Constants.EXTENSION_TIMEOUT_MS
+  ): void {
+    this.cancelLint(document);
+    const uriString = document.uri.toString();
+    const timeout = setTimeout(() => {
+      this.lintDocumentAsPlainText(document);
+    }, timeoutDuration);
+    this.timeoutMap.set(uriString, timeout);
   }
 
   // Cancel lint
@@ -194,12 +205,17 @@ export class Linter implements CodeActionProvider {
         );
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
-        const annotatedPlaintext: string = JSON.stringify(
-          this.buildAnnotatedPlaintext(document.getText())
-        );
-        this.lintAnnotatedText(document, annotatedPlaintext);
+        this.lintDocumentAsPlainText(document);
       }
     }
+  }
+
+  // Perform Lint on Document As Plain Text
+  public lintDocumentAsPlainText(document: TextDocument): void {
+    const annotatedPlaintext: string = JSON.stringify(
+      this.buildAnnotatedPlaintext(document.getText())
+    );
+    this.lintAnnotatedText(document, annotatedPlaintext);
   }
 
   // Lint Annotated Text
