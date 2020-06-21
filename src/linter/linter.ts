@@ -194,12 +194,12 @@ export class Linter implements CodeActionProvider {
   // Perform Lint on Document
   public lintDocument(document: TextDocument): void {
     if (this.configManager.isSupportedDocument(document)) {
-      if (document.languageId === "markdown") {
+      if (document.languageId === Constants.LANGUAGE_ID_MARKDOWN) {
         const annotatedMarkdown: string = JSON.stringify(
           this.buildAnnotatedMarkdown(document.getText())
         );
         this.lintAnnotatedText(document, annotatedMarkdown);
-      } else if (document.languageId === "html") {
+      } else if (document.languageId === Constants.LANGUAGE_ID_HTML) {
         const annotatedHTML: string = JSON.stringify(
           this.buildAnnotatedHTML(document.getText())
         );
@@ -223,11 +223,9 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     annotatedText: string
   ): void {
-    if (this.configManager.isSupportedDocument(document)) {
-      const ltPostDataDict: any = this.getPostDataTemplate();
-      ltPostDataDict.data = annotatedText;
-      this.callLanguageTool(document, ltPostDataDict);
-    }
+    const ltPostDataDict: any = this.getPostDataTemplate();
+    ltPostDataDict.data = annotatedText;
+    this.callLanguageTool(document, ltPostDataDict);
   }
 
   // Apply smart formatting to annotated text.
