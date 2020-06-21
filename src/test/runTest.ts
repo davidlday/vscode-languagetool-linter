@@ -14,7 +14,7 @@ async function main() {
 
     const testWorkspace = path.resolve(
       __dirname,
-      "../../test/test-fixtures/workspace"
+      "../../test/test-fixtures/workspace",
     );
 
     // Download VS Code, unzip it and run the integration test

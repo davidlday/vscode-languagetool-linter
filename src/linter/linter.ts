@@ -71,7 +71,7 @@ export class Linter implements CodeActionProvider {
     this.configManager = configManager;
     this.timeoutMap = new Map<string, NodeJS.Timeout>();
     this.diagnosticCollection = languages.createDiagnosticCollection(
-      Constants.EXTENSION_DISPLAY_NAME
+      Constants.EXTENSION_DISPLAY_NAME,
     );
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
   }
@@ -81,14 +81,14 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     range: Range,
     context: CodeActionContext,
-    token: CancellationToken
+    token: CancellationToken,
   ): CodeAction[] {
     const diagnostics = context.diagnostics || [];
     const actions: CodeAction[] = [];
     diagnostics
       .filter(
         (diagnostic) =>
-          diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE
+          diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE,
       )
       .forEach((diagnostic) => {
         // @ts-ignore
@@ -96,7 +96,7 @@ export class Linter implements CodeActionProvider {
         if (Linter.isSpellingRule(match.rule.id)) {
           const spellingActions: CodeAction[] = this.getSpellingRuleActions(
             document,
-            diagnostic
+            diagnostic,
           );
           if (spellingActions.length > 0) {
             spellingActions.forEach((action) => {
@@ -120,7 +120,7 @@ export class Linter implements CodeActionProvider {
   // Request a lint for a document
   public requestLint(
     document: TextDocument,
-    timeoutDuration: number = Constants.EXTENSION_TIMEOUT_MS
+    timeoutDuration: number = Constants.EXTENSION_TIMEOUT_MS,
   ): void {
     if (this.configManager.isSupportedDocument(document)) {
       this.cancelLint(document);
@@ -134,7 +134,7 @@ export class Linter implements CodeActionProvider {
   // Force request a lint for a document as plain text regardless of language id
   public requestLintAsPlainText(
     document: TextDocument,
-    timeoutDuration: number = Constants.EXTENSION_TIMEOUT_MS
+    timeoutDuration: number = Constants.EXTENSION_TIMEOUT_MS,
   ): void {
     this.cancelLint(document);
     const uriString = document.uri.toString();
@@ -150,7 +150,7 @@ export class Linter implements CodeActionProvider {
     if (this.timeoutMap.has(uriString)) {
       if (this.timeoutMap.has(uriString)) {
         const timeout: NodeJS.Timeout = this.timeoutMap.get(
-          uriString
+          uriString,
         ) as NodeJS.Timeout;
         clearTimeout(timeout);
         this.timeoutMap.delete(uriString);
@@ -196,12 +196,12 @@ export class Linter implements CodeActionProvider {
     if (this.configManager.isSupportedDocument(document)) {
       if (document.languageId === Constants.LANGUAGE_ID_MARKDOWN) {
         const annotatedMarkdown: string = JSON.stringify(
-          this.buildAnnotatedMarkdown(document.getText())
+          this.buildAnnotatedMarkdown(document.getText()),
         );
         this.lintAnnotatedText(document, annotatedMarkdown);
       } else if (document.languageId === Constants.LANGUAGE_ID_HTML) {
         const annotatedHTML: string = JSON.stringify(
-          this.buildAnnotatedHTML(document.getText())
+          this.buildAnnotatedHTML(document.getText()),
         );
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
@@ -213,7 +213,7 @@ export class Linter implements CodeActionProvider {
   // Perform Lint on Document As Plain Text
   public lintDocumentAsPlainText(document: TextDocument): void {
     const annotatedPlaintext: string = JSON.stringify(
-      this.buildAnnotatedPlaintext(document.getText())
+      this.buildAnnotatedPlaintext(document.getText()),
     );
     this.lintAnnotatedText(document, annotatedPlaintext);
   }
@@ -221,7 +221,7 @@ export class Linter implements CodeActionProvider {
   // Lint Annotated Text
   public lintAnnotatedText(
     document: TextDocument,
-    annotatedText: string
+    annotatedText: string,
   ): void {
     const ltPostDataDict: any = this.getPostDataTemplate();
     ltPostDataDict.data = annotatedText;
@@ -239,11 +239,11 @@ export class Linter implements CodeActionProvider {
           .replace(/'(?=[\w"“])/g, QuotesFormattingProvider.startSingleQuote)
           .replace(
             /([\w.!?%,'’])"/g,
-            "$1" + QuotesFormattingProvider.endDoubleQuote
+            "$1" + QuotesFormattingProvider.endDoubleQuote,
           )
           .replace(
             /([\w.!?%,"”])'/g,
-            "$1" + QuotesFormattingProvider.endSingleQuote
+            "$1" + QuotesFormattingProvider.endSingleQuote,
           )
           .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
           .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
@@ -301,13 +301,13 @@ export class Linter implements CodeActionProvider {
         })
         .catch((err) => {
           Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            "Error connecting to " + url
+            "Error connecting to " + url,
           );
           Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(err);
         });
     } else {
       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "No LanguageTool URL provided. Please check your settings and try again."
+        "No LanguageTool URL provided. Please check your settings and try again.",
       );
       Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
     }
@@ -316,7 +316,7 @@ export class Linter implements CodeActionProvider {
   // Convert LanguageTool Suggestions into QuickFix CodeActions
   private suggest(
     document: TextDocument,
-    response: ILanguageToolResponse
+    response: ILanguageToolResponse,
   ): void {
     const matches = response.matches;
     const diagnostics: Diagnostic[] = [];
@@ -330,7 +330,7 @@ export class Linter implements CodeActionProvider {
       const diagnostic: Diagnostic = new Diagnostic(
         diagnosticRange,
         diagnosticMessage,
-        diagnosticSeverity
+        diagnosticSeverity,
       );
       diagnostic.source = Constants.EXTENSION_DIAGNOSTIC_SOURCE;
       // @ts-ignore
@@ -365,7 +365,7 @@ export class Linter implements CodeActionProvider {
   // Get CodeActions for Spelling Rules
   private getSpellingRuleActions(
     document: TextDocument,
-    diagnostic: Diagnostic
+    diagnostic: Diagnostic,
   ): CodeAction[] {
     const actions: CodeAction[] = [];
     // @ts-ignore
@@ -378,7 +378,7 @@ export class Linter implements CodeActionProvider {
             "Remove '" + word + "' from always ignored words.";
           const action: CodeAction = new CodeAction(
             actionTitle,
-            CodeActionKind.QuickFix
+            CodeActionKind.QuickFix,
           );
           action.command = {
             arguments: [word],
@@ -394,7 +394,7 @@ export class Linter implements CodeActionProvider {
             "Remove '" + word + "' from Workspace ignored words.";
           const action: CodeAction = new CodeAction(
             actionTitle,
-            CodeActionKind.QuickFix
+            CodeActionKind.QuickFix,
           );
           action.command = {
             arguments: [word],
@@ -410,7 +410,7 @@ export class Linter implements CodeActionProvider {
       const usrIgnoreActionTitle: string = "Always ignore '" + word + "'";
       const usrIgnoreAction: CodeAction = new CodeAction(
         usrIgnoreActionTitle,
-        CodeActionKind.QuickFix
+        CodeActionKind.QuickFix,
       );
       usrIgnoreAction.command = {
         arguments: [word],
@@ -425,7 +425,7 @@ export class Linter implements CodeActionProvider {
           "Ignore '" + word + "' in Workspace";
         const wsIgnoreAction: CodeAction = new CodeAction(
           wsIgnoreActionTitle,
-          CodeActionKind.QuickFix
+          CodeActionKind.QuickFix,
         );
         wsIgnoreAction.command = {
           arguments: [word],
@@ -439,7 +439,7 @@ export class Linter implements CodeActionProvider {
       this.getReplacementActions(
         document,
         diagnostic,
-        match.replacements
+        match.replacements,
       ).forEach((action: CodeAction) => {
         actions.push(action);
       });
@@ -450,7 +450,7 @@ export class Linter implements CodeActionProvider {
   // Get all Rule CodeActions
   private getRuleActions(
     document: TextDocument,
-    diagnostic: Diagnostic
+    diagnostic: Diagnostic,
   ): CodeAction[] {
     // @ts-ignore
     const match: ILanguageToolMatch = diagnostic.match;
@@ -458,7 +458,7 @@ export class Linter implements CodeActionProvider {
     this.getReplacementActions(
       document,
       diagnostic,
-      match.replacements
+      match.replacements,
     ).forEach((action: CodeAction) => {
       actions.push(action);
     });
@@ -469,14 +469,14 @@ export class Linter implements CodeActionProvider {
   private getReplacementActions(
     document: TextDocument,
     diagnostic: Diagnostic,
-    replacements: ILanguageToolReplacement[]
+    replacements: ILanguageToolReplacement[],
   ): CodeAction[] {
     const actions: CodeAction[] = [];
     replacements.forEach((replacement: ILanguageToolReplacement) => {
       const actionTitle: string = "'" + replacement.value + "'";
       const action: CodeAction = new CodeAction(
         actionTitle,
-        CodeActionKind.QuickFix
+        CodeActionKind.QuickFix,
       );
       const edit: WorkspaceEdit = new WorkspaceEdit();
       edit.replace(document.uri, diagnostic.range, replacement.value);

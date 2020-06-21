@@ -10,7 +10,7 @@ suite("Linter Test Suite", () => {
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,
-    "../../../src/test-fixtures/workspace"
+    "../../../src/test-fixtures/workspace",
   );
 
   test("Linter should instantiate", () => {
@@ -21,12 +21,12 @@ suite("Linter Test Suite", () => {
     const expected: JSON = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/markdown/basic.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text: string = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/markdown/basic.md"),
-      "utf8"
+      "utf8",
     );
     const actual: IAnnotatedtext = linter.buildAnnotatedMarkdown(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/basic.json"), JSON.stringify(actual), "utf8");
@@ -37,12 +37,12 @@ suite("Linter Test Suite", () => {
     const expected: JSON = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/html/basic.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text: string = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/html/basic.html"),
-      "utf8"
+      "utf8",
     );
     const actual: IAnnotatedtext = linter.buildAnnotatedHTML(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/html/basic.json"), JSON.stringify(actual), "utf8");
@@ -53,12 +53,12 @@ suite("Linter Test Suite", () => {
     const expected: JSON = JSON.parse(
       fs.readFileSync(
         path.resolve(__dirname, testWorkspace + "/plaintext/basic.json"),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text: string = fs.readFileSync(
       path.resolve(__dirname, testWorkspace + "/plaintext/basic.txt"),
-      "utf8"
+      "utf8",
     );
     const actual: IAnnotatedtext = linter.buildAnnotatedPlaintext(text);
     // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.json"), JSON.stringify(actual), "utf8");
@@ -69,25 +69,25 @@ suite("Linter Test Suite", () => {
     const expected: string = fs.readFileSync(
       path.resolve(
         __dirname,
-        testWorkspace + "/markdown/smart-format-formatted.md"
+        testWorkspace + "/markdown/smart-format-formatted.md",
       ),
-      "utf8"
+      "utf8",
     );
     const expectedJSON: JSON = JSON.parse(
       fs.readFileSync(
         path.resolve(
           __dirname,
-          testWorkspace + "/markdown/smart-format-unformatted.json"
+          testWorkspace + "/markdown/smart-format-unformatted.json",
         ),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
     const text: string = fs.readFileSync(
       path.resolve(
         __dirname,
-        testWorkspace + "/markdown/smart-format-unformatted.md"
+        testWorkspace + "/markdown/smart-format-unformatted.md",
       ),
-      "utf8"
+      "utf8",
     );
     const annotatedtext: IAnnotatedtext = linter.buildAnnotatedMarkdown(text);
     assert.deepStrictEqual(annotatedtext, expectedJSON);

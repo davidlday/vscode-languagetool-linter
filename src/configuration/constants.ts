@@ -19,7 +19,7 @@ import { DocumentSelector, OutputChannel, window } from "vscode";
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
 export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel(
-  "LanguageTool Linter"
+  "LanguageTool Linter",
 );
 export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";

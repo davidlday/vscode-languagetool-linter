@@ -17,7 +17,7 @@ suite("Extension Test Suite", () => {
     const ext:
       | vscode.Extension<any>
       | undefined = vscode.extensions.getExtension(
-      "davidlday.languagetool-linter"
+      "davidlday.languagetool-linter",
     );
     if (ext) {
       ext.activate().then((api: any) => {
@@ -49,7 +49,7 @@ suite("Extension Test Suite", () => {
       assert.equal(
         FOUND_COMMANDS.length,
         EXPECTED_COMMANDS.length,
-        "Either not all commands are registered or new commands have not been added to this test."
+        "Either not all commands are registered or new commands have not been added to this test.",
       );
     });
   });

@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(Constants.EXTENSION_OUTPUT_CHANNEL);
   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-    "LanguageTool Linter Activated!"
+    "LanguageTool Linter Activated!",
   );
 
   // Register onDidChangeconfiguration event
@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext): void {
       if (event.affectsConfiguration("languageToolLinter")) {
         configMan.reloadConfiguration(event);
       }
-    })
+    }),
   );
 
   // Register onDidOpenTextDocument event - request lint
@@ -58,7 +58,7 @@ export function activate(context: vscode.ExtensionContext): void {
       if (configMan.isLintOnOpen()) {
         linter.requestLint(document);
       }
-    })
+    }),
   );
 
   // Register onDidChangeTextDocument event - request lint with default timeout
@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext): void {
         }
         linter.requestLint(event.document);
       }
-    })
+    }),
   );
 
   // Register onDidChangeActiveTextEditor event - request lint
@@ -79,7 +79,7 @@ export function activate(context: vscode.ExtensionContext): void {
       if (editor !== undefined && configMan.isLintOnChange()) {
         linter.requestLint(editor.document);
       }
-    })
+    }),
   );
 
   // Register onWillSaveTextDocument event - smart format if enabled
@@ -87,10 +87,10 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onWillSaveTextDocument((event) => {
       if (configMan.isSmartFormatOnSave()) {
         vscode.commands.executeCommand(
-          "languagetoolLinter.smartFormatDocument"
+          "languagetoolLinter.smartFormatDocument",
         );
       }
-    })
+    }),
   );
 
   // Register onDidSaveTextDocument event - request immediate lint
@@ -99,7 +99,7 @@ export function activate(context: vscode.ExtensionContext): void {
       if (configMan.isLintOnSave()) {
         linter.requestLint(document);
       }
-    })
+    }),
   );
 
   // Register onDidCloseTextDocument event - cancel any pending lint
@@ -107,13 +107,13 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) => {
       linter.cancelLint(document);
       linter.clearDiagnostics(document.uri);
-    })
+    }),
   );
 
   // Register Code Actions Provider for supported languages
   Constants.DOCUMENT_SELECTORS.forEach((selector: vscode.DocumentSelector) => {
     context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider(selector, linter)
+      vscode.languages.registerCodeActionsProvider(selector, linter),
     );
 
     if (onTypeTriggers) {
@@ -122,8 +122,8 @@ export function activate(context: vscode.ExtensionContext): void {
           selector,
           onTypeDispatcher,
           onTypeTriggers.first,
-          ...onTypeTriggers.more
-        )
+          ...onTypeTriggers.more,
+        ),
       );
     }
   });
@@ -132,7 +132,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) => {
       linter.clearDiagnostics(document.uri);
-    })
+    }),
   );
 
   // Register "Ignore Word Globally" TextEditorCommand
@@ -141,7 +141,7 @@ export function activate(context: vscode.ExtensionContext): void {
     (editor, edit, ...args) => {
       configMan.ignoreWordGlobally(args.shift());
       linter.requestLint(editor.document, 0);
-    }
+    },
   );
   context.subscriptions.push(ignoreWordGlobally);
 
@@ -151,7 +151,7 @@ export function activate(context: vscode.ExtensionContext): void {
     (editor, edit, ...args) => {
       configMan.ignoreWordInWorkspace(args.shift());
       linter.requestLint(editor.document, 0);
-    }
+    },
   );
   context.subscriptions.push(ignoreWordInWorkspace);
 
@@ -161,7 +161,7 @@ export function activate(context: vscode.ExtensionContext): void {
     (editor, edit, ...args) => {
       configMan.removeGloballyIgnoredWord(args.shift());
       linter.requestLint(editor.document, 0);
-    }
+    },
   );
   context.subscriptions.push(removeGloballyIgnoredWord);
 
@@ -171,7 +171,7 @@ export function activate(context: vscode.ExtensionContext): void {
     (editor, edit, ...args) => {
       configMan.removeWorkspaceIgnoredWord(args.shift());
       linter.requestLint(editor.document, 0);
-    }
+    },
   );
   context.subscriptions.push(removeWorkspaceIgnoredWord);
 
@@ -180,7 +180,7 @@ export function activate(context: vscode.ExtensionContext): void {
     "languagetoolLinter.checkDocument",
     (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
       linter.requestLint(editor.document, 0);
-    }
+    },
   );
   context.subscriptions.push(checkDocument);
 
@@ -189,7 +189,7 @@ export function activate(context: vscode.ExtensionContext): void {
     "languagetoolLinter.checkDocumentAsPlainText",
     (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
       linter.requestLintAsPlainText(editor.document, 0);
-    }
+    },
   );
   context.subscriptions.push(checkDocumentAsPlainText);
 
@@ -198,7 +198,7 @@ export function activate(context: vscode.ExtensionContext): void {
     "languagetoolLinter.clearDocumentDiagnostics",
     (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
       linter.clearDiagnostics(editor.document.uri);
-    }
+    },
   );
   context.subscriptions.push(clearDocumentDiagnostics);
 
@@ -211,19 +211,19 @@ export function activate(context: vscode.ExtensionContext): void {
         const text: string = editor.document.getText();
         const lastOffset: number = text.length;
         const annotatedtext: IAnnotatedtext = linter.buildAnnotatedtext(
-          editor.document
+          editor.document,
         );
         const newText = linter.smartFormatAnnotatedtext(annotatedtext);
         // Replace the whole thing at once so undo applies to all changes.
         edit.replace(
           new vscode.Range(
             editor.document.positionAt(0),
-            editor.document.positionAt(lastOffset)
+            editor.document.positionAt(lastOffset),
           ),
-          newText
+          newText,
         );
       }
-    }
+    },
   );
   context.subscriptions.push(smartFormatCommand);
 
