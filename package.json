@@ -54,7 +54,7 @@
       },
       {
         "command": "languagetoolLinter.checkDocumentAsPlainText",
-        "title": "Check as Plain Text Document",
+        "title": "Force Check as Plain Text Document",
         "category": "LanguageTool Linter"
       },
       {
@@ -76,7 +76,7 @@
         },
         {
           "command": "languagetoolLinter.checkDocumentAsPlainText",
-          "when": "editorLangId != markdown || editorLangId != html"
+          "when": "editorLangId != markdown && editorLangId != html"
         },
         {
           "command": "languagetoolLinter.clearDocumentDiagnostics"
@@ -95,8 +95,8 @@
         },
         {
           "command": "languagetoolLinter.checkDocumentAsPlainText",
-          "title": "LanguageTool: Check as Plain Text Document",
-          "when": "editorLangId != markdown || editorLangId != html",
+          "title": "LanguageTool: Force Check as Plain Text Document",
+          "when": "editorLangId != markdown && editorLangId != html",
           "group": "LanguageTool"
         },
         {
@@ -448,12 +448,12 @@
           "default": true,
           "description": "Shows a hint for ignored words, providing a Quick Fix to remove the word from the ignored list."
         },
-        "languageToolLinter.plaintext.enabled": {
+        "languageToolLinter.plainText.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable linting of documents as plain text. The entire document is sent to LanguageTool as-is."
+          "description": "Enable linting of documents as plain text. The entire document is sent to LanguageTool as-is. Use Plain Text > Language IDs to determine which documents are considered Plain Text."
         },
-        "languageToolLinter.plaintext.languageIds": {
+        "languageToolLinter.plainText.languageIds": {
           "type": "array",
           "items": {
             "type": "string"
