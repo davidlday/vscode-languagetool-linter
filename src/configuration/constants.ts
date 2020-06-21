@@ -79,6 +79,8 @@ export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_HTML,
   LANGUAGE_ID_PLAINTEXT,
 ];
+export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plaintext.enabled";
+export const CONFIGURATION_PLAIN_TEXT_IDS = "plaintext.languageIds";
 
 // LanguageTool Services
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
