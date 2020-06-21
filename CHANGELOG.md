@@ -11,6 +11,8 @@ and this project adheres to
 
 Changes not yet released.
 
+## [0.15.0] - 2020-06-21
+
 ### Added
 
 - Ability to enable / disable checking of Plain Text documents. Enabled by
