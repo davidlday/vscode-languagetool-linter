@@ -36,10 +36,12 @@ export class ConfigurationManager implements Disposable {
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
+  private regexIgnore: RegExp | undefined;
 
   // Constructor
   constructor() {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
+    this.regexIgnore = this.getIgnoredRegex();
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
   }
@@ -52,6 +54,7 @@ export class ConfigurationManager implements Disposable {
 
   public reloadConfiguration(event: ConfigurationChangeEvent): void {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
+    this.regexIgnore = this.getIgnoredRegex();
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     // Changed service type
     if (event.affectsConfiguration("languageToolLinter.serviceType")) {
@@ -227,7 +230,8 @@ export class ConfigurationManager implements Disposable {
   // Manage Ignored Words Lists
   public isIgnoredWord(word: string): boolean {
     return (
-      this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word) ||
+      this.isGloballyIgnoredWord(word) ||
+      this.isWorkspaceIgnoredWord(word) ||
       this.isIgnoredByRegex(word)
     );
   }
@@ -246,7 +250,7 @@ export class ConfigurationManager implements Disposable {
 
   // Is word ignored by regex (global and workspace) ?
   public isIgnoredByRegex(word: string): boolean {
-    return this.getIgnoredRegex().test(word);
+    return this.regexIgnore !== undefined && this.regexIgnore.test(word);
   }
 
   // Add word to User Level ignored word list.
@@ -455,9 +459,16 @@ export class ConfigurationManager implements Disposable {
 
   // Merge all regex from settings into one
   private getIgnoredRegex(): RegExp {
-    const globalPatterns = new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_GLOBAL_IGNORED_REGEX));
-    const workspacePatterns = new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_WORKSPACE_IGNORED_REGEX));
-    return new RegExp('(' + [...globalPatterns, workspacePatterns].join(')|(') + ')');
+    const globalPatterns = new Set<string>(
+      this.config.get<string[]>(Constants.CONFIGURATION_GLOBAL_IGNORED_REGEX),
+    );
+    const workspacePatterns = new Set<string>(
+      this.config.get<string[]>(
+        Constants.CONFIGURATION_WORKSPACE_IGNORED_REGEX,
+      ),
+    );
+    return new RegExp(
+      "(" + [...globalPatterns, workspacePatterns].join(")|(") + ")",
+    );
   }
-
 }
