@@ -437,6 +437,24 @@
           "default": true,
           "description": "Shows a hint for ignored words, providing a Quick Fix to remove the word from the ignored list."
         },
+        "languageToolLinter.languageTool.ignoredRegexGlobal": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "scope": "application",
+          "default": [],
+          "description": "Global list of regular expression to ignore in spellcheck."
+        },
+        "languageToolLinter.languageTool.ignoredRegexInWorkspace": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "scope": "window",
+          "default": [],
+          "description": "Workspace list of regular expression to ignore in spellcheck. This setting is ignored at the User (Global) level."
+        },
         "languageToolLinter.plainText.enabled": {
           "type": "boolean",
           "default": true,

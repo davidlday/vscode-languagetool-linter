@@ -227,7 +227,8 @@ export class ConfigurationManager implements Disposable {
   // Manage Ignored Words Lists
   public isIgnoredWord(word: string): boolean {
     return (
-      this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word)
+      this.isGloballyIgnoredWord(word) || this.isWorkspaceIgnoredWord(word) ||
+      this.isIgnoredByRegex(word)
     );
   }
 
@@ -241,6 +242,11 @@ export class ConfigurationManager implements Disposable {
   public isWorkspaceIgnoredWord(word: string): boolean {
     const workspaceIgnoredWords: Set<string> = this.getWorkspaceIgnoredWords();
     return workspaceIgnoredWords.has(word.toLowerCase());
+  }
+
+  // Is word ignored by regex (global and workspace) ?
+  public isIgnoredByRegex(word: string): boolean {
+    return this.getIgnoredRegex().test(word);
   }
 
   // Add word to User Level ignored word list.
@@ -446,4 +452,12 @@ export class ConfigurationManager implements Disposable {
       Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS,
     );
   }
+
+  // Merge all regex from settings into one
+  private getIgnoredRegex(): RegExp {
+    const globalPatterns = new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_GLOBAL_IGNORED_REGEX));
+    const workspacePatterns = new Set<string>(this.config.get<string[]>(Constants.CONFIGURATION_WORKSPACE_IGNORED_REGEX));
+    return new RegExp('(' + [...globalPatterns, workspacePatterns].join(')|(') + ')');
+  }
+
 }

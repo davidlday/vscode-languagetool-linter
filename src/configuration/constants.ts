@@ -63,6 +63,10 @@ export const CONFIGURATION_GLOBAL_IGNORED_WORDS =
   "languageTool.ignoredWordsGlobal";
 export const CONFIGURATION_WORKSPACE_IGNORED_WORDS =
   "languageTool.ignoredWordsInWorkspace";
+export const CONFIGURATION_GLOBAL_IGNORED_REGEX =
+  "languageTool.ignoredRegexGlobal";
+export const CONFIGURATION_WORKSPACE_IGNORED_REGEX =
+  "languageTool.ignoredRegexInWorkspace";
 export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_MARKDOWN,
