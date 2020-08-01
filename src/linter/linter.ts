@@ -181,6 +181,9 @@ export class Linter implements CodeActionProvider {
       case Constants.LANGUAGE_ID_MARKDOWN:
         annotatedtext = this.buildAnnotatedMarkdown(document.getText());
         break;
+      case Constants.LANGUAGE_ID_MDX:
+        annotatedtext = this.buildAnnotatedMarkdown(document.getText());
+        break;
       case Constants.LANGUAGE_ID_HTML:
         annotatedtext = this.buildAnnotatedHTML(document.getText());
         break;

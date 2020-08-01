@@ -1,0 +1,192 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "# ",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "Bold and Italics",
+      "offset": {
+        "start": 2,
+        "end": 18
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 18,
+        "end": 20
+      }
+    },
+    {
+      "text": "This is a ",
+      "offset": {
+        "start": 20,
+        "end": 30
+      }
+    },
+    {
+      "markup": "**",
+      "interpretAs": "",
+      "offset": {
+        "start": 30,
+        "end": 32
+      }
+    },
+    {
+      "text": "bold",
+      "offset": {
+        "start": 32,
+        "end": 36
+      }
+    },
+    {
+      "markup": "**",
+      "interpretAs": "",
+      "offset": {
+        "start": 36,
+        "end": 38
+      }
+    },
+    {
+      "text": " style and this is ",
+      "offset": {
+        "start": 38,
+        "end": 57
+      }
+    },
+    {
+      "markup": "*",
+      "interpretAs": "",
+      "offset": {
+        "start": 57,
+        "end": 58
+      }
+    },
+    {
+      "text": "italic",
+      "offset": {
+        "start": 58,
+        "end": 64
+      }
+    },
+    {
+      "markup": "*",
+      "interpretAs": "",
+      "offset": {
+        "start": 64,
+        "end": 65
+      }
+    },
+    {
+      "text": " style using * char",
+      "offset": {
+        "start": 65,
+        "end": 84
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 84,
+        "end": 86
+      }
+    },
+    {
+      "text": "This is a ",
+      "offset": {
+        "start": 86,
+        "end": 96
+      }
+    },
+    {
+      "markup": "__",
+      "interpretAs": "",
+      "offset": {
+        "start": 96,
+        "end": 98
+      }
+    },
+    {
+      "text": "bold",
+      "offset": {
+        "start": 98,
+        "end": 102
+      }
+    },
+    {
+      "markup": "__",
+      "interpretAs": "",
+      "offset": {
+        "start": 102,
+        "end": 104
+      }
+    },
+    {
+      "text": " style and ths is ",
+      "offset": {
+        "start": 104,
+        "end": 122
+      }
+    },
+    {
+      "markup": "_",
+      "interpretAs": "",
+      "offset": {
+        "start": 122,
+        "end": 123
+      }
+    },
+    {
+      "text": "italic",
+      "offset": {
+        "start": 123,
+        "end": 129
+      }
+    },
+    {
+      "markup": "_",
+      "interpretAs": "",
+      "offset": {
+        "start": 129,
+        "end": 130
+      }
+    },
+    {
+      "text": " style using _ char",
+      "offset": {
+        "start": 130,
+        "end": 149
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 149,
+        "end": 151
+      }
+    },
+    {
+      "text": "This, even misspeled, will not fail when above fixed",
+      "offset": {
+        "start": 151,
+        "end": 203
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 203,
+        "end": 204
+      }
+    }
+  ]
+}

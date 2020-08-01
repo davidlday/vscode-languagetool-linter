@@ -1,0 +1,132 @@
+{
+  "annotation": [
+    {
+      "markup": "---\ntitle: \"Front Matter\"\nsubtitle: \"How I stopped worrying and YAML.\"\nsubsubtitle: \"Also, also, wik.\"\n---\n# ",
+      "interpretAs": "\n\n\n\n\n# ",
+      "offset": {
+        "start": 0,
+        "end": 109
+      }
+    },
+    {
+      "text": "What About a Title",
+      "offset": {
+        "start": 109,
+        "end": 127
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 127,
+        "end": 129
+      }
+    },
+    {
+      "text": "The problem with front matter is that the linter doesn’t know how to skip it. At least not yet. What about spelling errors?",
+      "offset": {
+        "start": 129,
+        "end": 252
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 252,
+        "end": 254
+      }
+    },
+    {
+      "text": "And technically, a Markdown document with a “title” element in the front matter shouldn’t also have a ",
+      "offset": {
+        "start": 254,
+        "end": 356
+      }
+    },
+    {
+      "markup": "[",
+      "interpretAs": "",
+      "offset": {
+        "start": 356,
+        "end": 357
+      }
+    },
+    {
+      "text": "level 1 header",
+      "offset": {
+        "start": 357,
+        "end": 371
+      }
+    },
+    {
+      "markup": "](https://github.com/DavidAnson/markdownlint/blob/v0.17.2/doc/Rules.md#md025---multiple-top-level-headings-in-the-same-document)",
+      "interpretAs": "",
+      "offset": {
+        "start": 371,
+        "end": 499
+      }
+    },
+    {
+      "text": ". But this one does. I’m a rule breaker.",
+      "offset": {
+        "start": 499,
+        "end": 539
+      }
+    },
+    {
+      "markup": "\n\n---\n\n",
+      "interpretAs": "\n\n\n\n",
+      "offset": {
+        "start": 539,
+        "end": 546
+      }
+    },
+    {
+      "text": "This is a new section, not YAML.",
+      "offset": {
+        "start": 546,
+        "end": 578
+      }
+    },
+    {
+      "markup": "\n\n## ",
+      "interpretAs": "\n\n# ",
+      "offset": {
+        "start": 578,
+        "end": 583
+      }
+    },
+    {
+      "text": "A second level header",
+      "offset": {
+        "start": 583,
+        "end": 604
+      }
+    },
+    {
+      "markup": "\n\n---\n\n",
+      "interpretAs": "\n\n\n\n",
+      "offset": {
+        "start": 604,
+        "end": 611
+      }
+    },
+    {
+      "text": "This is also a new section. YAML is only detected as front matter.",
+      "offset": {
+        "start": 611,
+        "end": 677
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 677,
+        "end": 678
+      }
+    }
+  ]
+}

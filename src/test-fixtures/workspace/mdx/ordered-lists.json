@@ -1,0 +1,102 @@
+{
+  "annotation": [
+    {
+      "markup": "# ",
+      "interpretAs": "# ",
+      "offset": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "text": "Ordered Lists",
+      "offset": {
+        "start": 2,
+        "end": 15
+      }
+    },
+    {
+      "markup": "\n\n",
+      "interpretAs": "\n\n",
+      "offset": {
+        "start": 15,
+        "end": 17
+      }
+    },
+    {
+      "text": "Ordered list test document.",
+      "offset": {
+        "start": 17,
+        "end": 44
+      }
+    },
+    {
+      "markup": "\n\n1. ",
+      "interpretAs": "\n\n** ",
+      "offset": {
+        "start": 44,
+        "end": 49
+      }
+    },
+    {
+      "text": "numbered items shouldn’t throw punctuation errors",
+      "offset": {
+        "start": 49,
+        "end": 98
+      }
+    },
+    {
+      "markup": "\n1. ",
+      "interpretAs": "\n** ",
+      "offset": {
+        "start": 98,
+        "end": 102
+      }
+    },
+    {
+      "text": "numbered items shouldn’t throw capitalization errors",
+      "offset": {
+        "start": 102,
+        "end": 154
+      }
+    },
+    {
+      "markup": "\n    1. ",
+      "interpretAs": "\n** ",
+      "offset": {
+        "start": 154,
+        "end": 162
+      }
+    },
+    {
+      "text": "numbered items shouldn’t throw errors at any level",
+      "offset": {
+        "start": 162,
+        "end": 212
+      }
+    },
+    {
+      "markup": "\n    1. ",
+      "interpretAs": "\n** ",
+      "offset": {
+        "start": 212,
+        "end": 220
+      }
+    },
+    {
+      "text": "numbered items shouldn’t throw errors at any level",
+      "offset": {
+        "start": 220,
+        "end": 270
+      }
+    },
+    {
+      "markup": "\n",
+      "interpretAs": "\n",
+      "offset": {
+        "start": 270,
+        "end": 271
+      }
+    }
+  ]
+}
