@@ -6,8 +6,8 @@ import * as path from "path";
 export function run(): Promise<void> {
   // Create the mocha test
   const mocha = new Mocha({
-    ui: "tdd",
     color: true,
+    ui: "tdd",
   });
 
   const testsRoot = path.resolve(__dirname, "..");
