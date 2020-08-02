@@ -24,11 +24,11 @@ suite("Linter MDX Test Suite", () => {
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/backticks.mdxx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/backticks.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/backticks.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/backticks.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 
@@ -37,81 +37,81 @@ suite("Linter MDX Test Suite", () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          testWorkspace + "/markdown/bold-or-italics.json",
+          testWorkspace + "/mdx/bold-or-italics.json",
         ),
         "utf8",
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/bold-or-italics.mdx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/bold-or-italics.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/bold-or-italics.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/bold-or-italics.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 
   test("Linter should return annotated text for Markdown with Comments", () => {
     const expected = JSON.parse(
       fs.readFileSync(
-        path.resolve(__dirname, testWorkspace + "/markdown/comments.json"),
+        path.resolve(__dirname, testWorkspace + "/mdx/comments.json"),
         "utf8",
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/comments.mdx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/comments.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/comments.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/comments.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 
   test("Linter should return annotated text for Markdown with Front Matter (YAML)", () => {
     const expected = JSON.parse(
       fs.readFileSync(
-        path.resolve(__dirname, testWorkspace + "/markdown/front-matter.json"),
+        path.resolve(__dirname, testWorkspace + "/mdx/front-matter.json"),
         "utf8",
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/front-matter.mdx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/front-matter.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/front-matter.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/front-matter.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 
   test("Linter should return annotated text for Markdown with Headers", () => {
     const expected = JSON.parse(
       fs.readFileSync(
-        path.resolve(__dirname, testWorkspace + "/markdown/headers.json"),
+        path.resolve(__dirname, testWorkspace + "/mdx/headers.json"),
         "utf8",
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/headers.mdx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/headers.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/headers.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/headers.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 
   test("Linter should return annotated text for Markdown with Ordered Lists", () => {
     const expected = JSON.parse(
       fs.readFileSync(
-        path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.json"),
+        path.resolve(__dirname, testWorkspace + "/mdx/ordered-lists.json"),
         "utf8",
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.mdx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/ordered-lists.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/ordered-lists.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/ordered-lists.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 
@@ -120,17 +120,17 @@ suite("Linter MDX Test Suite", () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          testWorkspace + "/markdown/unordered-lists.json",
+          testWorkspace + "/mdx/unordered-lists.json",
         ),
         "utf8",
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.mdx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/unordered-lists.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/unordered-lists.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 
@@ -139,17 +139,17 @@ suite("Linter MDX Test Suite", () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          testWorkspace + "/markdown/escape-character.json",
+          testWorkspace + "/mdx/escape-character.json",
         ),
         "utf8",
       ),
     );
     const text = fs.readFileSync(
-      path.resolve(__dirname, testWorkspace + "/markdown/escape-character.mdx"),
+      path.resolve(__dirname, testWorkspace + "/mdx/escape-character.mdx"),
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/mdx/unordered-lists.json"), JSON.stringify(actual), "utf8");
     assert.deepStrictEqual(actual, expected);
   });
 });
