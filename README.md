@@ -9,7 +9,7 @@ NOTE: SVGs not allowed in README on extensions.
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 [![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 
-Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://languagetool.org). Support Markdown, HTML, and plain text files.
+Grammar, Style and Spell Checking in VS Code via [LanguageTool](https://languagetool.org). Support Markdown, MDX, HTML, and plain text files.
 
 In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [LanguageTool for Visual Studio Code](https://github.com/languagetool-language-server/vscode-languagetool) extension.
 
@@ -17,7 +17,7 @@ In memory of [Adam Voss](https://github.com/adamvoss), original creator of the [
 
 * Issue highlighting with hover description.
 * Replacement suggestions.
-* Checks plain text, Markdown, and HTML.
+* Checks plain text, Markdown, MDX, and HTML.
 * Smart format on type to replace quotes with smart quotes, multiple consecutive hyphens with em or en-dash, and three consecutive periods with ellipses.
   * Make sure 'Editor: Format On Type' is enabled or this feature won't work. You can enable it at the document format level as well in your `settings.json`.
 
@@ -29,6 +29,7 @@ The defaults assume the following:
 
 1. You do not want to use the [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api)
 2. You're running [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) on your machine using the default port of 8081.
+  * You can run a local LanguageTool server using the [unofficial Docker image](https://github.com/silvio/docker-languagetool) with `docker run --rm -p 8001:8010 silviof/docker-languagetool`
 3. You do not want to have this extension manage your local [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) service.
 
 If this doesn't work for you, here are your options.

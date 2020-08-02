@@ -25,6 +25,7 @@ export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
 // Programming Language IDs
+export const LANGUAGE_ID_MDX = "mdx";
 export const LANGUAGE_ID_MARKDOWN = "markdown";
 export const LANGUAGE_ID_HTML = "html";
 

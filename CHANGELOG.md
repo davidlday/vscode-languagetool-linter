@@ -11,6 +11,10 @@ and this project adheres to
 
 Changes not yet released.
 
+### Added
+
+- Support for [mdx](https://mdxjs.com/) files. (Thank you, [@shicolas](https://github.com/shicholas))
+
 ## [0.15.0] - 2020-06-21
 
 ### Added
