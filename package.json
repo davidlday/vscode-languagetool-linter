@@ -16,6 +16,7 @@
     "html",
     "languagetool",
     "markdown",
+    "mdx",
     "proofread",
     "spell",
     "spelling"
@@ -39,6 +40,7 @@
   "activationEvents": [
     "onLanguage:plaintext",
     "onLanguage:markdown",
+    "onLanguage:mdx",
     "onLanguage:html",
     "onCommand:languagetoolLinter.checkDocument",
     "onCommand:languagetoolLinter.checkDocumentAsPlainText",

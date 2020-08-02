@@ -17,6 +17,22 @@ suite("Linter Test Suite", () => {
     assert.ok(linter);
   });
 
+  test("Linter should return annotated text for Basic MDX", () => {
+    const expected: JSON = JSON.parse(
+      fs.readFileSync(
+        path.resolve(__dirname, testWorkspace + "/mdx/basic.json"),
+        "utf8",
+      ),
+    );
+    const text: string = fs.readFileSync(
+      path.resolve(__dirname, testWorkspace + "/mdx/basic.mdx"),
+      "utf8",
+    );
+    const actual: IAnnotatedtext = linter.buildAnnotatedMarkdown(text);
+    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/basic.json"), JSON.stringify(actual), "utf8");
+    assert.deepStrictEqual(expected, actual);
+  });
+
   test("Linter should return annotated text for Basic Markdown", () => {
     const expected: JSON = JSON.parse(
       fs.readFileSync(
