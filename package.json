@@ -486,7 +486,7 @@
   "dependencies": {
     "annotatedtext-rehype": "^0.4.0",
     "annotatedtext-remark": "^0.6.0",
-    "execa": "^4.0.2",
+    "execa": "^4.0.3",
     "glob": "^7.1.6",
     "portfinder": "^1.0.28",
     "request": "^2.88.2",
