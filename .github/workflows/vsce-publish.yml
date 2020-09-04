@@ -8,13 +8,35 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 12
-    - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      name: Start Xvfb
-    - run: npm install -g typescript vsce
-    - run: npm ci
-    - run: vsce package
-    - run: vsce publish --pat ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: npm ci
+      - name: Publish to Open VSX Registry
+        uses: HaaLeo/publish-vscode-extension@v0
+        id: publishToOpenVSX
+        with:
+          pat: ${{ secrets.OPENVSX_PERSONAL_ACCESS_TOKEN }}
+      - name: Publish to Visual Studio Marketplace
+        uses: HaaLeo/publish-vscode-extension@v0
+        with:
+          pat: ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
+          registryUrl: https://marketplace.visualstudio.com
+          extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+          packagePath: ""
+#  Original job
+# jobs:
+#   publish:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v2
+#     - uses: actions/setup-node@v1
+#       with:
+#         node-version: 12
+#     - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+#       name: Start Xvfb
+#     - run: npm install -g typescript vsce
+#     - run: npm ci
+#     - run: vsce package
+#     - run: vsce publish --pat ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
