@@ -346,21 +346,6 @@ export class Linter implements CodeActionProvider {
       ) {
         diagnostic.severity = DiagnosticSeverity.Hint;
       }
-      // Spelling Rules
-      // if (Linter.isSpellingRule(match.rule.id)) {
-      //   const spellingActions: CodeAction[] = this.getSpellingRuleActions(document, diagnostic, match);
-      //   if (spellingActions.length > 0) {
-      //     diagnostics.push(diagnostic);
-      //     spellingActions.forEach((action) => {
-      //       actions.push(action);
-      //     });
-      //   }
-      // } else {
-      //   diagnostics.push(diagnostic);
-      //   this.getRuleActions(document, diagnostic, match).forEach((action) => {
-      //     actions.push(action);
-      //   });
-      // }
     });
     this.diagnosticCollection.set(document.uri, diagnostics);
   }
