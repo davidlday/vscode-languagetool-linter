@@ -484,7 +484,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "annotatedtext-rehype": "^0.4.0",
+    "annotatedtext-rehype": "^0.5.0",
     "annotatedtext-remark": "^0.7.0",
     "execa": "^4.0.3",
     "glob": "^7.1.6",
