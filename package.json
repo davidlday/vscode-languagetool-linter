@@ -174,7 +174,7 @@
           ],
           "enumDescriptions": [
             "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
-            "Let LanguageTool Linter manage a local service. Specify the path to the script in 'Script'.",
+            "Let LanguageTool Linter manage a local service. Specify the classpath or LanguageTool jar file in 'Managed: Class Path'.",
             "Use the public LanguageTool API Service at https://languagetool.org/api."
           ]
         },
