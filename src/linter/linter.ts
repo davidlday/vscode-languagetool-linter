@@ -14,9 +14,9 @@
  *   limitations under the License.
  */
 
-import * as rehypeBuilder from "annotatedtext-rehype";
-import * as remarkBuilder from "annotatedtext-remark";
-import * as rp from "request-promise-native";
+import * as RehypeBuilder from "annotatedtext-rehype";
+import * as RemarkBuilder from "annotatedtext-remark";
+import * as Fetch from "node-fetch";
 import {
   CancellationToken,
   CodeAction,
@@ -61,8 +61,8 @@ export class Linter implements CodeActionProvider {
   }
 
   public diagnosticCollection: DiagnosticCollection;
-  public remarkBuilderOptions: any = remarkBuilder.defaults;
-  public rehypeBuilderOptions: any = rehypeBuilder.defaults;
+  public remarkBuilderOptions: any = RemarkBuilder.defaults;
+  public rehypeBuilderOptions: any = RehypeBuilder.defaults;
 
   private readonly configManager: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
@@ -160,12 +160,12 @@ export class Linter implements CodeActionProvider {
 
   // Build annotatedtext from Markdown
   public buildAnnotatedMarkdown(text: string): IAnnotatedtext {
-    return remarkBuilder.build(text, this.remarkBuilderOptions);
+    return RemarkBuilder.build(text, this.remarkBuilderOptions);
   }
 
   // Build annotatedtext from HTML
   public buildAnnotatedHTML(text: string): IAnnotatedtext {
-    return rehypeBuilder.build(text, this.rehypeBuilderOptions);
+    return RehypeBuilder.build(text, this.rehypeBuilderOptions);
   }
 
   // Build annotatedtext from PLAINTEXT
@@ -293,15 +293,26 @@ export class Linter implements CodeActionProvider {
   private callLanguageTool(document: TextDocument, ltPostDataDict: any): void {
     const url = this.configManager.getUrl();
     if (url) {
-      const options: object = {
-        form: ltPostDataDict,
-        json: true,
+      const formBody = Object.keys(ltPostDataDict)
+        .map(
+          (key) =>
+            encodeURIComponent(key) +
+            "=" +
+            encodeURIComponent(ltPostDataDict[key]),
+        )
+        .join("&");
+
+      const options: Fetch.RequestInit = {
+        body: formBody,
         method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          Accepts: "application/json",
+        },
       };
-      rp.post(url, options)
-        .then((data) => {
-          this.suggest(document, data);
-        })
+      Fetch.default(url, options)
+        .then((res) => res.json())
+        .then((json) => this.suggest(document, json))
         .catch((err) => {
           Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
             "Error connecting to " + url,
