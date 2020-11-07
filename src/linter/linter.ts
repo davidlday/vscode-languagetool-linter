@@ -304,11 +304,11 @@ export class Linter implements CodeActionProvider {
 
       const options: Fetch.RequestInit = {
         body: formBody,
-        method: "POST",
         headers: {
+          "Accepts": "application/json",
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-          Accepts: "application/json",
         },
+        method: "POST",
       };
       Fetch.default(url, options)
         .then((res) => res.json())

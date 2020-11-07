@@ -1,4 +1,5 @@
 {
   "proseWrap": "always",
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "quoteProps": "consistent"
 }
