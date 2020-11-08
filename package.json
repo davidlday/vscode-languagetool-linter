@@ -148,6 +148,11 @@
           "default": false,
           "description": "Hide diagnostic messages on document changes. Most noticable when used with 'Lint on Change'."
         },
+        "languageToolLinter.hideRuleIds": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide Rule IDs in messages."
+        },
         "languageToolLinter.lintOnChange": {
           "type": "boolean",
           "default": false,
