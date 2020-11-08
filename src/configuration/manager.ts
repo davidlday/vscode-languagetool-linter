@@ -294,9 +294,10 @@ export class ConfigurationManager implements Disposable {
 
   private findServiceUrl(serviceType: string): string | undefined {
     switch (serviceType) {
-      case Constants.SERVICE_TYPE_EXTERNAL:
+      case Constants.SERVICE_TYPE_EXTERNAL: {
         return this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
-      case Constants.SERVICE_TYPE_MANAGED:
+      }
+      case Constants.SERVICE_TYPE_MANAGED: {
         const port = this.getManagedServicePort();
         if (port) {
           return (
@@ -307,10 +308,13 @@ export class ConfigurationManager implements Disposable {
         } else {
           return undefined;
         }
-      case Constants.SERVICE_TYPE_PUBLIC:
+      }
+      case Constants.SERVICE_TYPE_PUBLIC: {
         return Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
-      default:
+      }
+      default: {
         return undefined;
+      }
     }
   }
 
@@ -352,7 +356,7 @@ export class ConfigurationManager implements Disposable {
       } else {
         portfinder.getPort(
           { host: "127.0.0.1", port: minimumPort, stopPort: maximumPort },
-          (error: any, port: number) => {
+          (error: Error, port: number) => {
             if (error) {
               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
                 "Error getting open port: " + error.message,
@@ -370,26 +374,28 @@ export class ConfigurationManager implements Disposable {
               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
                 "Starting managed service.",
               );
-              (this.process = execa("java", args)).catch((err: any) => {
-                if (err.isCanceled) {
-                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                    "Managed service process stopped.",
-                  );
-                } else if (err.failed) {
-                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                    "Managed service command failed: " + err.command,
-                  );
-                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                    "Error Message: " + err.message,
-                  );
-                  Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-                }
-              });
-              this.process.stderr.addListener("data", (data: any) => {
+              (this.process = execa("java", args)).catch(
+                (err: execa.ExecaError) => {
+                  if (err.isCanceled) {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                      "Managed service process stopped.",
+                    );
+                  } else if (err.failed) {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                      "Managed service command failed: " + err.command,
+                    );
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                      "Error Message: " + err.message,
+                    );
+                    Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+                  }
+                },
+              );
+              this.process.stderr.addListener("data", (data) => {
                 Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
                 Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
               });
-              this.process.stdout.addListener("data", (data: any) => {
+              this.process.stdout.addListener("data", (data) => {
                 Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
               });
               this.serviceUrl = this.findServiceUrl(this.getServiceType());

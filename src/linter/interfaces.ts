@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
- // Interface - LanguageTool Response
+// Interface - LanguageTool Response
 export interface ILanguageToolResponse {
   software: {
     name: string;
@@ -81,7 +81,7 @@ export interface IAnnotation {
   text?: string;
   offset?: {
     start: number;
-    end: number
+    end: number;
   };
 }
 

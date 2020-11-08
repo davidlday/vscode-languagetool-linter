@@ -47,6 +47,10 @@ import {
   ILanguageToolResponse,
 } from "./interfaces";
 
+class LTDiagnostic extends Diagnostic {
+  match?: ILanguageToolMatch;
+}
+
 export class Linter implements CodeActionProvider {
   // Is the rule a Spelling rule?
   // See: https://forum.languagetool.org/t/identify-spelling-rules/4775/3
@@ -61,8 +65,8 @@ export class Linter implements CodeActionProvider {
   }
 
   public diagnosticCollection: DiagnosticCollection;
-  public remarkBuilderOptions: any = RemarkBuilder.defaults;
-  public rehypeBuilderOptions: any = RehypeBuilder.defaults;
+  public remarkBuilderOptions: RemarkBuilder.IOptions = RemarkBuilder.defaults;
+  public rehypeBuilderOptions: RehypeBuilder.IOptions = RehypeBuilder.defaults;
 
   private readonly configManager: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
@@ -79,9 +83,9 @@ export class Linter implements CodeActionProvider {
   // Provide CodeActions for thw given Document and Range
   public provideCodeActions(
     document: TextDocument,
-    range: Range,
+    _range: Range,
     context: CodeActionContext,
-    token: CancellationToken,
+    _token: CancellationToken,
   ): CodeAction[] {
     const diagnostics = context.diagnostics || [];
     const actions: CodeAction[] = [];
@@ -91,9 +95,10 @@ export class Linter implements CodeActionProvider {
           diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE,
       )
       .forEach((diagnostic) => {
-        // @ts-ignore
-        const match: ILanguageToolMatch = diagnostic.match || null;
-        if (Linter.isSpellingRule(match.rule.id)) {
+        const match:
+          | ILanguageToolMatch
+          | undefined = (diagnostic as LTDiagnostic).match;
+        if (match && Linter.isSpellingRule(match.rule.id)) {
           const spellingActions: CodeAction[] = this.getSpellingRuleActions(
             document,
             diagnostic,
@@ -226,14 +231,14 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     annotatedText: string,
   ): void {
-    const ltPostDataDict: any = this.getPostDataTemplate();
+    const ltPostDataDict: Record<string, string> = this.getPostDataTemplate();
     ltPostDataDict.data = annotatedText;
     this.callLanguageTool(document, ltPostDataDict);
   }
 
   // Apply smart formatting to annotated text.
   public smartFormatAnnotatedtext(annotatedtext: IAnnotatedtext): string {
-    let newText: string = "";
+    let newText = "";
     // Only run substitutions on text annotations.
     annotatedtext.annotation.forEach((annotation) => {
       if (annotation.text) {
@@ -281,8 +286,8 @@ export class Linter implements CodeActionProvider {
   }
 
   // Set ltPostDataTemplate from Configuration
-  private getPostDataTemplate(): any {
-    const ltPostDataTemplate: any = {};
+  private getPostDataTemplate(): Record<string, string> {
+    const ltPostDataTemplate: Record<string, string> = {};
     this.configManager.getServiceParameters().forEach((value, key) => {
       ltPostDataTemplate[key] = value;
     });
@@ -290,12 +295,15 @@ export class Linter implements CodeActionProvider {
   }
 
   // Call to LanguageTool Service
-  private callLanguageTool(document: TextDocument, ltPostDataDict: any): void {
+  private callLanguageTool(
+    document: TextDocument,
+    ltPostDataDict: Record<string, string>,
+  ): void {
     const url = this.configManager.getUrl();
     if (url) {
       const formBody = Object.keys(ltPostDataDict)
         .map(
-          (key) =>
+          (key: string) =>
             encodeURIComponent(key) +
             "=" +
             encodeURIComponent(ltPostDataDict[key]),
@@ -333,7 +341,7 @@ export class Linter implements CodeActionProvider {
     response: ILanguageToolResponse,
   ): void {
     const matches = response.matches;
-    const diagnostics: Diagnostic[] = [];
+    const diagnostics: LTDiagnostic[] = [];
     // const actions: CodeAction[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
@@ -341,13 +349,12 @@ export class Linter implements CodeActionProvider {
       const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.rule.id + ": " + match.message;
-      const diagnostic: Diagnostic = new Diagnostic(
+      const diagnostic: LTDiagnostic = new LTDiagnostic(
         diagnosticRange,
         diagnosticMessage,
         diagnosticSeverity,
       );
       diagnostic.source = Constants.EXTENSION_DIAGNOSTIC_SOURCE;
-      // @ts-ignore
       diagnostic.match = match;
       diagnostics.push(diagnostic);
       if (
@@ -364,11 +371,10 @@ export class Linter implements CodeActionProvider {
   // Get CodeActions for Spelling Rules
   private getSpellingRuleActions(
     document: TextDocument,
-    diagnostic: Diagnostic,
+    diagnostic: LTDiagnostic,
   ): CodeAction[] {
     const actions: CodeAction[] = [];
-    // @ts-ignore
-    const match: ILanguageToolMatch = diagnostic.match || null;
+    const match: ILanguageToolMatch | undefined = diagnostic.match;
     const word: string = document.getText(diagnostic.range);
     if (this.configManager.isIgnoredWord(word)) {
       if (this.configManager.showIgnoredWordHints()) {
@@ -435,6 +441,27 @@ export class Linter implements CodeActionProvider {
         wsIgnoreAction.diagnostics.push(diagnostic);
         actions.push(wsIgnoreAction);
       }
+      if (match) {
+        this.getReplacementActions(
+          document,
+          diagnostic,
+          match.replacements,
+        ).forEach((action: CodeAction) => {
+          actions.push(action);
+        });
+      }
+    }
+    return actions;
+  }
+
+  // Get all Rule CodeActions
+  private getRuleActions(
+    document: TextDocument,
+    diagnostic: LTDiagnostic,
+  ): CodeAction[] {
+    const match: ILanguageToolMatch | undefined = diagnostic.match;
+    const actions: CodeAction[] = [];
+    if (match) {
       this.getReplacementActions(
         document,
         diagnostic,
@@ -443,24 +470,6 @@ export class Linter implements CodeActionProvider {
         actions.push(action);
       });
     }
-    return actions;
-  }
-
-  // Get all Rule CodeActions
-  private getRuleActions(
-    document: TextDocument,
-    diagnostic: Diagnostic,
-  ): CodeAction[] {
-    // @ts-ignore
-    const match: ILanguageToolMatch = diagnostic.match;
-    const actions: CodeAction[] = [];
-    this.getReplacementActions(
-      document,
-      diagnostic,
-      match.replacements,
-    ).forEach((action: CodeAction) => {
-      actions.push(action);
-    });
     return actions;
   }
 

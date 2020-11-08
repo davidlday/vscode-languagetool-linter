@@ -33,9 +33,9 @@ export class DashesFormattingProvider
   public provideOnTypeFormattingEdits(
     document: vscode.TextDocument,
     position: vscode.Position,
-    ch: string,
-    options: vscode.FormattingOptions,
-    cancellationToken: vscode.CancellationToken,
+    _ch: string,
+    _options: vscode.FormattingOptions,
+    _cancellationToken: vscode.CancellationToken,
   ): vscode.TextEdit[] {
     const line: vscode.TextLine = document.lineAt(position.line);
     const range: vscode.Range = new vscode.Range(

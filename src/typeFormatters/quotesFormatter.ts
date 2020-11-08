@@ -40,8 +40,8 @@ export class QuotesFormattingProvider
     document: vscode.TextDocument,
     position: vscode.Position,
     ch: string,
-    options: vscode.FormattingOptions,
-    cancellationToken: vscode.CancellationToken,
+    _options: vscode.FormattingOptions,
+    _cancellationToken: vscode.CancellationToken,
   ): vscode.TextEdit[] {
     const line: vscode.TextLine = document.lineAt(position.line);
     const chRange: vscode.Range = new vscode.Range(
@@ -52,7 +52,7 @@ export class QuotesFormattingProvider
     );
     const prevCh: string =
       position.character > 1 ? line.text.charAt(position.character - 2) : " ";
-    const nextCh: string =
+    const _nextCh: string =
       position.character < line.text.length
         ? line.text.charAt(line.text.length + 1)
         : " ";
