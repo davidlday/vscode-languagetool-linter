@@ -71,6 +71,7 @@ export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
 ];
 export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
 export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
+export const CONFIGURATION_LANGUAGE = "language";
 
 // LanguageTool Services
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
@@ -90,3 +91,7 @@ export const SERVICE_PARAMETERS: string[] = [
   "disabledCategories",
   "disabledRules",
 ];
+export const SERVICE_RULE_BASE_URI =
+  "https://community.languagetool.org/rule/show/";
+export const SERVICE_RULE_URL_LANG_DEFAULT = "en";
+export const SERVICE_RULE_URL_GENERIC_LABEL = "details";
