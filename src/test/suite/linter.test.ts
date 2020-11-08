@@ -2,7 +2,7 @@ import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
 import { ConfigurationManager } from "../../configuration/manager";
-import { IAnnotatedtext } from "../../linter/interfaces";
+import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "../../linter/linter";
 
 suite("Linter Test Suite", () => {
@@ -77,7 +77,11 @@ suite("Linter Test Suite", () => {
       "utf8",
     );
     const actual: IAnnotatedtext = linter.buildAnnotatedPlaintext(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/plaintext/basic.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(
+    //   path.resolve(__dirname, testWorkspace + "/plaintext/basic.new.json"),
+    //   JSON.stringify(actual),
+    //   "utf8",
+    // );
     assert.deepStrictEqual(expected, actual);
   });
 

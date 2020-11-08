@@ -17,7 +17,7 @@
 import * as vscode from "vscode";
 import * as Constants from "./configuration/constants";
 import { ConfigurationManager } from "./configuration/manager";
-import { IAnnotatedtext } from "./linter/interfaces";
+import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "./linter/linter";
 import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
 import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";

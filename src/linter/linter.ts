@@ -40,12 +40,11 @@ import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
 import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter";
 import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";
 import {
-  IAnnotatedtext,
-  IAnnotation,
   ILanguageToolMatch,
   ILanguageToolReplacement,
   ILanguageToolResponse,
 } from "./interfaces";
+import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 
 class LTDiagnostic extends Diagnostic {
   match?: ILanguageToolMatch;
@@ -175,7 +174,13 @@ export class Linter implements CodeActionProvider {
 
   // Build annotatedtext from PLAINTEXT
   public buildAnnotatedPlaintext(plainText: string): IAnnotatedtext {
-    const textAnnotation: IAnnotation = { text: plainText };
+    const textAnnotation: IAnnotation = {
+      text: plainText,
+      offset: {
+        start: 0,
+        end: plainText.length,
+      },
+    };
     return { annotation: [textAnnotation] };
   }
 
