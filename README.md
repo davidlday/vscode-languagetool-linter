@@ -104,6 +104,8 @@ particular attention to:
 
 The following projects provided excellent guidance on creating this project.
 
+<!-- markdownlint-disable no-inline-html -->
+
 - [LanguageTool](https://languagetool.org) (of course!)
 - [Atom Linter LanguageTool](https://github.com/wysiib/linter-languagetool/)
 - [LT<sub>e</sub>X](https://github.com/valentjn/vscode-ltex) — a fork of
@@ -111,3 +113,5 @@ The following projects provided excellent guidance on creating this project.
 - [VS Code Write Good Extension](https://github.com/TravisTheTechie/vscode-write-good/)
 - [Fall: Not Yet Another Parser Generator](https://github.com/matklad/fall)
 - [markdownlint](https://github.com/DavidAnson/vscode-markdownlint)
+
+<!-- markdownlint-enable no-inline-html -->
