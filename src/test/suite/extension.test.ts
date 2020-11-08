@@ -15,12 +15,13 @@ suite("Extension Test Suite", () => {
   test("Extension should activate", function () {
     this.timeout(60000);
     const ext:
-      | vscode.Extension<any>
+      | vscode.Extension<unknown>
       | undefined = vscode.extensions.getExtension(
       "davidlday.languagetool-linter",
     );
     if (ext) {
-      ext.activate().then((api: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ext.activate().then((api: unknown) => {
         assert.ok(true);
       });
     } else {
