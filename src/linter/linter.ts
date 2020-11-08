@@ -347,13 +347,14 @@ export class Linter implements CodeActionProvider {
   ): void {
     const matches = response.matches;
     const diagnostics: LTDiagnostic[] = [];
-    // const actions: CodeAction[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
       const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
-      const diagnosticMessage: string = match.rule.id + ": " + match.message;
+      const diagnosticMessage: string = this.configManager.isHideRuleIds()
+        ? match.message
+        : match.rule.id + ": " + match.message;
       const diagnostic: LTDiagnostic = new LTDiagnostic(
         diagnosticRange,
         diagnosticMessage,
