@@ -24,6 +24,7 @@ import {
   DiagnosticSeverity,
   Disposable,
   TextDocument,
+  Uri,
   window,
   workspace,
   WorkspaceConfiguration,
@@ -154,12 +155,35 @@ export class ConfigurationManager implements Disposable {
     return parameters;
   }
 
+  public getRuleUrl(ruleId: string): Uri {
+    const lang = this.getLanguage();
+    return Uri.parse(
+      Constants.SERVICE_RULE_BASE_URI + ruleId + "?lang=" + lang,
+    );
+  }
+
+  public getLanguage(): string {
+    const lang = this.config.get(Constants.CONFIGURATION_LANGUAGE) as string;
+    if (
+      this.config.inspect(Constants.CONFIGURATION_LANGUAGE)?.defaultValue ===
+      lang
+    ) {
+      return Constants.SERVICE_RULE_URL_LANG_DEFAULT;
+    } else {
+      return lang;
+    }
+  }
+
   public getUrl(): string | undefined {
     return this.serviceUrl;
   }
 
   public isHideDiagnosticsOnChange(): boolean {
     return this.config.get("hideDiagnosticsOnChange") as boolean;
+  }
+
+  public isHideRuleIds(): boolean {
+    return this.config.get("hideRuleIds") as boolean;
   }
 
   public isLintOnChange(): boolean {

@@ -148,6 +148,11 @@
           "default": false,
           "description": "Hide diagnostic messages on document changes. Most noticable when used with 'Lint on Change'."
         },
+        "languageToolLinter.hideRuleIds": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide Rule IDs in messages."
+        },
         "languageToolLinter.lintOnChange": {
           "type": "boolean",
           "default": false,
@@ -473,7 +478,7 @@
     "@types/mocha": "^8.0.3",
     "@types/node": "^10.17.28",
     "@types/node-fetch": "^2.5.7",
-    "@types/vscode": "^1.39.0",
+    "@types/vscode": "^1.43.0",
     "@types/webpack": "^4.41.24",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",

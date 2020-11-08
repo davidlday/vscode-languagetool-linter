@@ -14,7 +14,20 @@ Changes not yet released.
 ### Added
 
 - Support for [mdx](https://mdxjs.com/) files. (Thank you,
-  [@shicolas](https://github.com/shicholas))
+  [@shicolas](https://github.com/shicholas)).
+- Publication on [Open-VSX Registry](https://open-vsx.org)
+  [#182](https://github.com/davidlday/vscode-languagetool-linter/issues/182).
+- Option to hide Rule IDs in diagnostics
+  [#121](https://github.com/davidlday/vscode-languagetool-linter/issues/121).
+- Moved Rule ID to end of diagnostic message and linked to rule info, excluding
+  spelling rules. Required updating `@types/vscode` to 1.43.0.
+
+### Fixed
+
+- Replaced deprecated `request` package with `node-fetch`
+  [#185](https://github.com/davidlday/vscode-languagetool-linter/issues/185).
+- Converted from `tslint` to `eslint`
+  [#149](https://github.com/davidlday/vscode-languagetool-linter/issues/149).
 
 ## [0.15.0] - 2020-06-21
 

@@ -347,13 +347,12 @@ export class Linter implements CodeActionProvider {
   ): void {
     const matches = response.matches;
     const diagnostics: LTDiagnostic[] = [];
-    // const actions: CodeAction[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
       const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
-      const diagnosticMessage: string = match.rule.id + ": " + match.message;
+      const diagnosticMessage: string = match.message;
       const diagnostic: LTDiagnostic = new LTDiagnostic(
         diagnosticRange,
         diagnosticMessage,
@@ -361,6 +360,18 @@ export class Linter implements CodeActionProvider {
       );
       diagnostic.source = Constants.EXTENSION_DIAGNOSTIC_SOURCE;
       diagnostic.match = match;
+      if (Linter.isSpellingRule(match.rule.id)) {
+        if (!this.configManager.isHideRuleIds()) {
+          diagnostic.code = match.rule.id;
+        }
+      } else {
+        diagnostic.code = {
+          target: this.configManager.getRuleUrl(match.rule.id),
+          value: this.configManager.isHideRuleIds()
+            ? Constants.SERVICE_RULE_URL_GENERIC_LABEL
+            : match.rule.id,
+        };
+      }
       diagnostics.push(diagnostic);
       if (
         Linter.isSpellingRule(match.rule.id) &&
