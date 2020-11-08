@@ -11,6 +11,8 @@ and this project adheres to
 
 Changes not yet released.
 
+## [0.16.0] - 2020-11-08
+
 ### Added
 
 - Support for [mdx](https://mdxjs.com/) files. (Thank you,
