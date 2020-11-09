@@ -11,6 +11,11 @@ and this project adheres to
 
 Changes not yet released.
 
+### Fixed
+
+- Port number for docker in README
+  ([#205](https://github.com/davidlday/vscode-languagetool-linter/issues/205)).
+
 ## [0.16.0] - 2020-11-08
 
 ### Added

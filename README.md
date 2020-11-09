@@ -44,7 +44,9 @@ The defaults assume the following:
 
    - You can run a local LanguageTool server using the
      [unofficial Docker image](https://github.com/silvio/docker-languagetool)
-     with `docker run --rm -p 8001:8010 silviof/docker-languagetool`
+     with `docker run --rm -p 8081:8010 silviof/docker-languagetool`. See
+     [silvio/docker-languagetool](https://github.com/silvio/docker-languagetool)
+     for more information.
 
 3. You do not want to have this extension manage your local
    [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) service.
