@@ -5,7 +5,8 @@
 // tslint:disable-next-line: no-var-requires
 const path = require("path");
 // tslint:disable-next-line: no-var-requires no-implicit-dependencies
-const LicenseWebpackPlugin = require("license-webpack-plugin").LicenseWebpackPlugin;
+const LicenseWebpackPlugin = require("license-webpack-plugin")
+  .LicenseWebpackPlugin;
 
 // tslint:disable-next-line: jsdoc-format
 /**@type {import("webpack").Configuration}*/
@@ -16,18 +17,22 @@ const config = {
     vscode: "commonjs vscode",
   },
   module: {
-    rules: [{
-      exclude: /node_modules/,
-      test: /\.ts$/,
-      use: [{
-        loader: "ts-loader",
-        options: {
-          compilerOptions: {
-            module: "es6",
+    rules: [
+      {
+        exclude: /node_modules/,
+        test: /\.ts$/,
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              compilerOptions: {
+                module: "es6",
+              },
+            },
           },
-        },
-      }],
-    }],
+        ],
+      },
+    ],
   },
   output: {
     devtoolModuleFilenameTemplate: "../[resource-path]",
@@ -38,9 +43,11 @@ const config = {
   plugins: [
     new LicenseWebpackPlugin({
       addBanner: true,
-      handleMissingLicenseText: (packageName, licenseType) => {
+      handleMissingLicenseText: (packageName: string, licenseType: string) => {
         // tslint:disable-next-line: no-console
-        console.log("Cannot find license for " + packageName + " (" + licenseType + ")");
+        console.log(
+          "Cannot find license for " + packageName + " (" + licenseType + ")",
+        );
         return licenseType;
       },
       perChunkOutput: true,

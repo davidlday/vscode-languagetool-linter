@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
- // Interface - LanguageTool Response
+// Interface - LanguageTool Response
 export interface ILanguageToolResponse {
   software: {
     name: string;
@@ -73,18 +73,4 @@ export interface ILanguageToolMatch {
 export interface ILanguageToolReplacement {
   value: string;
   shortDescription: string;
-}
-
-export interface IAnnotation {
-  markup?: string;
-  interpretAs?: string;
-  text?: string;
-  offset?: {
-    start: number;
-    end: number
-  };
-}
-
-export interface IAnnotatedtext {
-  annotation: IAnnotation[];
 }

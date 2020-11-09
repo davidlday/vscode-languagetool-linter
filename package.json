@@ -2,9 +2,9 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.12.0",
+  "version": "0.16.0",
   "engines": {
-    "vscode": "^1.39.0"
+    "vscode": "^1.43.0"
   },
   "categories": [
     "Linters"
@@ -16,6 +16,7 @@
     "html",
     "languagetool",
     "markdown",
+    "mdx",
     "proofread",
     "spell",
     "spelling"
@@ -39,16 +40,28 @@
   "activationEvents": [
     "onLanguage:plaintext",
     "onLanguage:markdown",
+    "onLanguage:mdx",
     "onLanguage:html",
-    "onCommand:languagetoolLinter.lintCurrentDocument",
+    "onCommand:languagetoolLinter.checkDocument",
+    "onCommand:languagetoolLinter.checkDocumentAsPlainText",
     "onCommand:languagetoolLinter.smartFormatDocument"
   ],
   "main": "./dist/extension",
   "contributes": {
     "commands": [
       {
-        "command": "languagetoolLinter.lintCurrentDocument",
-        "title": "Lint Current Document",
+        "command": "languagetoolLinter.checkDocument",
+        "title": "Check Document",
+        "category": "LanguageTool Linter"
+      },
+      {
+        "command": "languagetoolLinter.checkDocumentAsPlainText",
+        "title": "Force Check as Plain Text Document",
+        "category": "LanguageTool Linter"
+      },
+      {
+        "command": "languagetoolLinter.clearDocumentDiagnostics",
+        "title": "Clear Document Diagnostics",
         "category": "LanguageTool Linter"
       },
       {
@@ -57,6 +70,50 @@
         "category": "LanguageTool Linter"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "languagetoolLinter.checkDocument",
+          "when": "editorLangId == markdown || editorLangId == html"
+        },
+        {
+          "command": "languagetoolLinter.checkDocumentAsPlainText",
+          "when": "editorLangId != markdown && editorLangId != html"
+        },
+        {
+          "command": "languagetoolLinter.clearDocumentDiagnostics"
+        },
+        {
+          "command": "languagetoolLinter.smartFormatDocument",
+          "when": "editorLangId == markdown || editorLangId == html"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "languagetoolLinter.checkDocument",
+          "title": "LanguageTool: Check Document",
+          "when": "editorLangId == markdown || editorLangId == html",
+          "group": "LanguageTool"
+        },
+        {
+          "command": "languagetoolLinter.checkDocumentAsPlainText",
+          "title": "LanguageTool: Force Check as Plain Text Document",
+          "when": "editorLangId != markdown && editorLangId != html",
+          "group": "LanguageTool"
+        },
+        {
+          "command": "languagetoolLinter.clearDocumentDiagnostics",
+          "title": "LanguageTool: Clear Document Diagnotics",
+          "group": "LanguageTool"
+        },
+        {
+          "command": "languagetoolLinter.smartFormatDocument",
+          "title": "LanguageTool: Smart Format Document",
+          "when": "editorLangId == markdown || editorLangId == html",
+          "group": "LanguageTool"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "LanguageTool Linter",
@@ -91,6 +148,11 @@
           "default": false,
           "description": "Hide diagnostic messages on document changes. Most noticable when used with 'Lint on Change'."
         },
+        "languageToolLinter.hideRuleIds": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide Rule IDs in messages."
+        },
         "languageToolLinter.lintOnChange": {
           "type": "boolean",
           "default": false,
@@ -117,7 +179,7 @@
           ],
           "enumDescriptions": [
             "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
-            "Let LanguageTool Linter manage a local service. Specify the path to the script in 'Script'.",
+            "Let LanguageTool Linter manage a local service. Specify the classpath or LanguageTool jar file in 'Managed: Class Path'.",
             "Use the public LanguageTool API Service at https://languagetool.org/api."
           ]
         },
@@ -381,6 +443,21 @@
           "type": "boolean",
           "default": true,
           "description": "Shows a hint for ignored words, providing a Quick Fix to remove the word from the ignored list."
+        },
+        "languageToolLinter.plainText.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable linting of documents as plain text. The entire document is sent to LanguageTool as-is. Use Plain Text > Language IDs to determine which documents are considered Plain Text."
+        },
+        "languageToolLinter.plainText.languageIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "plaintext"
+          ],
+          "markdownDescription": "A list of [Language IDs](https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers) to treat as plain text."
         }
       }
     }
@@ -393,31 +470,37 @@
     "watch": "webpack --mode development --watch --info-verbosity verbose",
     "test-compile": "tsc -p ./",
     "pretest": "npm run test-compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "lint": "eslint ./src/"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/mocha": "^7.0.1",
-    "@types/node": "^10.17.13",
-    "@types/request-promise-native": "^1.0.17",
-    "@types/vscode": "^1.39.0",
-    "@types/webpack": "^4.41.3",
-    "license-webpack-plugin": "^2.1.3",
-    "mocha": "^7.0.1",
-    "ts-loader": "^6.2.1",
-    "tslint": "^6.0.0",
-    "typescript": "^3.7.5",
-    "vscode-test": "^1.3.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^10.17.28",
+    "@types/node-fetch": "^2.5.7",
+    "@types/vscode": "^1.43.0",
+    "@types/webpack": "^4.41.24",
+    "@typescript-eslint/eslint-plugin": "^4.6.1",
+    "@typescript-eslint/parser": "^4.6.1",
+    "eslint": "^7.13.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^30.7.7",
+    "license-webpack-plugin": "^2.3.1",
+    "mocha": "^8.2.0",
+    "ts-loader": "^8.0.7",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5",
+    "vscode-test": "^1.4.1",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^4.1.0"
   },
   "dependencies": {
-    "annotatedtext-rehype": "^0.1.2",
-    "annotatedtext-remark": "^0.4.0",
-    "execa": "^4.0.0",
+    "annotatedtext-rehype": "^0.5.0",
+    "annotatedtext-remark": "^0.7.0",
+    "execa": "^4.1.0",
     "glob": "^7.1.6",
-    "portfinder": "^1.0.25",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.8"
+    "node-fetch": "^2.6.1",
+    "portfinder": "^1.0.28"
   }
 }

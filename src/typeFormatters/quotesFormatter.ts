@@ -17,15 +17,18 @@
 import * as vscode from "vscode";
 import { ConfigurationManager } from "../configuration/manager";
 
-export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProvider {
-
+export class QuotesFormattingProvider
+  implements vscode.OnTypeFormattingEditProvider {
   public static readonly startDoubleQuote: string = "“";
   public static readonly endDoubleQuote: string = "”";
   public static readonly startSingleQuote: string = "‘";
   public static readonly endSingleQuote: string = "’";
   public static readonly doubleQuote: string = '"';
   public static readonly singleQuote: string = "'";
-  public static readonly triggers: string[] = [QuotesFormattingProvider.doubleQuote, QuotesFormattingProvider.singleQuote];
+  public static readonly triggers: string[] = [
+    QuotesFormattingProvider.doubleQuote,
+    QuotesFormattingProvider.singleQuote,
+  ];
 
   private readonly config: ConfigurationManager;
 
@@ -37,28 +40,69 @@ export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProv
     document: vscode.TextDocument,
     position: vscode.Position,
     ch: string,
-    options: vscode.FormattingOptions,
-    cancellationToken: vscode.CancellationToken): vscode.TextEdit[] {
-
+    _options: vscode.FormattingOptions,
+    _cancellationToken: vscode.CancellationToken,
+  ): vscode.TextEdit[] {
     const line: vscode.TextLine = document.lineAt(position.line);
-    const chRange: vscode.Range = new vscode.Range(position.line, position.character - 1, position.line, position.character);
-    const prevCh: string = (position.character > 1) ? line.text.charAt(position.character - 2) : " ";
-    const nextCh: string = (position.character < line.text.length) ? line.text.charAt(line.text.length + 1) : " ";
+    const chRange: vscode.Range = new vscode.Range(
+      position.line,
+      position.character - 1,
+      position.line,
+      position.character,
+    );
+    const prevCh: string =
+      position.character > 1 ? line.text.charAt(position.character - 2) : " ";
+    const _nextCh: string =
+      position.character < line.text.length
+        ? line.text.charAt(line.text.length + 1)
+        : " ";
 
     if (this.config.isSmartFormatOnType()) {
       switch (ch) {
         case QuotesFormattingProvider.doubleQuote:
-          if ([" ", QuotesFormattingProvider.singleQuote, QuotesFormattingProvider.startSingleQuote].indexOf(prevCh) !== -1) {
-            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.startDoubleQuote)];
+          if (
+            [
+              " ",
+              QuotesFormattingProvider.singleQuote,
+              QuotesFormattingProvider.startSingleQuote,
+            ].indexOf(prevCh) !== -1
+          ) {
+            return [
+              new vscode.TextEdit(
+                chRange,
+                QuotesFormattingProvider.startDoubleQuote,
+              ),
+            ];
           } else {
-            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.endDoubleQuote)];
+            return [
+              new vscode.TextEdit(
+                chRange,
+                QuotesFormattingProvider.endDoubleQuote,
+              ),
+            ];
           }
           break;
         case QuotesFormattingProvider.singleQuote:
-          if ([" ", QuotesFormattingProvider.doubleQuote, QuotesFormattingProvider.startDoubleQuote].indexOf(prevCh) !== -1) {
-            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.startSingleQuote)];
+          if (
+            [
+              " ",
+              QuotesFormattingProvider.doubleQuote,
+              QuotesFormattingProvider.startDoubleQuote,
+            ].indexOf(prevCh) !== -1
+          ) {
+            return [
+              new vscode.TextEdit(
+                chRange,
+                QuotesFormattingProvider.startSingleQuote,
+              ),
+            ];
           } else {
-            return [new vscode.TextEdit(chRange, QuotesFormattingProvider.endSingleQuote)];
+            return [
+              new vscode.TextEdit(
+                chRange,
+                QuotesFormattingProvider.endSingleQuote,
+              ),
+            ];
           }
         default:
           break;
@@ -66,5 +110,4 @@ export class QuotesFormattingProvider implements vscode.OnTypeFormattingEditProv
     }
     return [];
   }
-
 }

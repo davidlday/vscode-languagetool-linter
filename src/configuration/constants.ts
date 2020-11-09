@@ -18,46 +18,61 @@ import { DocumentSelector, OutputChannel, window } from "vscode";
 
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
-export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel("LanguageTool Linter");
-export const EXTENSION_DISPLAY_NAME: string = "languagetool-linter";
-export const EXTENSION_DIAGNOSTIC_SOURCE: string = "LanguageTool";
+export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel(
+  "LanguageTool Linter",
+);
+export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
+export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
 // Programming Language IDs
+export const LANGUAGE_ID_MDX = "mdx";
 export const LANGUAGE_ID_MARKDOWN = "markdown";
 export const LANGUAGE_ID_HTML = "html";
-export const LANGUAGE_ID_PLAINTEXT = "plaintext";
 
 // File Scheme
-export const SCHEME_FILE: string = "file";
-export const SCHEME_UNTITLED: string = "untitled";
+export const SCHEME_FILE = "file";
+export const SCHEME_UNTITLED = "untitled";
 
 // Document Selectors
-export const SELECTOR_MARKDOWN_FILE: DocumentSelector = { language: LANGUAGE_ID_MARKDOWN, scheme: SCHEME_FILE };
-export const SELECTOR_MARKDOWN_UNTITLED: DocumentSelector = { language: LANGUAGE_ID_MARKDOWN, scheme: SCHEME_UNTITLED };
-export const SELECTOR_HTML_FILE: DocumentSelector = { language: LANGUAGE_ID_HTML, scheme: SCHEME_FILE };
-export const SELECTOR_HTML_UNTITLED: DocumentSelector = { language: LANGUAGE_ID_HTML, scheme: SCHEME_UNTITLED };
-export const SELECTOR_PLAINTEXT_FILE: DocumentSelector = { language: LANGUAGE_ID_PLAINTEXT, scheme: SCHEME_FILE };
-export const SELECTOR_PLAINTEXT_UNTITLED: DocumentSelector = { language: LANGUAGE_ID_PLAINTEXT, scheme: SCHEME_UNTITLED };
+export const SELECTOR_MARKDOWN_FILE: DocumentSelector = {
+  language: LANGUAGE_ID_MARKDOWN,
+  scheme: SCHEME_FILE,
+};
+export const SELECTOR_MARKDOWN_UNTITLED: DocumentSelector = {
+  language: LANGUAGE_ID_MARKDOWN,
+  scheme: SCHEME_UNTITLED,
+};
+export const SELECTOR_HTML_FILE: DocumentSelector = {
+  language: LANGUAGE_ID_HTML,
+  scheme: SCHEME_FILE,
+};
+export const SELECTOR_HTML_UNTITLED: DocumentSelector = {
+  language: LANGUAGE_ID_HTML,
+  scheme: SCHEME_UNTITLED,
+};
+
 export const DOCUMENT_SELECTORS: DocumentSelector[] = [
   SELECTOR_MARKDOWN_FILE,
   SELECTOR_MARKDOWN_UNTITLED,
   SELECTOR_HTML_FILE,
   SELECTOR_HTML_UNTITLED,
-  SELECTOR_PLAINTEXT_FILE,
-  SELECTOR_PLAINTEXT_UNTITLED,
 ];
 
 // Configuration Strings
-export const CONFIGURATION_ROOT: string = "languageToolLinter";
-export const CONFIGURATION_IGNORED_RULES: string = "languageTool.ignoredRules";
-export const CONFIGURATION_GLOBAL_IGNORED_WORDS: string = "languageTool.ignoredWordsGlobal";
-export const CONFIGURATION_WORKSPACE_IGNORED_WORDS: string = "languageTool.ignoredWordsInWorkspace";
-export const CONFIGURATION_IGNORED_WORD_HINT: string = "languageTool.ignoredWordHint";
+export const CONFIGURATION_ROOT = "languageToolLinter";
+export const CONFIGURATION_IGNORED_RULES = "languageTool.ignoredRules";
+export const CONFIGURATION_GLOBAL_IGNORED_WORDS =
+  "languageTool.ignoredWordsGlobal";
+export const CONFIGURATION_WORKSPACE_IGNORED_WORDS =
+  "languageTool.ignoredWordsInWorkspace";
+export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_MARKDOWN,
   LANGUAGE_ID_HTML,
-  LANGUAGE_ID_PLAINTEXT,
 ];
+export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
+export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
+export const CONFIGURATION_LANGUAGE = "language";
 
 // LanguageTool Services
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
@@ -77,3 +92,7 @@ export const SERVICE_PARAMETERS: string[] = [
   "disabledCategories",
   "disabledRules",
 ];
+export const SERVICE_RULE_BASE_URI =
+  "https://community.languagetool.org/rule/show/";
+export const SERVICE_RULE_URL_LANG_DEFAULT = "en";
+export const SERVICE_RULE_URL_GENERIC_LABEL = "details";
