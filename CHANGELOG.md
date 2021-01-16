@@ -15,6 +15,8 @@ Changes not yet released.
 
 - Port number for docker in README
   ([#205](https://github.com/davidlday/vscode-languagetool-linter/issues/205)).
+- Smart format command and on save handles apostrophes correctly
+  ([216](https://github.com/davidlday/vscode-languagetool-linter/issues/216))
 
 ## [0.16.0] - 2020-11-08
 
