@@ -111,8 +111,15 @@ suite("Linter Test Suite", () => {
     );
     const annotatedtext: IAnnotatedtext = linter.buildAnnotatedMarkdown(text);
     assert.deepStrictEqual(annotatedtext, expectedJSON);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/smart-format-unformatted.json"), JSON.stringify(annotatedtext), "utf8");
+    // fs.writeFileSync(
+    //   path.resolve(
+    //     __dirname,
+    //     testWorkspace + "/markdown/smart-format-unformatted.json",
+    //   ),
+    //   JSON.stringify(annotatedtext),
+    //   "utf8",
+    // );
     const actual: string = linter.smartFormatAnnotatedtext(annotatedtext);
-    assert.equal(actual, expected);
+    assert.strictEqual(actual, expected);
   });
 });

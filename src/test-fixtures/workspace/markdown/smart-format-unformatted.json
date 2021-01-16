@@ -1,137 +1,167 @@
 {
   "annotation": [
     {
-      "markup": "---\ntitle: \"Smart Format Test Case\"\nsinglequotes: \"'\"\ndoublequotes: '\"'\nellipses: \"...\"\nendash: \"--\"\nemdash: \"---\"\n---\n\n",
       "interpretAs": "\n\n\n\n\n\n\n\n\n",
+      "markup": "---\ntitle: \"Smart Format Test Case\"\nsinglequotes: \"'\"\ndoublequotes: '\"'\nellipses: \"...\"\nendash: \"--\"\nemdash: \"---\"\n---\n\n",
       "offset": {
-        "start": 0,
-        "end": 120
+        "end": 120,
+        "start": 0
       }
     },
     {
-      "text": "Make sure the smart format command only applies formatting to text and skips all markdown, such as this front matter.",
       "offset": {
-        "start": 120,
-        "end": 237
-      }
+        "end": 237,
+        "start": 120
+      },
+      "text": "Make sure the smart format command only applies formatting to text and skips all\nmarkdown, such as this front matter."
     },
     {
-      "markup": "\n\n## ",
       "interpretAs": "\n\n# ",
-      "offset": {
-        "start": 237,
-        "end": 242
-      }
-    },
-    {
-      "text": "Smart Quotes",
-      "offset": {
-        "start": 242,
-        "end": 254
-      }
-    },
-    {
-      "markup": "\n\n",
-      "interpretAs": "\n\n",
-      "offset": {
-        "start": 254,
-        "end": 256
-      }
-    },
-    {
-      "text": "This \"sentence\" contains 'quotes'.",
-      "offset": {
-        "start": 256,
-        "end": 290
-      }
-    },
-    {
       "markup": "\n\n## ",
-      "interpretAs": "\n\n# ",
       "offset": {
-        "start": 290,
-        "end": 295
+        "end": 242,
+        "start": 237
       }
     },
     {
-      "text": "Ellipses",
       "offset": {
-        "start": 295,
-        "end": 303
-      }
+        "end": 254,
+        "start": 242
+      },
+      "text": "Smart Quotes"
     },
     {
-      "markup": "\n\n",
       "interpretAs": "\n\n",
+      "markup": "\n\n",
       "offset": {
-        "start": 303,
-        "end": 305
+        "end": 256,
+        "start": 254
       }
     },
     {
-      "text": "This sentence ends with ellipses...",
       "offset": {
-        "start": 305,
-        "end": 340
-      }
+        "end": 290,
+        "start": 256
+      },
+      "text": "This \"sentence\" contains 'quotes'."
     },
     {
+      "interpretAs": "\n\n# ",
       "markup": "\n\n## ",
+      "offset": {
+        "end": 295,
+        "start": 290
+      }
+    },
+    {
+      "offset": {
+        "end": 305,
+        "start": 295
+      },
+      "text": "Apostrophe"
+    },
+    {
+      "interpretAs": "\n\n",
+      "markup": "\n\n",
+      "offset": {
+        "end": 307,
+        "start": 305
+      }
+    },
+    {
+      "offset": {
+        "end": 354,
+        "start": 307
+      },
+      "text": "Let's see if apostrophes are handled correctly."
+    },
+    {
       "interpretAs": "\n\n# ",
-      "offset": {
-        "start": 340,
-        "end": 345
-      }
-    },
-    {
-      "text": "Dashes",
-      "offset": {
-        "start": 345,
-        "end": 351
-      }
-    },
-    {
-      "markup": "\n\n",
-      "interpretAs": "\n\n",
-      "offset": {
-        "start": 351,
-        "end": 353
-      }
-    },
-    {
-      "text": "This non--sense sentence contains en-dashes.",
-      "offset": {
-        "start": 353,
-        "end": 397
-      }
-    },
-    {
-      "markup": "\n\n",
-      "interpretAs": "\n\n",
-      "offset": {
-        "start": 397,
-        "end": 399
-      }
-    },
-    {
-      "text": "This sentence---if you can call it that---contains em-dashes.",
-      "offset": {
-        "start": 399,
-        "end": 460
-      }
-    },
-    {
       "markup": "\n\n## ",
-      "interpretAs": "\n\n# ",
       "offset": {
-        "start": 460,
-        "end": 465
+        "end": 359,
+        "start": 354
       }
     },
     {
       "offset": {
-        "end": 473,
-        "start": 465
+        "end": 367,
+        "start": 359
+      },
+      "text": "Ellipses"
+    },
+    {
+      "interpretAs": "\n\n",
+      "markup": "\n\n",
+      "offset": {
+        "end": 369,
+        "start": 367
+      }
+    },
+    {
+      "offset": {
+        "end": 404,
+        "start": 369
+      },
+      "text": "This sentence ends with ellipses..."
+    },
+    {
+      "interpretAs": "\n\n# ",
+      "markup": "\n\n## ",
+      "offset": {
+        "end": 409,
+        "start": 404
+      }
+    },
+    {
+      "offset": {
+        "end": 415,
+        "start": 409
+      },
+      "text": "Dashes"
+    },
+    {
+      "interpretAs": "\n\n",
+      "markup": "\n\n",
+      "offset": {
+        "end": 417,
+        "start": 415
+      }
+    },
+    {
+      "offset": {
+        "end": 461,
+        "start": 417
+      },
+      "text": "This non--sense sentence contains en-dashes."
+    },
+    {
+      "interpretAs": "\n\n",
+      "markup": "\n\n",
+      "offset": {
+        "end": 463,
+        "start": 461
+      }
+    },
+    {
+      "offset": {
+        "end": 524,
+        "start": 463
+      },
+      "text": "This sentence---if you can call it that---contains em-dashes."
+    },
+    {
+      "interpretAs": "\n\n# ",
+      "markup": "\n\n## ",
+      "offset": {
+        "end": 529,
+        "start": 524
+      }
+    },
+    {
+      "offset": {
+        "end": 537,
+        "start": 529
       },
       "text": "Comments"
     },
@@ -139,14 +169,14 @@
       "interpretAs": "\n\n",
       "markup": "\n\n",
       "offset": {
-        "end": 475,
-        "start": 473
+        "end": 539,
+        "start": 537
       }
     },
     {
       "offset": {
-        "end": 523,
-        "start": 475
+        "end": 587,
+        "start": 539
       },
       "text": "Smart formatting should ignore comment brackets."
     },
@@ -154,8 +184,8 @@
       "interpretAs": "\n\n\n",
       "markup": "\n\n<!-- \"Like this,\" he said... But---at least I think---so will the linter. -->\n",
       "offset": {
-        "end": 603,
-        "start": 523
+        "end": 667,
+        "start": 587
       }
     }
   ]

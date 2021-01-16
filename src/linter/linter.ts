@@ -248,16 +248,27 @@ export class Linter implements CodeActionProvider {
     annotatedtext.annotation.forEach((annotation) => {
       if (annotation.text) {
         newText += annotation.text
+          // Open Double Quotes
           .replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
-          .replace(/'(?=[\w"“])/g, QuotesFormattingProvider.startSingleQuote)
+          // Close Double Quotes
           .replace(
             /([\w.!?%,'’])"/g,
             "$1" + QuotesFormattingProvider.endDoubleQuote,
           )
+          // Remaining Double Quotes
+          .replace(/"/, QuotesFormattingProvider.endDoubleQuote)
+          // Open Single Quotes
+          .replace(
+            /(\W)'(?=[\w"“])/g,
+            "$1" + QuotesFormattingProvider.startSingleQuote,
+          )
+          // Closing Single Quotes
           .replace(
             /([\w.!?%,"”])'/g,
             "$1" + QuotesFormattingProvider.endSingleQuote,
           )
+          // Remaining Single Quotes
+          .replace(/'/, QuotesFormattingProvider.endSingleQuote)
           .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
           .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
           .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
