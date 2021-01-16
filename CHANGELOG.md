@@ -11,6 +11,8 @@ and this project adheres to
 
 Changes not yet released.
 
+## [0.17.0] - 2021-01-16
+
 ### Fixed
 
 - Port number for docker in README
