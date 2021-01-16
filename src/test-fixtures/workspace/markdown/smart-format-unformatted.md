@@ -7,11 +7,16 @@ endash: "--"
 emdash: "---"
 ---
 
-Make sure the smart format command only applies formatting to text and skips all markdown, such as this front matter.
+Make sure the smart format command only applies formatting to text and skips all
+markdown, such as this front matter.
 
 ## Smart Quotes
 
 This "sentence" contains 'quotes'.
+
+## Apostrophe
+
+Let's see if apostrophes are handled correctly.
 
 ## Ellipses
 
