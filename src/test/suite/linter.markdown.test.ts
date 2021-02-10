@@ -149,7 +149,14 @@ suite("Linter Markdown Test Suite", () => {
       "utf8",
     );
     const actual = linter.buildAnnotatedMarkdown(text);
-    // fs.writeFileSync(path.resolve(__dirname, testWorkspace + "/markdown/unordered-lists.json"), JSON.stringify(actual), "utf8");
+    // fs.writeFileSync(
+    //   path.resolve(
+    //     __dirname,
+    //     testWorkspace + "/markdown/escape-character-new.json",
+    //   ),
+    //   JSON.stringify(actual),
+    //   "utf8",
+    // );
     assert.deepStrictEqual(actual, expected);
   });
 });
