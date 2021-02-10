@@ -1,162 +1,74 @@
 {
   "annotation": [
+    { "interpretAs": "# ", "markup": "# ", "offset": { "end": 2, "start": 0 } },
     {
-      "markup": "# ",
-      "interpretAs": "# ",
-      "offset": {
-        "start": 0,
-        "end": 2
-      }
+      "offset": { "end": 46, "start": 2 },
+      "text": "Backslash + Special Char = Shifted Highlight"
     },
     {
-      "text": "Backslash + Special Char = Shifted Highlight",
-      "offset": {
-        "start": 2,
-        "end": 46
-      }
-    },
-    {
-      "markup": "\n\n",
       "interpretAs": "\n\n",
-      "offset": {
-        "start": 46,
-        "end": 48
-      }
-    },
-    {
-      "text": "This is a inccoreect sentence.",
-      "offset": {
-        "start": 48,
-        "end": 78
-      }
-    },
-    {
       "markup": "\n\n",
+      "offset": { "end": 48, "start": 46 }
+    },
+    {
+      "offset": { "end": 78, "start": 48 },
+      "text": "This is a inccoreect sentence."
+    },
+    {
       "interpretAs": "\n\n",
-      "offset": {
-        "start": 78,
-        "end": 80
-      }
-    },
-    {
-      "text": "Here is the culprit: ",
-      "offset": {
-        "start": 80,
-        "end": 101
-      }
-    },
-    {
-      "markup": "",
-      "interpretAs": "",
-      "offset": {
-        "start": 101,
-        "end": 101
-      }
-    },
-    {
-      "text": "\\-",
-      "offset": {
-        "start": 101,
-        "end": 103
-      }
-    },
-    {
-      "markup": "",
-      "interpretAs": "",
-      "offset": {
-        "start": 103,
-        "end": 103
-      }
-    },
-    {
-      "text": ".",
-      "offset": {
-        "start": 103,
-        "end": 104
-      }
-    },
-    {
       "markup": "\n\n",
+      "offset": { "end": 80, "start": 78 }
+    },
+    {
+      "offset": { "end": 104, "start": 80 },
+      "text": "Here is the culprit: \\-."
+    },
+    {
       "interpretAs": "\n\n",
-      "offset": {
-        "start": 104,
-        "end": 106
-      }
-    },
-    {
-      "text": "This is annother incorrect sentence.",
-      "offset": {
-        "start": 106,
-        "end": 142
-      }
-    },
-    {
       "markup": "\n\n",
+      "offset": { "end": 106, "start": 104 }
+    },
+    {
+      "offset": { "end": 142, "start": 106 },
+      "text": "This is annother incorrect sentence."
+    },
+    {
       "interpretAs": "\n\n",
-      "offset": {
-        "start": 142,
-        "end": 144
-      }
-    },
-    {
-      "text": "Here is another culprit: \\;.",
-      "offset": {
-        "start": 144,
-        "end": 172
-      }
-    },
-    {
       "markup": "\n\n",
+      "offset": { "end": 144, "start": 142 }
+    },
+    {
+      "offset": { "end": 172, "start": 144 },
+      "text": "Here is another culprit: \\;."
+    },
+    {
       "interpretAs": "\n\n",
-      "offset": {
-        "start": 172,
-        "end": 174
-      }
+      "markup": "\n\n",
+      "offset": { "end": 174, "start": 172 }
     },
     {
-      "text": "This is annother incorrect sentence.",
-      "offset": {
-        "start": 174,
-        "end": 210
-      }
+      "offset": { "end": 210, "start": 174 },
+      "text": "This is annother incorrect sentence."
     },
     {
-      "markup": "\n\n* ",
       "interpretAs": "\n\n* ",
-      "offset": {
-        "start": 210,
-        "end": 214
-      }
+      "markup": "\n\n* ",
+      "offset": { "end": 214, "start": 210 }
     },
+    { "offset": { "end": 234, "start": 214 }, "text": "Is this yet another?" },
     {
-      "text": "Is this yet another?",
-      "offset": {
-        "start": 214,
-        "end": 234
-      }
-    },
-    {
-      "markup": "\n\n",
       "interpretAs": "\n\n",
-      "offset": {
-        "start": 234,
-        "end": 236
-      }
+      "markup": "\n\n",
+      "offset": { "end": 236, "start": 234 }
     },
     {
-      "text": "This is annother incorrect sentence.",
-      "offset": {
-        "start": 236,
-        "end": 272
-      }
+      "offset": { "end": 272, "start": 236 },
+      "text": "This is annother incorrect sentence."
     },
     {
-      "markup": "\n",
       "interpretAs": "\n",
-      "offset": {
-        "start": 272,
-        "end": 273
-      }
+      "markup": "\n",
+      "offset": { "end": 273, "start": 272 }
     }
   ]
 }
