@@ -11,6 +11,11 @@ and this project adheres to
 
 Changes not yet released.
 
+### Added
+
+- Show warning when spaces exist in either Disabled Rules or Disable Categories
+  ([217](https://github.com/davidlday/vscode-languagetool-linter/issues/217)).
+
 ## [0.17.0] - 2021-01-16
 
 ### Fixed
