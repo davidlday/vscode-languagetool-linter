@@ -1,14 +1,14 @@
 {
-    "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
-        "backticks",
-        "languagetool-linter",
-        "linter",
-        "misspeeled",
-        "yaml"
-    ],
-    "languageToolLinter.languageTool.disabledRules": "DASH_RULE",
-    "languageToolLinter.lintOnOpen": true,
-    "languageToolLinter.lintOnChange": true,
-    "languageToolLinter.managed.classPath": "/usr/local/opt/languagetool/libexec/languagetool-server.jar",
-    "languageToolLinter.hideRuleIds": true
+  "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
+    "backticks",
+    "languagetool-linter",
+    "linter",
+    "misspeeled",
+    "yaml"
+  ],
+  "languageToolLinter.languageTool.disabledRules": "DASH_RULE,PROFANITY",
+  "languageToolLinter.lintOnOpen": true,
+  "languageToolLinter.lintOnChange": true,
+  "languageToolLinter.managed.classPath": "/usr/local/opt/languagetool/libexec/languagetool-server.jar",
+  "languageToolLinter.hideRuleIds": false
 }
