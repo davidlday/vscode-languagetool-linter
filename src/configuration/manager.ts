@@ -37,12 +37,14 @@ export class ConfigurationManager implements Disposable {
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
+  private serviceParameters: Map<string, string> = new Map();
 
   // Constructor
   constructor() {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
+    this.serviceParameters = this.buildServiceParameters();
   }
 
   // Public instance methods
@@ -54,6 +56,7 @@ export class ConfigurationManager implements Disposable {
   public reloadConfiguration(event: ConfigurationChangeEvent): void {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
+    this.serviceParameters = this.buildServiceParameters();
     // Changed service type
     if (event.affectsConfiguration("languageToolLinter.serviceType")) {
       switch (this.getServiceType()) {
@@ -143,16 +146,7 @@ export class ConfigurationManager implements Disposable {
   }
 
   public getServiceParameters(): Map<string, string> {
-    const config: WorkspaceConfiguration = this.config;
-    const parameters: Map<string, string> = new Map();
-    Constants.SERVICE_PARAMETERS.forEach((ltKey) => {
-      const configKey: string = "languageTool." + ltKey;
-      const value: string | undefined = config.get(configKey);
-      if (value) {
-        parameters.set(ltKey, value);
-      }
-    });
-    return parameters;
+    return this.serviceParameters;
   }
 
   public getRuleUrl(ruleId: string): Uri {
@@ -340,6 +334,47 @@ export class ConfigurationManager implements Disposable {
         return undefined;
       }
     }
+  }
+
+  private buildServiceParameters(): Map<string, string> {
+    const config: WorkspaceConfiguration = this.config;
+    const parameters: Map<string, string> = new Map();
+    Constants.SERVICE_PARAMETERS.forEach((ltKey) => {
+      const configKey: string = "languageTool." + ltKey;
+      const value: string | undefined = config.get(configKey);
+      if (value) {
+        parameters.set(ltKey, value);
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": " + value);
+      }
+    });
+    // Make sure disabled rules and disabled categories do not contain spaces
+    const CONFIG_DISABLED_RULES = "languageTool.disabledRules";
+    const CONFIG_DISABLED_CATEGORIES = "languageTool.disabledCategories";
+    if (this.config.has(CONFIG_DISABLED_RULES)) {
+      const disabledRules: string = this.config.get(
+        CONFIG_DISABLED_RULES,
+      ) as string;
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(disabledRules);
+      if (disabledRules.split(" ").length > 1) {
+        window.showWarningMessage(
+          '"LanguageTool Linter > Language Tool: Disabled Rules" contains spaces. \
+          Please review the setting and remove any spaces.',
+        );
+      }
+    }
+    if (this.config.has(CONFIG_DISABLED_CATEGORIES)) {
+      const disabledCategories: string = this.config.get(
+        CONFIG_DISABLED_CATEGORIES,
+      ) as string;
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(disabledCategories);
+      if (disabledCategories.split(" ").length > 1) {
+        window.showWarningMessage(
+          '"LanguageTool Linter > Language Tool: Disabled Categories" contains spaces. \
+          Please review the setting and remove any spaces.',
+        );
+      }
+    }
+    return parameters;
   }
 
   private setManagedServicePort(port: number): void {
