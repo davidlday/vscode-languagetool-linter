@@ -354,7 +354,6 @@ export class ConfigurationManager implements Disposable {
       const disabledRules: string = this.config.get(
         CONFIG_DISABLED_RULES,
       ) as string;
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(disabledRules);
       if (disabledRules.split(" ").length > 1) {
         window.showWarningMessage(
           '"LanguageTool Linter > Language Tool: Disabled Rules" contains spaces. \
@@ -366,7 +365,6 @@ export class ConfigurationManager implements Disposable {
       const disabledCategories: string = this.config.get(
         CONFIG_DISABLED_CATEGORIES,
       ) as string;
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(disabledCategories);
       if (disabledCategories.split(" ").length > 1) {
         window.showWarningMessage(
           '"LanguageTool Linter > Language Tool: Disabled Categories" contains spaces. \
