@@ -414,12 +414,12 @@
         "languageToolLinter.languageTool.disabledRules": {
           "type": "string",
           "default": "",
-          "description": "IDs of rules to be disabled, comma-separated."
+          "description": "IDs of rules to be disabled, comma-separated, no spaces. These IDs are passed directly to the LanguageTool service and will not be returned with diagnostics."
         },
         "languageToolLinter.languageTool.disabledCategories": {
           "type": "string",
           "default": "",
-          "description": "IDs of categories to be disabled, comma-separated."
+          "description": "IDs of categories to be disabled, comma-separated, no spaces. These IDs are passed directly to the LanguageTool service and will not be returned with diagnostics."
         },
         "languageToolLinter.languageTool.ignoredWordsGlobal": {
           "type": "array",
