@@ -1,11 +1,16 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
+import { ExtensionContext } from "vscode";
 import { ConfigurationManager } from "../../configuration/manager";
 import { Linter } from "../../linter/linter";
+import { MockExtensionContext } from "./mockUtils";
 
 suite("Linter Markdown Test Suite", () => {
-  const config: ConfigurationManager = new ConfigurationManager();
+  const testContext: ExtensionContext = new MockExtensionContext();
+  const config: ConfigurationManager = new ConfigurationManager(
+    testContext as ExtensionContext,
+  );
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,

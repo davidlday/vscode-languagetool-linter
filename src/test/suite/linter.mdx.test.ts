@@ -1,11 +1,16 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
+import { ExtensionContext } from "vscode";
 import { ConfigurationManager } from "../../configuration/manager";
 import { Linter } from "../../linter/linter";
+import { MockExtensionContext } from "./mockUtils";
 
 suite("Linter MDX Test Suite", () => {
-  const config: ConfigurationManager = new ConfigurationManager();
+  const testContext: ExtensionContext = new MockExtensionContext();
+  const config: ConfigurationManager = new ConfigurationManager(
+    testContext as ExtensionContext,
+  );
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,
@@ -35,10 +40,7 @@ suite("Linter MDX Test Suite", () => {
   test("Linter should return annotated text for Markdown with Bold and/or Italics", () => {
     const expected = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          testWorkspace + "/mdx/bold-or-italics.json",
-        ),
+        path.resolve(__dirname, testWorkspace + "/mdx/bold-or-italics.json"),
         "utf8",
       ),
     );
@@ -118,10 +120,7 @@ suite("Linter MDX Test Suite", () => {
   test("Linter should return annotated text for Markdown with Unordered Lists", () => {
     const expected = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          testWorkspace + "/mdx/unordered-lists.json",
-        ),
+        path.resolve(__dirname, testWorkspace + "/mdx/unordered-lists.json"),
         "utf8",
       ),
     );
@@ -137,10 +136,7 @@ suite("Linter MDX Test Suite", () => {
   test("Linter should return annotated text for Markdown with Escape Characters (\\)", () => {
     const expected = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          testWorkspace + "/mdx/escape-character.json",
-        ),
+        path.resolve(__dirname, testWorkspace + "/mdx/escape-character.json"),
         "utf8",
       ),
     );

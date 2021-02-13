@@ -4,9 +4,14 @@ import * as path from "path";
 import { ConfigurationManager } from "../../configuration/manager";
 import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "../../linter/linter";
+import { ExtensionContext } from "vscode";
+import { MockExtensionContext } from "./mockUtils";
 
 suite("Linter Test Suite", () => {
-  const config: ConfigurationManager = new ConfigurationManager();
+  const testContext: ExtensionContext = new MockExtensionContext();
+  const config: ConfigurationManager = new ConfigurationManager(
+    testContext as ExtensionContext,
+  );
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,
