@@ -23,6 +23,7 @@ import {
   ConfigurationTarget,
   DiagnosticSeverity,
   Disposable,
+  ExtensionContext,
   TextDocument,
   Uri,
   window,
@@ -32,19 +33,23 @@ import {
 import * as Constants from "./constants";
 
 export class ConfigurationManager implements Disposable {
-  // Private Members
-  private config: WorkspaceConfiguration;
-  private serviceUrl: string | undefined;
-  private managedPort: number | undefined;
+  readonly config: WorkspaceConfiguration;
+  readonly context: ExtensionContext;
   private process: execa.ExecaChildProcess | undefined;
-  private serviceParameters: Map<string, string> = new Map();
 
   // Constructor
-  constructor() {
+  constructor(context: ExtensionContext) {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
-    this.serviceUrl = this.findServiceUrl(this.getServiceType());
+    this.context = context;
     this.startManagedService();
-    this.serviceParameters = this.buildServiceParameters();
+    this.context.workspaceState.update(
+      "serviceParameters",
+      this.buildServiceParameters(),
+    );
+    this.context.workspaceState.update(
+      "serviceUrl",
+      this.findServiceUrl(this.getServiceType()),
+    );
   }
 
   // Public instance methods
@@ -54,9 +59,6 @@ export class ConfigurationManager implements Disposable {
   }
 
   public reloadConfiguration(event: ConfigurationChangeEvent): void {
-    this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
-    this.serviceUrl = this.findServiceUrl(this.getServiceType());
-    this.serviceParameters = this.buildServiceParameters();
     // Changed service type
     if (event.affectsConfiguration("languageToolLinter.serviceType")) {
       switch (this.getServiceType()) {
@@ -146,7 +148,10 @@ export class ConfigurationManager implements Disposable {
   }
 
   public getServiceParameters(): Map<string, string> {
-    return this.serviceParameters;
+    return this.context.workspaceState.get("serviceParameters") as Map<
+      string,
+      string
+    >;
   }
 
   public getRuleUrl(ruleId: string): Uri {
@@ -169,7 +174,8 @@ export class ConfigurationManager implements Disposable {
   }
 
   public getUrl(): string | undefined {
-    return this.serviceUrl;
+    // return this.serviceUrl;
+    return this.context.workspaceState.get("serviceUrl") as string;
   }
 
   public isHideDiagnosticsOnChange(): boolean {
@@ -233,12 +239,17 @@ export class ConfigurationManager implements Disposable {
 
   // Stop the managed service
   public stopManagedService(): void {
-    if (this.process) {
+    const process: execa.ExecaChildProcess = this.context.workspaceState.get(
+      "process",
+    ) as execa.ExecaChildProcess;
+    // const process: execa.ExecaChildProcess = this.process;
+    if (process) {
       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
         "Closing managed service server.",
       );
-      this.process.cancel();
-      this.process = undefined;
+      process.cancel();
+      // process = undefined;
+      this.context.workspaceState.update("process", undefined);
     }
   }
 
@@ -376,11 +387,11 @@ export class ConfigurationManager implements Disposable {
   }
 
   private setManagedServicePort(port: number): void {
-    this.managedPort = port;
+    this.context.workspaceState.update("managedPort", port);
   }
 
   private getManagedServicePort(): number | undefined {
-    return this.managedPort;
+    return this.context.workspaceState.get("managedPort");
   }
 
   private getExternalUrl(): string | undefined {
@@ -455,7 +466,12 @@ export class ConfigurationManager implements Disposable {
               this.process.stdout.addListener("data", (data) => {
                 Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
               });
-              this.serviceUrl = this.findServiceUrl(this.getServiceType());
+              this.context.workspaceState.update("process", this.process);
+              // this.serviceUrl = this.findServiceUrl(this.getServiceType());
+              this.context.workspaceState.update(
+                "serviceUrl",
+                this.findServiceUrl(this.getServiceType()),
+              );
             }
           },
         );

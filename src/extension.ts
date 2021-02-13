@@ -26,7 +26,7 @@ import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
-  const configMan: ConfigurationManager = new ConfigurationManager();
+  const configMan: ConfigurationManager = new ConfigurationManager(context);
   const linter: Linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
     '"': new QuotesFormattingProvider(configMan),
