@@ -14,10 +14,8 @@
  *   limitations under the License.
  */
 
-// import * as execa from "execa";
 import * as glob from "glob";
 import * as path from "path";
-// import * as portfinder from "portfinder";
 import {
   ConfigurationChangeEvent,
   ConfigurationTarget,
@@ -35,11 +33,10 @@ import { ManagedLanguageTool } from "../languagetool/managed";
 
 export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
-  private serviceUrl: string | null = null;
-  private serviceParameters: Map<string, string> | null = null;
+  private serviceUrl: string | undefined = undefined;
+  private serviceParameters: Map<string, string> | undefined = undefined;
   readonly context: ExtensionContext;
-  // private process: execa.ExecaChildProcess | undefined;
-  private managedService: ManagedLanguageTool | undefined;
+  private managedService: ManagedLanguageTool | undefined = undefined;
 
   // Constructor
   constructor(context: ExtensionContext) {
@@ -48,22 +45,12 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Public instance methods
-
-  public async init(): Promise<void> {
-    await this.startManagedService()
-      .then((managedServiceUrl) => {
-        this.serviceUrl = managedServiceUrl;
-      })
-      .then(() => {
-        this.buildServiceParameters().then(
-          (parameters) => (this.serviceParameters = parameters),
-        );
-      });
-    return Promise.resolve();
+  public async init(): Promise<string> {
+    return await this.startService();
   }
 
   public async dispose(): Promise<void> {
-    await this.stopManagedService();
+    await this.stopService();
   }
 
   public async reloadConfiguration(
@@ -76,22 +63,24 @@ export class ConfigurationManager implements Disposable {
       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
         "** SERVICE_TYPE Changed: " + this.getServiceType(),
       );
-      switch (this.getServiceType()) {
-        case Constants.SERVICE_TYPE_MANAGED:
-          await this.startManagedService()
-            .then((managedServiceUrl) => {
-              this.serviceUrl = managedServiceUrl;
-            })
-            .then(() => {
-              this.buildServiceParameters().then(
-                (parameters) => (this.serviceParameters = parameters),
-              );
-            });
-          break;
-        default:
-          this.stopManagedService();
-          break;
-      }
+      await this.stopService();
+      await this.startService();
+      // switch (this.getServiceType()) {
+      //   case Constants.SERVICE_TYPE_MANAGED:
+      //     await this.startManagedService()
+      //       .then((managedServiceUrl) => {
+      //         this.serviceUrl = managedServiceUrl;
+      //       })
+      //       .then(() => {
+      //         this.buildServiceParameters().then(
+      //           (parameters) => (this.serviceParameters = parameters),
+      //         );
+      //       });
+      //     break;
+      //   default:
+      //     this.stopService();
+      //     break;
+      // }
     }
     // Changed settings for managed service
     if (
@@ -104,15 +93,8 @@ export class ConfigurationManager implements Disposable {
       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
         "** Managed Service settings changed.",
       );
-      await this.startManagedService()
-        .then((managedServiceUrl) => {
-          this.serviceUrl = managedServiceUrl;
-        })
-        .then(() => {
-          this.buildServiceParameters().then(
-            (parameters) => (this.serviceParameters = parameters),
-          );
-        });
+      await this.stopService();
+      await this.startService();
     }
     // Only allow preferred variants when language === auto
     if (
@@ -131,12 +113,6 @@ export class ConfigurationManager implements Disposable {
         );
       }
     }
-    // Refresh service parameters
-    await this.buildServiceParameters().then(
-      (parameters) => (this.serviceParameters = parameters),
-    );
-    // Refresh service url
-    this.serviceUrl = this.findServiceUrl(this.getServiceType()) as string;
     return Promise.resolve();
   }
 
@@ -213,10 +189,7 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
-  public getUrl(): string | undefined {
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-      "Service URL: " + this.serviceUrl,
-    );
+  public getServiceUrl(): string {
     return this.serviceUrl ? this.serviceUrl : "";
   }
 
@@ -277,23 +250,6 @@ export class ConfigurationManager implements Disposable {
     }
     const classPathString: string = classPathFiles.join(path.delimiter);
     return classPathString;
-  }
-
-  // Stop the managed service
-  public async stopManagedService(): Promise<void> {
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-      "manager.stopManagedService() called...",
-    );
-    if (this.managedService) {
-      await this.managedService.dispose();
-    }
-    // if (this.process) {
-    //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-    //     "Closing managed service server.",
-    //   );
-    //   this.process.cancel();
-    //   this.process = undefined;
-    // }
   }
 
   // Manage Ignored Words Lists
@@ -363,41 +319,103 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Private instance methods
-  private findServiceUrl(serviceType: string): string | undefined {
+  private async startService(): Promise<string> {
     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-      "manager.findServiceUrl called...",
+      "manager.startService() called...",
     );
+    await this.buildServiceParameters().then((serviceParameters) => {
+      this.serviceParameters = serviceParameters;
+    });
+    const serviceType = this.getServiceType();
     switch (serviceType) {
-      case Constants.SERVICE_TYPE_EXTERNAL: {
-        const url = this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          "    found exteral: " + url,
-        );
-        return url;
-      }
-      case Constants.SERVICE_TYPE_MANAGED: {
-        if (this.managedService && this.managedService.getPort()) {
-          const url = this.managedService.getServiceUrl();
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            "    found managed: " + url,
-          );
-          return url;
-        } else {
-          return undefined;
+      case Constants.SERVICE_TYPE_EXTERNAL:
+        {
+          this.serviceUrl = (this.getExternalUrl() +
+            Constants.SERVICE_CHECK_PATH) as string;
+          return this.serviceUrl;
         }
-      }
-      case Constants.SERVICE_TYPE_PUBLIC: {
-        const url = Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          "    found public: " + url,
-        );
-        return url;
-      }
+        break;
+      case Constants.SERVICE_TYPE_MANAGED:
+        {
+          if (this.managedService) {
+            await this.managedService.stopService();
+          } else {
+            this.managedService = new ManagedLanguageTool();
+          }
+          await this.managedService
+            .startService(
+              this.getClassPath(),
+              this.getMinimumPort(),
+              this.getMaximumPort(),
+              Constants.EXTENSION_OUTPUT_CHANNEL,
+            )
+            .then((managedServiceUrl) => {
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                "    managed service url: " + managedServiceUrl,
+              );
+              this.serviceUrl = managedServiceUrl;
+            });
+          return this.serviceUrl as string;
+        }
+        break;
+      case Constants.SERVICE_TYPE_PUBLIC:
+        {
+          this.serviceUrl =
+            Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
+          return this.serviceUrl;
+        }
+        break;
       default: {
-        return undefined;
+        return this.serviceUrl as string;
       }
     }
   }
+
+  // Stop the managed service
+  private async stopService(): Promise<void> {
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      "manager.stopManagedService() called...",
+    );
+    if (this.managedService) {
+      await this.managedService.stopService();
+    }
+  }
+
+  // private findServiceUrl(serviceType: string): string | undefined {
+  //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //     "manager.findServiceUrl called...",
+  //   );
+  //   switch (serviceType) {
+  //     case Constants.SERVICE_TYPE_EXTERNAL: {
+  //       const url = this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
+  //       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //         "    found exteral: " + url,
+  //       );
+  //       return url;
+  //     }
+  //     case Constants.SERVICE_TYPE_MANAGED: {
+  //       if (this.managedService && this.managedService.getPort()) {
+  //         const url = this.managedService.getServiceUrl();
+  //         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //           "    found managed: " + url,
+  //         );
+  //         return url;
+  //       } else {
+  //         return undefined;
+  //       }
+  //     }
+  //     case Constants.SERVICE_TYPE_PUBLIC: {
+  //       const url = Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
+  //       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //         "    found public: " + url,
+  //       );
+  //       return url;
+  //     }
+  //     default: {
+  //       return undefined;
+  //     }
+  //   }
+  // }
 
   private async buildServiceParameters(): Promise<Map<string, string>> {
     const config: WorkspaceConfiguration = this.config;
@@ -463,33 +481,31 @@ export class ConfigurationManager implements Disposable {
   }
 
   private async startManagedService(): Promise<string> {
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-      "manager.startManagedService() called...",
-    );
-    if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "found service type: " + this.getServiceType(),
-      );
-      if (this.managedService) {
-        await this.managedService.stopService();
-      } else {
-        this.managedService = new ManagedLanguageTool();
-      }
-      await this.managedService
-        .startService(
-          this.getClassPath(),
-          this.getMinimumPort(),
-          this.getMaximumPort(),
-          Constants.EXTENSION_OUTPUT_CHANNEL,
-        )
-        .then((managedServiceUrl) => {
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            "    managed service url: " + managedServiceUrl,
-          );
-          this.serviceUrl = managedServiceUrl;
-        });
-    }
-    return Promise.resolve(this.serviceUrl as string);
+    return await this.startService();
+    // Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+    //   "manager.startManagedService() called...",
+    // );
+    // if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
+    //   if (this.managedService) {
+    //     await this.managedService.stopService();
+    //   } else {
+    //     this.managedService = new ManagedLanguageTool();
+    //   }
+    //   await this.managedService
+    //     .startService(
+    //       this.getClassPath(),
+    //       this.getMinimumPort(),
+    //       this.getMaximumPort(),
+    //       Constants.EXTENSION_OUTPUT_CHANNEL,
+    //     )
+    //     .then((managedServiceUrl) => {
+    //       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+    //         "    managed service url: " + managedServiceUrl,
+    //       );
+    //       this.serviceUrl = managedServiceUrl;
+    //     });
+    // }
+    // return Promise.resolve(this.serviceUrl as string);
   }
 
   // Save words to settings
