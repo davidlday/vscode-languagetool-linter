@@ -25,8 +25,12 @@ import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
 import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 
 // Wonder Twin Powers, Activate!
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(
+  context: vscode.ExtensionContext,
+): Promise<void> {
   const configMan: ConfigurationManager = new ConfigurationManager(context);
+  await configMan.init();
+
   const linter: Linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
     '"': new QuotesFormattingProvider(configMan),
@@ -239,4 +243,4 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export function deactivate(): void {}
+// export function deactivate(): void {}

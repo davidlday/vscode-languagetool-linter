@@ -14,10 +14,10 @@
  *   limitations under the License.
  */
 
-import * as execa from "execa";
+// import * as execa from "execa";
 import * as glob from "glob";
 import * as path from "path";
-import * as portfinder from "portfinder";
+// import * as portfinder from "portfinder";
 import {
   ConfigurationChangeEvent,
   ConfigurationTarget,
@@ -31,46 +31,69 @@ import {
   WorkspaceConfiguration,
 } from "vscode";
 import * as Constants from "./constants";
+import { ManagedLanguageTool } from "../languagetool/managed";
 
 export class ConfigurationManager implements Disposable {
-  readonly config: WorkspaceConfiguration;
+  private config: WorkspaceConfiguration;
+  private serviceUrl: string | null = null;
+  private serviceParameters: Map<string, string> | null = null;
   readonly context: ExtensionContext;
-  private process: execa.ExecaChildProcess | undefined;
+  // private process: execa.ExecaChildProcess | undefined;
+  private managedService: ManagedLanguageTool | undefined;
 
   // Constructor
   constructor(context: ExtensionContext) {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.context = context;
-    this.startManagedService();
-    this.context.workspaceState.update(
-      "serviceParameters",
-      this.buildServiceParameters(),
-    );
-    this.context.workspaceState.update(
-      "serviceUrl",
-      this.findServiceUrl(this.getServiceType()),
-    );
   }
 
   // Public instance methods
 
-  public dispose(): void {
-    this.stopManagedService();
+  public async init(): Promise<void> {
+    await this.startManagedService()
+      .then((managedServiceUrl) => {
+        this.serviceUrl = managedServiceUrl;
+      })
+      .then(() => {
+        this.buildServiceParameters().then(
+          (parameters) => (this.serviceParameters = parameters),
+        );
+      });
+    return Promise.resolve();
   }
 
-  public reloadConfiguration(event: ConfigurationChangeEvent): void {
+  public async dispose(): Promise<void> {
+    await this.stopManagedService();
+  }
+
+  public async reloadConfiguration(
+    event: ConfigurationChangeEvent,
+  ): Promise<void> {
+    // Refresh config
+    this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     // Changed service type
     if (event.affectsConfiguration("languageToolLinter.serviceType")) {
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+        "** SERVICE_TYPE Changed: " + this.getServiceType(),
+      );
       switch (this.getServiceType()) {
         case Constants.SERVICE_TYPE_MANAGED:
-          this.startManagedService();
+          await this.startManagedService()
+            .then((managedServiceUrl) => {
+              this.serviceUrl = managedServiceUrl;
+            })
+            .then(() => {
+              this.buildServiceParameters().then(
+                (parameters) => (this.serviceParameters = parameters),
+              );
+            });
           break;
         default:
           this.stopManagedService();
           break;
       }
     }
-    // Changed class path for managed service
+    // Changed settings for managed service
     if (
       this.getServiceType() === Constants.SERVICE_TYPE_MANAGED &&
       (event.affectsConfiguration("languageToolLinter.managed.classPath") ||
@@ -78,7 +101,18 @@ export class ConfigurationManager implements Disposable {
         event.affectsConfiguration("languageToolLinter.managed.portMinimum") ||
         event.affectsConfiguration("languageToolLinter.managed.portMaximum"))
     ) {
-      this.startManagedService();
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+        "** Managed Service settings changed.",
+      );
+      await this.startManagedService()
+        .then((managedServiceUrl) => {
+          this.serviceUrl = managedServiceUrl;
+        })
+        .then(() => {
+          this.buildServiceParameters().then(
+            (parameters) => (this.serviceParameters = parameters),
+          );
+        });
     }
     // Only allow preferred variants when language === auto
     if (
@@ -97,6 +131,13 @@ export class ConfigurationManager implements Disposable {
         );
       }
     }
+    // Refresh service parameters
+    await this.buildServiceParameters().then(
+      (parameters) => (this.serviceParameters = parameters),
+    );
+    // Refresh service url
+    this.serviceUrl = this.findServiceUrl(this.getServiceType()) as string;
+    return Promise.resolve();
   }
 
   // Smart Format on Type
@@ -148,10 +189,9 @@ export class ConfigurationManager implements Disposable {
   }
 
   public getServiceParameters(): Map<string, string> {
-    return this.context.workspaceState.get("serviceParameters") as Map<
-      string,
-      string
-    >;
+    return this.serviceParameters
+      ? this.serviceParameters
+      : new Map<string, string>();
   }
 
   public getRuleUrl(ruleId: string): Uri {
@@ -174,8 +214,10 @@ export class ConfigurationManager implements Disposable {
   }
 
   public getUrl(): string | undefined {
-    // return this.serviceUrl;
-    return this.context.workspaceState.get("serviceUrl") as string;
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      "Service URL: " + this.serviceUrl,
+    );
+    return this.serviceUrl ? this.serviceUrl : "";
   }
 
   public isHideDiagnosticsOnChange(): boolean {
@@ -238,19 +280,20 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Stop the managed service
-  public stopManagedService(): void {
-    const process: execa.ExecaChildProcess = this.context.workspaceState.get(
-      "process",
-    ) as execa.ExecaChildProcess;
-    // const process: execa.ExecaChildProcess = this.process;
-    if (process) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "Closing managed service server.",
-      );
-      process.cancel();
-      // process = undefined;
-      this.context.workspaceState.update("process", undefined);
+  public async stopManagedService(): Promise<void> {
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      "manager.stopManagedService() called...",
+    );
+    if (this.managedService) {
+      await this.managedService.dispose();
     }
+    // if (this.process) {
+    //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+    //     "Closing managed service server.",
+    //   );
+    //   this.process.cancel();
+    //   this.process = undefined;
+    // }
   }
 
   // Manage Ignored Words Lists
@@ -320,26 +363,35 @@ export class ConfigurationManager implements Disposable {
   }
 
   // Private instance methods
-
   private findServiceUrl(serviceType: string): string | undefined {
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      "manager.findServiceUrl called...",
+    );
     switch (serviceType) {
       case Constants.SERVICE_TYPE_EXTERNAL: {
-        return this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
+        const url = this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          "    found exteral: " + url,
+        );
+        return url;
       }
       case Constants.SERVICE_TYPE_MANAGED: {
-        const port = this.getManagedServicePort();
-        if (port) {
-          return (
-            "http://localhost:" +
-            this.getManagedServicePort() +
-            Constants.SERVICE_CHECK_PATH
+        if (this.managedService && this.managedService.getPort()) {
+          const url = this.managedService.getServiceUrl();
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            "    found managed: " + url,
           );
+          return url;
         } else {
           return undefined;
         }
       }
       case Constants.SERVICE_TYPE_PUBLIC: {
-        return Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
+        const url = Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          "    found public: " + url,
+        );
+        return url;
       }
       default: {
         return undefined;
@@ -347,7 +399,7 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
-  private buildServiceParameters(): Map<string, string> {
+  private async buildServiceParameters(): Promise<Map<string, string>> {
     const config: WorkspaceConfiguration = this.config;
     const parameters: Map<string, string> = new Map();
     Constants.SERVICE_PARAMETERS.forEach((ltKey) => {
@@ -386,13 +438,13 @@ export class ConfigurationManager implements Disposable {
     return parameters;
   }
 
-  private setManagedServicePort(port: number): void {
-    this.context.workspaceState.update("managedPort", port);
-  }
+  // private setManagedServicePort(port: number): void {
+  //   this.context.workspaceState.update("managedPort", port);
+  // }
 
-  private getManagedServicePort(): number | undefined {
-    return this.context.workspaceState.get("managedPort");
-  }
+  // private getManagedServicePort(): number | undefined {
+  //   return this.context.workspaceState.get("managedPort");
+  // }
 
   private getExternalUrl(): string | undefined {
     return this.get("external.url");
@@ -410,73 +462,34 @@ export class ConfigurationManager implements Disposable {
     return this.config.get("managed.portMaximum") as number;
   }
 
-  private startManagedService(): void {
+  private async startManagedService(): Promise<string> {
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      "manager.startManagedService() called...",
+    );
     if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
-      const classpath: string = this.getClassPath();
-      const minimumPort: number = this.getMinimumPort();
-      const maximumPort: number = this.getMaximumPort();
-      this.stopManagedService();
-      if (minimumPort > maximumPort) {
-        window.showWarningMessage(
-          "LanguageTool Linter - The minimum port is greater than the maximum port. \
-          Cancelling start of managed service. Please adjust your settings and try again.",
-        );
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+        "found service type: " + this.getServiceType(),
+      );
+      if (this.managedService) {
+        this.managedService.stopService();
       } else {
-        portfinder.getPort(
-          { host: "127.0.0.1", port: minimumPort, stopPort: maximumPort },
-          (error: Error, port: number) => {
-            if (error) {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                "Error getting open port: " + error.message,
-              );
-              Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-            } else {
-              this.setManagedServicePort(port);
-              const args: string[] = [
-                "-cp",
-                classpath,
-                "org.languagetool.server.HTTPServer",
-                "--port",
-                port.toString(),
-              ];
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                "Starting managed service.",
-              );
-              (this.process = execa("java", args)).catch(
-                (err: execa.ExecaError) => {
-                  if (err.isCanceled) {
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Managed service process stopped.",
-                    );
-                  } else if (err.failed) {
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Managed service command failed: " + err.command,
-                    );
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Error Message: " + err.message,
-                    );
-                    Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-                  }
-                },
-              );
-              this.process.stderr.addListener("data", (data) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-                Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-              });
-              this.process.stdout.addListener("data", (data) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-              });
-              this.context.workspaceState.update("process", this.process);
-              // this.serviceUrl = this.findServiceUrl(this.getServiceType());
-              this.context.workspaceState.update(
-                "serviceUrl",
-                this.findServiceUrl(this.getServiceType()),
-              );
-            }
-          },
-        );
+        this.managedService = new ManagedLanguageTool();
       }
+      await this.managedService
+        .startService(
+          this.getClassPath(),
+          this.getMinimumPort(),
+          this.getMaximumPort(),
+          Constants.EXTENSION_OUTPUT_CHANNEL,
+        )
+        .then((managedServiceUrl) => {
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            "    managed service url: " + managedServiceUrl,
+          );
+          this.serviceUrl = managedServiceUrl;
+        });
     }
+    return Promise.resolve(this.serviceUrl as string);
   }
 
   // Save words to settings
