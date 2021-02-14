@@ -108,25 +108,25 @@ export class ManagedLanguageTool {
     return Promise.resolve();
   }
 
-  public getServiceUrl(): string {
-    return this.serviceUrl as string;
-  }
+  // public async getServiceUrl(): Promise<string> {
+  //   return this.serviceUrl as string;
+  // }
 
-  public getPort(): number | undefined {
-    return this.port;
-  }
+  // public getPort(): number | undefined {
+  //   return this.port;
+  // }
 
-  public getClassPath(): string {
-    return this.classpath as string;
-  }
+  // public getClassPath(): string {
+  //   return this.classpath as string;
+  // }
 
-  public getMinimumPort(): number {
-    return this.minimumPort as number;
-  }
+  // public getMinimumPort(): number {
+  //   return this.minimumPort as number;
+  // }
 
-  public getMaximumPort(): number {
-    return this.maximumPort as number;
-  }
+  // public getMaximumPort(): number {
+  //   return this.maximumPort as number;
+  // }
 
   public async dispose(): Promise<void> {
     await this.stopService();
