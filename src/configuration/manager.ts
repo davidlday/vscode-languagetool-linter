@@ -471,7 +471,7 @@ export class ConfigurationManager implements Disposable {
         "found service type: " + this.getServiceType(),
       );
       if (this.managedService) {
-        this.managedService.stopService();
+        await this.managedService.stopService();
       } else {
         this.managedService = new ManagedLanguageTool();
       }
