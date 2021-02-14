@@ -47,13 +47,12 @@ export class ManagedLanguageTool {
           outputChannel.appendLine("Error getting open port: " + error.message);
           outputChannel.show(true);
         } else {
-          this.port = port;
           const args: string[] = [
             "-cp",
             this.classpath as string,
             "org.languagetool.server.HTTPServer",
             "--port",
-            this.port.toString(),
+            port.toString(),
           ];
           outputChannel.appendLine("Starting managed service.");
           (this.process = execa("java", args)).catch(
@@ -69,6 +68,7 @@ export class ManagedLanguageTool {
               }
             },
           );
+          this.port = port;
           this.process.stderr.addListener("data", (data) => {
             outputChannel.appendLine(data);
             outputChannel.show(true);
@@ -79,15 +79,17 @@ export class ManagedLanguageTool {
         }
       },
     );
-    // Need to find a way to know if the service started
-    while (!this.port) {
+    // Need to find a better way to know if the service is still starting or if something failed.
+    let count = 0;
+    while (!this.port && count < 10) {
       const timer = new Promise((resolve) => {
         setTimeout(() => resolve("done!"), 1000);
       });
       await timer;
+      count++;
     }
     this.serviceUrl = "http://localhost:" + this.port + this.CHECK_PATH;
-    return this.serviceUrl;
+    return Promise.resolve(this.serviceUrl);
   }
 
   public async stopService(): Promise<void> {
@@ -103,6 +105,7 @@ export class ManagedLanguageTool {
       this.outputChannel = undefined;
       this.process = undefined;
     }
+    return Promise.resolve();
   }
 
   public getServiceUrl(): string {
