@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 
+import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 import * as RehypeBuilder from "annotatedtext-rehype";
 import * as RemarkBuilder from "annotatedtext-remark";
 import * as Fetch from "node-fetch";
@@ -27,6 +28,7 @@ import {
   DiagnosticCollection,
   DiagnosticSeverity,
   languages,
+  OutputChannel,
   Position,
   Range,
   TextDocument,
@@ -44,7 +46,6 @@ import {
   ILanguageToolReplacement,
   ILanguageToolResponse,
 } from "./interfaces";
-import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 
 class LTDiagnostic extends Diagnostic {
   match?: ILanguageToolMatch;
@@ -69,6 +70,7 @@ export class Linter implements CodeActionProvider {
 
   private readonly configManager: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
+  private logger: OutputChannel = Constants.EXTENSION_OUTPUT_CHANNEL;
 
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
@@ -338,16 +340,14 @@ export class Linter implements CodeActionProvider {
         .then((res) => res.json())
         .then((json) => this.suggest(document, json))
         .catch((err) => {
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            "Error connecting to " + url,
-          );
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(err);
+          this.logger.appendLine("Error connecting to " + url);
+          this.logger.appendLine(err);
         });
     } else {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      this.logger.appendLine(
         "No LanguageTool URL provided. Please check your settings and try again.",
       );
-      Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+      this.logger.show(true);
     }
   }
 
