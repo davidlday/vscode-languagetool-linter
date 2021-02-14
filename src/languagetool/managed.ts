@@ -19,12 +19,13 @@ import * as portfinder from "portfinder";
 import { OutputChannel } from "vscode";
 
 export class ManagedLanguageTool {
-  private classpath = "";
-  private minimumPort = 0;
-  private maximumPort = 0;
-  private outputChannel: OutputChannel | undefined;
-  private port: number | undefined;
-  private process: execa.ExecaChildProcess | undefined;
+  private classpath: string | undefined = undefined;
+  private minimumPort: number | undefined = undefined;
+  private maximumPort: number | undefined = undefined;
+  private outputChannel: OutputChannel | undefined = undefined;
+  private port: number | undefined = undefined;
+  private process: execa.ExecaChildProcess | undefined = undefined;
+  private serviceUrl: string | undefined = undefined;
   private CHECK_PATH = "/v2/check";
 
   public async startService(
@@ -34,6 +35,7 @@ export class ManagedLanguageTool {
     outputChannel: OutputChannel,
   ): Promise<string> {
     outputChannel.appendLine("managedLanguageTool.startService called.");
+    await this.stopService();
     this.classpath = classpath;
     this.minimumPort = minimumPort;
     this.maximumPort = maximumPort;
@@ -48,7 +50,7 @@ export class ManagedLanguageTool {
           this.port = port;
           const args: string[] = [
             "-cp",
-            this.classpath,
+            this.classpath as string,
             "org.languagetool.server.HTTPServer",
             "--port",
             this.port.toString(),
@@ -78,26 +80,33 @@ export class ManagedLanguageTool {
       },
     );
     // Need to find a way to know if the service started
-    const timer: Promise<void> = new Promise((resolve) => {
-      setTimeout(() => resolve(), 5000);
-    });
-    await timer;
-
-    return "http://localhost:" + this.port + this.CHECK_PATH;
+    while (!this.port) {
+      const timer = new Promise((resolve) => {
+        setTimeout(() => resolve("done!"), 1000);
+      });
+      await timer;
+    }
+    this.serviceUrl = "http://localhost:" + this.port + this.CHECK_PATH;
+    return this.serviceUrl;
   }
 
-  public stopService(): void {
+  public async stopService(): Promise<void> {
     if (this.process) {
       if (this.outputChannel) {
         this.outputChannel.appendLine("Closing managed service server.");
       }
       this.process.cancel();
+      this.port = undefined;
+      this.classpath = undefined;
+      this.minimumPort = undefined;
+      this.maximumPort = undefined;
+      this.outputChannel = undefined;
       this.process = undefined;
     }
   }
 
   public getServiceUrl(): string {
-    return "http://localhost:" + this.getPort() + this.CHECK_PATH;
+    return this.serviceUrl as string;
   }
 
   public getPort(): number | undefined {
@@ -105,18 +114,18 @@ export class ManagedLanguageTool {
   }
 
   public getClassPath(): string {
-    return this.classpath;
+    return this.classpath as string;
   }
 
   public getMinimumPort(): number {
-    return this.minimumPort;
+    return this.minimumPort as number;
   }
 
   public getMaximumPort(): number {
-    return this.maximumPort;
+    return this.maximumPort as number;
   }
 
-  dispose(): void {
-    this.stopService();
+  public async dispose(): Promise<void> {
+    await this.stopService();
   }
 }
