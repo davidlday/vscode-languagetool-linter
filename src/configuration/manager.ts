@@ -22,14 +22,15 @@ import {
   DiagnosticSeverity,
   Disposable,
   ExtensionContext,
+  OutputChannel,
   TextDocument,
   Uri,
   window,
   workspace,
   WorkspaceConfiguration,
 } from "vscode";
-import * as Constants from "./constants";
 import { ManagedLanguageTool } from "../languagetool/managed";
+import * as Constants from "./constants";
 
 export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
@@ -37,6 +38,7 @@ export class ConfigurationManager implements Disposable {
   private serviceParameters: Map<string, string> | undefined = undefined;
   readonly context: ExtensionContext;
   private managedService: ManagedLanguageTool | undefined = undefined;
+  private logger: OutputChannel = Constants.EXTENSION_OUTPUT_CHANNEL;
 
   // Constructor
   constructor(context: ExtensionContext) {
@@ -60,27 +62,11 @@ export class ConfigurationManager implements Disposable {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     // Changed service type
     if (event.affectsConfiguration("languageToolLinter.serviceType")) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      this.logger.appendLine(
         "** SERVICE_TYPE Changed: " + this.getServiceType(),
       );
       await this.stopService();
       await this.startService();
-      // switch (this.getServiceType()) {
-      //   case Constants.SERVICE_TYPE_MANAGED:
-      //     await this.startManagedService()
-      //       .then((managedServiceUrl) => {
-      //         this.serviceUrl = managedServiceUrl;
-      //       })
-      //       .then(() => {
-      //         this.buildServiceParameters().then(
-      //           (parameters) => (this.serviceParameters = parameters),
-      //         );
-      //       });
-      //     break;
-      //   default:
-      //     this.stopService();
-      //     break;
-      // }
     }
     // Changed settings for managed service
     if (
@@ -90,9 +76,7 @@ export class ConfigurationManager implements Disposable {
         event.affectsConfiguration("languageToolLinter.managed.portMinimum") ||
         event.affectsConfiguration("languageToolLinter.managed.portMaximum"))
     ) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "** Managed Service settings changed.",
-      );
+      this.logger.appendLine("** Managed Service settings changed.");
       await this.stopService();
       await this.startService();
     }
@@ -320,9 +304,7 @@ export class ConfigurationManager implements Disposable {
 
   // Private instance methods
   private async startService(): Promise<string> {
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-      "manager.startService() called...",
-    );
+    this.logger.appendLine("manager.startService() called...");
     await this.buildServiceParameters().then((serviceParameters) => {
       this.serviceParameters = serviceParameters;
     });
@@ -347,10 +329,9 @@ export class ConfigurationManager implements Disposable {
               this.getClassPath(),
               this.getMinimumPort(),
               this.getMaximumPort(),
-              Constants.EXTENSION_OUTPUT_CHANNEL,
             )
             .then((managedServiceUrl) => {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+              this.logger.appendLine(
                 "    managed service url: " + managedServiceUrl,
               );
               this.serviceUrl = managedServiceUrl;
@@ -373,9 +354,7 @@ export class ConfigurationManager implements Disposable {
 
   // Stop the managed service
   private async stopService(): Promise<void> {
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-      "manager.stopManagedService() called...",
-    );
+    this.logger.appendLine("manager.stopManagedService() called...");
     if (this.managedService) {
       await this.managedService.stopService();
     }
@@ -389,7 +368,7 @@ export class ConfigurationManager implements Disposable {
       const value: string | undefined = config.get(configKey);
       if (value) {
         parameters.set(ltKey, value);
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": " + value);
+        this.logger.appendLine(ltKey + ": " + value);
       }
     });
     // Make sure disabled rules and disabled categories do not contain spaces
