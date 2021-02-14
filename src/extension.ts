@@ -241,6 +241,3 @@ export async function activate(
     linter.requestLint(vscode.window.activeTextEditor.document, firstDelay);
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-// export function deactivate(): void {}
