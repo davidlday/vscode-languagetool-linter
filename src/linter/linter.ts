@@ -315,7 +315,7 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     ltPostDataDict: Record<string, string>,
   ): void {
-    const url = this.configManager.getUrl();
+    const url = this.configManager.getServiceUrl();
     if (url) {
       const formBody = Object.keys(ltPostDataDict)
         .map(
