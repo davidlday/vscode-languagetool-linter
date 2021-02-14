@@ -229,7 +229,7 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
-  public getClassPath(): string {
+  private getClassPath(): string {
     const jarFile: string = this.get("managed.jarFile") as string;
     const classPath: string = this.get("managed.classPath") as string;
     const classPathFiles: string[] = [];
@@ -381,42 +381,6 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
-  // private findServiceUrl(serviceType: string): string | undefined {
-  //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-  //     "manager.findServiceUrl called...",
-  //   );
-  //   switch (serviceType) {
-  //     case Constants.SERVICE_TYPE_EXTERNAL: {
-  //       const url = this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
-  //       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-  //         "    found exteral: " + url,
-  //       );
-  //       return url;
-  //     }
-  //     case Constants.SERVICE_TYPE_MANAGED: {
-  //       if (this.managedService && this.managedService.getPort()) {
-  //         const url = this.managedService.getServiceUrl();
-  //         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-  //           "    found managed: " + url,
-  //         );
-  //         return url;
-  //       } else {
-  //         return undefined;
-  //       }
-  //     }
-  //     case Constants.SERVICE_TYPE_PUBLIC: {
-  //       const url = Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
-  //       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-  //         "    found public: " + url,
-  //       );
-  //       return url;
-  //     }
-  //     default: {
-  //       return undefined;
-  //     }
-  //   }
-  // }
-
   private async buildServiceParameters(): Promise<Map<string, string>> {
     const config: WorkspaceConfiguration = this.config;
     const parameters: Map<string, string> = new Map();
@@ -456,14 +420,6 @@ export class ConfigurationManager implements Disposable {
     return parameters;
   }
 
-  // private setManagedServicePort(port: number): void {
-  //   this.context.workspaceState.update("managedPort", port);
-  // }
-
-  // private getManagedServicePort(): number | undefined {
-  //   return this.context.workspaceState.get("managedPort");
-  // }
-
   private getExternalUrl(): string | undefined {
     return this.get("external.url");
   }
@@ -480,61 +436,41 @@ export class ConfigurationManager implements Disposable {
     return this.config.get("managed.portMaximum") as number;
   }
 
-  private async startManagedService(): Promise<string> {
-    return await this.startService();
-    // Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-    //   "manager.startManagedService() called...",
-    // );
-    // if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
-    //   if (this.managedService) {
-    //     await this.managedService.stopService();
-    //   } else {
-    //     this.managedService = new ManagedLanguageTool();
-    //   }
-    //   await this.managedService
-    //     .startService(
-    //       this.getClassPath(),
-    //       this.getMinimumPort(),
-    //       this.getMaximumPort(),
-    //       Constants.EXTENSION_OUTPUT_CHANNEL,
-    //     )
-    //     .then((managedServiceUrl) => {
-    //       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-    //         "    managed service url: " + managedServiceUrl,
-    //       );
-    //       this.serviceUrl = managedServiceUrl;
-    //     });
-    // }
-    // return Promise.resolve(this.serviceUrl as string);
-  }
-
   // Save words to settings
-  private saveIgnoredWords(
+  private async saveIgnoredWords(
     words: Set<string>,
     section: string,
     configurationTarget: ConfigurationTarget,
-  ): void {
+  ): Promise<void> {
     const wordArray: string[] = Array.from(words)
       .map((word) => word.toLowerCase())
       .sort();
     this.config.update(section, wordArray, configurationTarget);
+    return Promise.resolve();
   }
 
   // Save word to User Level ignored word list.
-  private saveGloballyIgnoredWords(globallyIgnoredWords: Set<string>): void {
+  private async saveGloballyIgnoredWords(
+    globallyIgnoredWords: Set<string>,
+  ): Promise<void> {
     this.saveIgnoredWords(
       globallyIgnoredWords,
       Constants.CONFIGURATION_GLOBAL_IGNORED_WORDS,
       ConfigurationTarget.Global,
     );
+    return Promise.resolve();
   }
+
   // Save word to Workspace Level ignored word list.
-  private saveWorkspaceIgnoredWords(workspaceIgnoredWords: Set<string>): void {
+  private async saveWorkspaceIgnoredWords(
+    workspaceIgnoredWords: Set<string>,
+  ): Promise<void> {
     this.saveIgnoredWords(
       workspaceIgnoredWords,
       Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS,
       ConfigurationTarget.Workspace,
     );
+    return Promise.resolve();
   }
 
   // Get ignored words from settings.
