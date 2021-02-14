@@ -16,36 +16,35 @@
 
 import * as execa from "execa";
 import * as portfinder from "portfinder";
+import * as Constants from "../configuration/constants";
 import { OutputChannel } from "vscode";
 
 export class ManagedLanguageTool {
   private classpath: string | undefined = undefined;
   private minimumPort: number | undefined = undefined;
   private maximumPort: number | undefined = undefined;
-  private outputChannel: OutputChannel | undefined = undefined;
+  private logger: OutputChannel = Constants.EXTENSION_OUTPUT_CHANNEL;
   private port: number | undefined = undefined;
   private process: execa.ExecaChildProcess | undefined = undefined;
   private serviceUrl: string | undefined = undefined;
-  private CHECK_PATH = "/v2/check";
+  private static CHECK_PATH = "v2/check";
 
   public async startService(
     classpath: string,
     minimumPort: number,
     maximumPort: number,
-    outputChannel: OutputChannel,
   ): Promise<string> {
-    outputChannel.appendLine("managedLanguageTool.startService called.");
+    this.logger.appendLine("managedLanguageTool.startService called.");
     await this.stopService();
     this.classpath = classpath;
     this.minimumPort = minimumPort;
     this.maximumPort = maximumPort;
-    this.outputChannel = outputChannel;
     portfinder.getPort(
       { host: "127.0.0.1", port: this.minimumPort, stopPort: this.maximumPort },
       (error: Error, port: number) => {
         if (error) {
-          outputChannel.appendLine("Error getting open port: " + error.message);
-          outputChannel.show(true);
+          this.logger.appendLine("Error getting open port: " + error.message);
+          this.logger.show(true);
         } else {
           const args: string[] = [
             "-cp",
@@ -54,27 +53,27 @@ export class ManagedLanguageTool {
             "--port",
             port.toString(),
           ];
-          outputChannel.appendLine("Starting managed service.");
+          this.logger.appendLine("Starting managed service.");
           (this.process = execa("java", args)).catch(
             (err: execa.ExecaError) => {
               if (err.isCanceled) {
-                outputChannel.appendLine("Managed service process stopped.");
+                this.logger.appendLine("Managed service process stopped.");
               } else if (err.failed) {
-                outputChannel.appendLine(
+                this.logger.appendLine(
                   "Managed service command failed: " + err.command,
                 );
-                outputChannel.appendLine("Error Message: " + err.message);
-                outputChannel.show(true);
+                this.logger.appendLine("Error Message: " + err.message);
+                this.logger.show(true);
               }
             },
           );
           this.port = port;
           this.process.stderr.addListener("data", (data) => {
-            outputChannel.appendLine(data);
-            outputChannel.show(true);
+            this.logger.appendLine(data);
+            this.logger.show(true);
           });
           this.process.stdout.addListener("data", (data) => {
-            outputChannel.appendLine(data);
+            this.logger.appendLine(data);
           });
         }
       },
@@ -88,47 +87,24 @@ export class ManagedLanguageTool {
       await timer;
       count++;
     }
-    this.serviceUrl = "http://localhost:" + this.port + this.CHECK_PATH;
+    this.serviceUrl = `http://localhost:${this.port}/${ManagedLanguageTool.CHECK_PATH}`;
     return Promise.resolve(this.serviceUrl);
   }
 
   public async stopService(): Promise<void> {
     if (this.process) {
-      if (this.outputChannel) {
-        this.outputChannel.appendLine("Closing managed service server.");
-      }
+      this.logger.appendLine("Closing managed service server.");
       this.process.cancel();
       this.port = undefined;
       this.classpath = undefined;
       this.minimumPort = undefined;
       this.maximumPort = undefined;
-      this.outputChannel = undefined;
       this.process = undefined;
     }
     return Promise.resolve();
   }
 
-  // public async getServiceUrl(): Promise<string> {
-  //   return this.serviceUrl as string;
-  // }
-
-  // public getPort(): number | undefined {
-  //   return this.port;
-  // }
-
-  // public getClassPath(): string {
-  //   return this.classpath as string;
-  // }
-
-  // public getMinimumPort(): number {
-  //   return this.minimumPort as number;
-  // }
-
-  // public getMaximumPort(): number {
-  //   return this.maximumPort as number;
-  // }
-
   public async dispose(): Promise<void> {
-    await this.stopService();
+    return await this.stopService();
   }
 }
