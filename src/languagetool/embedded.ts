@@ -14,14 +14,19 @@
  *   limitations under the License.
  */
 
+import * as crypto from "crypto";
 import * as execa from "execa";
+import * as extractzip from "extract-zip";
 import * as fs from "fs";
+import * as Fetch from "node-fetch";
 import * as path from "path";
 import * as portfinder from "portfinder";
+import * as stream from "stream";
+import * as util from "util";
 import { OutputChannel } from "vscode";
 import * as Constants from "../configuration/constants";
 
-export class EmbeddedLangaugeTool {
+export class EmbeddedLanguageTool {
   private homeDirectory: string;
   private minimumPort: number | undefined = undefined;
   private maximumPort: number | undefined = undefined;
@@ -29,19 +34,59 @@ export class EmbeddedLangaugeTool {
   private port: number | undefined = undefined;
   private process: execa.ExecaChildProcess | undefined = undefined;
   private serviceUrl: string | undefined = undefined;
-  private javaPath: string;
   private static CHECK_PATH = "v2/check";
-  private static JRE_VERSION = "11.0.10_9";
-  private static ADOPTOPENJDK_API =
-    "https://api.adoptopenjdk.net/v3/assets/version/";
 
-  constructor(homeDirectory: string, javaPath = "") {
-    this.homeDirectory = homeDirectory;
-    try {
-      fs.accessSync(javaPath, fs.constants.X_OK);
-      this.javaPath = javaPath;
-    } catch (err) {
-      this.javaPath = this.getEmbeddedJavaPath();
+  private os = "unknown";
+  private arch = process.arch === "ia32" ? "x32" : process.arch;
+
+  private ltVersion = "5.2";
+  private ltUrl = `https://languagetool.org/download/LanguageTool-${this.ltVersion}.zip`;
+  private ltSha256 =
+    "e7776143c76a88449d451897cedc9f3ce698450e25bce25d4ed52457fa2d0cde";
+  private ltHome = "";
+  private ltJar = "";
+
+  private jreVersion = "11.0.10+9";
+  private jreApi = "https://api.adoptopenjdk.net/v3/assets/version";
+  private jreHome = "";
+  private java: string;
+
+  constructor(homeDirectory: string) {
+    this.homeDirectory = path.resolve(homeDirectory);
+    this.ltHome = path.resolve(this.homeDirectory, "lt");
+    this.ltJar = path.resolve(
+      this.ltHome,
+      `LanguageTool-${this.ltVersion}`,
+      "languagetool-server.jar",
+    );
+    this.jreHome = path.resolve(this.homeDirectory, "jre");
+    this.java = path.resolve(this.jreHome, this.jreVersion, "bin", "java");
+    switch (process.platform) {
+      case "aix":
+        this.os = "aix";
+        break;
+      case "darwin":
+        this.os = "mac";
+        this.java = path.resolve(
+          this.jreHome,
+          "Contents",
+          "Home",
+          "bin",
+          "java",
+        );
+        break;
+      case "linux":
+        this.os = "linux";
+        break;
+      case "sunos":
+        this.os = "solaris";
+        break;
+      case "win32":
+        this.os = "windows";
+        this.java = path.resolve(this.jreHome, "bin", "java.exe");
+        break;
+      default:
+        this.os = "unknown";
     }
   }
 
@@ -69,7 +114,7 @@ export class EmbeddedLangaugeTool {
             port.toString(),
           ];
           this.logger.appendLine("Starting embedded service.");
-          (this.process = execa(this.javaPath, args)).catch(
+          (this.process = execa(this.java, args)).catch(
             (err: execa.ExecaError) => {
               if (err.isCanceled) {
                 this.logger.appendLine("Embedded service process stopped.");
@@ -102,7 +147,7 @@ export class EmbeddedLangaugeTool {
       await timer;
       count++;
     }
-    this.serviceUrl = `http://localhost:${this.port}/${EmbeddedLangaugeTool.CHECK_PATH}`;
+    this.serviceUrl = `http://localhost:${this.port}/${EmbeddedLanguageTool.CHECK_PATH}`;
     return Promise.resolve(this.serviceUrl);
   }
 
@@ -122,27 +167,106 @@ export class EmbeddedLangaugeTool {
     return await this.stopService();
   }
 
-  private getEmbeddedJavaPath(): string {
-    let javaExe = "java";
-    if (process.platform == "win32") {
-      javaExe = "java.exe";
-    }
-    const embeddedJavaPath = path.resolve(
-      this.homeDirectory,
-      "embedded",
-      "jre",
-      EmbeddedLangaugeTool.JRE_VERSION,
-      javaExe,
-    );
-    try {
-      fs.accessSync(embeddedJavaPath, fs.constants.X_OK);
-      return embeddedJavaPath;
-    } catch (err) {
-      return this.installEmbeddedJava();
-    }
+  // Private Functions
+  public async init(): Promise<boolean> {
+    await this.installJre();
+    await this.installLanguageTool();
+    return Promise.resolve(true);
   }
 
-  private installEmbeddedJava(): string {
-    return "";
+  // private async getEmbeddedJavaPath(): Promise<string> {
+  //   const javaExe = process.platform === "win32" ? "java.exe" : "java";
+  //   const embeddedJavaPath = path.resolve(
+  //     this.homeDirectory,
+  //     "embedded",
+  //     "jre",
+  //     this.jreVersion,
+  //     javaExe,
+  //   );
+  //   try {
+  //     fs.accessSync(embeddedJavaPath, fs.constants.X_OK);
+  //     return embeddedJavaPath;
+  //   } catch (err) {
+  //     return this.installJre();
+  //   }
+  // }
+
+  public async installLanguageTool(): Promise<string> {
+    if (!fs.existsSync(this.ltHome)) {
+      fs.mkdirSync(this.ltHome);
+    }
+    const ltArchive = path.resolve(this.ltHome, path.basename(this.ltUrl));
+    await this.download(this.ltUrl, ltArchive, this.ltSha256);
+    await extractzip(ltArchive, { dir: this.ltHome });
+    return Promise.resolve(ltArchive);
+  }
+
+  public async installJre(): Promise<string> {
+    if (!fs.existsSync(this.jreHome)) {
+      fs.mkdirSync(this.jreHome);
+    }
+
+    const query_string = `os=${this.os}&architecture=${this.arch}&heap_size=normal&image_type=jre&jvm_impl=hotspot&lts=true&page=0&page_size=10&project=jdk&release_type=ga&sort_method=DEFAULT&sort_order=DESC&vendor=adoptopenjdk`;
+
+    const apiUrl = `${this.jreApi}/${this.jreVersion}?${query_string}`;
+
+    const apiResponse = await Fetch.default(apiUrl);
+    const apiJson = await apiResponse.json();
+    fs.writeFileSync(
+      path.resolve(this.homeDirectory, "jre.json"),
+      JSON.stringify(apiJson),
+      "utf-8",
+    );
+
+    // Download the binary
+    const binary = apiJson[0].binaries[0].package;
+    const jreArchive = path.resolve(this.homeDirectory, "jre", binary.name);
+    const filename = await this.download(
+      binary.link,
+      jreArchive,
+      binary.checksum,
+    );
+
+    return Promise.resolve(filename);
+  }
+
+  private async download(
+    url: string,
+    filename: string,
+    sha256?: string,
+  ): Promise<string> {
+    const response = await Fetch.default(url);
+    const targetFile = path.resolve(this.homeDirectory, filename);
+    if (!response.ok) {
+      Promise.reject(
+        new Error(
+          `unexpected response ${response.statusText} while downloading ${url}`,
+        ),
+      );
+      fs.unlinkSync(targetFile);
+    }
+    const streamPipeline = util.promisify(stream.pipeline);
+    await streamPipeline(
+      response.body,
+      fs.createWriteStream(path.resolve(this.homeDirectory, filename)),
+    );
+    if (sha256) {
+      const hash = crypto.createHash("sha256");
+      fs.createReadStream(filename)
+        .on("data", (data) => hash.update(data))
+        .on("end", () => {
+          const fileHash = hash.digest("hex");
+          if (sha256 === fileHash) {
+            return Promise.resolve(filename);
+          } else {
+            return Promise.reject(
+              new Error(
+                `Could not verify ${filename}. Expected ${sha256} but found ${fileHash}.`,
+              ),
+            );
+          }
+        });
+    }
+    return Promise.resolve(filename);
   }
 }
