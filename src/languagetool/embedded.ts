@@ -22,6 +22,7 @@ import * as Fetch from "node-fetch";
 import * as path from "path";
 import * as portfinder from "portfinder";
 import * as stream from "stream";
+import * as tar from "tar";
 import * as util from "util";
 import { OutputChannel } from "vscode";
 import * as Constants from "../configuration/constants";
@@ -96,7 +97,7 @@ export class EmbeddedLanguageTool {
   ): Promise<string> {
     this.logger.appendLine("embeddedLanguageTool.startService called.");
     await this.stopService();
-    const classpath: string = this.homeDirectory + "/stable/";
+    // const classpath: string = this.homeDirectory + "/stable/";
     this.minimumPort = minimumPort;
     this.maximumPort = maximumPort;
     portfinder.getPort(
@@ -108,7 +109,7 @@ export class EmbeddedLanguageTool {
         } else {
           const args: string[] = [
             "-cp",
-            classpath,
+            this.ltJar,
             "org.languagetool.server.HTTPServer",
             "--port",
             port.toString(),
@@ -220,12 +221,28 @@ export class EmbeddedLanguageTool {
 
     // Download the binary
     const binary = apiJson[0].binaries[0].package;
-    const jreArchive = path.resolve(this.homeDirectory, "jre", binary.name);
+    const jreArchive = path.resolve(this.jreHome, binary.name);
+
+    await this.download(
+      binary.metadata_link,
+      path.resolve(this.jreHome, "metadata.json"),
+    );
+
+    await this.download(
+      binary.checksum_link,
+      path.resolve(this.jreHome, "sha256.txt"),
+    );
     const filename = await this.download(
       binary.link,
       jreArchive,
       binary.checksum,
     );
+
+    if (path.extname(filename) === ".zip") {
+      await extractzip(filename, { dir: this.jreHome });
+    } else {
+      await tar.x({ file: filename, cwd: this.jreHome });
+    }
 
     return Promise.resolve(filename);
   }
