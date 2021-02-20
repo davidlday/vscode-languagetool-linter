@@ -214,7 +214,7 @@ export class EmbeddedLanguageTool {
     const apiResponse = await Fetch.default(apiUrl);
     const apiJson = await apiResponse.json();
     fs.writeFileSync(
-      path.resolve(this.homeDirectory, "jre.json"),
+      path.resolve(this.jreHome, "api.json"),
       JSON.stringify(apiJson),
       "utf-8",
     );
