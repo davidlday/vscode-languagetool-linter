@@ -92,7 +92,7 @@ suite("Embedded LanguageTool Test Suite", () => {
   });
 
   test("Embedded service should download and install JRE", async function () {
-    this.timeout(60000);
+    this.timeout(90000);
     await service.init();
 
     // Validate we got the expected zip
