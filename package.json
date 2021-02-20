@@ -478,6 +478,7 @@
     "@types/mocha": "^8.2.0",
     "@types/node": "^10.17.28",
     "@types/node-fetch": "^2.5.8",
+    "@types/tar": "^4.0.4",
     "@types/vscode": "^1.43.0",
     "@types/webpack": "^4.41.26",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
@@ -502,6 +503,7 @@
     "extract-zip": "^2.0.1",
     "glob": "^7.1.6",
     "node-fetch": "^2.6.1",
-    "portfinder": "^1.0.28"
+    "portfinder": "^1.0.28",
+    "tar": "^6.1.0"
   }
 }
