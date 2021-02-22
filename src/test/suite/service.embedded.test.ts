@@ -28,10 +28,13 @@ suite("Embedded LanguageTool Test Suite", () => {
   );
   const ltHashExpected =
     "e7776143c76a88449d451897cedc9f3ce698450e25bce25d4ed52457fa2d0cde";
+  const ltHome = path.resolve(embeddedTestHomedirectory, "lt", ltVersion);
 
   const jreVersion = "11.0.10+9";
   let jreArchive: string;
   let jreHashExpected: string;
+  const jreHome = path.resolve(embeddedTestHomedirectory, "jre", jreVersion);
+
   let os = "unknown";
   let arch = "unknown";
 
@@ -91,9 +94,9 @@ suite("Embedded LanguageTool Test Suite", () => {
     assert.ok(service);
   });
 
-  test("Embedded service should download and install JRE", async function () {
+  test("Embedded service should download and install JRE and LT", async function () {
     this.timeout(90000);
-    await service.init();
+    await service.install();
 
     // Validate we got the expected zip
     assert.ok(fs.existsSync(ltArchive));
@@ -105,8 +108,10 @@ suite("Embedded LanguageTool Test Suite", () => {
         assert.strictEqual(ltHashResult, ltHashExpected);
       });
 
+    // Validate the JRE home directory exists
+    assert.ok(fs.existsSync(ltHome));
+
     // Validate we got the expected zip
-    console.log(jreArchive);
     assert.ok(fs.existsSync(jreArchive));
     const jreHash = crypto.createHash("sha256");
     fs.createReadStream(jreArchive)
@@ -114,6 +119,19 @@ suite("Embedded LanguageTool Test Suite", () => {
       .on("end", () => {
         const jreHashResult = jreHash.digest("hex");
         assert.strictEqual(jreHashResult, jreHashExpected);
+      });
+    // Validate the JRE home directory exists
+    assert.ok(fs.existsSync(jreHome));
+  });
+
+  test("Embedded service should delete JRE and LT", async function () {
+    await service
+      .uninstall()
+      .then(() => {
+        assert.ok(!fs.existsSync(jreHome));
+      })
+      .then(() => {
+        assert.ok(!fs.existsSync(ltHome));
       });
   });
 });
