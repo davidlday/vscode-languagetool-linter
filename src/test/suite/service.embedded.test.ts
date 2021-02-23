@@ -1,5 +1,6 @@
 import * as assert from "assert";
 import * as crypto from "crypto";
+import * as del from "del";
 import * as fs from "fs";
 import * as path from "path";
 import { ExtensionContext } from "vscode";
@@ -80,58 +81,78 @@ suite("Embedded LanguageTool Test Suite", () => {
   });
 
   teardown(function () {
-    // Clean up lt archive
-    if (fs.existsSync(ltArchive)) {
-      fs.unlinkSync(ltArchive);
-    }
-    // Clean up jre archive
-    if (fs.existsSync(jreArchive)) {
-      fs.unlinkSync(jreArchive);
-    }
+    // Clean up jre and lt directories
+    del([`${this.jreHome}/**`, `${this.jreHome}/.*`, `${this.ltHome}/**`], {
+      force: true,
+    });
   });
 
-  test("Embedded service should instantiate", function () {
+  test("Embedded service should instantiate", async function () {
     assert.ok(service);
   });
 
   test("Embedded service should download and install JRE and LT", async function () {
     this.timeout(90000);
-    await service.install();
-
-    // Validate we got the expected zip
-    assert.ok(fs.existsSync(ltArchive));
-    const ltHash = crypto.createHash("sha256");
-    fs.createReadStream(ltArchive)
-      .on("data", (data) => ltHash.update(data))
-      .on("end", () => {
-        const ltHashResult = ltHash.digest("hex");
-        assert.strictEqual(ltHashResult, ltHashExpected);
+    const keepArchives = true;
+    return service
+      .install(keepArchives)
+      .then(() => {
+        // Validate we got the expected LT archive
+        assert.ok(fs.existsSync(ltArchive));
+        const ltHash = crypto.createHash("sha256");
+        fs.createReadStream(ltArchive)
+          .on("data", (data) => ltHash.update(data))
+          .on("end", () => {
+            const ltHashResult = ltHash.digest("hex");
+            assert.strictEqual(ltHashResult, ltHashExpected);
+          });
+      })
+      .then(() => {
+        // Validate the LT home directory exists
+        assert.ok(fs.existsSync(ltHome));
+      })
+      .then(() => {
+        // Validate we got the expected JRE archive
+        assert.ok(fs.existsSync(jreArchive));
+        const jreHash = crypto.createHash("sha256");
+        fs.createReadStream(jreArchive)
+          .on("data", (data) => jreHash.update(data))
+          .on("end", () => {
+            const jreHashResult = jreHash.digest("hex");
+            assert.strictEqual(jreHashResult, jreHashExpected);
+          });
+      })
+      .then(() => {
+        console.log(`cwd: ${process.cwd()}`);
+        // Validate the JRE home directory exists
+        assert.ok(fs.existsSync(jreHome));
+      })
+      .then(() => {
+        // Clean up lt archive
+        if (fs.existsSync(this.ltArchive)) {
+          fs.unlinkSync(this.ltArchive);
+        }
+        // Clean up jre archive
+        if (fs.existsSync(this.jreArchive)) {
+          fs.unlinkSync(this.jreArchive);
+        }
       });
-
-    // Validate the JRE home directory exists
-    assert.ok(fs.existsSync(ltHome));
-
-    // Validate we got the expected zip
-    assert.ok(fs.existsSync(jreArchive));
-    const jreHash = crypto.createHash("sha256");
-    fs.createReadStream(jreArchive)
-      .on("data", (data) => jreHash.update(data))
-      .on("end", () => {
-        const jreHashResult = jreHash.digest("hex");
-        assert.strictEqual(jreHashResult, jreHashExpected);
-      });
-    // Validate the JRE home directory exists
-    assert.ok(fs.existsSync(jreHome));
   });
 
   test("Embedded service should delete JRE and LT", async function () {
-    await service
+    return await service
       .uninstall()
-      .then(() => {
-        assert.ok(!fs.existsSync(jreHome));
+      .then((deleted) => {
+        // Something got deleted
+        assert.ok(deleted.length > 0);
       })
       .then(() => {
-        assert.ok(!fs.existsSync(ltHome));
+        // JRE home got deleted
+        assert.ok(!fs.existsSync(this.jreHome));
+      })
+      .then(() => {
+        // LT home got deleted
+        assert.ok(!fs.existsSync(this.ltHome));
       });
   });
 });
