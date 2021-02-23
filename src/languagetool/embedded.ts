@@ -176,13 +176,13 @@ export class EmbeddedLanguageTool {
     return Promise.resolve(serviceUrl);
   }
 
-  public async install(): Promise<void> {
-    await this.installJre();
-    await this.installLanguageTool();
+  public async install(keepArchives = false): Promise<void> {
+    await this.installJre(keepArchives);
+    await this.installLanguageTool(keepArchives);
     return Promise.resolve();
   }
 
-  private async installLanguageTool(): Promise<void> {
+  private async installLanguageTool(keepArchives = false): Promise<void> {
     if (!fs.existsSync(this.ltJar)) {
       if (!fs.existsSync(this.ltHome)) {
         fs.mkdirSync(this.ltHome);
@@ -194,12 +194,14 @@ export class EmbeddedLanguageTool {
         path.resolve(this.ltHome, `LanguageTool-${this.ltVersion}`),
         path.resolve(this.ltHome, this.ltVersion),
       );
+      if (!keepArchives && fs.existsSync(ltArchive)) {
+        fs.unlinkSync(ltArchive);
+      }
     }
     return Promise.resolve();
   }
 
-  private async installJre(): Promise<void> {
-    await this.uninstall();
+  private async installJre(keepArchives = false): Promise<void> {
     if (!fs.existsSync(this.java)) {
       if (!fs.existsSync(this.jreHome)) {
         fs.mkdirSync(this.jreHome);
@@ -233,24 +235,24 @@ export class EmbeddedLanguageTool {
         path.resolve(this.jreHome, "checksum.txt"),
       );
 
-      // Get the binary archive
-      const filename = await this.download(
-        binary.link,
-        jreArchive,
-        binary.checksum,
-      );
+      // Get the jre archive
+      await this.download(binary.link, jreArchive, binary.checksum);
 
       // Extract the binary
-      if (path.extname(filename) === ".zip") {
-        await extractzip(filename, { dir: this.jreHome });
+      if (path.extname(jreArchive) === ".zip") {
+        await extractzip(jreArchive, { dir: this.jreHome });
       } else {
-        await tar.x({ file: filename, cwd: this.jreHome });
+        await tar.x({ file: jreArchive, cwd: this.jreHome });
       }
 
       fs.renameSync(
         path.resolve(this.jreHome, `jdk-${this.jreVersion}-jre`),
         path.resolve(this.jreHome, this.jreVersion),
       );
+
+      if (!keepArchives && fs.existsSync(jreArchive)) {
+        fs.unlinkSync(jreArchive);
+      }
     }
     return Promise.resolve();
   }
