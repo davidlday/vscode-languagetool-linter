@@ -14,17 +14,19 @@
  *   limitations under the License.
  */
 
+export interface ILanguageToolSoftware {
+  name: string;
+  version: string;
+  buildDate: string;
+  apiVersion: number;
+  premium: boolean;
+  premiumHint: string;
+  status: string;
+}
+
 // Interface - LanguageTool Response
 export interface ILanguageToolResponse {
-  software: {
-    name: string;
-    version: string;
-    buildDate: string;
-    apiVersion: number;
-    premium: boolean;
-    premiumHint: string;
-    status: string;
-  };
+  software: ILanguageToolSoftware;
   warnings: {
     incompleteResults: boolean;
   };

@@ -2,11 +2,13 @@ import * as assert from "assert";
 import * as crypto from "crypto";
 import * as del from "del";
 import * as fs from "fs";
+import * as Fetch from "node-fetch";
 import * as path from "path";
 import { ExtensionContext } from "vscode";
 import { ConfigurationManager } from "../../configuration/manager";
 import { MockExtensionContext } from "./mockUtils";
 import { EmbeddedLanguageTool } from "../../languagetool/embedded";
+import { ILanguageToolResponse } from "../../linter/interfaces";
 
 suite("Embedded LanguageTool Test Suite", () => {
   const testContext: ExtensionContext = new MockExtensionContext();
@@ -15,7 +17,7 @@ suite("Embedded LanguageTool Test Suite", () => {
   );
   const embeddedTestHomedirectory: string = path.resolve(
     __dirname,
-    "../../../src/test-fixtures/workspace/embedded",
+    "../../../src/test-fixtures/embedded",
   );
   const service: EmbeddedLanguageTool = new EmbeddedLanguageTool(
     embeddedTestHomedirectory,
@@ -85,6 +87,8 @@ suite("Embedded LanguageTool Test Suite", () => {
     del([`${this.jreHome}/**`, `${this.jreHome}/.*`, `${this.ltHome}/**`], {
       force: true,
     });
+    // Ensure service is stopped
+    service.stopService();
   });
 
   test("Embedded service should instantiate", async function () {
@@ -137,6 +141,37 @@ suite("Embedded LanguageTool Test Suite", () => {
           fs.unlinkSync(this.jreArchive);
         }
       });
+  });
+
+  test("Embedded service should start", async function () {
+    const serviceUrl = await service.startService(9500, 65535);
+    console.log(serviceUrl);
+    assert.strictEqual(serviceUrl, "http://localhost:9500/v2/check");
+
+    const ltPostDataDict: Record<string, string> = {};
+    ltPostDataDict.language = "en-US";
+    ltPostDataDict.text = "A simple test.";
+    const formBody = Object.keys(ltPostDataDict)
+      .map(
+        (key: string) =>
+          encodeURIComponent(key) +
+          "=" +
+          encodeURIComponent(ltPostDataDict[key]),
+      )
+      .join("&");
+
+    const options: Fetch.RequestInit = {
+      body: formBody,
+      headers: {
+        "Accepts": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+      },
+      method: "POST",
+    };
+
+    const response = await Fetch.default(serviceUrl, options);
+    const ltReponse: ILanguageToolResponse = (await response.json()) as ILanguageToolResponse;
+    assert.strictEqual(ltReponse.software.version, ltVersion);
   });
 
   test("Embedded service should delete JRE and LT", async function () {

@@ -48,6 +48,7 @@ export class EmbeddedLanguageTool {
   private ltHome = "";
   private ltJar = "";
 
+  // See: https://api.adoptopenjdk.net/swagger-ui/#/Assets/get_v3_assets_version__version_
   private jreVersion = "11.0.10+9";
   private jreApi = "https://api.adoptopenjdk.net/v3/assets/version";
   private jreHome = "";
@@ -151,6 +152,10 @@ export class EmbeddedLanguageTool {
     }
     this.serviceUrl = `http://localhost:${this.port}/${EmbeddedLanguageTool.CHECK_PATH}`;
     return Promise.resolve(this.serviceUrl);
+  }
+
+  public async getService(): Promise<void> {
+    return Promise.resolve();
   }
 
   public async stopService(): Promise<void> {
