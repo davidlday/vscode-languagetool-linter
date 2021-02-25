@@ -41,7 +41,7 @@ suite("Embedded LanguageTool Test Suite", () => {
   let os = "unknown";
   let arch = "unknown";
 
-  setup(async function () {
+  suiteSetup(async function () {
     os = "";
     switch (process.platform) {
       case "aix":
@@ -80,9 +80,10 @@ suite("Embedded LanguageTool Test Suite", () => {
       "jre",
       platformJre[0].package.name,
     );
+    await service.uninstall();
   });
 
-  teardown(function () {
+  suiteTeardown(function () {
     // Clean up jre and lt directories
     del([`${this.jreHome}/**`, `${this.jreHome}/.*`, `${this.ltHome}/**`], {
       force: true,
@@ -143,8 +144,9 @@ suite("Embedded LanguageTool Test Suite", () => {
   });
 
   test("Embedded service should start", async function () {
+    this.timeout(60000);
     const serviceUrl = await service.startService(9500, 65535);
-    console.log(serviceUrl);
+    // console.log(serviceUrl);
     assert.strictEqual(serviceUrl, "http://localhost:9500/v2/check");
 
     const ltPostDataDict: Record<string, string> = {};
@@ -167,6 +169,15 @@ suite("Embedded LanguageTool Test Suite", () => {
       },
       method: "POST",
     };
+
+    let count = 0;
+    while (count < 5) {
+      const timer = new Promise((resolve) => {
+        setTimeout(() => resolve("done!"), 1000);
+      });
+      await timer;
+      count++;
+    }
 
     const response = await Fetch.default(serviceUrl, options);
     const ltReponse: ILanguageToolResponse = (await response.json()) as ILanguageToolResponse;
