@@ -14,6 +14,14 @@
  *   limitations under the License.
  */
 
+export interface ILanguageToolService {
+  startService(): Promise<string>;
+  stopService(): Promise<void>;
+  getServiceUrl(): string;
+  isRunning(): Promise<boolean>;
+  dispose(): void;
+}
+
 export interface ILanguageToolSoftware {
   name: string;
   version: string;
