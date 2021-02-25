@@ -77,6 +77,7 @@ export const CONFIGURATION_LANGUAGE = "language";
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
 export const SERVICE_CHECK_PATH = "/v2/check";
 export const SERVICE_TYPE_EXTERNAL = "external";
+export const SERVICE_TYPE_EMBEDDED = "embedded";
 export const SERVICE_TYPE_MANAGED = "managed";
 export const SERVICE_TYPE_PUBLIC = "public";
 export const SERVICE_TYPES: string[] = [
