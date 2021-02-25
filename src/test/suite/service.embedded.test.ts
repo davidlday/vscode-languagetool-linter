@@ -127,7 +127,6 @@ suite("Embedded LanguageTool Test Suite", () => {
           });
       })
       .then(() => {
-        console.log(`cwd: ${process.cwd()}`);
         // Validate the JRE home directory exists
         assert.ok(fs.existsSync(jreHome));
       })
