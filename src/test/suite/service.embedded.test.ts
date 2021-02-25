@@ -12,16 +12,12 @@ import { ILanguageToolResponse } from "../../linter/interfaces";
 
 suite("Embedded LanguageTool Test Suite", () => {
   const testContext: ExtensionContext = new MockExtensionContext();
-  const config: ConfigurationManager = new ConfigurationManager(
-    testContext as ExtensionContext,
-  );
+  const config: ConfigurationManager = new ConfigurationManager(testContext);
   const embeddedTestHomedirectory: string = path.resolve(
     __dirname,
-    "../../../src/test-fixtures/embedded",
+    "../../../src/test-fixtures/mock-context/embedded",
   );
-  const service: EmbeddedLanguageTool = new EmbeddedLanguageTool(
-    embeddedTestHomedirectory,
-  );
+  const service: EmbeddedLanguageTool = new EmbeddedLanguageTool(testContext);
 
   const ltVersion = "5.2";
   const ltArchive = path.resolve(
