@@ -79,5 +79,5 @@ out
 dist/
 
 # Embedded LT Workspaces
-src/test-fixtures/workspace/embedded/lt/
-src/test-fixtures/workspace/embedded/jre/
+src/test-fixtures/embedded/lt/
+src/test-fixtures/embedded/jre/
