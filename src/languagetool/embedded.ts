@@ -72,6 +72,7 @@ export class EmbeddedLanguageTool {
         this.os = "mac";
         this.java = path.resolve(
           this.jreHome,
+          this.jreVersion,
           "Contents",
           "Home",
           "bin",
@@ -86,7 +87,12 @@ export class EmbeddedLanguageTool {
         break;
       case "win32":
         this.os = "windows";
-        this.java = path.resolve(this.jreHome, "bin", "java.exe");
+        this.java = path.resolve(
+          this.jreHome,
+          this.jreVersion,
+          "bin",
+          "java.exe",
+        );
         break;
       default:
         this.os = "unknown";
