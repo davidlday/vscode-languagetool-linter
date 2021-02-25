@@ -34,19 +34,26 @@ export class MockMemento implements Memento {
 
 export class MockExtensionContext implements ExtensionContext, Disposable {
   readonly extensionPath: string = path.resolve(__dirname, "..", "..");
+  private readonly mockContextRoot = path.resolve(
+    this.extensionPath,
+    "../src/test-fixtures/mock-context",
+  );
 
   public readonly subscriptions: { dispose(): unknown }[] = [];
   readonly workspaceState: Memento = new MockMemento();
   readonly globalState: Memento = new MockMemento();
-  readonly storagePath: string | undefined;
-  readonly globalStoragePath: string = path.resolve(
-    __dirname,
+  public storagePath: string = path.resolve(
+    this.mockContextRoot,
+    "storagePath",
+  );
+  public globalStoragePath: string = path.resolve(
+    this.mockContextRoot,
     "globalStoragePath",
   );
-  readonly logPath: string = path.resolve(__dirname, "logPath");
+  public logPath: string = path.resolve(__dirname, "logPath");
 
   asAbsolutePath(relativePath: string): string {
-    return path.resolve(relativePath);
+    return path.resolve(this.mockContextRoot, relativePath);
   }
 
   dispose(): void {
