@@ -25,10 +25,12 @@ import * as portfinder from "portfinder";
 import * as stream from "stream";
 import * as tar from "tar";
 import * as util from "util";
-import { OutputChannel } from "vscode";
+import { ExtensionContext, OutputChannel } from "vscode";
 import * as Constants from "../configuration/constants";
 
 export class EmbeddedLanguageTool {
+  private context: ExtensionContext;
+
   private homeDirectory: string;
   private minimumPort: number | undefined = undefined;
   private maximumPort: number | undefined = undefined;
@@ -41,21 +43,28 @@ export class EmbeddedLanguageTool {
   private os = "unknown";
   private arch = process.arch === "ia32" ? "x32" : process.arch;
 
-  private ltVersion = "5.2";
-  private ltUrl = `https://languagetool.org/download/LanguageTool-${this.ltVersion}.zip`;
-  private ltSha256 =
+  private readonly ltVersion = "5.2";
+  private readonly ltUrl = `https://languagetool.org/download/LanguageTool-${this.ltVersion}.zip`;
+  private readonly ltSha256 =
     "e7776143c76a88449d451897cedc9f3ce698450e25bce25d4ed52457fa2d0cde";
   private ltHome = "";
   private ltJar = "";
 
   // See: https://api.adoptopenjdk.net/swagger-ui/#/Assets/get_v3_assets_version__version_
-  private jreVersion = "11.0.10+9";
-  private jreApi = "https://api.adoptopenjdk.net/v3/assets/version";
+  private readonly jreVersion = "11.0.10+9";
+  private readonly jreApi = "https://api.adoptopenjdk.net/v3/assets/version";
   private jreHome = "";
-  private java: string;
+  private java = "";
 
-  constructor(homeDirectory: string) {
-    this.homeDirectory = path.resolve(homeDirectory);
+  constructor(context: ExtensionContext) {
+    this.context = context;
+    this.homeDirectory = path.resolve(
+      this.context.globalStoragePath,
+      "embedded",
+    );
+    if (!fs.existsSync(this.homeDirectory)) {
+      fs.mkdirSync(this.homeDirectory);
+    }
     this.ltHome = path.resolve(this.homeDirectory, "lt");
     this.ltJar = path.resolve(
       this.ltHome,
@@ -105,7 +114,6 @@ export class EmbeddedLanguageTool {
   ): Promise<string> {
     this.logger.appendLine("embeddedLanguageTool.startService called.");
     await this.stopService();
-    // const classpath: string = this.homeDirectory + "/stable/";
     this.minimumPort = minimumPort;
     this.maximumPort = maximumPort;
     portfinder.getPort(
@@ -147,21 +155,42 @@ export class EmbeddedLanguageTool {
         }
       },
     );
+
     // Need to find a better way to know if the service is still starting or if something failed.
+    const timer = new Promise((resolve) => {
+      setTimeout(() => resolve("done!"), 1000);
+    });
+
     let count = 0;
     while (!this.port && count < 10) {
-      const timer = new Promise((resolve) => {
-        setTimeout(() => resolve("done!"), 1000);
-      });
       await timer;
       count++;
     }
+
     this.serviceUrl = `http://localhost:${this.port}/${EmbeddedLanguageTool.CHECK_PATH}`;
+    count = 0;
+    while (!(await this.isAvailable()) && count < 10) {
+      await timer;
+      count++;
+    }
+
     return Promise.resolve(this.serviceUrl);
   }
 
-  public async getService(): Promise<void> {
-    return Promise.resolve();
+  public async isAvailable(): Promise<boolean> {
+    if (this.serviceUrl) {
+      await Fetch.default(this.serviceUrl, { method: "HEAD" })
+        .then(() => {
+          return Promise.resolve(true);
+        })
+        .catch(() => {
+          return Promise.resolve(false);
+        });
+    }
+    return Promise.reject(
+      "No service URL defined. Have you started the service?",
+    );
+    // return Promise.resolve(false);
   }
 
   public async stopService(): Promise<void> {
@@ -172,6 +201,7 @@ export class EmbeddedLanguageTool {
       this.minimumPort = undefined;
       this.maximumPort = undefined;
       this.process = undefined;
+      this.serviceUrl = undefined;
     }
     return Promise.resolve();
   }
@@ -180,19 +210,46 @@ export class EmbeddedLanguageTool {
     return await this.stopService();
   }
 
-  // Private Functions
-  public async init(minimumPort: number, maximumPort: number): Promise<string> {
-    await this.install();
-    const serviceUrl = await this.startService(minimumPort, maximumPort);
-    return Promise.resolve(serviceUrl);
+  // Minimal test for files
+  private isInstalled(): boolean {
+    return fs.existsSync(this.java) && fs.existsSync(this.ltJar);
   }
 
-  public async install(keepArchives = false): Promise<void> {
+  // Initialize the service
+  public async init(keepArchives = false): Promise<void> {
+    //  Conditional install
+    if (!this.isInstalled()) {
+      // Clean out any old stuff
+      await this.uninstall();
+      await this.install(keepArchives);
+    }
+    return Promise.resolve();
+  }
+
+  public async reinstall(keepArchives = false): Promise<void> {
+    await this.uninstall();
+    return await this.install(keepArchives);
+  }
+
+  // Rip it all out
+  public async uninstall(): Promise<string[]> {
+    await this.stopService();
+    const deleted = await del([`${this.homeDirectory}/**`], {
+      force: true,
+    });
+    return Promise.resolve(deleted);
+  }
+
+  // Private Functions
+
+  // Install everything
+  private async install(keepArchives = false): Promise<void> {
     await this.installJre(keepArchives);
     await this.installLanguageTool(keepArchives);
     return Promise.resolve();
   }
 
+  // Install LanguageTool
   private async installLanguageTool(keepArchives = false): Promise<void> {
     if (!fs.existsSync(this.ltJar)) {
       if (!fs.existsSync(this.ltHome)) {
@@ -212,6 +269,7 @@ export class EmbeddedLanguageTool {
     return Promise.resolve();
   }
 
+  // Install JRE
   private async installJre(keepArchives = false): Promise<void> {
     if (!fs.existsSync(this.java)) {
       if (!fs.existsSync(this.jreHome)) {
@@ -268,6 +326,7 @@ export class EmbeddedLanguageTool {
     return Promise.resolve();
   }
 
+  // Downloader
   private async download(
     url: string,
     filename: string,
@@ -306,16 +365,5 @@ export class EmbeddedLanguageTool {
         });
     }
     return Promise.resolve(filename);
-  }
-
-  public async uninstall(): Promise<string[]> {
-    await this.stopService();
-    const deleted = await del(
-      [`${this.jreHome}/**`, `${this.jreHome}/.*`, `${this.ltHome}/**`],
-      {
-        force: true,
-      },
-    );
-    return Promise.resolve(deleted);
   }
 }
