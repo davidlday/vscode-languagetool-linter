@@ -63,7 +63,7 @@ export class EmbeddedLanguageTool {
       "embedded",
     );
     if (!fs.existsSync(this.homeDirectory)) {
-      fs.mkdirSync(this.homeDirectory);
+      fs.mkdirSync(this.homeDirectory, { recursive: true });
     }
     this.ltHome = path.resolve(this.homeDirectory, "lt");
     this.ltJar = path.resolve(

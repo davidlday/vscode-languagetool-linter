@@ -93,7 +93,7 @@ suite("Embedded LanguageTool Test Suite", () => {
   test("Embedded service should download and install JRE and LT", async function () {
     this.timeout(120000);
     const keepArchives = true;
-    return service
+    return await service
       .init(keepArchives)
       .then(() => {
         // Validate we got the expected LT archive

@@ -170,8 +170,8 @@
         },
         "languageToolLinter.serviceType": {
           "type": "string",
-          "default": "embedded",
-          "description": "What kind of LanguageTool service to use: embedded (default), external, public, or managed (deprecated).",
+          "default": "external",
+          "description": "What kind of LanguageTool service to use: embedded, external, public, or managed (deprecated).",
           "enum": [
             "embedded",
             "external",
@@ -484,11 +484,12 @@
   },
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
+    "clean": "rm -rf out/*",
     "webpack": "webpack --mode development",
     "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
     "compile": "webpack --mode none",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
-    "test-compile": "tsc -p ./",
+    "test-compile": "npm run clean && tsc -p ./",
     "pretest": "npm run test-compile",
     "test": "node ./out/test/runTest.js",
     "lint": "eslint ./src/"

@@ -49,6 +49,7 @@ export class ConfigurationManager implements Disposable {
     this.managedService = new ManagedLanguageTool();
     this.embeddedService = new EmbeddedLanguageTool(this.context);
     this.embeddedService.init();
+    this.startService();
   }
 
   // Public instance methods
