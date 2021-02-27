@@ -170,18 +170,34 @@
         },
         "languageToolLinter.serviceType": {
           "type": "string",
-          "default": "external",
-          "description": "What kind of LanguageTool service to use: external (default), public, or managed.",
+          "default": "embedded",
+          "description": "What kind of LanguageTool service to use: embedded (default), external, public, or managed (deprecated).",
           "enum": [
+            "embedded",
             "external",
             "managed",
             "public"
           ],
           "enumDescriptions": [
+            "Downloads and runs all components necessary inside the extension's global storage.",
             "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
-            "Let LanguageTool Linter manage a local service. Specify the classpath or LanguageTool jar file in 'Managed: Class Path'.",
+            "DEPRECATED. Please use the embedded service instead: Let LanguageTool Linter manage a local service. Specify the classpath or LanguageTool jar file in 'Managed: Class Path'.",
             "Use the public LanguageTool API Service at https://languagetool.org/api."
           ]
+        },
+        "languageToolLinter.embedded.portMinimum": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 9500,
+          "description": "Minimum port number to use for the embedded service."
+        },
+        "languageToolLinter.embedded.portMaximum": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 65535,
+          "description": "Minimum port number to use for the embedded service."
         },
         "languageToolLinter.external.url": {
           "type": "string",
@@ -191,18 +207,21 @@
         "languageToolLinter.managed.classPath": {
           "type": "string",
           "default": "",
+          "deprecationMessage": "Please use the embedded service instead.",
           "markdownDescription": "Custom classpath for managed server. Separate multiple paths using the native filesystem separator. Supports file globbing via [node-glob](https://github.com/isaacs/node-glob)."
         },
         "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
-          "description": "DEPRECATED. Path to languagetool-server.jar on your local machine."
+          "deprecationMessage": "Please use the embedded service instead.",
+          "description": "Path to languagetool-server.jar on your local machine."
         },
         "languageToolLinter.managed.portMinimum": {
           "type": "number",
           "minimum": 1024,
           "maximum": 65535,
           "default": 9500,
+          "deprecationMessage": "Please use the embedded service instead.",
           "description": "Minimum port number to use for managed service."
         },
         "languageToolLinter.managed.portMaximum": {
@@ -210,6 +229,7 @@
           "minimum": 1024,
           "maximum": 65535,
           "default": 65535,
+          "deprecationMessage": "Please use the embedded service instead.",
           "description": "Minimum port number to use for managed service."
         },
         "languageToolLinter.languageTool.language": {
