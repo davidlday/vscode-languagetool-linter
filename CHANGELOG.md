@@ -13,8 +13,14 @@ Changes not yet released.
 
 ### Added
 
+- Embedded service. Automatically downloads and installs all components
+  necessary in the extension's global storage space.
 - Show warning when spaces exist in either Disabled Rules or Disable Categories
   ([217](https://github.com/davidlday/vscode-languagetool-linter/issues/217)).
+
+### Deprecated
+
+- Managed service. Please use the embedded service instead.
 
 ## [0.17.0] - 2021-01-16
 
