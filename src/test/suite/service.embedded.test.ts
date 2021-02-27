@@ -5,34 +5,32 @@ import * as fs from "fs";
 import * as Fetch from "node-fetch";
 import * as path from "path";
 import { ExtensionContext } from "vscode";
-import { ConfigurationManager } from "../../configuration/manager";
 import { MockExtensionContext } from "./mockUtils";
 import { EmbeddedLanguageTool } from "../../languagetool/embedded";
 import { ILanguageToolResponse } from "../../linter/interfaces";
 
 suite("Embedded LanguageTool Test Suite", () => {
   const testContext: ExtensionContext = new MockExtensionContext();
-  const config: ConfigurationManager = new ConfigurationManager(testContext);
-  const embeddedTestHomedirectory: string = path.resolve(
-    __dirname,
-    "../../../src/test-fixtures/mock-context/embedded",
+  const testHomeDirectory: string = path.resolve(
+    testContext.globalStoragePath,
+    "embedded",
   );
   const service: EmbeddedLanguageTool = new EmbeddedLanguageTool(testContext);
 
   const ltVersion = "5.2";
   const ltArchive = path.resolve(
-    embeddedTestHomedirectory,
+    testHomeDirectory,
     "lt",
     `LanguageTool-${ltVersion}.zip`,
   );
   const ltHashExpected =
     "e7776143c76a88449d451897cedc9f3ce698450e25bce25d4ed52457fa2d0cde";
-  const ltHome = path.resolve(embeddedTestHomedirectory, "lt", ltVersion);
+  const ltHome = path.resolve(testHomeDirectory, "lt", ltVersion);
 
   const jreVersion = "11.0.10+9";
   let jreArchive: string;
   let jreHashExpected: string;
-  const jreHome = path.resolve(embeddedTestHomedirectory, "jre", jreVersion);
+  const jreHome = path.resolve(testHomeDirectory, "jre", jreVersion);
 
   let os = "unknown";
   let arch = "unknown";
@@ -61,7 +59,7 @@ suite("Embedded LanguageTool Test Suite", () => {
     // set os-specific jre values
     const jresJson = JSON.parse(
       fs
-        .readFileSync(path.resolve(embeddedTestHomedirectory, "jres.json"))
+        .readFileSync(path.resolve(testContext.globalStoragePath, "jres.json"))
         .toString(),
     );
     assert.ok(jresJson);
@@ -72,20 +70,20 @@ suite("Embedded LanguageTool Test Suite", () => {
     assert.strictEqual(platformJre.length, 1);
     jreHashExpected = platformJre[0].package.checksum;
     jreArchive = path.resolve(
-      embeddedTestHomedirectory,
+      testHomeDirectory,
       "jre",
       platformJre[0].package.name,
     );
-    await service.uninstall();
+    return await service.uninstall();
   });
 
   suiteTeardown(function () {
+    // Ensure service is stopped
+    service.stopService();
     // Clean up jre and lt directories
     del([`${this.jreHome}/**`, `${this.jreHome}/.*`, `${this.ltHome}/**`], {
       force: true,
     });
-    // Ensure service is stopped
-    service.stopService();
   });
 
   test("Embedded service should instantiate", async function () {
@@ -93,10 +91,10 @@ suite("Embedded LanguageTool Test Suite", () => {
   });
 
   test("Embedded service should download and install JRE and LT", async function () {
-    this.timeout(90000);
+    this.timeout(120000);
     const keepArchives = true;
-    return service
-      .install(keepArchives)
+    return await service
+      .init(keepArchives)
       .then(() => {
         // Validate we got the expected LT archive
         assert.ok(fs.existsSync(ltArchive));
@@ -142,7 +140,6 @@ suite("Embedded LanguageTool Test Suite", () => {
   test("Embedded service should start", async function () {
     this.timeout(60000);
     const serviceUrl = await service.startService(9500, 65535);
-    // console.log(serviceUrl);
     assert.strictEqual(serviceUrl, "http://localhost:9500/v2/check");
 
     const ltPostDataDict: Record<string, string> = {};
@@ -167,10 +164,10 @@ suite("Embedded LanguageTool Test Suite", () => {
     };
 
     let count = 0;
+    const timer = new Promise((resolve) => {
+      setTimeout(() => resolve("done!"), 1000);
+    });
     while (count < 5) {
-      const timer = new Promise((resolve) => {
-        setTimeout(() => resolve("done!"), 1000);
-      });
       await timer;
       count++;
     }
@@ -178,6 +175,8 @@ suite("Embedded LanguageTool Test Suite", () => {
     const response = await Fetch.default(serviceUrl, options);
     const ltReponse: ILanguageToolResponse = (await response.json()) as ILanguageToolResponse;
     assert.strictEqual(ltReponse.software.version, ltVersion);
+
+    return Promise.resolve();
   });
 
   test("Embedded service should delete JRE and LT", async function () {
