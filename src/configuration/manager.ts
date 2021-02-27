@@ -30,6 +30,7 @@ import {
   WorkspaceConfiguration,
 } from "vscode";
 import { ManagedLanguageTool } from "../languagetool/managed";
+import { EmbeddedLanguageTool } from "../languagetool/embedded";
 import * as Constants from "./constants";
 
 export class ConfigurationManager implements Disposable {
@@ -37,13 +38,17 @@ export class ConfigurationManager implements Disposable {
   private serviceUrl: string | undefined = undefined;
   private serviceParameters: Map<string, string> | undefined = undefined;
   readonly context: ExtensionContext;
-  private managedService: ManagedLanguageTool | undefined = undefined;
+  private managedService: ManagedLanguageTool;
+  private embeddedService: EmbeddedLanguageTool;
   private logger: OutputChannel = Constants.EXTENSION_OUTPUT_CHANNEL;
 
   // Constructor
   constructor(context: ExtensionContext) {
-    this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.context = context;
+    this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
+    this.managedService = new ManagedLanguageTool();
+    this.embeddedService = new EmbeddedLanguageTool(this.context);
+    this.embeddedService.init();
   }
 
   // Public instance methods
@@ -314,50 +319,59 @@ export class ConfigurationManager implements Disposable {
         {
           this.serviceUrl = (this.getExternalUrl() +
             Constants.SERVICE_CHECK_PATH) as string;
-          return this.serviceUrl;
+        }
+        break;
+      case Constants.SERVICE_TYPE_EMBEDDED:
+        {
+          await this.managedService.stopService();
+          await this.embeddedService
+            .startService(
+              this.getEmbeddedMinimumPort(),
+              this.getEmbeddedMaximumPort(),
+            )
+            .then((serviceUrl) => {
+              this.serviceUrl = serviceUrl;
+            });
         }
         break;
       case Constants.SERVICE_TYPE_MANAGED:
         {
-          if (this.managedService) {
-            await this.managedService.stopService();
-          } else {
-            this.managedService = new ManagedLanguageTool();
-          }
+          window.showWarningMessage(
+            'The "Managed" service has been deprecated in favor of the "Embedded" \
+            service. Please consider switching.',
+          );
+          this.embeddedService.stopService();
           await this.managedService
             .startService(
               this.getClassPath(),
-              this.getMinimumPort(),
-              this.getMaximumPort(),
+              this.getManagedMinimumPort(),
+              this.getManagedMaximumPort(),
             )
-            .then((managedServiceUrl) => {
-              this.logger.appendLine(
-                "    managed service url: " + managedServiceUrl,
-              );
-              this.serviceUrl = managedServiceUrl;
+            .then((serviceUrl) => {
+              this.serviceUrl = serviceUrl;
             });
-          return this.serviceUrl as string;
         }
         break;
       case Constants.SERVICE_TYPE_PUBLIC:
         {
           this.serviceUrl =
             Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
-          return this.serviceUrl;
         }
         break;
       default: {
-        return this.serviceUrl as string;
+        return Promise.reject(`Uknown service type: ${serviceType}`);
       }
     }
+    this.logger.appendLine(
+      `switched to ${serviceType} service url: ${this.serviceUrl}`,
+    );
+    return Promise.resolve(this.serviceUrl as string);
   }
 
-  // Stop the managed service
+  // Stop the service
   private async stopService(): Promise<void> {
-    this.logger.appendLine("manager.stopManagedService() called...");
-    if (this.managedService) {
-      await this.managedService.stopService();
-    }
+    await this.managedService.stopService();
+    await this.embeddedService.stopService();
   }
 
   private async buildServiceParameters(): Promise<Map<string, string>> {
@@ -399,20 +413,28 @@ export class ConfigurationManager implements Disposable {
     return parameters;
   }
 
-  private getExternalUrl(): string | undefined {
-    return this.get("external.url");
+  private getExternalUrl(): string {
+    return this.get("external.url") as string;
   }
 
-  private get(key: string): string | undefined {
-    return this.config.get(key);
+  private get(key: string): string {
+    return this.config.get(key) as string;
   }
 
-  private getMinimumPort(): number {
+  private getManagedMinimumPort(): number {
     return this.config.get("managed.portMinimum") as number;
   }
 
-  private getMaximumPort(): number {
+  private getManagedMaximumPort(): number {
     return this.config.get("managed.portMaximum") as number;
+  }
+
+  private getEmbeddedMinimumPort(): number {
+    return this.config.get("embedded.portMinimum") as number;
+  }
+
+  private getEmbeddedMaximumPort(): number {
+    return this.config.get("embedded.portMaximum") as number;
   }
 
   // Save words to settings
