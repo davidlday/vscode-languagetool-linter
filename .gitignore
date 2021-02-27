@@ -79,5 +79,5 @@ out
 dist/
 
 # Embedded LT Workspaces
-src/test-fixtures/embedded/lt
-src/test-fixtures/embedded/jre
+src/test-fixtures/mock-context/globalStoragePath/embedded/lt
+src/test-fixtures/mock-context/globalStoragePath/embedded/jre
