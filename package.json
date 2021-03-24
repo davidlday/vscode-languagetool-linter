@@ -463,6 +463,7 @@
     }
   },
   "scripts": {
+    "clean": "rm -rf out/*",
     "vscode:prepublish": "webpack --mode production",
     "webpack": "webpack --mode development",
     "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
