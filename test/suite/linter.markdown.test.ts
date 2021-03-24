@@ -9,7 +9,7 @@ suite("Linter Markdown Test Suite", () => {
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,
-    "../../../src/test-fixtures/workspace",
+    "../../../test-fixtures/workspace",
   );
 
   test("Linter should instantiate", () => {
