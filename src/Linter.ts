@@ -38,7 +38,7 @@ import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
 import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
-import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
+import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
 import {
   ILanguageToolMatch,
   ILanguageToolReplacement,
@@ -249,26 +249,26 @@ export class Linter implements CodeActionProvider {
       if (annotation.text) {
         newText += annotation.text
           // Open Double Quotes
-          .replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
+          .replace(/"(?=[\w'‘])/g, FormattingProviderQuotes.startDoubleQuote)
           // Close Double Quotes
           .replace(
             /([\w.!?%,'’])"/g,
-            "$1" + QuotesFormattingProvider.endDoubleQuote,
+            "$1" + FormattingProviderQuotes.endDoubleQuote,
           )
           // Remaining Double Quotes
-          .replace(/"/, QuotesFormattingProvider.endDoubleQuote)
+          .replace(/"/, FormattingProviderQuotes.endDoubleQuote)
           // Open Single Quotes
           .replace(
             /(\W)'(?=[\w"“])/g,
-            "$1" + QuotesFormattingProvider.startSingleQuote,
+            "$1" + FormattingProviderQuotes.startSingleQuote,
           )
           // Closing Single Quotes
           .replace(
             /([\w.!?%,"”])'/g,
-            "$1" + QuotesFormattingProvider.endSingleQuote,
+            "$1" + FormattingProviderQuotes.endSingleQuote,
           )
           // Remaining Single Quotes
-          .replace(/'/, QuotesFormattingProvider.endSingleQuote)
+          .replace(/'/, FormattingProviderQuotes.endSingleQuote)
           .replace(/([\w])---(?=[\w])/g, "$1" + FormattingProviderDashes.emDash)
           .replace(/([\w])--(?=[\w])/g, "$1" + FormattingProviderDashes.enDash)
           .replace(/\.\.\./g, FormattingProviderEllipses.ellipses);

@@ -22,15 +22,15 @@ import { Linter } from "./Linter";
 import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
 import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
-import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
+import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
   const configMan: ConfigurationManager = new ConfigurationManager();
   const linter: Linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
-    '"': new QuotesFormattingProvider(configMan),
-    "'": new QuotesFormattingProvider(configMan),
+    '"': new FormattingProviderQuotes(configMan),
+    "'": new FormattingProviderQuotes(configMan),
     "-": new FormattingProviderDashes(configMan),
     ".": new FormattingProviderEllipses(configMan),
   });
