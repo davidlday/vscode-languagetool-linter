@@ -36,7 +36,7 @@ import {
 } from "vscode";
 import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
-import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
+import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
 import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 import {
@@ -269,8 +269,8 @@ export class Linter implements CodeActionProvider {
           )
           // Remaining Single Quotes
           .replace(/'/, QuotesFormattingProvider.endSingleQuote)
-          .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
-          .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
+          .replace(/([\w])---(?=[\w])/g, "$1" + FormattingProviderDashes.emDash)
+          .replace(/([\w])--(?=[\w])/g, "$1" + FormattingProviderDashes.enDash)
           .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
       } else if (annotation.markup) {
         newText += annotation.markup;

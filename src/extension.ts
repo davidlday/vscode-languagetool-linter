@@ -19,8 +19,8 @@ import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
 import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "./Linter";
-import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
-import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";
+import { FormattingProviderDashes } from "./FormattingProviderDashes";
+import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
 import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
 import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 
@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
     '"': new QuotesFormattingProvider(configMan),
     "'": new QuotesFormattingProvider(configMan),
-    "-": new DashesFormattingProvider(configMan),
+    "-": new FormattingProviderDashes(configMan),
     ".": new EllipsesFormattingProvider(configMan),
   });
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
