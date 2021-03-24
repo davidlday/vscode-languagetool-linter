@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import * as Constants from "../../configuration/constants";
+import * as Constants from "../../src/Constants";
 import { ConfigurationManager } from "../../configuration/manager";
 
 suite("ConfigurationManager Test Suite", () => {
