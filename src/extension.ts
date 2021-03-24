@@ -18,7 +18,7 @@ import * as vscode from "vscode";
 import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
 import { IAnnotatedtext } from "annotatedtext";
-import { Linter } from "./linter/linter";
+import { Linter } from "./Linter";
 import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
 import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";
 import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";

@@ -34,16 +34,16 @@ import {
   workspace,
   WorkspaceEdit,
 } from "vscode";
-import * as Constants from "../Constants";
-import { ConfigurationManager } from "../ConfigurationManager";
-import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
-import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter";
-import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";
+import * as Constants from "./Constants";
+import { ConfigurationManager } from "./ConfigurationManager";
+import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
+import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
+import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 import {
   ILanguageToolMatch,
   ILanguageToolReplacement,
   ILanguageToolResponse,
-} from "./interfaces";
+} from "./linter/interfaces";
 import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 
 class LTDiagnostic extends Diagnostic {
