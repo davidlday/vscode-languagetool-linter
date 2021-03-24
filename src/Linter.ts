@@ -34,16 +34,16 @@ import {
   workspace,
   WorkspaceEdit,
 } from "vscode";
-import * as Constants from "../configuration/constants";
-import { ConfigurationManager } from "../configuration/manager";
-import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
-import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter";
-import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";
+import * as Constants from "./Constants";
+import { ConfigurationManager } from "./ConfigurationManager";
+import { FormattingProviderDashes } from "./FormattingProviderDashes";
+import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
+import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
 import {
   ILanguageToolMatch,
   ILanguageToolReplacement,
   ILanguageToolResponse,
-} from "./interfaces";
+} from "./Interfaces";
 import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 
 class LTDiagnostic extends Diagnostic {
@@ -249,29 +249,29 @@ export class Linter implements CodeActionProvider {
       if (annotation.text) {
         newText += annotation.text
           // Open Double Quotes
-          .replace(/"(?=[\w'‘])/g, QuotesFormattingProvider.startDoubleQuote)
+          .replace(/"(?=[\w'‘])/g, FormattingProviderQuotes.startDoubleQuote)
           // Close Double Quotes
           .replace(
             /([\w.!?%,'’])"/g,
-            "$1" + QuotesFormattingProvider.endDoubleQuote,
+            "$1" + FormattingProviderQuotes.endDoubleQuote,
           )
           // Remaining Double Quotes
-          .replace(/"/, QuotesFormattingProvider.endDoubleQuote)
+          .replace(/"/, FormattingProviderQuotes.endDoubleQuote)
           // Open Single Quotes
           .replace(
             /(\W)'(?=[\w"“])/g,
-            "$1" + QuotesFormattingProvider.startSingleQuote,
+            "$1" + FormattingProviderQuotes.startSingleQuote,
           )
           // Closing Single Quotes
           .replace(
             /([\w.!?%,"”])'/g,
-            "$1" + QuotesFormattingProvider.endSingleQuote,
+            "$1" + FormattingProviderQuotes.endSingleQuote,
           )
           // Remaining Single Quotes
-          .replace(/'/, QuotesFormattingProvider.endSingleQuote)
-          .replace(/([\w])---(?=[\w])/g, "$1" + DashesFormattingProvider.emDash)
-          .replace(/([\w])--(?=[\w])/g, "$1" + DashesFormattingProvider.enDash)
-          .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
+          .replace(/'/, FormattingProviderQuotes.endSingleQuote)
+          .replace(/([\w])---(?=[\w])/g, "$1" + FormattingProviderDashes.emDash)
+          .replace(/([\w])--(?=[\w])/g, "$1" + FormattingProviderDashes.enDash)
+          .replace(/\.\.\./g, FormattingProviderEllipses.ellipses);
       } else if (annotation.markup) {
         newText += annotation.markup;
       }

@@ -15,24 +15,24 @@
  */
 
 import * as vscode from "vscode";
-import * as Constants from "./configuration/constants";
-import { ConfigurationManager } from "./configuration/manager";
+import * as Constants from "./Constants";
+import { ConfigurationManager } from "./ConfigurationManager";
 import { IAnnotatedtext } from "annotatedtext";
-import { Linter } from "./linter/linter";
-import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
-import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";
-import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
-import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
+import { Linter } from "./Linter";
+import { FormattingProviderDashes } from "./FormattingProviderDashes";
+import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
+import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
+import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
   const configMan: ConfigurationManager = new ConfigurationManager();
   const linter: Linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
-    '"': new QuotesFormattingProvider(configMan),
-    "'": new QuotesFormattingProvider(configMan),
-    "-": new DashesFormattingProvider(configMan),
-    ".": new EllipsesFormattingProvider(configMan),
+    '"': new FormattingProviderQuotes(configMan),
+    "'": new FormattingProviderQuotes(configMan),
+    "-": new FormattingProviderDashes(configMan),
+    ".": new FormattingProviderEllipses(configMan),
   });
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
