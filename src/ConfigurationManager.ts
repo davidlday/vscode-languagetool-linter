@@ -29,7 +29,7 @@ import {
   workspace,
   WorkspaceConfiguration,
 } from "vscode";
-import * as Constants from "./constants";
+import * as Constants from "./Constants";
 
 export class ConfigurationManager implements Disposable {
   // Private Members
