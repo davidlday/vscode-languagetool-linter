@@ -16,6 +16,13 @@ Changes not yet released.
 - Show warning when spaces exist in either Disabled Rules or Disable Categories
   ([217](https://github.com/davidlday/vscode-languagetool-linter/issues/217)).
 
+### Maintenance
+
+- Refactored code for maintainability.
+  - Moved tests to root of repo.
+  - Moved test fixtures to root of repo.
+  - Renamed src files to match class names.
+
 ## [0.17.0] - 2021-01-16
 
 ### Fixed
