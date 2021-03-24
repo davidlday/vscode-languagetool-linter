@@ -37,7 +37,7 @@ import {
 import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
 import { FormattingProviderDashes } from "./FormattingProviderDashes";
-import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
+import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
 import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 import {
   ILanguageToolMatch,
@@ -271,7 +271,7 @@ export class Linter implements CodeActionProvider {
           .replace(/'/, QuotesFormattingProvider.endSingleQuote)
           .replace(/([\w])---(?=[\w])/g, "$1" + FormattingProviderDashes.emDash)
           .replace(/([\w])--(?=[\w])/g, "$1" + FormattingProviderDashes.enDash)
-          .replace(/\.\.\./g, EllipsesFormattingProvider.ellipses);
+          .replace(/\.\.\./g, FormattingProviderEllipses.ellipses);
       } else if (annotation.markup) {
         newText += annotation.markup;
       }

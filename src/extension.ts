@@ -21,7 +21,7 @@ import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "./Linter";
 import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
-import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
+import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
 import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 
 // Wonder Twin Powers, Activate!
@@ -32,7 +32,7 @@ export function activate(context: vscode.ExtensionContext): void {
     '"': new QuotesFormattingProvider(configMan),
     "'": new QuotesFormattingProvider(configMan),
     "-": new FormattingProviderDashes(configMan),
-    ".": new EllipsesFormattingProvider(configMan),
+    ".": new FormattingProviderEllipses(configMan),
   });
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
