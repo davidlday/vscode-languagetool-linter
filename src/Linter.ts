@@ -43,7 +43,7 @@ import {
   ILanguageToolMatch,
   ILanguageToolReplacement,
   ILanguageToolResponse,
-} from "./linter/interfaces";
+} from "./Interfaces";
 import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 
 class LTDiagnostic extends Diagnostic {
