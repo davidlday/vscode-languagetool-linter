@@ -34,8 +34,8 @@ import {
   workspace,
   WorkspaceEdit,
 } from "vscode";
-import * as Constants from "../configuration/constants";
-import { ConfigurationManager } from "../configuration/manager";
+import * as Constants from "../Constants";
+import { ConfigurationManager } from "../ConfigurationManager";
 import { DashesFormattingProvider } from "../typeFormatters/dashesFormatter";
 import { EllipsesFormattingProvider } from "../typeFormatters/ellipsesFormatter";
 import { QuotesFormattingProvider } from "../typeFormatters/quotesFormatter";

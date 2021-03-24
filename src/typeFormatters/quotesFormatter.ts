@@ -15,7 +15,7 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "../configuration/manager";
+import { ConfigurationManager } from "../ConfigurationManager";
 
 export class QuotesFormattingProvider
   implements vscode.OnTypeFormattingEditProvider {
