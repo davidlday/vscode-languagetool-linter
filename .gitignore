@@ -77,3 +77,6 @@ out
 
 # Webpack Directory
 dist/
+
+# Mock Context embedded directory
+test-fixtures/mock-context/globalStoragePath/embedded
