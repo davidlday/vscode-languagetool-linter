@@ -480,7 +480,7 @@
     "@types/node": "^10.17.28",
     "@types/node-fetch": "^2.5.8",
     "@types/vscode": "^1.43.0",
-    "@types/webpack": "^4.41.26",
+    "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.20.0",
     "eslint": "^7.23.0",
