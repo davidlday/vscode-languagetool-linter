@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-import { DocumentSelector, OutputChannel, window } from "vscode";
+import { OutputChannel, window } from "vscode";
 
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
