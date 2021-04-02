@@ -11,6 +11,14 @@ and this project adheres to
 
 Changes not yet released.
 
+## [0.18.0] - 2021-04-02
+
+### Fixed
+
+- Linter wasn't registered as a Code Actions Provider for the list of plain text
+  IDs in settings, resulting in no suggestions for potential errors
+  ([284](https://github.com/davidlday/vscode-languagetool-linter/issues/284)).
+
 ### Added
 
 - Show warning when spaces exist in either Disabled Rules or Disable Categories

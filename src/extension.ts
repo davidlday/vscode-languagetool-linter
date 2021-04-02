@@ -111,22 +111,25 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // Register Code Actions Provider for supported languages
-  Constants.DOCUMENT_SELECTORS.forEach((selector: vscode.DocumentSelector) => {
-    context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider(selector, linter),
-    );
-
-    if (onTypeTriggers) {
+  // Constants.DOCUMENT_SELECTORS.forEach((selector: vscode.DocumentSelector) => {
+  configMan
+    .getDocumentSelectors()
+    .forEach((selector: vscode.DocumentSelector) => {
       context.subscriptions.push(
-        vscode.languages.registerOnTypeFormattingEditProvider(
-          selector,
-          onTypeDispatcher,
-          onTypeTriggers.first,
-          ...onTypeTriggers.more,
-        ),
+        vscode.languages.registerCodeActionsProvider(selector, linter),
       );
-    }
-  });
+
+      if (onTypeTriggers) {
+        context.subscriptions.push(
+          vscode.languages.registerOnTypeFormattingEditProvider(
+            selector,
+            onTypeDispatcher,
+            onTypeTriggers.first,
+            ...onTypeTriggers.more,
+          ),
+        );
+      }
+    });
 
   // Register onDidCloseTextDocument event
   context.subscriptions.push(
