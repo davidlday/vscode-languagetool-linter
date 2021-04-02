@@ -25,38 +25,19 @@ export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
 // Programming Language IDs
-export const LANGUAGE_ID_MDX = "mdx";
-export const LANGUAGE_ID_MARKDOWN = "markdown";
 export const LANGUAGE_ID_HTML = "html";
+export const LANGUAGE_ID_MARKDOWN = "markdown";
+export const LANGUAGE_ID_MDX = "mdx";
+
+export const SUPPORTED_LANGUAGE_IDS: string[] = [
+  LANGUAGE_ID_HTML,
+  LANGUAGE_ID_MARKDOWN,
+  LANGUAGE_ID_MDX,
+];
 
 // File Scheme
 export const SCHEME_FILE = "file";
 export const SCHEME_UNTITLED = "untitled";
-
-// Document Selectors
-export const SELECTOR_MARKDOWN_FILE: DocumentSelector = {
-  language: LANGUAGE_ID_MARKDOWN,
-  scheme: SCHEME_FILE,
-};
-export const SELECTOR_MARKDOWN_UNTITLED: DocumentSelector = {
-  language: LANGUAGE_ID_MARKDOWN,
-  scheme: SCHEME_UNTITLED,
-};
-export const SELECTOR_HTML_FILE: DocumentSelector = {
-  language: LANGUAGE_ID_HTML,
-  scheme: SCHEME_FILE,
-};
-export const SELECTOR_HTML_UNTITLED: DocumentSelector = {
-  language: LANGUAGE_ID_HTML,
-  scheme: SCHEME_UNTITLED,
-};
-
-export const DOCUMENT_SELECTORS: DocumentSelector[] = [
-  SELECTOR_MARKDOWN_FILE,
-  SELECTOR_MARKDOWN_UNTITLED,
-  SELECTOR_HTML_FILE,
-  SELECTOR_HTML_UNTITLED,
-];
 
 // Configuration Strings
 export const CONFIGURATION_ROOT = "languageToolLinter";
@@ -66,8 +47,9 @@ export const CONFIGURATION_WORKSPACE_IGNORED_WORDS =
   "languageTool.ignoredWordsInWorkspace";
 export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
-  LANGUAGE_ID_MARKDOWN,
   LANGUAGE_ID_HTML,
+  LANGUAGE_ID_MARKDOWN,
+  LANGUAGE_ID_MDX,
 ];
 export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
 export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
