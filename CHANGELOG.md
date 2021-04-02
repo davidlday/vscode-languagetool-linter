@@ -11,6 +11,8 @@ and this project adheres to
 
 Changes not yet released.
 
+## [0.18.0] - 2021-04-02
+
 ### Fixed
 
 - Linter wasn't registered as a Code Actions Provider for the list of plain text
