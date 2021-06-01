@@ -487,7 +487,7 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsdoc": "^32.2.0",
-    "license-webpack-plugin": "^2.3.16",
+    "license-webpack-plugin": "^2.3.19",
     "mocha": "^8.3.2",
     "ts-loader": "^8.1.0",
     "ts-node": "^9.1.1",
