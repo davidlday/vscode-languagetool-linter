@@ -484,7 +484,7 @@
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.20.0",
     "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.1.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsdoc": "^36.0.6",
     "license-webpack-plugin": "^2.3.16",
