@@ -1,6 +1,5 @@
-import * as glob from "glob";
-// tslint:disable-next-line: no-implicit-dependencies
-import * as Mocha from "mocha";
+import glob from "glob";
+import Mocha from "mocha";
 import * as path from "path";
 
 export function run(): Promise<void> {

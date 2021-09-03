@@ -2,11 +2,8 @@
 
 "use strict";
 
-// tslint:disable-next-line: no-var-requires
-const path = require("path");
-// tslint:disable-next-line: no-var-requires no-implicit-dependencies
-const LicenseWebpackPlugin = require("license-webpack-plugin")
-  .LicenseWebpackPlugin;
+import * as path from "path";
+import LicensePlugin from "webpack-license-plugin";
 
 // tslint:disable-next-line: jsdoc-format
 /**@type {import("webpack").Configuration}*/
@@ -40,24 +37,7 @@ const config = {
     libraryTarget: "commonjs2",
     path: path.resolve(__dirname, "dist"),
   },
-  plugins: [
-    new LicenseWebpackPlugin({
-      addBanner: true,
-      handleMissingLicenseText: (packageName: string, licenseType: string) => {
-        // tslint:disable-next-line: no-console
-        console.log(
-          "Cannot find license for " + packageName + " (" + licenseType + ")",
-        );
-        return licenseType;
-      },
-      perChunkOutput: true,
-      preferredLicenseTypes: ["MIT", "ISC"],
-      stats: {
-        errors: true,
-        warnings: false,
-      },
-    }),
-  ],
+  plugins: [new LicensePlugin({ outputFilename: "meta/licenses.json" })],
   resolve: {
     extensions: [".ts", ".js"],
   },
