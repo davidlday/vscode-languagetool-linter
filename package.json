@@ -46,7 +46,7 @@
     "onCommand:languagetoolLinter.checkDocumentAsPlainText",
     "onCommand:languagetoolLinter.smartFormatDocument"
   ],
-  "main": "./dist/extension.js",
+  "main": "dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -470,8 +470,8 @@
     "compile": "webpack --mode none",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
     "test-compile": "npm run clean && npm run main-out && tsc -p ./",
-    "main-out": "json -I -f package.json -e 'this.main=\"./out/src/extension.js\"'",
-    "main-dist": "json -I -f package.json -e 'this.main=\"./dist/extension.js\"'",
+    "main-out": "json -I -f package.json -e 'this.main=\"out/src/extension.js\"'",
+    "main-dist": "json -I -f package.json -e 'this.main=\"dist/extension.js\"'",
     "pretest": "npm run test-compile",
     "test": "node ./out/test/runTest.js && npm run main-dist",
     "lint": "eslint ./src/"
