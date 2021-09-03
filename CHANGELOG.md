@@ -11,6 +11,10 @@ and this project adheres to
 
 Changes not yet released.
 
+## Changed
+
+- replaced license-webpack-plugin with webpack-license-plugin
+
 ## [0.18.0] - 2021-04-02
 
 ### Fixed
