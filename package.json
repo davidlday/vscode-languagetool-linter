@@ -469,7 +469,7 @@
     "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
     "compile": "webpack --mode none",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
-    "test-compile": "npm run clean && npm run main-out && tsc -p ./",
+    "test-compile": "npm run main-out && tsc -p ./",
     "main-out": "json -I -f package.json -e 'this.main=\"./out/src/extension.js\"'",
     "main-dist": "json -I -f package.json -e 'this.main=\"./dist/extension.js\"'",
     "pretest": "npm run test-compile",
