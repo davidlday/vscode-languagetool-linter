@@ -496,7 +496,7 @@
     "vscode-test": "^1.6.1",
     "webpack": "^5.64.1",
     "webpack-cli": "^4.9.1",
-    "webpack-license-plugin": "^4.2.0"
+    "webpack-license-plugin": "^4.2.1"
   },
   "dependencies": {
     "annotatedtext-rehype": "^0.6.0",
