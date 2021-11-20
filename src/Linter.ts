@@ -94,9 +94,9 @@ export class Linter implements CodeActionProvider {
           diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE,
       )
       .forEach((diagnostic) => {
-        const match:
-          | ILanguageToolMatch
-          | undefined = (diagnostic as LTDiagnostic).match;
+        const match: ILanguageToolMatch | undefined = (
+          diagnostic as LTDiagnostic
+        ).match;
         if (match && Linter.isSpellingRule(match.rule.id)) {
           const spellingActions: CodeAction[] = this.getSpellingRuleActions(
             document,
@@ -336,7 +336,7 @@ export class Linter implements CodeActionProvider {
       };
       Fetch.default(url, options)
         .then((res) => res.json())
-        .then((json) => this.suggest(document, json))
+        .then((json) => this.suggest(document, json as ILanguageToolResponse))
         .catch((err) => {
           Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
             "Error connecting to " + url,
@@ -361,7 +361,8 @@ export class Linter implements CodeActionProvider {
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
-      const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
+      const diagnosticSeverity: DiagnosticSeverity =
+        this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.message;
       const diagnostic: LTDiagnostic = new LTDiagnostic(
