@@ -480,7 +480,6 @@
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "^10.17.28",
-    "@types/node-fetch": "^2.5.12",
     "@types/vscode": "^1.43.0",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
@@ -494,7 +493,7 @@
     "ts-node": "^10.4.0",
     "typescript": "^4.5.2",
     "vscode-test": "^1.6.1",
-    "webpack": "^5.64.1",
+    "webpack": "^5.64.2",
     "webpack-cli": "^4.9.1",
     "webpack-license-plugin": "^4.2.1"
   },
