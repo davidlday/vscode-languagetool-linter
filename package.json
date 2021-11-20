@@ -500,7 +500,7 @@
   },
   "dependencies": {
     "annotatedtext-rehype": "^0.6.0",
-    "annotatedtext-remark": "^0.8.0",
+    "annotatedtext-remark": "^1.0.2",
     "execa": "^5.0.0",
     "glob": "^7.2.0",
     "node-fetch": "^2.6.1",
