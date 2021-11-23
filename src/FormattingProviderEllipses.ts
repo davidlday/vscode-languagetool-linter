@@ -15,9 +15,9 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "../configuration/manager";
+import { ConfigurationManager } from "./ConfigurationManager";
 
-export class EllipsesFormattingProvider
+export class FormattingProviderEllipses
   implements vscode.OnTypeFormattingEditProvider {
   public static readonly ellipses: string = "…";
   public static readonly period: string = ".";
@@ -50,11 +50,11 @@ export class EllipsesFormattingProvider
 
     if (this.config.isSmartFormatOnType()) {
       if (
-        prevCh === EllipsesFormattingProvider.period &&
-        prevPrevCh === EllipsesFormattingProvider.period
+        prevCh === FormattingProviderEllipses.period &&
+        prevPrevCh === FormattingProviderEllipses.period
       ) {
         return [
-          new vscode.TextEdit(range, EllipsesFormattingProvider.ellipses),
+          new vscode.TextEdit(range, FormattingProviderEllipses.ellipses),
         ];
       }
     }

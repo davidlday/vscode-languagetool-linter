@@ -14,13 +14,16 @@
  *   limitations under the License.
  */
 
+import execa from "execa";
 import * as glob from "glob";
 import * as path from "path";
 import {
+  commands,
   ConfigurationChangeEvent,
   ConfigurationTarget,
   DiagnosticSeverity,
   Disposable,
+  DocumentSelector,
   ExtensionContext,
   OutputChannel,
   TextDocument,
@@ -29,9 +32,9 @@ import {
   workspace,
   WorkspaceConfiguration,
 } from "vscode";
-import { ManagedLanguageTool } from "../languagetool/managed";
-import { EmbeddedLanguageTool } from "../languagetool/embedded";
-import * as Constants from "./constants";
+import * as Constants from "./Constants";
+import { EmbeddedLanguageTool } from "./languagetool/embedded";
+import { ManagedLanguageTool } from "./languagetool/managed";
 
 export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
@@ -103,7 +106,21 @@ export class ConfigurationManager implements Disposable {
         );
       }
     }
-    return Promise.resolve();
+    // List of plaintext ids changed - need to reload
+    if (event.affectsConfiguration("languageToolLinter.plainText")) {
+      const action = "Reload";
+      window
+        .showInformationMessage(
+          "The settings for linting plaintext documents have changed. \
+          Please reload the window for the configuration to take effect.",
+          action,
+        )
+        .then((selectedAction) => {
+          if (selectedAction === action) {
+            commands.executeCommand("workbench.action.reloadWindow");
+          }
+        });
+    }
   }
 
   // Smart Format on Type
@@ -148,6 +165,33 @@ export class ConfigurationManager implements Disposable {
     const languageIds: string[] =
       this.config.get(Constants.CONFIGURATION_PLAIN_TEXT_IDS) || [];
     return languageIds.includes(languageId);
+  }
+
+  public getDocumentSelectors(): DocumentSelector[] {
+    const selectors: DocumentSelector[] = [];
+    const languageIds = Constants.SUPPORTED_LANGUAGE_IDS;
+
+    if (this.isPlainTextEnabled()) {
+      const plaintextLanguageIds: string[] =
+        this.config.get(Constants.CONFIGURATION_PLAIN_TEXT_IDS) || [];
+      plaintextLanguageIds.forEach((languageId) => {
+        languageIds.push(languageId);
+      });
+    }
+
+    languageIds.forEach((languageId) => {
+      const fileSelector: DocumentSelector = {
+        language: languageId,
+        scheme: Constants.SCHEME_FILE,
+      };
+      selectors.push(fileSelector);
+      const untitledSelector: DocumentSelector = {
+        language: languageId,
+        scheme: Constants.SCHEME_UNTITLED,
+      };
+      selectors.push(untitledSelector);
+    });
+    return selectors;
   }
 
   public getServiceType(): string {

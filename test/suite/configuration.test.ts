@@ -1,9 +1,9 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { ExtensionContext } from "vscode";
-import * as Constants from "../../configuration/constants";
-import { ConfigurationManager } from "../../configuration/manager";
+import * as Constants from "../../src/Constants";
+import { ConfigurationManager } from "../../src/ConfigurationManager";
 import { MockExtensionContext } from "./mockUtils";
+import { ExtensionContext } from "vscode";
 
 suite("ConfigurationManager Test Suite", () => {
   const testContext: ExtensionContext = new MockExtensionContext();

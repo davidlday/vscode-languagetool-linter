@@ -15,9 +15,21 @@
  */
 
 import * as path from "path";
-import { Disposable, ExtensionContext, Memento } from "vscode";
+import {
+  Disposable,
+  EnvironmentVariableCollection,
+  Extension,
+  ExtensionContext,
+  ExtensionMode,
+  Memento,
+  SecretStorage,
+  Uri,
+} from "vscode";
 
 export class MockMemento implements Memento {
+  keys(): readonly string[] {
+    throw new Error("Method not implemented.");
+  }
   private map: Map<string, unknown> = new Map<string, unknown>();
 
   get(key: string, defaultValue?: unknown): unknown {
@@ -30,9 +42,22 @@ export class MockMemento implements Memento {
       resolve();
     });
   }
+
+  setKeysForSync(_keys: readonly string[]): void {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export class MockExtensionContext implements ExtensionContext, Disposable {
+  secrets!: SecretStorage;
+  extensionUri!: Uri;
+  environmentVariableCollection!: EnvironmentVariableCollection;
+  storageUri: Uri | undefined;
+  globalStorageUri!: Uri;
+  logUri!: Uri;
+  extensionMode!: ExtensionMode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  extension!: Extension<any>;
   readonly extensionPath: string = path.resolve(__dirname, "..", "..");
   private readonly mockContextRoot = path.resolve(
     this.extensionPath,
@@ -41,7 +66,7 @@ export class MockExtensionContext implements ExtensionContext, Disposable {
 
   public readonly subscriptions: { dispose(): unknown }[] = [];
   readonly workspaceState: Memento = new MockMemento();
-  readonly globalState: Memento = new MockMemento();
+  readonly globalState = new MockMemento();
   public storagePath: string = path.resolve(
     this.mockContextRoot,
     "storagePath",

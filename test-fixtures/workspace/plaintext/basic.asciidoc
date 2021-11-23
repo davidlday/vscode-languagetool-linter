@@ -1,0 +1,20 @@
+= AsciiDoc as Plain Text
+D. Day
+
+== Setting It Up
+
+For this to work, add `asciidoc` to the list of plain text IDs in
+the settings. This will prompt for a window reload as well to make
+sure the Linter is registered as a CodeActionsProvider for all the
+IDs.
+
+The Linter will treat AsciiDoc as plain text.
+
+Need to add automated tests.
+
+== Test Text
+
+This is a basic AsciiDoc file. Linter should check spelling. The
+Linter should also not care about word wrapping at 80.
+
+Is speooling enabled?

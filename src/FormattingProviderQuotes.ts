@@ -15,9 +15,9 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "../configuration/manager";
+import { ConfigurationManager } from "./ConfigurationManager";
 
-export class QuotesFormattingProvider
+export class FormattingProviderQuotes
   implements vscode.OnTypeFormattingEditProvider {
   public static readonly startDoubleQuote: string = "“";
   public static readonly endDoubleQuote: string = "”";
@@ -26,8 +26,8 @@ export class QuotesFormattingProvider
   public static readonly doubleQuote: string = '"';
   public static readonly singleQuote: string = "'";
   public static readonly triggers: string[] = [
-    QuotesFormattingProvider.doubleQuote,
-    QuotesFormattingProvider.singleQuote,
+    FormattingProviderQuotes.doubleQuote,
+    FormattingProviderQuotes.singleQuote,
   ];
 
   private readonly config: ConfigurationManager;
@@ -59,48 +59,48 @@ export class QuotesFormattingProvider
 
     if (this.config.isSmartFormatOnType()) {
       switch (ch) {
-        case QuotesFormattingProvider.doubleQuote:
+        case FormattingProviderQuotes.doubleQuote:
           if (
             [
               " ",
-              QuotesFormattingProvider.singleQuote,
-              QuotesFormattingProvider.startSingleQuote,
+              FormattingProviderQuotes.singleQuote,
+              FormattingProviderQuotes.startSingleQuote,
             ].indexOf(prevCh) !== -1
           ) {
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.startDoubleQuote,
+                FormattingProviderQuotes.startDoubleQuote,
               ),
             ];
           } else {
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.endDoubleQuote,
+                FormattingProviderQuotes.endDoubleQuote,
               ),
             ];
           }
           break;
-        case QuotesFormattingProvider.singleQuote:
+        case FormattingProviderQuotes.singleQuote:
           if (
             [
               " ",
-              QuotesFormattingProvider.doubleQuote,
-              QuotesFormattingProvider.startDoubleQuote,
+              FormattingProviderQuotes.doubleQuote,
+              FormattingProviderQuotes.startDoubleQuote,
             ].indexOf(prevCh) !== -1
           ) {
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.startSingleQuote,
+                FormattingProviderQuotes.startSingleQuote,
               ),
             ];
           } else {
             return [
               new vscode.TextEdit(
                 chRange,
-                QuotesFormattingProvider.endSingleQuote,
+                FormattingProviderQuotes.endSingleQuote,
               ),
             ];
           }

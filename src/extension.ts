@@ -14,37 +14,37 @@
  *   limitations under the License.
  */
 
-import * as vscode from "vscode";
-import * as Constants from "./configuration/constants";
-import { ConfigurationManager } from "./configuration/manager";
-import { IAnnotatedtext } from "annotatedtext";
-import { Linter } from "./linter/linter";
-import { DashesFormattingProvider } from "./typeFormatters/dashesFormatter";
-import { OnTypeFormattingDispatcher } from "./typeFormatters/dispatcher";
-import { EllipsesFormattingProvider } from "./typeFormatters/ellipsesFormatter";
-import { QuotesFormattingProvider } from "./typeFormatters/quotesFormatter";
 import * as fs from "fs";
+import * as vscode from "vscode";
+import * as Constants from "./Constants";
+import { ConfigurationManager } from "./ConfigurationManager";
+import { IAnnotatedtext } from "annotatedtext";
+import { Linter } from "./Linter";
+import { FormattingProviderDashes } from "./FormattingProviderDashes";
+import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
+import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
+import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
-  const configManager: ConfigurationManager = new ConfigurationManager(context);
+  const configMan: ConfigurationManager = new ConfigurationManager(context);
   if (!fs.existsSync(context.globalStoragePath)) {
     fs.mkdirSync(context.globalStoragePath, { recursive: true });
   }
   async () => {
-    await configManager.init();
+    await configMan.init();
   };
 
-  const linter: Linter = new Linter(configManager);
+  const linter: Linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
-    '"': new QuotesFormattingProvider(configManager),
-    "'": new QuotesFormattingProvider(configManager),
-    "-": new DashesFormattingProvider(configManager),
-    ".": new EllipsesFormattingProvider(configManager),
+    '"': new FormattingProviderQuotes(configMan),
+    "'": new FormattingProviderQuotes(configMan),
+    "-": new FormattingProviderDashes(configMan),
+    ".": new FormattingProviderEllipses(configMan),
   });
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
-  context.subscriptions.push(configManager);
+  context.subscriptions.push(configMan);
 
   context.subscriptions.push(Constants.EXTENSION_OUTPUT_CHANNEL);
   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(async (event) => {
       if (event.affectsConfiguration("languageToolLinter")) {
-        await configManager.reloadConfiguration(event);
+        await configMan.reloadConfiguration(event);
       }
     }),
   );
@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidOpenTextDocument event - request lint
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
-      if (configManager.isLintOnOpen()) {
+      if (configMan.isLintOnOpen()) {
         linter.requestLint(document);
       }
     }),
@@ -72,8 +72,8 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      if (configManager.isLintOnChange()) {
-        if (configManager.isHideDiagnosticsOnChange()) {
+      if (configMan.isLintOnChange()) {
+        if (configMan.isHideDiagnosticsOnChange()) {
           linter.clearDiagnostics(event.document.uri);
         }
         linter.requestLint(event.document);
@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidChangeActiveTextEditor event - request lint
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor !== undefined && configManager.isLintOnChange()) {
+      if (editor !== undefined && configMan.isLintOnChange()) {
         linter.requestLint(editor.document);
       }
     }),
@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onWillSaveTextDocument event - smart format if enabled
   context.subscriptions.push(
     vscode.workspace.onWillSaveTextDocument((_event) => {
-      if (configManager.isSmartFormatOnSave()) {
+      if (configMan.isSmartFormatOnSave()) {
         vscode.commands.executeCommand(
           "languagetoolLinter.smartFormatDocument",
         );
@@ -104,7 +104,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidSaveTextDocument event - request immediate lint
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument((document) => {
-      if (configManager.isLintOnSave()) {
+      if (configMan.isLintOnSave()) {
         linter.requestLint(document);
       }
     }),
@@ -119,22 +119,25 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // Register Code Actions Provider for supported languages
-  Constants.DOCUMENT_SELECTORS.forEach((selector: vscode.DocumentSelector) => {
-    context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider(selector, linter),
-    );
-
-    if (onTypeTriggers) {
+  // Constants.DOCUMENT_SELECTORS.forEach((selector: vscode.DocumentSelector) => {
+  configMan
+    .getDocumentSelectors()
+    .forEach((selector: vscode.DocumentSelector) => {
       context.subscriptions.push(
-        vscode.languages.registerOnTypeFormattingEditProvider(
-          selector,
-          onTypeDispatcher,
-          onTypeTriggers.first,
-          ...onTypeTriggers.more,
-        ),
+        vscode.languages.registerCodeActionsProvider(selector, linter),
       );
-    }
-  });
+
+      if (onTypeTriggers) {
+        context.subscriptions.push(
+          vscode.languages.registerOnTypeFormattingEditProvider(
+            selector,
+            onTypeDispatcher,
+            onTypeTriggers.first,
+            ...onTypeTriggers.more,
+          ),
+        );
+      }
+    });
 
   // Register onDidCloseTextDocument event
   context.subscriptions.push(
@@ -147,7 +150,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const ignoreWordGlobally = vscode.commands.registerTextEditorCommand(
     "languagetoolLinter.ignoreWordGlobally",
     (editor, _edit, ...args) => {
-      configManager.ignoreWordGlobally(args.shift());
+      configMan.ignoreWordGlobally(args.shift());
       linter.requestLint(editor.document, 0);
     },
   );
@@ -157,7 +160,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const ignoreWordInWorkspace = vscode.commands.registerTextEditorCommand(
     "languagetoolLinter.ignoreWordInWorkspace",
     (editor, _edit, ...args) => {
-      configManager.ignoreWordInWorkspace(args.shift());
+      configMan.ignoreWordInWorkspace(args.shift());
       linter.requestLint(editor.document, 0);
     },
   );
@@ -167,7 +170,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const removeGloballyIgnoredWord = vscode.commands.registerTextEditorCommand(
     "languagetoolLinter.removeGloballyIgnoredWord",
     (editor, _edit, ...args) => {
-      configManager.removeGloballyIgnoredWord(args.shift());
+      configMan.removeGloballyIgnoredWord(args.shift());
       linter.requestLint(editor.document, 0);
     },
   );
@@ -177,7 +180,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const removeWorkspaceIgnoredWord = vscode.commands.registerTextEditorCommand(
     "languagetoolLinter.removeWorkspaceIgnoredWord",
     (editor, _edit, ...args) => {
-      configManager.removeWorkspaceIgnoredWord(args.shift());
+      configMan.removeWorkspaceIgnoredWord(args.shift());
       linter.requestLint(editor.document, 0);
     },
   );
@@ -214,7 +217,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const smartFormatCommand = vscode.commands.registerTextEditorCommand(
     "languagetoolLinter.smartFormatDocument",
     (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
-      if (configManager.isSupportedDocument(editor.document)) {
+      if (configMan.isSupportedDocument(editor.document)) {
         // Revert to regex here for cleaner code.
         const text: string = editor.document.getText();
         const lastOffset: number = text.length;
@@ -238,7 +241,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {
     let firstDelay = Constants.EXTENSION_TIMEOUT_MS;
-    if (configManager.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
+    if (configMan.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
       // Add a second to give the service time to start up.
       firstDelay += 1000;
     }

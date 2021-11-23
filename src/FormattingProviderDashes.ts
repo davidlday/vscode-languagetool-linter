@@ -15,9 +15,9 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "../configuration/manager";
+import { ConfigurationManager } from "./ConfigurationManager";
 
-export class DashesFormattingProvider
+export class FormattingProviderDashes
   implements vscode.OnTypeFormattingEditProvider {
   public static readonly emDash: string = "—";
   public static readonly enDash: string = "–";
@@ -50,10 +50,10 @@ export class DashesFormattingProvider
       position.character > 1 ? line.text.charAt(position.character - 3) : " ";
 
     if (this.config.isSmartFormatOnType()) {
-      if (prevCh === DashesFormattingProvider.enDash) {
-        return [new vscode.TextEdit(range, DashesFormattingProvider.emDash)];
-      } else if (prevCh === DashesFormattingProvider.hyphen) {
-        if (prevPrevCh === DashesFormattingProvider.hyphen) {
+      if (prevCh === FormattingProviderDashes.enDash) {
+        return [new vscode.TextEdit(range, FormattingProviderDashes.emDash)];
+      } else if (prevCh === FormattingProviderDashes.hyphen) {
+        if (prevPrevCh === FormattingProviderDashes.hyphen) {
           const expandedRange: vscode.Range = new vscode.Range(
             position.line,
             position.character - 3,
@@ -61,10 +61,10 @@ export class DashesFormattingProvider
             position.character,
           );
           return [
-            new vscode.TextEdit(expandedRange, DashesFormattingProvider.emDash),
+            new vscode.TextEdit(expandedRange, FormattingProviderDashes.emDash),
           ];
         } else {
-          return [new vscode.TextEdit(range, DashesFormattingProvider.enDash)];
+          return [new vscode.TextEdit(range, FormattingProviderDashes.enDash)];
         }
       }
     }

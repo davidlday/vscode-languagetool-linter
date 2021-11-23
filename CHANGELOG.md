@@ -11,6 +11,18 @@ and this project adheres to
 
 Changes not yet released.
 
+## Changed
+
+- replaced license-webpack-plugin with webpack-license-plugin
+
+## [0.18.0] - 2021-04-02
+
+### Fixed
+
+- Linter wasn't registered as a Code Actions Provider for the list of plain text
+  IDs in settings, resulting in no suggestions for potential errors
+  ([284](https://github.com/davidlday/vscode-languagetool-linter/issues/284)).
+
 ### Added
 
 - Embedded service. Automatically downloads and installs all components
@@ -18,9 +30,12 @@ Changes not yet released.
 - Show warning when spaces exist in either Disabled Rules or Disable Categories
   ([217](https://github.com/davidlday/vscode-languagetool-linter/issues/217)).
 
-### Deprecated
+### Maintenance
 
-- Managed service. Please use the embedded service instead.
+- Refactored code for maintainability.
+  - Moved tests to root of repo.
+  - Moved test fixtures to root of repo.
+  - Renamed src files to match class names.
 
 ## [0.17.0] - 2021-01-16
 

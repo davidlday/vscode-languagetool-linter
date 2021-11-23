@@ -11,5 +11,8 @@
   "languageToolLinter.lintOnChange": true,
   "languageToolLinter.managed.classPath": "/usr/local/opt/languagetool/libexec/languagetool-server.jar",
   "languageToolLinter.hideRuleIds": false,
-  "languageToolLinter.serviceType": "embedded"
+  "languageToolLinter.plainText.languageIds": [
+    "plaintext",
+    "asciidoc"
+  ]
 }

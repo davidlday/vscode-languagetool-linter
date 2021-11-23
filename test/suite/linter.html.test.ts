@@ -1,11 +1,11 @@
-import { IAnnotatedtext } from "annotatedtext";
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
 import { ExtensionContext } from "vscode";
-import { ConfigurationManager } from "../../configuration/manager";
-import { Linter } from "../../linter/linter";
 import { MockExtensionContext } from "./mockUtils";
+import { ConfigurationManager } from "../../src/ConfigurationManager";
+import { IAnnotatedtext } from "annotatedtext";
+import { Linter } from "../../src/Linter";
 
 suite("Linter HTML Test Suite", () => {
   const testContext: ExtensionContext = new MockExtensionContext();
@@ -15,7 +15,7 @@ suite("Linter HTML Test Suite", () => {
   const linter: Linter = new Linter(config);
   const testWorkspace: string = path.resolve(
     __dirname,
-    "../../../src/test-fixtures/workspace",
+    "../../../test-fixtures/workspace",
   );
 
   test("Linter should instantiate", () => {

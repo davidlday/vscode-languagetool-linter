@@ -1,13 +1,13 @@
 import * as assert from "assert";
 import * as crypto from "crypto";
-import * as del from "del";
+import del from "del";
 import * as fs from "fs";
 import * as Fetch from "node-fetch";
 import * as path from "path";
 import { ExtensionContext } from "vscode";
 import { MockExtensionContext } from "./mockUtils";
-import { EmbeddedLanguageTool } from "../../languagetool/embedded";
-import { ILanguageToolResponse } from "../../linter/interfaces";
+import { EmbeddedLanguageTool } from "../../src/languagetool/embedded";
+import { ILanguageToolResponse } from "../../src/Interfaces";
 
 suite("Embedded LanguageTool Test Suite", () => {
   const testContext: ExtensionContext = new MockExtensionContext();
@@ -173,7 +173,8 @@ suite("Embedded LanguageTool Test Suite", () => {
     }
 
     const response = await Fetch.default(serviceUrl, options);
-    const ltReponse: ILanguageToolResponse = (await response.json()) as ILanguageToolResponse;
+    const ltReponse: ILanguageToolResponse =
+      (await response.json()) as ILanguageToolResponse;
     assert.strictEqual(ltReponse.software.version, ltVersion);
 
     return Promise.resolve();
