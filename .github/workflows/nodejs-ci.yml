@@ -1,10 +1,8 @@
 name: Node.js CI
 
-on:
-  pull_request
+on: pull_request
 
 jobs:
-
   ubuntu-build:
     runs-on: ubuntu-latest
     name: Build on Ubuntu
@@ -12,17 +10,20 @@ jobs:
       DISPLAY: ":99.0"
       CI: true
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 12
-    - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      name: Start Xvfb
-    - run: npm install -g typescript vsce
-    - run: npm ci
-    - run: npm run vscode:prepublish
-    - run: npm run test-compile
-    - run: npm test
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        name: Start Xvfb
+      - run: npm install -g typescript vsce json
+      - run: npm ci
+      - run: npm run vscode:prepublish
+      - run: npm run test-compile
+      - run: npm test
+        name: Test
+      - run: npm run lint
+        name: ESLint
 
   macos-build:
     runs-on: macos-latest
@@ -30,15 +31,18 @@ jobs:
     env:
       CI: true
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 12
-    - run: npm install -g typescript vsce
-    - run: npm ci
-    - run: npm run vscode:prepublish
-    - run: npm run test-compile
-    - run: npm test
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install -g typescript vsce json
+      - run: npm ci
+      - run: npm run vscode:prepublish
+      - run: npm run test-compile
+      - run: npm test
+        name: Test
+      - run: npm run lint
+        name: ESLint
 
   windows-build:
     runs-on: windows-latest
@@ -46,16 +50,19 @@ jobs:
     env:
       CI: true
     steps:
-    - name: Set git to use LF
-      run: |
-        git config --global core.autocrlf false
-        git config --global core.eol lf
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 12
-    - run: npm install -g typescript vsce
-    - run: npm ci
-    - run: npm run vscode:prepublish
-    - run: npm run test-compile
-    - run: npm test
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install -g typescript vsce json
+      - run: npm ci
+      - run: npm run vscode:prepublish
+      - run: npm run test-compile
+      - run: npm test
+        name: Test
+      - run: npm run lint
+        name: ESLint

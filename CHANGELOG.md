@@ -11,6 +11,16 @@ and this project adheres to
 
 Changes not yet released.
 
+## [0.19.0] - 2021-11-23
+
+## Changed
+
+- replaced license-webpack-plugin with webpack-license-plugin
+
+## Maintenance
+
+- dependency updates
+
 ## [0.18.0] - 2021-04-02
 
 ### Fixed
