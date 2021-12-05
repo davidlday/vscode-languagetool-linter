@@ -27,6 +27,7 @@ import * as tar from "tar";
 import * as util from "util";
 import { ExtensionContext, OutputChannel } from "vscode";
 import * as Constants from "./Constants";
+import * as njc from "node-java-connector";
 
 export class EmbeddedLanguageTool {
   private context: ExtensionContext;
