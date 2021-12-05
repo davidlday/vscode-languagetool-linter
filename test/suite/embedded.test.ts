@@ -97,7 +97,7 @@ suite("Embedded LanguageTool Test Suite", () => {
     // Ensure service is stopped
     service.stopService();
     // Clean up jre and lt directories
-    del([`${this.jreHome}/**`, `${this.jreHome}/.*`, `${this.ltHome}/**`], {
+    del.sync([`${jreHome}/**`, `${jreHome}/.*`, `${ltHome}/**`], {
       force: true,
     });
   });
@@ -194,7 +194,8 @@ suite("Embedded LanguageTool Test Suite", () => {
         }
 
         const response = await Fetch.default(serviceUrl, options);
-        const ltReponse: ILanguageToolResponse = (await response.json()) as ILanguageToolResponse;
+        const ltReponse: ILanguageToolResponse =
+          (await response.json()) as ILanguageToolResponse;
         assert.strictEqual(ltReponse.software.version, ltVersion);
       });
   });
