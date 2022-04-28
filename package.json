@@ -489,7 +489,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jsdoc": "^37.7.0",
-    "mocha": "^9.2.0",
+    "mocha": "^9.2.2",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
