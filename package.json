@@ -171,10 +171,11 @@
         "languageToolLinter.serviceType": {
           "type": "string",
           "default": "external",
-          "description": "What kind of LanguageTool service to use: external (default), public, or managed.",
+          "description": "What kind of LanguageTool service to use: external (default), public, podman, or managed. NOTE: The managed option is deprecated. Please use the podman option to run locally instead.",
           "enum": [
             "external",
             "managed",
+            "podman",
             "public"
           ],
           "enumDescriptions": [
@@ -187,6 +188,37 @@
           "type": "string",
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
+        },
+        "languageToolLinter.podman.image": {
+          "type": "string",
+          "default": "docker.io/erikvl87/languagetool:5.8",
+          "description": "Container image to use."
+        },
+        "languageToolLinter.podman.containerName": {
+          "type": "string",
+          "default": "vscode-languagetool-linter",
+          "description": "Name to use for the container."
+        },
+        "languageToolLinter.podman.port": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 9500,
+          "description": "Port number to use for podman service."
+        },
+        "languageToolLinter.podman.portMinimum": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 9500,
+          "description": "Minimum port number to use for podman service."
+        },
+        "languageToolLinter.podman.portMaximum": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 65535,
+          "description": "Minimum port number to use for podman service."
         },
         "languageToolLinter.managed.classPath": {
           "type": "string",
