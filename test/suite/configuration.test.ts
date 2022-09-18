@@ -11,6 +11,6 @@ suite("ConfigurationManager Test Suite", () => {
   test("ConfigurationManager should return the default service URL", () => {
     const EXPECTED_DEFAULT_URL = "http://localhost:8081/v2/check";
     const config: ConfigurationManager = new ConfigurationManager();
-    assert.equal(EXPECTED_DEFAULT_URL, config.getUrl());
+    assert.strictEqual(EXPECTED_DEFAULT_URL, config.getUrl());
   });
 });
