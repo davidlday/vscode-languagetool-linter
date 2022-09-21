@@ -40,7 +40,7 @@ export interface ILanguageToolResponse {
   matches: ILanguageToolMatch[];
 }
 
-// Interface - LangaugeTool Match
+// Interface - LanguageTool Match
 export interface ILanguageToolMatch {
   message: string;
   shortMessage: string;
