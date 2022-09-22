@@ -32,6 +32,7 @@ import {
   WorkspaceConfiguration,
 } from "vscode";
 import * as Constants from "./Constants";
+import * as PodmanService from "./PodmanService";
 
 export class ConfigurationManager implements Disposable {
   // Private Members
