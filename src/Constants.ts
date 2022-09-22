@@ -18,9 +18,8 @@ import { OutputChannel, window } from "vscode";
 
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
-export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel(
-  "LanguageTool Linter",
-);
+export const EXTENSION_OUTPUT_CHANNEL: OutputChannel =
+  window.createOutputChannel("LanguageTool Linter");
 export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
@@ -54,16 +53,25 @@ export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
 export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
 export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
 export const CONFIGURATION_LANGUAGE = "language";
+export const CONFIGURATION_PODMAN_MACHINE_NAME =
+  "languageTool.podman.machineName";
+export const CONFIGURATION_PODMAN_IMAGE_NAME = "languageTool.podman.imageName";
+export const CONFIGURATION_PODMAN_CONTAINER_NAME =
+  "languageTool.podman.containerName";
+export const CONFIGURATION_PODMAN_IP = "languageTool.podman.ip";
+export const CONFIGURATION_PODMAN_PORT = "languageTool.podman.port";
 
 // LanguageTool Services
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
 export const SERVICE_CHECK_PATH = "/v2/check";
 export const SERVICE_TYPE_EXTERNAL = "external";
 export const SERVICE_TYPE_MANAGED = "managed";
+export const SERVICE_TYPE_PODMAN = "podman";
 export const SERVICE_TYPE_PUBLIC = "public";
 export const SERVICE_TYPES: string[] = [
   SERVICE_TYPE_EXTERNAL,
   SERVICE_TYPE_MANAGED,
+  SERVICE_TYPE_PODMAN,
   SERVICE_TYPE_PUBLIC,
 ];
 export const SERVICE_PARAMETERS: string[] = [
