@@ -189,36 +189,32 @@
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
+        "languageToolLinter.podman.machineName": {
+          "type": "string",
+          "default": "",
+          "description": "Machine name of the podman machine to use. Leave blank to use the default machine."
+        },
         "languageToolLinter.podman.image": {
           "type": "string",
           "default": "docker.io/erikvl87/languagetool:5.8",
-          "description": "Container image to use."
+          "description": "Image to use for the podman container. Defaults to 'docker.io/erikvl87/languagetool:5.8'."
         },
         "languageToolLinter.podman.containerName": {
           "type": "string",
-          "default": "vscode-languagetool-linter",
-          "description": "Name to use for the container."
+          "default": "languagtool",
+          "description": "Name of the podman container to use. Defaults to 'languagtool'."
         },
         "languageToolLinter.podman.port": {
           "type": "number",
           "minimum": 1024,
           "maximum": 65535,
-          "default": 9500,
-          "description": "Port number to use for podman service."
+          "default": 8081,
+          "description": "Port to use for the podman container. Leave blank to use a random port number. Defaults to 8081."
         },
-        "languageToolLinter.podman.portMinimum": {
-          "type": "number",
-          "minimum": 1024,
-          "maximum": 65535,
-          "default": 9500,
-          "description": "Minimum port number to use for podman service."
-        },
-        "languageToolLinter.podman.portMaximum": {
-          "type": "number",
-          "minimum": 1024,
-          "maximum": 65535,
-          "default": 65535,
-          "description": "Minimum port number to use for podman service."
+        "languageToolLinter.podman.ip": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "IP address to use for the podman container. Defaults to '127.0.0.1'."
         },
         "languageToolLinter.managed.classPath": {
           "type": "string",
