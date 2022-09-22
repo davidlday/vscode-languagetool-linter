@@ -14,11 +14,11 @@
  *   limitations under the License.
  */
 
-import execa from "execa";
-import { Disposable, workspace, WorkspaceConfiguration } from "vscode";
+import execa, { ExecaChildProcess } from "execa";
+import { Disposable, WorkspaceConfiguration } from "vscode";
 import * as Constants from "./Constants";
 
-export interface ContainerInfo {
+interface ContainerInfo {
   Id: string;
   Created: string;
   Path: string;
@@ -59,7 +59,24 @@ export interface ContainerInfo {
   };
 }
 
-export interface MachineInfo {
+interface PodmanMachine {
+  Name: string;
+  Default: boolean;
+  Created: string;
+  Running: boolean;
+  Starting: boolean;
+  LastUp: string;
+  Stream: string;
+  VMType: string;
+  CPUs: number;
+  Memory: string;
+  DiskSize: string;
+  Port: number;
+  RemoteUsername: string;
+  IdentityPath: string;
+}
+
+interface MachineInfo {
   Host: {
     Arch: string;
     CurrentMachine: string;
@@ -86,18 +103,60 @@ export interface MachineInfo {
 
 export class PodmanService implements Disposable {
   private config: WorkspaceConfiguration;
-  private containerName: string;
-  private imageName: string;
+  private podmanMachineName: string | undefined;
+  private containerName: string | undefined;
+  private imageName: string | undefined;
 
   // Constructor
-  constructor(imageName: string, containerName: string) {
-    this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
-    this.containerName = containerName;
-    this.imageName = imageName;
+  constructor(config: WorkspaceConfiguration) {
+    this.config = config;
+    this.podmanMachineName = this.config.get(
+      Constants.CONFIGURATION_PODMAN_MACHINE_NAME,
+    );
+    this.containerName = this.config.get(
+      Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+    );
+    this.imageName = this.config.get(Constants.CONFIGURATION_PODMAN_IMAGE_NAME);
   }
 
   // Private instance methods
-  private machineInfo(): MachineInfo {
+
+  // Machine methods
+  private podmanMachineInitialized(): boolean {
+    const machines = this.getPodmanMachines();
+    return machines.length === 0 ? false : true;
+  }
+
+  private getPodmanMachines(): PodmanMachine[] {
+    let result;
+    try {
+      execa.sync("podman", ["machine", "ls", "--format", "json"]);
+    } catch (error) {
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+        `Error getting podman machines: ${error.message}`,
+      );
+      throw error;
+    }
+    const machines: PodmanMachine[] = JSON.parse(result.stdout);
+    return machines;
+  }
+
+  private isPodmanMachineRunning(): boolean {
+    const machineInfo: MachineInfo = this.podmanMachineInfo();
+    return machineInfo ? machineInfo.Host.MachineState === "Running" : false;
+  }
+
+  private isDefaultMachineRunning(): boolean {
+    const machines = this.getPodmanMachines();
+    for (const machine of machines) {
+      if (machine.Default && machine.Running) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private podmanMachineInfo(): MachineInfo {
     const result = execa.sync("podman", [
       "machine",
       "info",
@@ -107,78 +166,171 @@ export class PodmanService implements Disposable {
     return JSON.parse(result.stdout);
   }
 
-  private inspectContainer(): ContainerInfo[] {
+  private startPodmanMachine(): ExecaChildProcess<string> {
+    const result = execa(`podman machine start`, (error, stdout, stderr) => {
+      if (error) {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Error starting podman machine: ${error.message}`,
+        );
+        throw error;
+      }
+      if (stderr) {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Error starting podman machine: ${stderr}`,
+        );
+        throw stderr;
+      }
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stdout);
+    });
+    return result;
+  }
+
+  // Image methods
+  private pullImage(): void {
+    const result = execa(
+      `podman pull ${this.imageName}`,
+      (error, stdout, stderr) => {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Pulling image ${this.imageName}`,
+        );
+        if (error) {
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            `Error pulling image ${this.imageName}: ${error.message}`,
+          );
+          throw error;
+        }
+        if (stderr) {
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            `Error pulling image ${this.imageName}: ${stderr}`,
+          );
+          throw stderr;
+        }
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stdout);
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Image ${this.imageName} pulled.`,
+        );
+      },
+    );
+  }
+
+  private isImageAvailable(): boolean {
     const result = execa.sync("podman", [
-      "inspect",
-      this.containerName,
+      "images",
       "--format",
       "json",
+      "--filter",
+      `reference=${this.imageName}`,
     ]);
-    return JSON.parse(result.stdout);
-  }
-
-  private startContainer(): void {
-    execa.sync("podman", ["start", this.containerName]);
-  }
-
-  private stopContainer(): void {
-    execa.sync("podman", ["stop", this.containerName]);
-  }
-
-  private startMachine(): void {
-    execa.sync("podman", ["machine", "start"]);
-  }
-
-  // Public instance methods
-  public run(): void {
-    execa.sync("podman", [
-      "run",
-      "-d",
-      "-p",
-      ":8010",
-      "--name",
-      this.containerName,
-      this.imageName,
-    ]);
-
-    // Wait for the container to start
-    while (!this.isRunning()) {
-      // Do nothing
+    if (result.stdout === "[]") {
+      return false;
+    } else {
+      return true;
     }
   }
 
+  // Container methods
+  private inspectContainer(): ContainerInfo[] {
+    const result = execa.sync(
+      `podman inspect ${this.containerName} --format json`,
+    );
+    return JSON.parse(result.stdout);
+  }
+
+  private containerExists(): boolean {
+    const result = execa.sync(
+      `podman ps -a --format json --filter name=${this.containerName}`,
+    );
+    if (result.stdout === "[]") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  public isContainerRunning(): boolean {
+    if (this.isPodmanMachineRunning() && this.containerExists()) {
+      const containerInfo: ContainerInfo[] = this.inspectContainer();
+      if (containerInfo[0]) {
+        return containerInfo[0].State.Running;
+      }
+    }
+    return false;
+  }
+
+  private startContainer(): ExecaChildProcess<string> {
+    return execa(`podman start ${this.containerName}`);
+  }
+
+  private stopContainer(): ExecaChildProcess<string> {
+    return execa(`podman stop ${this.containerName}`);
+  }
+
+  private runContainer(): ExecaChildProcess<string> {
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      `Running PodmanService as container ${this.containerName}`,
+    );
+
+    let child: ExecaChildProcess<string>;
+    if (this.containerExists()) {
+      child = this.start();
+    } else {
+      child = execa(
+        `podman run --rm -d -p :8010 --name ${this.containerName} ${this.imageName}`,
+      );
+    }
+
+    // Wait for the container to start
+    while (!this.isContainerRunning()) {
+      setTimeout(function () {
+        Constants.EXTENSION_OUTPUT_CHANNEL.append(".");
+      }, 500);
+    }
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(".");
+    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("PodmanService starte.");
+
+    return child;
+  }
+
+  // Public instance methods
   public dispose(): void {
     this.stop();
   }
 
-  public start(): void {
-    if (this.machineInfo().Host.MachineState !== "Running") {
-      this.startMachine();
+  public start(): ExecaChildProcess<string> {
+    // Is the machine initialized?
+    if (!this.podmanMachineInitialized()) {
+      // Prompt for initialization
     }
-    this.startContainer();
+    // Is the machine running?
+    if (!this.isPodmanMachineRunning()) this.startPodmanMachine();
+    // Is the image available?
+    if (!this.isImageAvailable()) this.pullImage();
+
+    if (!this.isContainerRunning()) this.startPodmanMachine();
+
+    return this.startContainer();
   }
 
   public stop(): void {
     this.stopContainer();
   }
 
-  public isRunning(): boolean {
-    return this.machineInfo().Host.MachineState === "Running"
-      ? this.inspectContainer()[0].State.Running
-      : false;
-  }
-
   public rename(newName: string): void {
-    execa.sync("podman", ["rename", this.containerName, newName]);
+    execa.sync(`podman rename ${this.containerName} ${newName}`);
     this.containerName = newName;
   }
 
-  public port(): string {
+  public getPort(): string {
     const containerInfo: ContainerInfo[] = this.inspectContainer();
     return containerInfo[0].HostConfig.PortBindings["8010/tcp"][0].HostPort;
   }
 
-  public name(): string {
-    return this.containerName;
+  public getHost(): string {
+    const containerInfo: ContainerInfo[] = this.inspectContainer();
+    return containerInfo[0].HostConfig.PortBindings["8010/tcp"][0].HostPort;
+  }
+
+  public getUrl(): string {
+    return `http://${this.getHost()}:${this.getPort()}`;
   }
 }
