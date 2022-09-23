@@ -15,8 +15,10 @@
  */
 
 import execa, { ExecaChildProcess } from "execa";
-import { Disposable, WorkspaceConfiguration } from "vscode";
-import * as Constants from "./Constants";
+import fetch from "node-fetch";
+import { Disposable, workspace, WorkspaceConfiguration } from "vscode";
+import * as Constants from "../Constants";
+import { ILanguageToolService } from "../Interfaces";
 
 interface ContainerInfo {
   Id: string;
@@ -53,7 +55,7 @@ interface ContainerInfo {
     PortBindings: {
       "8010/tcp": {
         HostIp: string;
-        HostPort: string;
+        HostPort: number;
       }[];
     };
   };
@@ -101,22 +103,38 @@ interface MachineInfo {
   };
 }
 
-export class PodmanService implements Disposable {
-  private config: WorkspaceConfiguration;
+export class PodmanService implements Disposable, ILanguageToolService {
+  private workspaceConfig: WorkspaceConfiguration;
   private podmanMachineName: string | undefined;
   private containerName: string | undefined;
   private imageName: string | undefined;
 
   // Constructor
-  constructor(config: WorkspaceConfiguration) {
-    this.config = config;
-    this.podmanMachineName = this.config.get(
+  constructor(workspaceConfig: WorkspaceConfiguration) {
+    this.workspaceConfig = workspaceConfig;
+    this.podmanMachineName = this.workspaceConfig.get(
       Constants.CONFIGURATION_PODMAN_MACHINE_NAME,
     );
-    this.containerName = this.config.get(
+    this.containerName = this.workspaceConfig.get(
       Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
     );
-    this.imageName = this.config.get(Constants.CONFIGURATION_PODMAN_IMAGE_NAME);
+    this.imageName = this.workspaceConfig.get(
+      Constants.CONFIGURATION_PODMAN_IMAGE_NAME,
+    );
+    vscode.ExtensionContext.subscriptions.push(this);
+    workspace.onDidChangeConfiguration((event) => {
+    workspaceConfig.onDidChange(
+      Constants.CONFIGURATION_PODMAN_MACHINE_NAME,
+      (newValue: string) => {
+        this.podmanMachineName = newValue;
+      },
+    );
+    workspaceConfig.onDidChange(
+      Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+      (newValue: string) => {
+        this.renameContainer(newValue);
+      },
+    );
   }
 
   // Private instance methods
@@ -130,15 +148,16 @@ export class PodmanService implements Disposable {
   private getPodmanMachines(): PodmanMachine[] {
     let result;
     try {
-      execa.sync("podman", ["machine", "ls", "--format", "json"]);
-    } catch (error) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        `Error getting podman machines: ${error.message}`,
-      );
-      throw error;
+      result = execa.sync("podman", ["machine", "ls", "--format", "json"]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Error getting podman machines: ${error.message}`,
+        );
+        throw error;
+      }
     }
-    const machines: PodmanMachine[] = JSON.parse(result.stdout);
-    return machines;
+    return result ? JSON.parse(result.stdout) : [];
   }
 
   private isPodmanMachineRunning(): boolean {
@@ -157,83 +176,99 @@ export class PodmanService implements Disposable {
   }
 
   private podmanMachineInfo(): MachineInfo {
-    const result = execa.sync("podman", [
-      "machine",
-      "info",
-      "--format",
-      "json",
-    ]);
-    return JSON.parse(result.stdout);
+    let result;
+    try {
+      result = execa.sync("podman", ["machine", "info", "--format", "json"]);
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(result.stdout);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Error getting podman machine info: ${error.message}`,
+        );
+        throw error;
+      }
+    }
+    return result ? JSON.parse(result.stdout) : undefined;
   }
 
-  private startPodmanMachine(): ExecaChildProcess<string> {
-    const result = execa(`podman machine start`, (error, stdout, stderr) => {
-      if (error) {
+  private startPodmanMachine(): ExecaChildProcess<string> | undefined {
+    let result;
+    try {
+      result = execa(`podman machine start ${this.podmanMachineName}`);
+      result.addListener("stdout", (data: string) => {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+      });
+      result.addListener("stderr", (data: string) => {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+      });
+    } catch (error) {
+      if (error instanceof Error) {
         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
           `Error starting podman machine: ${error.message}`,
         );
         throw error;
       }
-      if (stderr) {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          `Error starting podman machine: ${stderr}`,
-        );
-        throw stderr;
-      }
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stdout);
-    });
+    }
     return result;
   }
 
   // Image methods
-  private pullImage(): void {
-    const result = execa(
-      `podman pull ${this.imageName}`,
-      (error, stdout, stderr) => {
+  private pullImage(): ExecaChildProcess<string> | undefined {
+    let result;
+    try {
+      result = execa(`podman pull ${this.imageName}`);
+      result.addListener("stdout", (data: string) => {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+      });
+      result.addListener("stderr", (data: string) => {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+      });
+    } catch (error) {
+      if (error instanceof Error) {
         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          `Pulling image ${this.imageName}`,
+          `Error pulling podman image: ${error.message}`,
         );
-        if (error) {
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            `Error pulling image ${this.imageName}: ${error.message}`,
-          );
-          throw error;
-        }
-        if (stderr) {
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            `Error pulling image ${this.imageName}: ${stderr}`,
-          );
-          throw stderr;
-        }
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stdout);
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          `Image ${this.imageName} pulled.`,
-        );
-      },
-    );
+        throw error;
+      }
+    }
+    return result;
   }
 
   private isImageAvailable(): boolean {
-    const result = execa.sync("podman", [
-      "images",
-      "--format",
-      "json",
-      "--filter",
-      `reference=${this.imageName}`,
-    ]);
-    if (result.stdout === "[]") {
-      return false;
-    } else {
-      return true;
+    let result;
+    try {
+      result = execa.sync("podman", [
+        "images",
+        "--format",
+        "json",
+        "--filter",
+        `reference=${this.imageName}`,
+      ]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Error getting podman images: ${error.message}`,
+        );
+        throw error;
+      }
     }
+    return result ? result.stderr !== "[]" : false;
   }
 
   // Container methods
   private inspectContainer(): ContainerInfo[] {
-    const result = execa.sync(
-      `podman inspect ${this.containerName} --format json`,
-    );
-    return JSON.parse(result.stdout);
+    let result;
+    try {
+      result = execa.sync(`podman inspect ${this.containerName} --format json`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          `Error inspecting container ${this.containerName}: ${error.message}`,
+        );
+        throw error;
+      }
+    }
+    return result ? JSON.parse(result.stdout) : [];
   }
 
   private containerExists(): boolean {
@@ -255,6 +290,11 @@ export class PodmanService implements Disposable {
       }
     }
     return false;
+  }
+
+  private renameContainer(newName: string): void {
+    execa.sync(`podman rename ${this.containerName} ${newName}`);
+    this.containerName = newName;
   }
 
   private startContainer(): ExecaChildProcess<string> {
@@ -311,26 +351,49 @@ export class PodmanService implements Disposable {
     return this.startContainer();
   }
 
-  public stop(): void {
-    this.stopContainer();
+  public stop(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.isContainerRunning()) {
+        this.stopContainer().then(() => {
+          resolve();
+        });
+      } else {
+        reject("Container is not running");
+      }
+    });
   }
 
-  public rename(newName: string): void {
-    execa.sync(`podman rename ${this.containerName} ${newName}`);
-    this.containerName = newName;
-  }
-
-  public getPort(): string {
+  public getPort(): number {
     const containerInfo: ContainerInfo[] = this.inspectContainer();
     return containerInfo[0].HostConfig.PortBindings["8010/tcp"][0].HostPort;
   }
 
   public getHost(): string {
     const containerInfo: ContainerInfo[] = this.inspectContainer();
-    return containerInfo[0].HostConfig.PortBindings["8010/tcp"][0].HostPort;
+    return containerInfo[0].HostConfig.PortBindings["8010/tcp"][0].HostIp;
   }
 
-  public getUrl(): string {
-    return `http://${this.getHost()}:${this.getPort()}`;
+  public getURL(): string {
+    return `http://${this.getHost()}:${this.getPort()}${
+      Constants.SERVICE_CHECK_PATH
+    }`;
+  }
+
+  public ping(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const url = this.getURL();
+      const options = {
+        method: "HEAD",
+        uri: url,
+        resolveWithFullResponse: true,
+      };
+      fetch(url, options).then((response) => {
+        if (response.status === 200) {
+          resolve(true);
+        } else {
+          reject(false);
+        }
+      });
+    });
   }
 }
