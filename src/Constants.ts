@@ -53,6 +53,8 @@ export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
 export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
 export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
 export const CONFIGURATION_LANGUAGE = "language";
+
+// PodmanService Configuration Items
 export const CONFIGURATION_PODMAN_MACHINE_NAME =
   "languageTool.podman.machineName";
 export const CONFIGURATION_PODMAN_IMAGE_NAME = "languageTool.podman.imageName";
@@ -60,6 +62,13 @@ export const CONFIGURATION_PODMAN_CONTAINER_NAME =
   "languageTool.podman.containerName";
 export const CONFIGURATION_PODMAN_IP = "languageTool.podman.ip";
 export const CONFIGURATION_PODMAN_PORT = "languageTool.podman.port";
+
+// PublicService Configuration Items
+export const CONFIGURATION_PUBLIC_URL = "https://languagetool.org/api";
+
+// ManagedService Configuration Items
+
+// ExternalService Configuration Items
 
 // LanguageTool Services
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
