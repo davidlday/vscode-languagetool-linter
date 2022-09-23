@@ -19,10 +19,10 @@ import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
 import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "./Linter";
-import { FormattingProviderDashes } from "./FormattingProviderDashes";
+import { FormattingProviderDashes } from "./providers/FormattingProviderDashes";
 import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
-import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
-import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
+import { FormattingProviderEllipses } from "./providers/FormattingProviderEllipses";
+import { FormattingProviderQuotes } from "./providers/FormattingProviderQuotes";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
