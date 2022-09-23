@@ -36,9 +36,9 @@ import {
 } from "vscode";
 import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
-import { FormattingProviderDashes } from "./FormattingProviderDashes";
-import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
-import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
+import { FormattingProviderDashes } from "./providers/FormattingProviderDashes";
+import { FormattingProviderEllipses } from "./providers/FormattingProviderEllipses";
+import { FormattingProviderQuotes } from "./providers/FormattingProviderQuotes";
 import {
   ILanguageToolMatch,
   ILanguageToolReplacement,
@@ -94,9 +94,9 @@ export class Linter implements CodeActionProvider {
           diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE,
       )
       .forEach((diagnostic) => {
-        const match:
-          | ILanguageToolMatch
-          | undefined = (diagnostic as LTDiagnostic).match;
+        const match: ILanguageToolMatch | undefined = (
+          diagnostic as LTDiagnostic
+        ).match;
         if (match && Linter.isSpellingRule(match.rule.id)) {
           const spellingActions: CodeAction[] = this.getSpellingRuleActions(
             document,
@@ -361,7 +361,8 @@ export class Linter implements CodeActionProvider {
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
-      const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
+      const diagnosticSeverity: DiagnosticSeverity =
+        this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.message;
       const diagnostic: LTDiagnostic = new LTDiagnostic(
