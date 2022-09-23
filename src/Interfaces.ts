@@ -14,6 +14,8 @@
  *   limitations under the License.
  */
 
+import { ExecaChildProcess } from "execa";
+
 // Interface - LanguageTool Response
 export interface ILanguageToolResponse {
   software: {
@@ -73,4 +75,15 @@ export interface ILanguageToolMatch {
 export interface ILanguageToolReplacement {
   value: string;
   shortDescription: string;
+}
+
+// Interface - LanguageTool Service
+export interface ILanguageToolService {
+  start(): ExecaChildProcess<string>;
+  stop(): Promise<void>;
+  ping(): Promise<boolean>;
+  dispose(): void;
+  getHost(): string;
+  getPort(): number;
+  getURL(): string;
 }
