@@ -15,10 +15,11 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "./ConfigurationManager";
+import { ConfigurationManager } from "../ConfigurationManager";
 
 export class FormattingProviderEllipses
-  implements vscode.OnTypeFormattingEditProvider {
+  implements vscode.OnTypeFormattingEditProvider
+{
   public static readonly ellipses: string = "…";
   public static readonly period: string = ".";
   public static readonly triggers: string[] = ["."];
