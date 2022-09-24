@@ -14,11 +14,7 @@
  *   limitations under the License.
  */
 
-import {
-  ConfigurationChangeEvent,
-  TextDocument,
-  WorkspaceConfiguration,
-} from "vscode";
+import { ConfigurationChangeEvent, WorkspaceConfiguration } from "vscode";
 
 // Interface - LanguageTool Response
 export interface ILanguageToolResponse {
@@ -91,9 +87,7 @@ export interface ILanguageToolService {
     event: ConfigurationChangeEvent,
     workspaceConfig: WorkspaceConfiguration,
   ): void;
-  invokeLanguageTool(
-    ltPostDataDict: Record<string, string>,
-  ): Promise<ILanguageToolResponse>;
+  invokeLanguageTool(annotatedText: string): Promise<ILanguageToolResponse>;
   getState(): string;
   getURL(): string | undefined;
 }
