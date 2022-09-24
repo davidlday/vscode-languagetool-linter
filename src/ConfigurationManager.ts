@@ -32,7 +32,11 @@ import {
   WorkspaceConfiguration,
 } from "vscode";
 import * as Constants from "./Constants";
-import * as PodmanService from "./PodmanService";
+import { AbstractService } from "./services/AbstractService";
+import { ExternalService } from "./services/ExternalService";
+import { ManagedService } from "./services/ManagedService";
+import { PodmanService } from "./services/PodmanService";
+import { PublicService } from "./services/PublicService";
 
 export class ConfigurationManager implements Disposable {
   // Private Members
@@ -41,6 +45,7 @@ export class ConfigurationManager implements Disposable {
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
   private serviceParameters: Map<string, string> = new Map();
+  private service: AbstractService;
 
   // Constructor
   constructor() {
@@ -48,11 +53,25 @@ export class ConfigurationManager implements Disposable {
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
     this.serviceParameters = this.buildServiceParameters();
+    const type = this.getServiceType();
+    switch (type) {
+      case Constants.SERVICE_TYPE_MANAGED:
+        this.service = new ManagedService(this.config);
+        break;
+      case Constants.SERVICE_TYPE_EXTERNAL:
+        this.service = new ExternalService(this.config);
+        break;
+      case Constants.SERVICE_TYPE_PODMAN:
+        this.service = new PodmanService(this.config);
+        break;
+      default:
+        this.service = new PublicService(this.config);
+    }
   }
 
   // Public instance methods
-
   public dispose(): void {
+    this.service.dispose();
     this.stopManagedService();
   }
 
@@ -61,32 +80,54 @@ export class ConfigurationManager implements Disposable {
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.serviceParameters = this.buildServiceParameters();
     // Changed service type
-    if (event.affectsConfiguration("languageToolLinter.serviceType")) {
-      switch (this.getServiceType()) {
+    if (
+      event.affectsConfiguration(Constants.CONFIGURATION_ROOT + ".serviceType")
+    ) {
+      this.service.dispose();
+      const type = this.getServiceType();
+      switch (type) {
         case Constants.SERVICE_TYPE_MANAGED:
-          this.startManagedService();
+          this.service = new ManagedService(this.config);
+          break;
+        case Constants.SERVICE_TYPE_EXTERNAL:
+          this.service = new ExternalService(this.config);
+          break;
+        case Constants.SERVICE_TYPE_PODMAN:
+          this.service = new PodmanService(this.config);
           break;
         default:
-          this.stopManagedService();
-          break;
+          this.service = new PublicService(this.config);
       }
+    } else {
+      this.service.reloadConfiguration(event, this.config);
     }
+
     // Changed class path for managed service
     if (
       this.getServiceType() === Constants.SERVICE_TYPE_MANAGED &&
-      (event.affectsConfiguration("languageToolLinter.managed.classPath") ||
-        event.affectsConfiguration("languageToolLinter.managed.jarFile") ||
-        event.affectsConfiguration("languageToolLinter.managed.portMinimum") ||
-        event.affectsConfiguration("languageToolLinter.managed.portMaximum"))
+      (event.affectsConfiguration(
+        Constants.CONFIGURATION_ROOT + "managed.classPath",
+      ) ||
+        event.affectsConfiguration(
+          Constants.CONFIGURATION_ROOT + "managed.jarFile",
+        ) ||
+        event.affectsConfiguration(
+          Constants.CONFIGURATION_ROOT + "managed.portMinimum",
+        ) ||
+        event.affectsConfiguration(
+          Constants.CONFIGURATION_ROOT + "managed.portMaximum",
+        ))
     ) {
       this.startManagedService();
     }
     // Only allow preferred variants when language === auto
     if (
       event.affectsConfiguration(
-        "languageToolLinter.languageTool.preferredVariants",
+        Constants.CONFIGURATION_ROOT + "languageTool.preferredVariants",
       ) ||
-      event.affectsConfiguration("languageToolLinter.languageTool.language")
+      event.affectsConfiguration(
+        Constants.CONFIGURATION_ROOT + "languageTool.language",
+      )
     ) {
       if (
         this.config.get("languageTool.language") !== "auto" &&
@@ -99,7 +140,9 @@ export class ConfigurationManager implements Disposable {
       }
     }
     // List of plaintext ids changed - need to reload
-    if (event.affectsConfiguration("languageToolLinter.plainText")) {
+    if (
+      event.affectsConfiguration(Constants.CONFIGURATION_ROOT + "plainText")
+    ) {
       const action = "Reload";
       window
         .showInformationMessage(

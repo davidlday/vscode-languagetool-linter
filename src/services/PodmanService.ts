@@ -115,22 +115,17 @@ export class PodmanService
 {
   private containerName: string;
   private imageName: string;
+  private podman = "/usr/local/bin/podman";
 
   // ILanguageToolService methods
   constructor(workspaceConfig: WorkspaceConfiguration) {
     super(workspaceConfig);
-    this.containerName =
-      this._workspaceConfig.get(
-        Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-      ) ||
-      this._workspaceConfig.getdefault(
-        Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-      );
-    this.imageName =
-      this._workspaceConfig.get(Constants.CONFIGURATION_PODMAN_IMAGE_NAME) ||
-      this._workspaceConfig.getdefault(
-        Constants.CONFIGURATION_PODMAN_IMAGE_NAME,
-      );
+    this.containerName = this._workspaceConfig.get(
+      Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+    ) as string;
+    this.imageName = this._workspaceConfig.get(
+      Constants.CONFIGURATION_PODMAN_IMAGE_NAME,
+    ) as string;
   }
 
   public start(): Promise<boolean> {
@@ -146,7 +141,7 @@ export class PodmanService
           .then((selection) => {
             if (selection === "Yes") {
               try {
-                execa(`podman machine init --now`)
+                execa(`${this.podman} machine init --now`)
                   .addListener("stdout", (data: string) => {
                     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
                   })
@@ -182,7 +177,7 @@ export class PodmanService
             .then((selection) => {
               if (selection === "Yes") {
                 try {
-                  execa(`podman machine start`)
+                  execa(`${this.podman} machine start`)
                     .addListener("stdout", (data: string) => {
                       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
                     })
@@ -219,7 +214,7 @@ export class PodmanService
           .then((selection) => {
             if (selection === "Yes") {
               try {
-                execa(`podman pull ${this.imageName}`)
+                execa(`${this.podman} pull ${this.imageName}`)
                   .addListener("stdout", (data: string) => {
                     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
                   })
@@ -262,7 +257,7 @@ export class PodmanService
                   Constants.CONFIGURATION_PODMAN_IP,
                 );
                 execa(
-                  `podman run -d --name ${this.containerName} -p ${ip}:${port}:8010 ${this.imageName}`,
+                  `${this.podman} run -d --name ${this.containerName} -p ${ip}:${port}:8010 ${this.imageName}`,
                 )
                   .addListener("stdout", (data: string) => {
                     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
@@ -310,7 +305,7 @@ export class PodmanService
           .then((selection) => {
             if (selection === "Yes") {
               try {
-                execa(`podman start ${this.containerName}`)
+                execa(`${this.podman} start ${this.containerName}`)
                   .addListener("stdout", (data: string) => {
                     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
                   })
@@ -361,7 +356,7 @@ export class PodmanService
     return new Promise(() => {
       if (this.isContainerRunning()) {
         try {
-          execa(`podman stop ${this.containerName}`)
+          execa(`${this.podman} stop ${this.containerName}`)
             .addListener("stdout", (data: string) => {
               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
             })
@@ -395,11 +390,11 @@ export class PodmanService
           if (response.status === 200) {
             resolve(true);
           } else {
-            reject(false);
+            reject(new Error(response.statusText));
           }
         });
       } else {
-        reject("No URL available.");
+        reject(new Error("Podman URL is not defined."));
       }
     });
   }
@@ -473,7 +468,12 @@ export class PodmanService
   private inspectContainer(): ContainerInfo[] {
     let result;
     try {
-      result = execa.sync(`podman inspect ${this.containerName} --format json`);
+      result = execa.sync("podman", [
+        "inspect",
+        this.containerName,
+        "--format",
+        "json",
+      ]);
     } catch (error: unknown) {
       if (error instanceof Error) {
         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
@@ -486,9 +486,14 @@ export class PodmanService
   }
 
   private containerExists(): boolean {
-    const result = execa.sync(
-      `podman ps -a --format json --filter name=${this.containerName}`,
-    );
+    const result = execa.sync("podman", [
+      "ps",
+      "-a",
+      "--format",
+      "json",
+      "--filter",
+      `name=${this.containerName}`,
+    ]);
     if (result.stdout === "[]") {
       return false;
     } else {
@@ -504,13 +509,9 @@ export class PodmanService
     if (
       event.affectsConfiguration(Constants.CONFIGURATION_PODMAN_CONTAINER_NAME)
     ) {
-      this.containerName =
-        this._workspaceConfig.get(
-          Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-        ) ||
-        this._workspaceConfig.getdefault(
-          Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-        );
+      this.containerName = this._workspaceConfig.get(
+        Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+      ) as string;
       if (this.containerName) {
         this.renameContainer(this.containerName);
       }
@@ -528,7 +529,7 @@ export class PodmanService
   }
 
   private renameContainer(newName: string): void {
-    execa.sync(`podman rename ${this.containerName} ${newName}`);
+    execa.sync("podman", ["rename", this.containerName, newName]);
     this.containerName = newName;
   }
 }

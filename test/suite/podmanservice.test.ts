@@ -5,43 +5,62 @@ import { PodmanService } from "../../src/services/PodmanService";
 suite("PodmanService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
     vscode.workspace.getConfiguration();
-
-  const podman = new PodmanService(config);
+  let podman: PodmanService;
 
   test("PodmanService should instantiate", function () {
+    podman = new PodmanService(config);
     assert.ok(podman);
   });
 
-  test("PodmanService should NOT be running", function () {
-    podman.ping().then((result) => {
-      assert.strictEqual(result, false);
-    });
+  test("PodmanService should NOT be pingable", function () {
+    return podman
+      .ping()
+      .then((result) => {
+        assert.ok(!result);
+      })
+      .catch((err) => {
+        assert.notStrictEqual(err, new Error("Podman URL is not defined."));
+      });
   });
 
   test("PodmanService should start", function () {
     this.timeout(10000);
-    podman.start();
-    assert.ok(podman.getPort());
+    return podman
+      .start()
+      .then((result) => {
+        assert.ok(result);
+      })
+      .catch((err) => {
+        assert.fail(err);
+      });
   });
 
-  test("PodmanService should be provide a URL and respond to ping.", function () {
-    const url = podman.getURL();
-    assert.strictEqual(url, "http://localhost:8081/v2/check");
-    podman.ping().then((result) => {
-      assert.strictEqual(result, true);
-    });
+  test("PodmanService should respond to ping.", function () {
+    return podman
+      .ping()
+      .then((result) => {
+        assert.ok(result);
+      })
+      .catch((err) => {
+        assert.fail(err);
+      });
   });
 
-  test("PodmanService should stop", function () {
+  test("PodmanService should stop and not respond to ping", function () {
     this.timeout(12000);
-    podman.stop();
-    const running = podman.isContainerRunning();
-    assert.strictEqual(running, false);
+    return podman.stop().catch((err) => {
+      assert.fail(err);
+    });
   });
 
-  test("PodmanService should NOT be running", function () {
-    podman.ping().then((result) => {
-      assert.strictEqual(result, false);
-    });
+  test("PodmanService should NOT respond to ping", function () {
+    return podman
+      .ping()
+      .then((result) => {
+        assert.strictEqual(result, false);
+      })
+      .catch((err) => {
+        assert.ok(err);
+      });
   });
 });
