@@ -89,6 +89,13 @@ export const SERVICE_MANAGED_IP = "127.0.0.1";
 const CONFIGURATION_EXTERNAL = CONFIGURATION_ROOT + ".external";
 export const CONFIGURATION_EXTERNAL_URL = CONFIGURATION_EXTERNAL + ".url";
 
+// LanguageTool Configuration Items
+export const CONFIGURATION_LT = CONFIGURATION_ROOT + ".languageTool";
+export const CONFIGURATION_LT_DISABLED_RULES =
+  CONFIGURATION_ROOT + ".disabledRules";
+export const CONFIGURATION_LT_DISABLED_CATEGORIES =
+  CONFIGURATION_ROOT + ".disabledCategories";
+
 // LanguageTool Services
 export const SERVICE_TYPE_EXTERNAL = "external";
 export const SERVICE_TYPE_MANAGED = "managed";
@@ -103,7 +110,7 @@ export const SERVICE_TYPES: string[] = [
 export const SERVICE_TYPE_DEFAULT = SERVICE_TYPE_EXTERNAL;
 
 // Service states
-export const ServiceStates = {
+export const SERVICE_STATES = {
   IDLE: "idle",
   STARTING: "starting",
   RUNNING: "running",
@@ -111,18 +118,6 @@ export const ServiceStates = {
   STOPPED: "stopped",
   ERROR: "error",
 };
-export const SERVICE_STATE_STOPPED = "stopped";
-export const SERVICE_STATE_STARTING = "starting";
-export const SERVICE_STATE_RUNNING = "running";
-export const SERVICE_STATE_STOPPING = "stopping";
-export const SERVICE_STATE_ERROR = "error";
-export const SERVICE_STATES: string[] = [
-  SERVICE_STATE_STOPPED,
-  SERVICE_STATE_STARTING,
-  SERVICE_STATE_RUNNING,
-  SERVICE_STATE_STOPPING,
-  SERVICE_STATE_ERROR,
-];
 
 // Service Parameters
 export const SERVICE_PARAMETERS: string[] = [
