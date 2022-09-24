@@ -55,8 +55,6 @@ export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
 export const CONFIGURATION_LANGUAGE = "language";
 
 // PodmanService Configuration Items
-export const CONFIGURATION_PODMAN_MACHINE_NAME =
-  "languageTool.podman.machineName";
 export const CONFIGURATION_PODMAN_IMAGE_NAME = "languageTool.podman.imageName";
 export const CONFIGURATION_PODMAN_CONTAINER_NAME =
   "languageTool.podman.containerName";
