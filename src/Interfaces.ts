@@ -14,7 +14,11 @@
  *   limitations under the License.
  */
 
-import { ExecaChildProcess } from "execa";
+import {
+  ConfigurationChangeEvent,
+  TextDocument,
+  WorkspaceConfiguration,
+} from "vscode";
 
 // Interface - LanguageTool Response
 export interface ILanguageToolResponse {
@@ -79,11 +83,17 @@ export interface ILanguageToolReplacement {
 
 // Interface - LanguageTool Service
 export interface ILanguageToolService {
-  start(): ExecaChildProcess<string>;
+  start(): Promise<boolean>;
   stop(): Promise<void>;
   ping(): Promise<boolean>;
-  dispose(): void;
-  getHost(): string;
-  getPort(): number;
-  getURL(): string;
+  dispose(): Promise<void>;
+  reloadConfiguration(
+    event: ConfigurationChangeEvent,
+    workspaceConfig: WorkspaceConfiguration,
+  ): void;
+  invokeLanguageTool(
+    document: TextDocument,
+    ltPostDataDict: Record<string, string>,
+  ): Promise<ILanguageToolResponse>;
+  getURL(): string | undefined;
 }
