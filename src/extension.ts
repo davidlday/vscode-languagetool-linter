@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidChangeconfiguration event
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration("languageToolLinter")) {
+      if (event.affectsConfiguration(Constants.CONFIGURATION_ROOT)) {
         configMan.reloadConfiguration(event);
       }
     }),
