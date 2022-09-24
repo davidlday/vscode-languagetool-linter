@@ -14,42 +14,15 @@
  *   limitations under the License.
  */
 
-import { ExecaChildProcess } from "execa";
-import { Disposable, WorkspaceConfiguration } from "vscode";
-import { ILanguageToolService } from "../Interfaces";
+import { AbstractService } from "./AbstractService";
+import * as Constants from "../Constants";
+import { WorkspaceConfiguration } from "vscode";
 
-export class ExternalService implements Disposable, ILanguageToolService {
-  workspaceConfig: WorkspaceConfiguration;
-
+export class ExternalService extends AbstractService {
   constructor(workspaceConfig: WorkspaceConfiguration) {
-    this.workspaceConfig = workspaceConfig;
-  }
-
-  public dispose(): void {
-    throw new Error("Method not implemented.");
-  }
-
-  public start(): ExecaChildProcess<string> {
-    throw new Error("Method not implemented.");
-  }
-
-  public stop(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
-  public getHost(): string {
-    throw new Error("Method not implemented.");
-  }
-
-  public getPort(): number {
-    throw new Error("Method not implemented.");
-  }
-
-  public getURL(): string {
-    throw new Error("Method not implemented.");
-  }
-
-  public ping(): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    super(workspaceConfig);
+    this._ltUrl = workspaceConfig.get(
+      Constants.CONFIGURATION_ROOT + Constants.CONFIGURATION_EXTERNAL_URL,
+    );
   }
 }
