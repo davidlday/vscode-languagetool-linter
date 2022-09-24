@@ -71,16 +71,25 @@ export const CONFIGURATION_PODMAN_PORT = CONFIGURATION_PODMAN + ".podman.port";
 
 // PublicService Configuration Items
 // Placeholder for username / apiKey
+export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
 
 // ManagedService Configuration Items
 const CONFIGURATION_MANAGED = CONFIGURATION_ROOT + ".managed";
+export const CONFIGURATION_MANAGED_JAR_FILE =
+  CONFIGURATION_MANAGED + ".jarFile";
+export const CONFIGURATION_MANAGED_CLASS_PATH =
+  CONFIGURATION_MANAGED + ".classPath";
+export const CONFIGURATION_MANAGED_PORT_MINIMUM =
+  CONFIGURATION_MANAGED + ".portMinimum";
+export const CONFIGURATION_MANAGED_PORT_MAXIMUM =
+  CONFIGURATION_MANAGED + ".portMaximum";
+export const SERVICE_MANAGED_IP = "127.0.0.1";
 
 // ExternalService Configuration Items
 const CONFIGURATION_EXTERNAL = CONFIGURATION_ROOT + ".external";
 export const CONFIGURATION_EXTERNAL_URL = CONFIGURATION_EXTERNAL + ".url";
 
 // LanguageTool Services
-export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
 export const SERVICE_CHECK_PATH = "/v2/check";
 export const SERVICE_TYPE_EXTERNAL = "external";
 export const SERVICE_TYPE_MANAGED = "managed";
