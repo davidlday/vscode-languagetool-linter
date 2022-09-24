@@ -41,32 +41,43 @@ export const SCHEME_UNTITLED = "untitled";
 // Configuration Strings
 export const CONFIGURATION_ROOT = "languageToolLinter";
 export const CONFIGURATION_GLOBAL_IGNORED_WORDS =
-  "languageTool.ignoredWordsGlobal";
+  CONFIGURATION_ROOT + ".ignoredWordsGlobal";
 export const CONFIGURATION_WORKSPACE_IGNORED_WORDS =
-  "languageTool.ignoredWordsInWorkspace";
-export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
+  CONFIGURATION_ROOT + ".ignoredWordsInWorkspace";
+export const CONFIGURATION_IGNORED_WORD_HINT =
+  CONFIGURATION_ROOT + ".ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_HTML,
   LANGUAGE_ID_MARKDOWN,
   LANGUAGE_ID_MDX,
 ];
-export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
-export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
 export const CONFIGURATION_LANGUAGE = "language";
 
+// Plain Text Language ID Options
+const CONFIGURATION_PLAIN_TEXT = CONFIGURATION_ROOT + ".plainText";
+export const CONFIGURATION_PLAIN_TEXT_ENABLED =
+  CONFIGURATION_PLAIN_TEXT + ".plainText.enabled";
+export const CONFIGURATION_PLAIN_TEXT_IDS =
+  CONFIGURATION_PLAIN_TEXT + ".plainText.languageIds";
+
 // PodmanService Configuration Items
-export const CONFIGURATION_PODMAN_IMAGE_NAME = "languageTool.podman.imageName";
+const CONFIGURATION_PODMAN = CONFIGURATION_ROOT + ".podman";
+export const CONFIGURATION_PODMAN_IMAGE_NAME =
+  CONFIGURATION_PODMAN + ".imageName";
 export const CONFIGURATION_PODMAN_CONTAINER_NAME =
-  "languageTool.podman.containerName";
-export const CONFIGURATION_PODMAN_IP = "languageTool.podman.ip";
-export const CONFIGURATION_PODMAN_PORT = "languageTool.podman.port";
+  CONFIGURATION_PODMAN + ".containerName";
+export const CONFIGURATION_PODMAN_IP = CONFIGURATION_PODMAN + ".ip";
+export const CONFIGURATION_PODMAN_PORT = CONFIGURATION_PODMAN + ".podman.port";
 
 // PublicService Configuration Items
-export const CONFIGURATION_PUBLIC_URL = "https://languagetool.org/api";
+// Placeholder for username / apiKey
 
 // ManagedService Configuration Items
+const CONFIGURATION_MANAGED = CONFIGURATION_ROOT + ".managed";
 
 // ExternalService Configuration Items
+const CONFIGURATION_EXTERNAL = CONFIGURATION_ROOT + ".external";
+export const CONFIGURATION_EXTERNAL_URL = CONFIGURATION_EXTERNAL + ".url";
 
 // LanguageTool Services
 export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
