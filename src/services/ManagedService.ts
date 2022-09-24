@@ -14,36 +14,93 @@
  *   limitations under the License.
  */
 
-import { ExecaChildProcess } from "execa";
-import { Disposable } from "vscode";
-import { ILanguageToolService } from "../Interfaces";
+import execa, { ExecaChildProcess } from "execa";
+import { WorkspaceConfiguration } from "vscode";
+import { AbstractService } from "./AbstractService";
+import * as Constants from "../Constants";
+import * as portfinder from "portfinder";
 
-export class ManagedService implements Disposable, ILanguageToolService {
-  public dispose(): void {
-    throw new Error("Method not implemented.");
+export class ManagedService extends AbstractService {
+  private process: ExecaChildProcess | undefined;
+
+  constructor(workspaceConfig: WorkspaceConfiguration) {
+    super(workspaceConfig);
   }
 
-  public start(): ExecaChildProcess<string> {
-    throw new Error("Method not implemented.");
+  public restart(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.stop()
+        .then(() => {
+          this.start().then(() => {
+            resolve();
+          });
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  public start(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const classpath: string = this._workspaceConfig.get(
+        Constants.CONFIGURATION_MANAGED_CLASS_PATH,
+      ) as string;
+      const minimumPort: number = this._workspaceConfig.get(
+        Constants.CONFIGURATION_MANAGED_PORT_MINIMUM,
+      ) as number;
+      const maximumPort: number = this._workspaceConfig.get(
+        Constants.CONFIGURATION_MANAGED_PORT_MAXIMUM,
+      ) as number;
+      const ip: string = this._workspaceConfig.get(
+        Constants.SERVICE_MANAGED_IP,
+      ) as string;
+      if (minimumPort > maximumPort) {
+        reject(new Error("Minimum port must be less than maximum port"));
+      }
+      if (this.process) {
+        reject(new Error("ManagedService is already running"));
+      }
+      portfinder
+        .getPortPromise({ host: ip, port: minimumPort, stopPort: maximumPort })
+        .then((port: number) => {
+          this._ltUrl = `http://${ip}:${port}${Constants.SERVICE_CHECK_PATH}`;
+          const args: string[] = [
+            "-cp",
+            classpath,
+            "org.languagetool.server.HTTPServer",
+            "--port",
+            port.toString(),
+          ];
+          execa("java", args)
+            .addListener("stdout", (stdout) => {
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stdout);
+              if (stdout.includes("Server started")) {
+                resolve(true);
+              }
+            })
+            .addListener("stderr", (stderr) => {
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stderr);
+            })
+            .catch((error) => {
+              reject(error);
+            });
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 
   public stop(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
-  public getHost(): string {
-    throw new Error("Method not implemented.");
-  }
-
-  public getPort(): number {
-    throw new Error("Method not implemented.");
-  }
-
-  public getURL(): string {
-    throw new Error("Method not implemented.");
-  }
-
-  public ping(): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    return new Promise((resolve, reject) => {
+      if (this.process) {
+        this.process.cancel();
+        this.process = undefined;
+        resolve();
+      } else {
+        reject(new Error("No process to stop."));
+      }
+    });
   }
 }
