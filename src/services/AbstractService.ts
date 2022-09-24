@@ -17,7 +17,6 @@
 import {
   ConfigurationChangeEvent,
   Disposable,
-  TextDocument,
   WorkspaceConfiguration,
 } from "vscode";
 import * as Fetch from "node-fetch";
@@ -27,7 +26,7 @@ import * as Constants from "../Constants";
 export abstract class AbstractService
   implements Disposable, ILanguageToolService
 {
-  protected _state = Constants.ServiceStates.STOPPED;
+  protected _state = Constants.SERVICE_STATES.STOPPED;
   protected _workspaceConfig: WorkspaceConfiguration;
   protected _ltUrl: string | undefined;
 
@@ -49,29 +48,70 @@ export abstract class AbstractService
   ): void {
     if (event.affectsConfiguration(Constants.CONFIGURATION_ROOT)) {
       this.stop();
-      while (this._state !== Constants.ServiceStates.STOPPED) {
+      while (this._state !== Constants.SERVICE_STATES.STOPPED) {
         // wait for stop to complete
       }
       this._workspaceConfig = workspaceConfig;
       this.start();
-      while (this._state !== Constants.ServiceStates.RUNNING) {
+      while (this._state !== Constants.SERVICE_STATES.RUNNING) {
         // wait for start to complete
       }
     }
   }
 
   public invokeLanguageTool(
-    ltPostDataDict: Record<string, string>,
+    annotatedText: string,
   ): Promise<ILanguageToolResponse> {
     return new Promise((resolve, reject) => {
       const url = this.getURL();
-      if (this._state === Constants.ServiceStates.RUNNING && url) {
-        const formBody = Object.keys(ltPostDataDict)
+      if (this._state === Constants.SERVICE_STATES.RUNNING && url) {
+        const parameters: Record<string, string> = {};
+        parameters["data"] = annotatedText;
+        Constants.SERVICE_PARAMETERS.forEach((serviceParameter) => {
+          const configKey = `${Constants.CONFIGURATION_LT}.${serviceParameter}`;
+          const value: string = this._workspaceConfig.get(configKey) as string;
+          if (value) {
+            parameters[serviceParameter] = value;
+          }
+        });
+        // Make sure disabled rules and disabled categories do not contain spaces
+        if (
+          this._workspaceConfig.has(Constants.CONFIGURATION_LT_DISABLED_RULES)
+        ) {
+          const disabledRules: string = this._workspaceConfig.get(
+            Constants.CONFIGURATION_LT_DISABLED_RULES,
+          ) as string;
+          if (disabledRules.split(" ").length > 1) {
+            reject(
+              new Error(
+                '"LanguageTool Linter > Language Tool: Disabled Rules" contains spaces. Please review the setting and remove any spaces.',
+              ),
+            );
+          }
+        }
+        if (
+          this._workspaceConfig.has(
+            Constants.CONFIGURATION_LT_DISABLED_CATEGORIES,
+          )
+        ) {
+          const disabledCategories: string = this._workspaceConfig.get(
+            Constants.CONFIGURATION_LT_DISABLED_CATEGORIES,
+          ) as string;
+          if (disabledCategories.split(" ").length > 1) {
+            reject(
+              new Error(
+                '"LanguageTool Linter > Language Tool: Disabled Categories" contains spaces. Please review the setting and remove any spaces.',
+              ),
+            );
+          }
+        }
+
+        const formBody = Object.keys(parameters)
           .map(
             (key: string) =>
               encodeURIComponent(key) +
               "=" +
-              encodeURIComponent(ltPostDataDict[key]),
+              encodeURIComponent(parameters[key] as string),
           )
           .join("&");
 
@@ -89,47 +129,47 @@ export abstract class AbstractService
           .catch((err) => {
             reject(err);
           });
-      } else if (this._state !== Constants.ServiceStates.RUNNING) {
+      } else if (this._state !== Constants.SERVICE_STATES.RUNNING) {
         switch (this._state) {
-          case Constants.ServiceStates.STOPPED:
+          case Constants.SERVICE_STATES.STOPPED:
             reject(new Error("LanguageTool called on stopped service."));
             break;
-          case Constants.ServiceStates.STARTING:
+          case Constants.SERVICE_STATES.STARTING:
             reject(new Error("LanguageTool called on starting service."));
             break;
-          case Constants.ServiceStates.STOPPING:
+          case Constants.SERVICE_STATES.STOPPING:
             reject(new Error("LanguageTool called on stopping service."));
             break;
-          case Constants.ServiceStates.ERROR:
+          case Constants.SERVICE_STATES.ERROR:
             reject(new Error("LanguageTool called on errored service."));
             break;
           default:
-            this._state = Constants.ServiceStates.ERROR;
+            this._state = Constants.SERVICE_STATES.ERROR;
             reject(new Error("LanguageTool called on unknown service state."));
             break;
         }
       } else if (url === undefined) {
-        this._state = Constants.ServiceStates.ERROR;
+        this._state = Constants.SERVICE_STATES.ERROR;
         reject(new Error("LanguageTool URL is not defined"));
       } else {
-        this._state = Constants.ServiceStates.ERROR;
+        this._state = Constants.SERVICE_STATES.ERROR;
         reject(new Error("Unknown error"));
       }
     });
   }
 
   public start(): Promise<boolean> {
-    this._state = Constants.ServiceStates.STARTING;
+    this._state = Constants.SERVICE_STATES.STARTING;
     return new Promise((resolve) => {
-      this._state = Constants.ServiceStates.RUNNING;
+      this._state = Constants.SERVICE_STATES.RUNNING;
       resolve(true);
     });
   }
 
   public stop(): Promise<void> {
-    this._state = Constants.ServiceStates.STOPPING;
+    this._state = Constants.SERVICE_STATES.STOPPING;
     return new Promise((resolve) => {
-      this._state = Constants.ServiceStates.STOPPED;
+      this._state = Constants.SERVICE_STATES.STOPPED;
       resolve();
     });
   }
@@ -140,55 +180,18 @@ export abstract class AbstractService
 
   public ping(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      const url = this._ltUrl;
-      if (this._state === Constants.ServiceStates.RUNNING && url) {
-        const options = {
-          method: "HEAD",
-          uri: url,
-          resolveWithFullResponse: true,
-        };
-        Fetch.default(url, options)
-          .then((response) => {
-            if (response.status === 200) {
-              resolve(true);
-            } else {
-              reject(
-                new Error(
-                  `Ping to ${url} failed with status ${response.status}.`,
-                ),
-              );
-            }
-          })
-          .catch((err) => {
-            this._state = Constants.ServiceStates.ERROR;
-            reject(err);
-          });
-      } else if (this._state !== Constants.ServiceStates.RUNNING) {
-        switch (this._state) {
-          case Constants.ServiceStates.STOPPED:
-            reject(new Error("Ping called on stopped service."));
-            break;
-          case Constants.ServiceStates.STARTING:
-            reject(new Error("Ping called on starting service."));
-            break;
-          case Constants.ServiceStates.STOPPING:
-            reject(new Error("Ping called on stopping service."));
-            break;
-          case Constants.ServiceStates.ERROR:
-            reject(new Error("Ping called on errored service."));
-            break;
-          default:
-            this._state = Constants.ServiceStates.ERROR;
-            reject(new Error("Ping called on unknown service state."));
-            break;
-        }
-      } else if (url === undefined) {
-        this._state = Constants.ServiceStates.ERROR;
-        reject(new Error("LanguageTool URL is not defined"));
-      } else {
-        this._state = Constants.ServiceStates.ERROR;
-        reject(new Error("Unknown error"));
-      }
+      this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
+        .then((response: ILanguageToolResponse) => {
+          if (response) {
+            resolve(true);
+          } else {
+            reject(new Error("Unexpected response from LanguageTool"));
+          }
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
+  // end of class
 }
