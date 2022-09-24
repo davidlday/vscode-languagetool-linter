@@ -16,6 +16,7 @@
 
 import {
   ConfigurationChangeEvent,
+  Disposable,
   TextDocument,
   WorkspaceConfiguration,
 } from "vscode";
@@ -23,7 +24,9 @@ import * as Fetch from "node-fetch";
 import { ILanguageToolResponse, ILanguageToolService } from "../Interfaces";
 import * as Constants from "../Constants";
 
-export abstract class AbstractService implements ILanguageToolService {
+export abstract class AbstractService
+  implements Disposable, ILanguageToolService
+{
   protected _workspaceConfig: WorkspaceConfiguration;
   protected _ltUrl: string | undefined;
 
@@ -35,10 +38,14 @@ export abstract class AbstractService implements ILanguageToolService {
     return this._ltUrl;
   }
 
-  public abstract reloadConfiguration(
+  public reloadConfiguration(
     event: ConfigurationChangeEvent,
     workspaceConfig: WorkspaceConfiguration,
-  ): void;
+  ): void {
+    if (event.affectsConfiguration(Constants.CONFIGURATION_ROOT)) {
+      this._workspaceConfig = workspaceConfig;
+    }
+  }
 
   public invokeLanguageTool(
     document: TextDocument,
@@ -75,9 +82,17 @@ export abstract class AbstractService implements ILanguageToolService {
       }
     });
   }
-  public abstract start(): Promise<boolean>;
+  public start(): Promise<boolean> {
+    return new Promise((resolve) => {
+      resolve(true);
+    });
+  }
 
-  public abstract stop(): Promise<void>;
+  public stop(): Promise<void> {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
 
   public dispose(): Promise<void> {
     return this.stop();
