@@ -90,7 +90,6 @@ const CONFIGURATION_EXTERNAL = CONFIGURATION_ROOT + ".external";
 export const CONFIGURATION_EXTERNAL_URL = CONFIGURATION_EXTERNAL + ".url";
 
 // LanguageTool Services
-export const SERVICE_CHECK_PATH = "/v2/check";
 export const SERVICE_TYPE_EXTERNAL = "external";
 export const SERVICE_TYPE_MANAGED = "managed";
 export const SERVICE_TYPE_PODMAN = "podman";
@@ -101,6 +100,31 @@ export const SERVICE_TYPES: string[] = [
   SERVICE_TYPE_PODMAN,
   SERVICE_TYPE_PUBLIC,
 ];
+export const SERVICE_TYPE_DEFAULT = SERVICE_TYPE_EXTERNAL;
+
+// Service states
+export const ServiceStates = {
+  IDLE: "idle",
+  STARTING: "starting",
+  RUNNING: "running",
+  STOPPING: "stopping",
+  STOPPED: "stopped",
+  ERROR: "error",
+};
+export const SERVICE_STATE_STOPPED = "stopped";
+export const SERVICE_STATE_STARTING = "starting";
+export const SERVICE_STATE_RUNNING = "running";
+export const SERVICE_STATE_STOPPING = "stopping";
+export const SERVICE_STATE_ERROR = "error";
+export const SERVICE_STATES: string[] = [
+  SERVICE_STATE_STOPPED,
+  SERVICE_STATE_STARTING,
+  SERVICE_STATE_RUNNING,
+  SERVICE_STATE_STOPPING,
+  SERVICE_STATE_ERROR,
+];
+
+// Service Parameters
 export const SERVICE_PARAMETERS: string[] = [
   "language",
   "motherTongue",
@@ -108,6 +132,7 @@ export const SERVICE_PARAMETERS: string[] = [
   "disabledCategories",
   "disabledRules",
 ];
+export const SERVICE_CHECK_PATH = "/v2/check";
 export const SERVICE_RULE_BASE_URI =
   "https://community.languagetool.org/rule/show/";
 export const SERVICE_RULE_URL_LANG_DEFAULT = "en";
