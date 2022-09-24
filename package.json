@@ -181,6 +181,7 @@
           "enumDescriptions": [
             "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
             "Let LanguageTool Linter manage a local service. Specify the classpath or LanguageTool jar file in 'Managed: Class Path'.",
+            "EXPERIMENTAL: Run a local LanguageTool service in a podman container.",
             "Use the public LanguageTool API Service at https://languagetool.org/api."
           ]
         },
@@ -188,11 +189,6 @@
           "type": "string",
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
-        },
-        "languageToolLinter.podman.machineName": {
-          "type": "string",
-          "default": "",
-          "description": "Machine name of the podman machine to use. Leave blank to use the default machine."
         },
         "languageToolLinter.podman.image": {
           "type": "string",
