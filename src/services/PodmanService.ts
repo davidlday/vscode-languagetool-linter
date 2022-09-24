@@ -14,11 +14,17 @@
  *   limitations under the License.
  */
 
-import execa, { ExecaChildProcess } from "execa";
-import fetch from "node-fetch";
-import { Disposable, workspace, WorkspaceConfiguration } from "vscode";
+import execa from "execa";
+import * as Fetch from "node-fetch";
+import * as vscode from "vscode";
+import {
+  ConfigurationChangeEvent,
+  Disposable,
+  WorkspaceConfiguration,
+} from "vscode";
 import * as Constants from "../Constants";
 import { ILanguageToolService } from "../Interfaces";
+import { AbstractService } from "./AbstractService";
 
 interface ContainerInfo {
   Id: string;
@@ -103,44 +109,305 @@ interface MachineInfo {
   };
 }
 
-export class PodmanService implements Disposable, ILanguageToolService {
-  private workspaceConfig: WorkspaceConfiguration;
-  private podmanMachineName: string | undefined;
-  private containerName: string | undefined;
-  private imageName: string | undefined;
+export class PodmanService
+  extends AbstractService
+  implements Disposable, ILanguageToolService
+{
+  private containerName: string;
+  private imageName: string;
 
-  // Constructor
+  // ILanguageToolService methods
   constructor(workspaceConfig: WorkspaceConfiguration) {
-    this.workspaceConfig = workspaceConfig;
-    this.podmanMachineName = this.workspaceConfig.get(
-      Constants.CONFIGURATION_PODMAN_MACHINE_NAME,
-    );
-    this.containerName = this.workspaceConfig.get(
-      Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-    );
-    this.imageName = this.workspaceConfig.get(
-      Constants.CONFIGURATION_PODMAN_IMAGE_NAME,
-    );
-    vscode.ExtensionContext.subscriptions.push(this);
-    workspace.onDidChangeConfiguration((event) => {
-    workspaceConfig.onDidChange(
-      Constants.CONFIGURATION_PODMAN_MACHINE_NAME,
-      (newValue: string) => {
-        this.podmanMachineName = newValue;
-      },
-    );
-    workspaceConfig.onDidChange(
-      Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-      (newValue: string) => {
-        this.renameContainer(newValue);
-      },
-    );
+    super(workspaceConfig);
+    this.containerName =
+      this._workspaceConfig.get(
+        Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+      ) ||
+      this._workspaceConfig.getdefault(
+        Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+      );
+    this.imageName =
+      this._workspaceConfig.get(Constants.CONFIGURATION_PODMAN_IMAGE_NAME) ||
+      this._workspaceConfig.getdefault(
+        Constants.CONFIGURATION_PODMAN_IMAGE_NAME,
+      );
+  }
+
+  public start(): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      if (!this.isPodmanMachineInitialized()) {
+        // Prompt for initialization
+        vscode.window
+          .showInformationMessage(
+            `No podman machines exist. Would you like to initialize a default podman machine now?`,
+            "Yes",
+            "No",
+          )
+          .then((selection) => {
+            if (selection === "Yes") {
+              try {
+                execa(`podman machine init --now`)
+                  .addListener("stdout", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  })
+                  .addListener("stderr", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  });
+                while (!this.isPodmanMachineInitialized()) {
+                  // Wait for machine to initialize
+                }
+              } catch (error: unknown) {
+                if (error instanceof Error) {
+                  vscode.window.showErrorMessage(
+                    `Error initializing default podman machine: ${error.message}`,
+                  );
+                }
+              }
+            } else {
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                `Default podman machine must be initialized to use this extension.`,
+              );
+            }
+            reject(false);
+          });
+      } else {
+        if (!this.isPodmanMachineRunning()) {
+          // Prompt for starting machine
+          vscode.window
+            .showInformationMessage(
+              `Podman machine is not running. Would you like to start it now?`,
+              "Yes",
+              "No",
+            )
+            .then((selection) => {
+              if (selection === "Yes") {
+                try {
+                  execa(`podman machine start`)
+                    .addListener("stdout", (data: string) => {
+                      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                    })
+                    .addListener("stderr", (data: string) => {
+                      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                    });
+                  while (!this.isPodmanMachineRunning()) {
+                    // Wait for machine to start
+                  }
+                } catch (error: unknown) {
+                  if (error instanceof Error) {
+                    vscode.window.showErrorMessage(
+                      `Error starting podman machine: ${error.message}`,
+                    );
+                  }
+                }
+              } else {
+                vscode.window.showInformationMessage(
+                  `Podman machine must be running to use this extension.`,
+                );
+                reject(false);
+              }
+            });
+        }
+      }
+      if (!this.isImageAvailable()) {
+        // Prompt for building image
+        vscode.window
+          .showInformationMessage(
+            `Image '${this.imageName}' is not available. Would you like to pull it now?`,
+            "Yes",
+            "No",
+          )
+          .then((selection) => {
+            if (selection === "Yes") {
+              try {
+                execa(`podman pull ${this.imageName}`)
+                  .addListener("stdout", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  })
+                  .addListener("stderr", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  });
+                while (!this.isImageAvailable()) {
+                  // Wait for image to pull
+                }
+              } catch (error: unknown) {
+                if (error instanceof Error) {
+                  vscode.window.showErrorMessage(
+                    `Error pulling image: ${error.message}`,
+                  );
+                }
+              }
+            } else {
+              vscode.window.showInformationMessage(
+                `Image '${this.imageName}' must be available to use this extension.`,
+              );
+              reject(false);
+            }
+          });
+      }
+      if (!this.containerExists()) {
+        // Prompt for creating container
+        vscode.window
+          .showInformationMessage(
+            `Container '${this.containerName}' is not available. Would you like to create it now?`,
+            "Yes",
+            "No",
+          )
+          .then((selection) => {
+            if (selection === "Yes") {
+              try {
+                const port = this._workspaceConfig.get(
+                  Constants.CONFIGURATION_PODMAN_PORT,
+                );
+                const ip = this._workspaceConfig.get(
+                  Constants.CONFIGURATION_PODMAN_IP,
+                );
+                execa(
+                  `podman run -d --name ${this.containerName} -p ${ip}:${port}:8010 ${this.imageName}`,
+                )
+                  .addListener("stdout", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  })
+                  .addListener("stderr", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  })
+                  .then((result) => {
+                    if (result.exitCode !== 0) {
+                      vscode.window.showErrorMessage(
+                        `Error creating container: ${result.stderr}`,
+                      );
+                      reject(false);
+                    } else {
+                      this._ltUrl =
+                        `http://${ip}:${port}` + Constants.SERVICE_CHECK_PATH;
+                    }
+                  });
+                while (!this.isContainerRunning()) {
+                  // Wait for container to create
+                }
+              } catch (error: unknown) {
+                if (error instanceof Error) {
+                  vscode.window.showErrorMessage(
+                    `Error starting new container: ${error.message}`,
+                  );
+                }
+              }
+            } else {
+              vscode.window.showInformationMessage(
+                `Container '${this.containerName}' must be running to use this extension.`,
+              );
+              reject(false);
+            }
+          });
+      }
+      if (!this.isContainerRunning()) {
+        // Prompt for starting container
+        vscode.window
+          .showInformationMessage(
+            `Container '${this.containerName}' is not running. Would you like to start it now?`,
+            "Yes",
+            "No",
+          )
+          .then((selection) => {
+            if (selection === "Yes") {
+              try {
+                execa(`podman start ${this.containerName}`)
+                  .addListener("stdout", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  })
+                  .addListener("stderr", (data: string) => {
+                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  })
+                  .then((result) => {
+                    if (result.exitCode !== 0) {
+                      vscode.window.showErrorMessage(
+                        `Error starting container: ${result.stderr}`,
+                      );
+                      reject(false);
+                    } else {
+                      const containerInfo = this.inspectContainer();
+                      const port =
+                        containerInfo[0].HostConfig.PortBindings["8010/tcp"][0]
+                          .HostPort;
+                      const ip =
+                        containerInfo[0].HostConfig.PortBindings["8010/tcp"][0]
+                          .HostIp;
+                      this._ltUrl =
+                        `http://${ip}:${port}` + Constants.SERVICE_CHECK_PATH;
+                    }
+                  });
+                while (!this.isContainerRunning()) {
+                  // Wait for container to start
+                }
+              } catch (error: unknown) {
+                if (error instanceof Error) {
+                  vscode.window.showErrorMessage(
+                    `Error starting container: ${error.message}`,
+                  );
+                }
+              }
+            } else {
+              vscode.window.showInformationMessage(
+                `Container '${this.containerName}' must be running to use this extension.`,
+              );
+              reject(false);
+            }
+          });
+      }
+      resolve(true);
+    });
+  }
+
+  public stop(): Promise<void> {
+    return new Promise(() => {
+      if (this.isContainerRunning()) {
+        try {
+          execa(`podman stop ${this.containerName}`)
+            .addListener("stdout", (data: string) => {
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+            })
+            .addListener("stderr", (data: string) => {
+              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+            });
+          while (this.isContainerRunning()) {
+            // Wait for container to stop
+          }
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            vscode.window.showErrorMessage(
+              `Error stopping container: ${error.message}`,
+            );
+          }
+        }
+      }
+    });
+  }
+
+  public ping(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const url = this.getURL();
+      const options = {
+        method: "HEAD",
+        uri: url,
+        resolveWithFullResponse: true,
+      };
+      if (url) {
+        Fetch.default(url, options).then((response) => {
+          if (response.status === 200) {
+            resolve(true);
+          } else {
+            reject(false);
+          }
+        });
+      } else {
+        reject("No URL available.");
+      }
+    });
   }
 
   // Private instance methods
 
   // Machine methods
-  private podmanMachineInitialized(): boolean {
+  private isPodmanMachineInitialized(): boolean {
     const machines = this.getPodmanMachines();
     return machines.length === 0 ? false : true;
   }
@@ -165,16 +432,6 @@ export class PodmanService implements Disposable, ILanguageToolService {
     return machineInfo ? machineInfo.Host.MachineState === "Running" : false;
   }
 
-  private isDefaultMachineRunning(): boolean {
-    const machines = this.getPodmanMachines();
-    for (const machine of machines) {
-      if (machine.Default && machine.Running) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private podmanMachineInfo(): MachineInfo {
     let result;
     try {
@@ -189,49 +446,6 @@ export class PodmanService implements Disposable, ILanguageToolService {
       }
     }
     return result ? JSON.parse(result.stdout) : undefined;
-  }
-
-  private startPodmanMachine(): ExecaChildProcess<string> | undefined {
-    let result;
-    try {
-      result = execa(`podman machine start ${this.podmanMachineName}`);
-      result.addListener("stdout", (data: string) => {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-      });
-      result.addListener("stderr", (data: string) => {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          `Error starting podman machine: ${error.message}`,
-        );
-        throw error;
-      }
-    }
-    return result;
-  }
-
-  // Image methods
-  private pullImage(): ExecaChildProcess<string> | undefined {
-    let result;
-    try {
-      result = execa(`podman pull ${this.imageName}`);
-      result.addListener("stdout", (data: string) => {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-      });
-      result.addListener("stderr", (data: string) => {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          `Error pulling podman image: ${error.message}`,
-        );
-        throw error;
-      }
-    }
-    return result;
   }
 
   private isImageAvailable(): boolean {
@@ -282,7 +496,28 @@ export class PodmanService implements Disposable, ILanguageToolService {
     }
   }
 
-  public isContainerRunning(): boolean {
+  public reloadConfiguration(
+    event: ConfigurationChangeEvent,
+    workspaceConfig: WorkspaceConfiguration,
+  ): void {
+    this._workspaceConfig = workspaceConfig;
+    if (
+      event.affectsConfiguration(Constants.CONFIGURATION_PODMAN_CONTAINER_NAME)
+    ) {
+      this.containerName =
+        this._workspaceConfig.get(
+          Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+        ) ||
+        this._workspaceConfig.getdefault(
+          Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+        );
+      if (this.containerName) {
+        this.renameContainer(this.containerName);
+      }
+    }
+  }
+
+  private isContainerRunning(): boolean {
     if (this.isPodmanMachineRunning() && this.containerExists()) {
       const containerInfo: ContainerInfo[] = this.inspectContainer();
       if (containerInfo[0]) {
@@ -295,105 +530,5 @@ export class PodmanService implements Disposable, ILanguageToolService {
   private renameContainer(newName: string): void {
     execa.sync(`podman rename ${this.containerName} ${newName}`);
     this.containerName = newName;
-  }
-
-  private startContainer(): ExecaChildProcess<string> {
-    return execa(`podman start ${this.containerName}`);
-  }
-
-  private stopContainer(): ExecaChildProcess<string> {
-    return execa(`podman stop ${this.containerName}`);
-  }
-
-  private runContainer(): ExecaChildProcess<string> {
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-      `Running PodmanService as container ${this.containerName}`,
-    );
-
-    let child: ExecaChildProcess<string>;
-    if (this.containerExists()) {
-      child = this.start();
-    } else {
-      child = execa(
-        `podman run --rm -d -p :8010 --name ${this.containerName} ${this.imageName}`,
-      );
-    }
-
-    // Wait for the container to start
-    while (!this.isContainerRunning()) {
-      setTimeout(function () {
-        Constants.EXTENSION_OUTPUT_CHANNEL.append(".");
-      }, 500);
-    }
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(".");
-    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine("PodmanService starte.");
-
-    return child;
-  }
-
-  // Public instance methods
-  public dispose(): void {
-    this.stop();
-  }
-
-  public start(): ExecaChildProcess<string> {
-    // Is the machine initialized?
-    if (!this.podmanMachineInitialized()) {
-      // Prompt for initialization
-    }
-    // Is the machine running?
-    if (!this.isPodmanMachineRunning()) this.startPodmanMachine();
-    // Is the image available?
-    if (!this.isImageAvailable()) this.pullImage();
-
-    if (!this.isContainerRunning()) this.startPodmanMachine();
-
-    return this.startContainer();
-  }
-
-  public stop(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (this.isContainerRunning()) {
-        this.stopContainer().then(() => {
-          resolve();
-        });
-      } else {
-        reject("Container is not running");
-      }
-    });
-  }
-
-  public getPort(): number {
-    const containerInfo: ContainerInfo[] = this.inspectContainer();
-    return containerInfo[0].HostConfig.PortBindings["8010/tcp"][0].HostPort;
-  }
-
-  public getHost(): string {
-    const containerInfo: ContainerInfo[] = this.inspectContainer();
-    return containerInfo[0].HostConfig.PortBindings["8010/tcp"][0].HostIp;
-  }
-
-  public getURL(): string {
-    return `http://${this.getHost()}:${this.getPort()}${
-      Constants.SERVICE_CHECK_PATH
-    }`;
-  }
-
-  public ping(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      const url = this.getURL();
-      const options = {
-        method: "HEAD",
-        uri: url,
-        resolveWithFullResponse: true,
-      };
-      fetch(url, options).then((response) => {
-        if (response.status === 200) {
-          resolve(true);
-        } else {
-          reject(false);
-        }
-      });
-    });
   }
 }
