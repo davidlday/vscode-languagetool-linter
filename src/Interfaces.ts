@@ -92,8 +92,8 @@ export interface ILanguageToolService {
     workspaceConfig: WorkspaceConfiguration,
   ): void;
   invokeLanguageTool(
-    document: TextDocument,
     ltPostDataDict: Record<string, string>,
   ): Promise<ILanguageToolResponse>;
+  getState(): string;
   getURL(): string | undefined;
 }
