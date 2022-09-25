@@ -21,8 +21,8 @@ import { WorkspaceConfiguration } from "vscode";
 export class ExternalService extends AbstractService {
   constructor(workspaceConfig: WorkspaceConfiguration) {
     super(workspaceConfig);
-    this._ltUrl = workspaceConfig.get(
-      Constants.CONFIGURATION_ROOT + Constants.CONFIGURATION_EXTERNAL_URL,
-    );
+    this._ltUrl =
+      workspaceConfig.get(Constants.CONFIGURATION_EXTERNAL_URL) +
+      Constants.SERVICE_CHECK_PATH;
   }
 }
