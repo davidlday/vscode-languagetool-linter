@@ -190,14 +190,14 @@
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
-        "languageToolLinter.podman.image": {
+        "languageToolLinter.podman.imageName": {
           "type": "string",
           "default": "docker.io/erikvl87/languagetool:5.8",
           "description": "Image to use for the podman container. Defaults to 'docker.io/erikvl87/languagetool:5.8'."
         },
         "languageToolLinter.podman.containerName": {
           "type": "string",
-          "default": "languagtool",
+          "default": "languagetool",
           "description": "Name of the podman container to use. Defaults to 'languagtool'."
         },
         "languageToolLinter.podman.port": {
