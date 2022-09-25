@@ -18,7 +18,7 @@ jobs:
         name: Start Xvfb
       - name: Install Podman
         id: install-podman
-        run: apt install podman
+        run: brew install podman
       - name: Initialize and Start Podman Machine
         id: initialize-podman-machine
         run: podman machine init --now
