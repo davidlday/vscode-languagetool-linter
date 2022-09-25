@@ -207,21 +207,21 @@ export class PodmanService
     });
   }
 
-  public stop(): Promise<void> {
+  public stop(): Promise<boolean> {
     this._state = Constants.SERVICE_STATES.STOPPING;
     return new Promise((resolve, reject) => {
       if (this.isContainerRunning() && this.hardStop) {
         const result = execa.sync("podman", ["stop", this.containerName]);
         if (result.exitCode === 0) {
           this._state = Constants.SERVICE_STATES.STOPPED;
-          resolve();
+          resolve(true);
         } else {
           this._state = Constants.SERVICE_STATES.ERROR;
           reject(new Error(result.stderr));
         }
       } else {
         this._state = Constants.SERVICE_STATES.STOPPED;
-        resolve();
+        resolve(true);
       }
     });
   }
