@@ -14,14 +14,14 @@
  *   limitations under the License.
  */
 
+import * as Fetch from "node-fetch";
 import {
   ConfigurationChangeEvent,
   Disposable,
   WorkspaceConfiguration,
 } from "vscode";
-import * as Fetch from "node-fetch";
-import { ILanguageToolResponse, ILanguageToolService } from "../Interfaces";
 import * as Constants from "../Constants";
+import { ILanguageToolResponse, ILanguageToolService } from "../Interfaces";
 
 export abstract class AbstractService
   implements Disposable, ILanguageToolService
@@ -166,15 +166,15 @@ export abstract class AbstractService
     });
   }
 
-  public stop(): Promise<void> {
+  public stop(): Promise<boolean> {
     this._state = Constants.SERVICE_STATES.STOPPING;
     return new Promise((resolve) => {
       this._state = Constants.SERVICE_STATES.STOPPED;
-      resolve();
+      resolve(true);
     });
   }
 
-  public dispose(): Promise<void> {
+  public dispose(): Promise<boolean> {
     return this.stop();
   }
 
