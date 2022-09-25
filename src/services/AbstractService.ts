@@ -180,17 +180,24 @@ export abstract class AbstractService
 
   public ping(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
-        .then((response: ILanguageToolResponse) => {
-          if (response) {
-            resolve(true);
-          } else {
-            reject(new Error("Unexpected response from LanguageTool"));
-          }
-        })
-        .catch((err) => {
-          reject(err);
-        });
+      // If we know the service isn't "running" then we won't ping it
+      // This is to provide a consistent response to the user and consistent
+      // behaviour across different implementations of the service
+      if (this._state === Constants.SERVICE_STATES.RUNNING) {
+        this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
+          .then((response: ILanguageToolResponse) => {
+            if (response) {
+              resolve(true);
+            } else {
+              reject(new Error("Unexpected response from LanguageTool"));
+            }
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      } else {
+        resolve(false);
+      }
     });
   }
   // end of class
