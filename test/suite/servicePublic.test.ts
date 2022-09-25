@@ -1,11 +1,13 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { PublicService } from "../../src/services/PublicService";
 import { SERVICE_STATES } from "../../src/Constants";
+import { PublicService } from "../../src/services/PublicService";
 
 suite("PublicService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
     vscode.workspace.getConfiguration();
+
+  // PublicService Tests
   let publicservice: PublicService;
 
   test("PublicService should instantiate", function () {
@@ -20,7 +22,10 @@ suite("PublicService Test Suite", function () {
         assert.ok(!result);
       })
       .catch((err) => {
-        assert.notStrictEqual(err, new Error("Podman URL is not defined."));
+        assert.notStrictEqual(
+          err,
+          new Error("LanguageTool URL is not defined."),
+        );
       });
   });
 
