@@ -132,7 +132,7 @@ export class PodmanService
 {
   private containerName: string;
   private imageName: string;
-  private podman = "/usr/local/bin/podman";
+  private podman = "podman";
   private port: number;
   private ip: string;
 
