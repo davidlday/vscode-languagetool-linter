@@ -35,6 +35,12 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14
+      - name: Install Podman
+        id: install-podman
+        run: brew install podman
+      - name: Initialize Podman Machine
+        id: initialize-podman-machine
+        run: podman machine init
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
