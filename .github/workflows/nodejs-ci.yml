@@ -85,12 +85,15 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14
-      - name: Install Scoop
-        id: install-scoop
-        run: irm get.scoop.sh | iex
+      - name: Download Podman Installer
+        id: download-podman
+        run:
+          Invoke-WebRequest
+          https://github.com/containers/podman/releases/download/v4.2.1/podman-v4.2.1.msi
+          -o ~/podman-v4.2.1.msi
       - name: Install Podman
         id: install-podman
-        run: scoop install podman
+        run: ~/podman-v4.2.1.msi
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
