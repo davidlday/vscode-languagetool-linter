@@ -76,6 +76,15 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14
+      - name: Install Podman
+        id: install-podman
+        run: choco install podman
+      - name: Initialize & Start Podman Machine
+        id: initialize-podman-machine
+        run: podman machine init --now
+      - name: Install LanguageTool
+        id: install-languagetool
+        run: choco install languagetool
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
