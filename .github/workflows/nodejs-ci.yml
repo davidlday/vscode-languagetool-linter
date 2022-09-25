@@ -18,7 +18,7 @@ jobs:
         name: Start Xvfb
       - name: Install Podman
         id: install-podman
-        run: brew install podman
+        run: sudo apt install podman
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
@@ -84,7 +84,9 @@ jobs:
           node-version: 14
       - name: Install Podman
         id: install-podman
-        run: choco install podman-cli
+        run:
+          winget install -e --id RedHat.Podman --accept-source-agreements
+          --accept-package-agreements
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
