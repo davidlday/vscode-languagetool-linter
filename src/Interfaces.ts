@@ -80,9 +80,9 @@ export interface ILanguageToolReplacement {
 // Interface - LanguageTool Service
 export interface ILanguageToolService {
   start(): Promise<boolean>;
-  stop(): Promise<void>;
+  stop(): Promise<boolean>;
   ping(): Promise<boolean>;
-  dispose(): Promise<void>;
+  dispose(): Promise<boolean>;
   reloadConfiguration(
     event: ConfigurationChangeEvent,
     workspaceConfig: WorkspaceConfiguration,
