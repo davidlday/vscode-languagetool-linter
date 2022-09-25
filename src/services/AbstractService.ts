@@ -62,12 +62,6 @@ export abstract class AbstractService
   public invokeLanguageTool(
     annotatedText: string,
   ): Promise<ILanguageToolResponse> {
-    while (this._state === Constants.SERVICE_STATES.STARTING) {
-      // wait for start to complete
-    }
-    if (this._state !== Constants.SERVICE_STATES.RUNNING) {
-      return Promise.reject(new Error("LanguageTool service is not running"));
-    }
     return new Promise((resolve, reject) => {
       const url = this.getURL();
       if (this._state === Constants.SERVICE_STATES.RUNNING && url) {
