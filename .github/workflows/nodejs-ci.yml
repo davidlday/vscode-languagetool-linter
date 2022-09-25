@@ -16,6 +16,15 @@ jobs:
           node-version: 14
       - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         name: Start Xvfb
+      - name: Install Podman
+        id: install-podman
+        run: apt install podman
+      - name: Initialize and Start Podman Machine
+        id: initialize-podman-machine
+        run: podman machine init --now
+      - name: Install LanguageTool
+        id: install-languagetool
+        run: brew install languagetool
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
@@ -38,9 +47,12 @@ jobs:
       - name: Install Podman
         id: install-podman
         run: brew install podman
-      - name: Initialize Podman Machine
+      - name: Initialize and Start Podman Machine
         id: initialize-podman-machine
-        run: podman machine init
+        run: podman machine init --now
+      - name: Install LanguageTool
+        id: install-languagetool
+        run: brew install languagetool
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
