@@ -52,26 +52,26 @@ suite("PodmanService Test Suite", function () {
       });
   });
 
-  // test("PodmanService should stop", function () {
-  //   this.timeout(12000);
-  //   return podmanservice
-  //     .stop()
-  //     .then(() => {
-  //       assert.strictEqual(podmanservice.getState(), SERVICE_STATES.STOPPED);
-  //     })
-  //     .catch((err) => {
-  //       assert.fail(err);
-  //     });
-  // });
+  test("PodmanService should stop", function () {
+    this.timeout(12000);
+    return podmanservice
+      .stop()
+      .then(() => {
+        assert.strictEqual(podmanservice.getState(), SERVICE_STATES.STOPPED);
+      })
+      .catch((err) => {
+        assert.fail(err);
+      });
+  });
 
-  // test("PodmanService should NOT respond to ping", function () {
-  //   return podmanservice
-  //     .ping()
-  //     .then((result) => {
-  //       assert.strictEqual(result, false);
-  //     })
-  //     .catch((err) => {
-  //       assert.ok(err);
-  //     });
-  // });
+  test("PodmanService should NOT respond to ping", function () {
+    return podmanservice
+      .ping()
+      .then((result) => {
+        assert.strictEqual(result, false);
+      })
+      .catch((err) => {
+        assert.ok(err);
+      });
+  });
 });
