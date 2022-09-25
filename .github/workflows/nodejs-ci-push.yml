@@ -23,7 +23,7 @@ jobs:
           sudo apt-get -y update
           sudo apt-get -y install podman qemu
           podman info --debug
-          qemu --help
+          qemu-system-x86_64 --help
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
