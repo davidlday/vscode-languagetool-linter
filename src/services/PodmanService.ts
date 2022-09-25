@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 
+import { resolve } from "dns";
 import execa from "execa";
 import * as vscode from "vscode";
 import {
@@ -135,6 +136,7 @@ export class PodmanService
   private podman = "podman";
   private port: number;
   private ip: string;
+  private hardStop: boolean;
 
   // ILanguageToolService methods
   constructor(workspaceConfig: WorkspaceConfiguration) {
@@ -151,6 +153,9 @@ export class PodmanService
     this.ip = this._workspaceConfig.get(
       Constants.CONFIGURATION_PODMAN_IP,
     ) as string;
+    this.hardStop = this._workspaceConfig.get(
+      Constants.CONFIGURATION_PODMAN_HARDSTOP,
+    ) as boolean;
   }
 
   public start(): Promise<boolean> {
@@ -161,16 +166,17 @@ export class PodmanService
       const isContainerAvailable = this.containerExists();
       const isPodmanMachineRunning = this.isPodmanMachineRunning();
       if (isContainerRunning) {
-        this._ltUrl = this.getContainerURL();
+        this._ltUrl = this.getServiceURL();
         this._state = Constants.SERVICE_STATES.RUNNING;
         resolve(true);
       } else if (isContainerAvailable) {
         const result = execa.sync("podman", ["start", this.containerName]);
         if (result.exitCode === 0) {
-          this._ltUrl = this.getContainerURL();
+          this._ltUrl = this.getServiceURL();
           this._state = Constants.SERVICE_STATES.RUNNING;
           resolve(true);
         } else {
+          this._state = Constants.SERVICE_STATES.ERROR;
           reject(new Error(result.stderr));
         }
       } else if (isImageAvailable || isPodmanMachineRunning) {
@@ -184,41 +190,38 @@ export class PodmanService
           this.imageName,
         ]);
         if (result.exitCode === 0) {
-          this._ltUrl = this.getContainerURL();
+          this._ltUrl = this.getServiceURL();
+          console.log(`Podman URL: ${this._ltUrl}`);
           this._state = Constants.SERVICE_STATES.RUNNING;
           resolve(true);
         } else {
+          this._state = Constants.SERVICE_STATES.ERROR;
           reject(new Error(result.stderr));
         }
       } else {
+        this._state = Constants.SERVICE_STATES.ERROR;
         reject(
-          new Error("Podmachine is either not initialized or not running."),
+          new Error("Podman Machine is either not initialized or not running."),
         );
       }
     });
   }
 
   public stop(): Promise<void> {
-    return new Promise(() => {
-      if (this.isContainerRunning()) {
-        try {
-          execa(`${this.podman} stop ${this.containerName}`)
-            .addListener("stdout", (data: string) => {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-            })
-            .addListener("stderr", (data: string) => {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-            });
-          while (this.isContainerRunning()) {
-            // Wait for container to stop
-          }
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            vscode.window.showErrorMessage(
-              `Error stopping container: ${error.message}`,
-            );
-          }
+    this._state = Constants.SERVICE_STATES.STOPPING;
+    return new Promise((resolve, reject) => {
+      if (this.isContainerRunning() && this.hardStop) {
+        const result = execa.sync("podman", ["stop", this.containerName]);
+        if (result.exitCode === 0) {
+          this._state = Constants.SERVICE_STATES.STOPPED;
+          resolve();
+        } else {
+          this._state = Constants.SERVICE_STATES.ERROR;
+          reject(new Error(result.stderr));
         }
+      } else {
+        this._state = Constants.SERVICE_STATES.STOPPED;
+        resolve();
       }
     });
   }
@@ -241,11 +244,11 @@ export class PodmanService
   }
 
   // Private methods
-  private getContainerURL(): string {
+  private getServiceURL(): string {
     const container: ContainerInfo = this.inspectContainer()[0];
     const portBindings = container.HostConfig.PortBindings["8010/tcp"];
     if (container) {
-      return `http://${portBindings[0].HostIp}:${portBindings[0].HostPort}`;
+      return `http://${portBindings[0].HostIp}:${portBindings[0].HostPort}${Constants.SERVICE_CHECK_PATH}`;
     } else {
       throw new Error("Container not found.");
     }

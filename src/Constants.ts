@@ -68,6 +68,7 @@ export const CONFIGURATION_PODMAN_CONTAINER_NAME =
   CONFIGURATION_PODMAN + ".containerName";
 export const CONFIGURATION_PODMAN_IP = CONFIGURATION_PODMAN + ".ip";
 export const CONFIGURATION_PODMAN_PORT = CONFIGURATION_PODMAN + ".port";
+export const CONFIGURATION_PODMAN_HARDSTOP = CONFIGURATION_PODMAN + ".hardStop";
 
 // PublicService Configuration Items
 // Placeholder for username / apiKey
