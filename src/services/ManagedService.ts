@@ -92,12 +92,12 @@ export class ManagedService extends AbstractService {
     });
   }
 
-  public stop(): Promise<void> {
+  public stop(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (this.process) {
         this.process.cancel();
         this.process = undefined;
-        resolve();
+        resolve(true);
       } else {
         reject(new Error("No process to stop."));
       }
