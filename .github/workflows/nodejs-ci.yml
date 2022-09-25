@@ -19,9 +19,12 @@ jobs:
       - name: Install Podman
         id: install-podman
         run: brew install podman
-      - name: Initialize and Start Podman Machine
+      - name: Initialize Podman Machine
         id: initialize-podman-machine
-        run: podman machine init --now
+        run: podman machine init
+      - name: Start Podman Machine
+        id: start-podman-machine
+        run: podman machine start
       - name: Install LanguageTool
         id: install-languagetool
         run: brew install languagetool
@@ -47,9 +50,12 @@ jobs:
       - name: Install Podman
         id: install-podman
         run: brew install podman
-      - name: Initialize and Start Podman Machine
+      - name: Initialize Podman Machine
         id: initialize-podman-machine
-        run: podman machine init --now
+        run: podman machine init
+      - name: Start Podman Machine
+        id: start-podman-machine
+        run: podman machine start
       - name: Install LanguageTool
         id: install-languagetool
         run: brew install languagetool
@@ -78,10 +84,13 @@ jobs:
           node-version: 14
       - name: Install Podman
         id: install-podman
-        run: choco install podman
-      - name: Initialize & Start Podman Machine
+        run: choco install podman-cli
+      - name: Initialize Podman Machine
         id: initialize-podman-machine
-        run: podman machine init --now
+        run: podman machine init
+      - name: Start Podman Machine
+        id: start-podman-machine
+        run: podman machine start
       - name: Install LanguageTool
         id: install-languagetool
         run: choco install languagetool
