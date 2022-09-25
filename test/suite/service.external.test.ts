@@ -2,10 +2,38 @@ import * as assert from "assert";
 import * as vscode from "vscode";
 import { SERVICE_STATES } from "../../src/Constants";
 import { ExternalService } from "../../src/services/ExternalService";
+import { PodmanService } from "../../src/services/PodmanService";
 
 suite("ExternalService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
     vscode.workspace.getConfiguration();
+  // Use the PodmanService as our external service provider
+  const podmanservice: PodmanService = new PodmanService(config);
+
+  this.beforeAll(function (done) {
+    podmanservice
+      .start()
+      .then((result) => {
+        if (result) {
+          done();
+        } else {
+          done(new Error("Could not start PodmanService"));
+        }
+      })
+      .catch((err) => {
+        assert.fail(err);
+      });
+  });
+
+  this.afterAll(function (done) {
+    podmanservice.stop().then((result) => {
+      if (result) {
+        done();
+      } else {
+        done(new Error("Could not stop PodmanService"));
+      }
+    });
+  });
 
   // ExternalService Tests
   let externalservice: ExternalService;
