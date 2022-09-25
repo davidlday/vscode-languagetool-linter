@@ -214,8 +214,8 @@
         },
         "languageTooLinter.podman.hardStop": {
           "type": "boolean",
-          "default": false,
-          "description": "Stop the container when not using the Podman-based LanguageTool Service. Defaults to 'false'."
+          "default": true,
+          "description": "Stop the container when not using the Podman-based LanguageTool Service. Set to 'false' to keep the container running for use outside VS Code. Defaults to 'true'."
         },
         "languageToolLinter.managed.classPath": {
           "type": "string",
