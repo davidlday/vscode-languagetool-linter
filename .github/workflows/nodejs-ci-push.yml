@@ -21,7 +21,12 @@ jobs:
         id: install-podman
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install podman
+          sudo apt-get -y install podman languagetool
+      - name: Install brew
+        id: install-brew
+        run:
+          /bin/bash -c "$(curl -fsSL
+          https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Install LanguageTool
         id: install-languagetool
         run: brew install languagetool
