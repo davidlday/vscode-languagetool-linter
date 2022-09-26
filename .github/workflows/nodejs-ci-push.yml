@@ -30,6 +30,7 @@ jobs:
       - name: Run LanguageTool
         id: run-languagetool
         run: |
+          cd ~/LanguageTool-*
           java -cp languagetool-server.jar org.languagetool.server.HTTPServer --port 8082 --allow-origin
       - run: npm install -g typescript vsce json
       - run: npm ci
