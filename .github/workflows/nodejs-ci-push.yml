@@ -21,14 +21,7 @@ jobs:
         id: install-podman
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install podman qemu qemu-system-x86-xen
-          sudo curl --silent -L https://github.com/containers/gvisor-tap-vsock/releases/download/v0.4.0/gvproxy-linux -O /usr/libexec/podman/gvproxy
-      - name: Initialize Podman Machine
-        id: initialize-podman-machine
-        run: podman machine init
-      - name: Start Podman Machine
-        id: start-podman-machine
-        run: podman machine start
+          sudo apt-get -y install podman
       - name: Install LanguageTool
         id: install-languagetool
         run: brew install languagetool
