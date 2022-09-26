@@ -22,8 +22,7 @@ jobs:
         run: |
           sudo apt-get -y update
           sudo apt-get -y install podman qemu qemu-system-x86-xen
-          podman info --debug
-          qemu-system-x86_64 --help
+          sudo curl --silent -L https://github.com/containers/gvisor-tap-vsock/releases/download/v0.4.0/gvproxy-linux -O /usr/libexec/podman/gvproxy
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
