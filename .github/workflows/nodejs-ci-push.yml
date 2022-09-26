@@ -25,7 +25,7 @@ jobs:
       - name: Install LanguageTool
         id: install-languagetool
         run: |
-          curl --silent --location https://languagetool.org/download/LanguageTool-5.8.zip --output ~/LanguageTool-5.8.zip
+          curl --silent --location https://languagetool.org/download/LanguageTool-5.8.zip --output ~/LanguageTool-5.8
           unzip ~/LanguageTool-5.8.zip
       - name: Run LanguageTool
         id: run-languagetool
