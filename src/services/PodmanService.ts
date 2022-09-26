@@ -14,10 +14,7 @@
  *   limitations under the License.
  */
 
-import { resolve } from "dns";
 import execa from "execa";
-import { openStdin } from "process";
-import * as vscode from "vscode";
 import {
   ConfigurationChangeEvent,
   Disposable,
