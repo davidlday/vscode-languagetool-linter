@@ -16,6 +16,7 @@
 
 import { resolve } from "dns";
 import execa from "execa";
+import { openStdin } from "process";
 import * as vscode from "vscode";
 import {
   ConfigurationChangeEvent,
@@ -255,6 +256,11 @@ export class PodmanService
   }
 
   private isPodmanMachineRunning(): boolean {
+    // Podman doesn't require a machine on linux
+    // Might cause issues on WSL2
+    if (process.platform === "linux") {
+      return true;
+    }
     const result = execa.sync("podman", [
       "machine",
       "info",
