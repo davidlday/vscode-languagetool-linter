@@ -21,7 +21,7 @@ jobs:
         id: install-podman
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install podman languagetool
+          sudo apt-get -y install podman
       - name: Install brew
         id: install-brew
         run:
