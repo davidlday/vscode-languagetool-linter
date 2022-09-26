@@ -30,7 +30,7 @@ suite("PodmanService Test Suite", function () {
   });
 
   test("PodmanService should start", function () {
-    this.timeout(10000);
+    this.timeout(20000);
     return podmanservice
       .start()
       .then(() => {
