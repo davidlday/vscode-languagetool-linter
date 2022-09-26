@@ -25,12 +25,12 @@ jobs:
       - name: Install LanguageTool
         id: install-languagetool
         run: |
-          curl --silent --location https://languagetool.org/download/LanguageTool-stable.zip --output ~/LanguageTool-stable.zip
+          curl --silent --location https://languagetool.org/download/LanguageTool-5.8.zip --output ~/LanguageTool-5.8.zip
           unzip ~/LanguageTool-stable.zip
       - name: Run LanguageTool
         id: run-languagetool
         run: |
-          cd ~/LanguageTool-*
+          cd ~/LanguageTool-5.8
           java -cp languagetool-server.jar org.languagetool.server.HTTPServer --port 8082 --allow-origin
       - run: npm install -g typescript vsce json
       - run: npm ci
