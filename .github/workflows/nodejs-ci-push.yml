@@ -27,21 +27,17 @@ jobs:
         run: |
           curl --silent --location https://languagetool.org/download/LanguageTool-5.8.zip --output ~/LanguageTool-5.8.zip
           unzip ~/LanguageTool-5.8.zip -d ~/
+        # Unzips to /home/runner
       - name: Run LanguageTool
         id: run-languagetool
         run: |
-          pwd
-          ls
-          ls ~/
           cd ~/LanguageTool-5.8
-          which java
-          java -version
-          java -cp languagetool-server.jar org.languagetool.server.HTTPServer --port 8082 --allow-origin
-      - run: npm install -g typescript vsce json
-      - run: npm ci
-      - run: npm run vscode:prepublish
-      - run: npm run test-compile
-      - run: npm test
-        name: Test
-      - run: npm run lint
-        name: ESLint
+          pwd
+      # - run: npm install -g typescript vsce json
+      # - run: npm ci
+      # - run: npm run vscode:prepublish
+      # - run: npm run test-compile
+      # - run: npm test
+      #   name: Test
+      # - run: npm run lint
+      #   name: ESLint
