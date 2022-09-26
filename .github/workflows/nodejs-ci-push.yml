@@ -22,14 +22,15 @@ jobs:
         run: |
           sudo apt-get -y update
           sudo apt-get -y install podman
-      - name: Install brew
-        id: install-brew
-        run:
-          /bin/bash -c "$(curl -fsSL
-          https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Install LanguageTool
         id: install-languagetool
-        run: brew install languagetool
+        run: |
+          curl --silent --location https://languagetool.org/download/LanguageTool-stable.zip --output ~/LanguageTool-stable.zip
+          unzip ~/LanguageTool-stable.zip
+      - name: Run LanguageTool
+        id: run-languagetool
+        run: |
+          java -cp languagetool-server.jar org.languagetool.server.HTTPServer --port 8082 --allow-origin
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
