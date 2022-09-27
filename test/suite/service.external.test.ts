@@ -11,7 +11,7 @@ suite("ExternalService Test Suite", function () {
   const podmanservice: PodmanService = new PodmanService(config);
 
   this.beforeAll(function (done) {
-    this.timeout(50000);
+    this.timeout(100000);
     podmanservice
       .start()
       .then((result) => {
@@ -63,7 +63,7 @@ suite("ExternalService Test Suite", function () {
     return externalservice
       .start()
       .then(() => {
-        assert.strictEqual(externalservice.getState(), SERVICE_STATES.RUNNING);
+        assert.strictEqual(externalservice.getState(), SERVICE_STATES.READY);
       })
       .catch((err) => {
         assert.fail(err);
