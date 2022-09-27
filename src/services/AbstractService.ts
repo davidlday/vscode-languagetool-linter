@@ -53,7 +53,7 @@ export abstract class AbstractService
       }
       this._workspaceConfig = workspaceConfig;
       this.start();
-      while (this._state !== Constants.SERVICE_STATES.RUNNING) {
+      while (this._state !== Constants.SERVICE_STATES.READY) {
         // wait for start to complete
       }
     }
@@ -64,7 +64,7 @@ export abstract class AbstractService
   ): Promise<ILanguageToolResponse> {
     return new Promise((resolve, reject) => {
       const url = this.getURL();
-      if (this._state === Constants.SERVICE_STATES.RUNNING && url) {
+      if (this._state === Constants.SERVICE_STATES.READY && url) {
         const parameters: Record<string, string> = {};
         parameters["data"] = annotatedText;
         Constants.SERVICE_PARAMETERS.forEach((serviceParameter) => {
@@ -129,7 +129,7 @@ export abstract class AbstractService
           .catch((err) => {
             reject(err);
           });
-      } else if (this._state !== Constants.SERVICE_STATES.RUNNING) {
+      } else if (this._state !== Constants.SERVICE_STATES.READY) {
         switch (this._state) {
           case Constants.SERVICE_STATES.STOPPED:
             reject(new Error("LanguageTool called on stopped service."));
@@ -161,7 +161,7 @@ export abstract class AbstractService
   public start(): Promise<boolean> {
     this._state = Constants.SERVICE_STATES.STARTING;
     return new Promise((resolve) => {
-      this._state = Constants.SERVICE_STATES.RUNNING;
+      this._state = Constants.SERVICE_STATES.READY;
       resolve(true);
     });
   }
@@ -183,7 +183,7 @@ export abstract class AbstractService
       // If we know the service isn't "running" then we won't ping it
       // This is to provide a consistent response to the user and consistent
       // behaviour across different implementations of the service
-      if (this._state === Constants.SERVICE_STATES.RUNNING) {
+      if (this._state === Constants.SERVICE_STATES.READY) {
         this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
           .then((response: ILanguageToolResponse) => {
             if (response) {
