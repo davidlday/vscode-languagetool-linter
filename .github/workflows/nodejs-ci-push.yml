@@ -21,7 +21,7 @@ jobs:
         id: install-podman
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install podman
+          sudo apt-get -y install podman jq
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |
@@ -37,7 +37,7 @@ jobs:
       - run: npm ci
       - run: npm run vscode:prepublish
       - run: npm run test-compile
-      - run: npm test
-        name: Test
-      - run: npm run lint
-        name: ESLint
+      - name: Test
+        run: npm test
+      - name: ESLint
+        run: npm run lint
