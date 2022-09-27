@@ -34,7 +34,7 @@ suite("PodmanService Test Suite", function () {
     return podmanservice
       .start()
       .then(() => {
-        assert.strictEqual(podmanservice.getState(), SERVICE_STATES.RUNNING);
+        assert.strictEqual(podmanservice.getState(), SERVICE_STATES.READY);
       })
       .catch((err) => {
         assert.fail(err);
