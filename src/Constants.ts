@@ -69,6 +69,18 @@ export const CONFIGURATION_PODMAN_CONTAINER_NAME =
 export const CONFIGURATION_PODMAN_IP = CONFIGURATION_PODMAN + ".ip";
 export const CONFIGURATION_PODMAN_PORT = CONFIGURATION_PODMAN + ".port";
 export const CONFIGURATION_PODMAN_HARDSTOP = CONFIGURATION_PODMAN + ".hardStop";
+export const PODMAN_CONTAINER_HEALTH = {
+  HEALTHY: "healthy",
+  STARTING: "starting",
+  UNHEALTHY: "unhealthy",
+  UNKNOWN: "unknown",
+};
+export const PODMAN_CONTAINER_STATUS = {
+  RUNNING: "running",
+  STOPPED: "stopped",
+  EXITED: "exited",
+  UNKNOWN: "unknown",
+};
 
 // PublicService Configuration Items
 // Placeholder for username / apiKey
@@ -114,7 +126,7 @@ export const SERVICE_TYPE_DEFAULT = SERVICE_TYPE_EXTERNAL;
 export const SERVICE_STATES = {
   IDLE: "idle",
   STARTING: "starting",
-  RUNNING: "running",
+  READY: "ready",
   STOPPING: "stopping",
   STOPPED: "stopped",
   ERROR: "error",
