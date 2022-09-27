@@ -131,7 +131,6 @@ export class PodmanService
 {
   private containerName: string;
   private imageName: string;
-  private podman = "podman";
   private port: number;
   private ip: string;
   private hardStop: boolean;
@@ -159,19 +158,36 @@ export class PodmanService
   public start(): Promise<boolean> {
     this._state = Constants.SERVICE_STATES.STARTING;
     return new Promise((resolve, reject) => {
+      const isContainerHealthy = this.isContainerHealthy();
       const isContainerRunning = this.isContainerRunning();
-      const isImageAvailable = this.isImageAvailable();
       const isContainerAvailable = this.containerExists();
+      const isImageAvailable = this.isImageAvailable();
       const isPodmanMachineRunning = this.isPodmanMachineRunning();
-      if (isContainerRunning) {
+      if (isContainerHealthy) {
         this._ltUrl = this.getServiceURL();
-        this._state = Constants.SERVICE_STATES.RUNNING;
+        this._state = Constants.SERVICE_STATES.READY;
         resolve(true);
+      } else if (isContainerRunning) {
+        setTimeout(() => {
+          if (this.isContainerHealthy()) {
+            this._state = Constants.SERVICE_STATES.READY;
+            this._ltUrl = this.getServiceURL();
+            resolve(true);
+          } else {
+            this._state = Constants.SERVICE_STATES.ERROR;
+            reject(
+              new Error(
+                `Container ${this.containerName} is running but not healthy`,
+              ),
+            );
+          }
+        }, 120000);
+        // Wow, this is a long timeout, but it's necessary for the container to start up
       } else if (isContainerAvailable) {
         const result = execa.sync("podman", ["start", this.containerName]);
         if (result.exitCode === 0) {
           this._ltUrl = this.getServiceURL();
-          this._state = Constants.SERVICE_STATES.RUNNING;
+          this._state = Constants.SERVICE_STATES.READY;
           resolve(true);
         } else {
           this._state = Constants.SERVICE_STATES.ERROR;
@@ -188,9 +204,15 @@ export class PodmanService
           this.imageName,
         ]);
         if (result.exitCode === 0) {
+          while (!this.isContainerHealthy()) {
+            if (!this.isContainerRunning()) {
+              this._state = Constants.SERVICE_STATES.STOPPED;
+              reject(new Error("Container is not running"));
+            }
+            // wait for container to be healthy
+            // TODO: add UI to show progress
+          }
           this._ltUrl = this.getServiceURL();
-          console.log(`Podman URL: ${this._ltUrl}`);
-          this._state = Constants.SERVICE_STATES.RUNNING;
           resolve(true);
         } else {
           this._state = Constants.SERVICE_STATES.ERROR;
@@ -334,13 +356,43 @@ export class PodmanService
   }
 
   private isContainerRunning(): boolean {
+    const status = this.getContainerStatus();
+    if (status === Constants.PODMAN_CONTAINER_STATUS.RUNNING) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private getContainerStatus(): string {
     if (this.isPodmanMachineRunning() && this.containerExists()) {
       const containerInfo: ContainerInfo[] = this.inspectContainer();
       if (containerInfo[0]) {
-        return containerInfo[0].State.Running;
+        return containerInfo[0].State.Status;
+      } else {
+        throw new Error("Container not found.");
       }
     }
-    return false;
+    return Constants.PODMAN_CONTAINER_STATUS.UNKNOWN;
+  }
+
+  private getContainerHealth(): string {
+    if (this.isPodmanMachineRunning() && this.containerExists()) {
+      const containerInfo: ContainerInfo[] = this.inspectContainer();
+      if (containerInfo[0]) {
+        return containerInfo[0].State.Health.Status;
+      }
+    }
+    return Constants.PODMAN_CONTAINER_HEALTH.UNKNOWN;
+  }
+
+  private isContainerHealthy(): boolean {
+    const health = this.getContainerHealth();
+    if (health === Constants.PODMAN_CONTAINER_HEALTH.HEALTHY) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   private renameContainer(newName: string): void {
