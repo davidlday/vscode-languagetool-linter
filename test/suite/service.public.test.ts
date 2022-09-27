@@ -34,7 +34,7 @@ suite("PublicService Test Suite", function () {
     return publicservice
       .start()
       .then(() => {
-        assert.strictEqual(publicservice.getState(), SERVICE_STATES.RUNNING);
+        assert.strictEqual(publicservice.getState(), SERVICE_STATES.READY);
       })
       .catch((err) => {
         assert.fail(err);
