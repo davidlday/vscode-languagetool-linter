@@ -22,6 +22,10 @@ jobs:
         run: |
           sudo apt-get -y update
           sudo apt-get -y install podman
+      - name: Pull LanguageTool Image
+        id: pull-languagetool-image
+        run: |
+          time podman pull docker.io/erikvl87/languagetool:5.8
       - name: Install LanguageTool
         id: install-languagetool
         run: |
