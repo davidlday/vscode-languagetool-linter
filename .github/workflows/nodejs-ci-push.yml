@@ -24,7 +24,9 @@ jobs:
           sudo apt-get -y install podman jq
       - name: Set XDG_RUNTIME_DIR
         id: set-xdg_runtine_dir
-        run: echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
+        run: |
+          echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
       - name: Enable Linger for Podman
         id: enable-linger
         run: |
