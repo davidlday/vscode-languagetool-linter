@@ -158,11 +158,19 @@ export class PodmanService
   public start(): Promise<boolean> {
     this._state = Constants.SERVICE_STATES.STARTING;
     return new Promise((resolve, reject) => {
-      const isContainerHealthy = this.isContainerHealthy();
-      const isContainerRunning = this.isContainerRunning();
-      const isContainerAvailable = this.containerExists();
-      const isImageAvailable = this.isImageAvailable();
       const isPodmanMachineRunning = this.isPodmanMachineRunning();
+      const isImageAvailable = isPodmanMachineRunning
+        ? this.isImageAvailable()
+        : false;
+      const isContainerAvailable = isImageAvailable
+        ? this.containerExists()
+        : false;
+      const isContainerRunning = isContainerAvailable
+        ? this.isContainerRunning()
+        : false;
+      const isContainerHealthy = isContainerRunning
+        ? this.isContainerHealthy()
+        : false;
       if (isContainerHealthy) {
         this._ltUrl = this.getServiceURL();
         this._state = Constants.SERVICE_STATES.READY;
