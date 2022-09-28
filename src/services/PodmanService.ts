@@ -288,100 +288,146 @@ export class PodmanService
     if (process.platform === "linux") {
       return true;
     }
-    const result = execa.sync("podman", [
-      "machine",
-      "info",
-      "--format",
-      "json",
-    ]);
-    if (result.exitCode === 0) {
-      const machineInfo: MachineInfo = JSON.parse(result.stdout);
-      if (machineInfo.Host.MachineState === "Running") {
-        return true;
+    try {
+      const result = execa.sync("podman", [
+        "machine",
+        "info",
+        "--format",
+        "json",
+      ]);
+      if (result.exitCode === 0) {
+        const machineInfo: MachineInfo = JSON.parse(result.stdout);
+        if (machineInfo.Host.MachineState === "Running") {
+          return true;
+        } else {
+          return false;
+        }
       } else {
-        return false;
+        throw new Error(result.stderr);
       }
-    } else {
-      throw new Error(result.stderr);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("unknown error getting podman machine state");
+      }
     }
   }
 
   private isImageAvailable(): boolean {
-    const result = execa.sync("podman", [
-      "images",
-      "--format",
-      "json",
-      "--filter",
-      `reference=${this.imageName}`,
-    ]);
-    if (result.exitCode === 0) {
-      const images: Image[] = JSON.parse(result.stdout);
-      if (images.length > 0) {
-        return true;
+    try {
+      const result = execa.sync("podman", [
+        "images",
+        "--format",
+        "json",
+        "--filter",
+        `reference=${this.imageName}`,
+      ]);
+      if (result.exitCode === 0) {
+        const images: Image[] = JSON.parse(result.stdout);
+        if (images.length > 0) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
-        return false;
+        throw new Error(result.stderr);
       }
-    } else {
-      throw new Error(result.stderr);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("unknown error getting image state");
+      }
     }
   }
 
   // Container methods
   private inspectContainer(): ContainerInfo[] {
-    let result;
     try {
-      result = execa.sync("podman", [
+      const result = execa.sync("podman", [
         "inspect",
         this.containerName,
         "--format",
         "json",
       ]);
+      if (result.exitCode === 0) {
+        return result ? JSON.parse(result.stdout) : [];
+      } else {
+        throw new Error(result.stderr);
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-          `Error inspecting container ${this.containerName}: ${error.message}`,
-        );
         throw error;
+      } else {
+        throw new Error("unknown error inspecting container");
       }
     }
-    return result ? JSON.parse(result.stdout) : [];
   }
 
   private containerExists(): boolean {
-    const result = execa.sync("podman", [
-      "ps",
-      "-a",
-      "--format",
-      "json",
-      "--filter",
-      `name=${this.containerName}`,
-    ]);
-    if (result.stdout === "[]") {
-      return false;
-    } else {
-      return true;
+    try {
+      const result = execa.sync("podman", [
+        "ps",
+        "-a",
+        "--format",
+        "json",
+        "--filter",
+        `name=${this.containerName}`,
+      ]);
+      if (result.exitCode === 0) {
+        if (result.stdout === "[]") {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        throw new Error(result.stderr);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("unknown error testing if container exists");
+      }
     }
   }
 
   private isContainerRunning(): boolean {
-    const status = this.getContainerStatus();
-    if (status === Constants.PODMAN_CONTAINER_STATUS.RUNNING) {
-      return true;
-    } else {
-      return false;
+    try {
+      const status = this.getContainerStatus();
+      if (status === Constants.PODMAN_CONTAINER_STATUS.RUNNING) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("unknown error testing if container is running");
+      }
     }
   }
 
   private getContainerStatus(): string {
-    if (this.isPodmanMachineRunning() && this.containerExists()) {
-      const containerInfo: ContainerInfo[] = this.inspectContainer();
-      if (containerInfo[0]) {
-        return containerInfo[0].State.Status;
+    try {
+      if (this.isPodmanMachineRunning() && this.containerExists()) {
+        const containerInfo: ContainerInfo[] = this.inspectContainer();
+        if (containerInfo[0]) {
+          return containerInfo[0].State.Status;
+        } else {
+          throw new Error("Container not found.");
+        }
+      }
+      return Constants.PODMAN_CONTAINER_STATUS.UNKNOWN;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
       } else {
-        throw new Error("Container not found.");
+        throw new Error("unknown error getting container status");
       }
     }
-    return Constants.PODMAN_CONTAINER_STATUS.UNKNOWN;
   }
 
   private getContainerHealth(): string {
