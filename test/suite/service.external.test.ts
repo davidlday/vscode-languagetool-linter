@@ -11,7 +11,7 @@ suite("ExternalService Test Suite", function () {
   const podmanservice: PodmanService = new PodmanService(config);
 
   this.beforeAll(function (done) {
-    this.timeout(6000000);
+    this.timeout(100000);
     podmanservice
       .start()
       .then((result) => {
