@@ -22,6 +22,18 @@ jobs:
         run: |
           sudo apt-get -y update
           sudo apt-get -y install podman jq
+      - name: Set XDG_RUNTIME_DIR
+        id: set-xdg_runtine_dir
+        run: echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
+      - name: Enable Linger for Podman
+        id: enable-linger
+        run: |
+          loginctl enable-linger $(whoami)
+          sleep 1
+      - name: Start Podman Listening Service
+        id: start-podman-listening-service
+        run: |
+          podman system service --time=0 unix://${XDG_RUNTIME_DIR}/podman/podman.sock &
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |
