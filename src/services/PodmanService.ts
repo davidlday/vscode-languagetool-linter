@@ -287,29 +287,30 @@ export class PodmanService
     // Might cause issues on WSL2
     if (process.platform === "linux") {
       return true;
-    }
-    try {
-      const result = execa.sync("podman", [
-        "machine",
-        "info",
-        "--format",
-        "json",
-      ]);
-      if (result.exitCode === 0) {
-        const machineInfo: MachineInfo = JSON.parse(result.stdout);
-        if (machineInfo.Host.MachineState === "Running") {
-          return true;
+    } else {
+      try {
+        const result = execa.sync("podman", [
+          "machine",
+          "info",
+          "--format",
+          "json",
+        ]);
+        if (result.exitCode === 0) {
+          const machineInfo: MachineInfo = JSON.parse(result.stdout);
+          if (machineInfo.Host.MachineState === "Running") {
+            return true;
+          } else {
+            return false;
+          }
         } else {
-          return false;
+          throw new Error(result.stderr);
         }
-      } else {
-        throw new Error(result.stderr);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error("unknown error getting podman machine state");
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        } else {
+          throw new Error("unknown error getting podman machine state");
+        }
       }
     }
   }
@@ -432,9 +433,19 @@ export class PodmanService
 
   private getContainerHealth(): string {
     if (this.isPodmanMachineRunning() && this.containerExists()) {
-      const containerInfo: ContainerInfo[] = this.inspectContainer();
-      if (containerInfo[0]) {
-        return containerInfo[0].State.Health.Status;
+      try {
+        const containerInfo: ContainerInfo[] = this.inspectContainer();
+        if (containerInfo[0]) {
+          return containerInfo[0].State.Health.Status;
+        } else {
+          throw new Error("Container not found.");
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        } else {
+          throw new Error("unknown error getting container health");
+        }
       }
     }
     return Constants.PODMAN_CONTAINER_HEALTH.UNKNOWN;
@@ -450,15 +461,23 @@ export class PodmanService
   }
 
   private renameContainer(newName: string): void {
-    const result = execa.sync("podman", [
-      "rename",
-      this.containerName,
-      newName,
-    ]);
-    if (result.exitCode === 0) {
-      this.containerName = newName;
-    } else {
-      throw new Error(result.stderr);
+    try {
+      const result = execa.sync("podman", [
+        "rename",
+        this.containerName,
+        newName,
+      ]);
+      if (result.exitCode === 0) {
+        this.containerName = newName;
+      } else {
+        throw new Error(result.stderr);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("unknown error renaming container");
+      }
     }
   }
 }
