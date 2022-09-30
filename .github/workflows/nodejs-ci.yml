@@ -123,7 +123,7 @@ jobs:
           node-version: lts/*
       - name: Append scoop shims to path
         run: |
-          echo "D:\a\vscode-languagetool-linter\scoop\shims\" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "D:\a\vscode-languagetool-linter\scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Install Podman via Scoop
         id: install-podman-via-scoop
         run: |
