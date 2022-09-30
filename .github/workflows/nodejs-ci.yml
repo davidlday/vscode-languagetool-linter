@@ -125,7 +125,7 @@ jobs:
         id: install-scoop
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-          irm get.scoop.sh | iex
+          iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
       - name: Install Podman via Scoop
         id: install-podman-via-scoop
         run: scoop install podman
