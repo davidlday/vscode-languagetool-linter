@@ -276,7 +276,13 @@ export class PodmanService
     const container: ContainerInfo = this.inspectContainer()[0];
     const portBindings = container.HostConfig.PortBindings["8010/tcp"];
     if (container) {
-      return `http://${portBindings[0].HostIp}:${portBindings[0].HostPort}${Constants.SERVICE_CHECK_PATH}`;
+      const containerIp = portBindings[0].HostIp
+        ? portBindings[0].HostIp
+        : this.ip;
+      const containerPort = portBindings[0].HostPort
+        ? portBindings[0].HostPort
+        : this.port;
+      return `http://${containerIp}:${containerPort}${Constants.SERVICE_CHECK_PATH}`;
     } else {
       throw new Error("Container not found.");
     }
