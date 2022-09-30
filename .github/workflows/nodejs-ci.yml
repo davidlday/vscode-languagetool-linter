@@ -130,7 +130,7 @@ jobs:
       - name: Install Podman
         id: install-podman
         run: |
-          msiexec /i "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi" /passive /log "D:\a\vscode-languagetool-linter\podman.log"
+          msiexec /a "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi" /passive /log "D:\a\vscode-languagetool-linter\podman.log"
           type "D:\a\vscode-languagetool-linter\podman.log"
       - name: Initialize Podman Machine
         id: initialize-podman-machine
