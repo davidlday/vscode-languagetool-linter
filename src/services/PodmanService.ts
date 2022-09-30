@@ -435,7 +435,7 @@ export class PodmanService
     if (this.isPodmanMachineRunning() && this.containerExists()) {
       try {
         const containerInfo: ContainerInfo[] = this.inspectContainer();
-        if (containerInfo[0]) {
+        if (containerInfo[0].State.Health.Status) {
           return containerInfo[0].State.Health.Status;
         } else {
           throw new Error("Container not found.");
