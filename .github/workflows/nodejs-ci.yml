@@ -121,17 +121,25 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
-      - name: Download Podman Installer
-        id: download-podman
-        run:
-          Invoke-WebRequest
-          https://github.com/containers/podman/releases/download/v4.2.1/podman-v4.2.1.msi
-          -o "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi"
-      - name: Install Podman
-        id: install-podman
+      - name: Install Scoop
+        id: install-scoop
         run: |
-          msiexec /a "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi" /passive /log "D:\a\vscode-languagetool-linter\podman.log"
-          type "D:\a\vscode-languagetool-linter\podman.log"
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+          irm get.scoop.sh | iex
+      - name: Install Podman via Scoop
+        id: install-podman-via-scoop
+        run: scoop install podman
+      # - name: Download Podman Installer
+      #   id: download-podman
+      #   run:
+      #     Invoke-WebRequest
+      #     https://github.com/containers/podman/releases/download/v4.2.1/podman-v4.2.1.msi
+      #     -o "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi"
+      # - name: Install Podman
+      #   id: install-podman
+      #   run: |
+      #     msiexec /a "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi" /passive /log "D:\a\vscode-languagetool-linter\podman.log"
+      #     type "D:\a\vscode-languagetool-linter\podman.log"
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
