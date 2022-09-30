@@ -143,7 +143,9 @@ jobs:
       #     type "D:\a\vscode-languagetool-linter\podman.log"
       - name: Initialize Podman Machine
         id: initialize-podman-machine
-        run: podman machine init
+        run: |
+          sc config LxssManager start=auto
+          podman machine init
       - name: Start Podman Machine
         id: start-podman-machine
         run: podman machine start
