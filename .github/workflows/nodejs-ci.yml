@@ -142,7 +142,9 @@ jobs:
           -o ~/podman-v4.2.1.msi
       - name: Install Podman
         id: install-podman
-        run: ~/podman-v4.2.1.msi
+        run: |
+          pwd
+          msiexec ~/podman-v4.2.1.msi
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
