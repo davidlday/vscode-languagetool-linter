@@ -35,7 +35,6 @@ export abstract class AbstractService
   }
 
   public getURL(): string | undefined {
-    console.log(`LT URL: ${this._ltUrl}`);
     return this._ltUrl;
   }
 
