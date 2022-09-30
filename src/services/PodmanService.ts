@@ -452,11 +452,19 @@ export class PodmanService
   }
 
   private isContainerHealthy(): boolean {
-    const health = this.getContainerHealth();
-    if (health === Constants.PODMAN_CONTAINER_HEALTH.HEALTHY) {
-      return true;
-    } else {
-      return false;
+    try {
+      const health = this.getContainerHealth();
+      if (health === Constants.PODMAN_CONTAINER_HEALTH.HEALTHY) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("unknown error testing if container is healthy");
+      }
     }
   }
 
