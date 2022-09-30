@@ -21,6 +21,7 @@ jobs:
         id: install-podman
         # https://podman.io/getting-started/installation
         run: |
+          sudo apt-get purge podman buildah
           sudo mkdir -p /etc/apt/keyrings
           curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key \
             | gpg --dearmor \
@@ -30,7 +31,7 @@ jobs:
               https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" \
             | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
           sudo apt-get update
-          sudo apt-get -y upgrade podman jq
+          sudo apt-get -y install podman jq
       - name: Set XDG_RUNTIME_DIR
         id: set-xdg_runtime_dir
         run: |
@@ -49,6 +50,7 @@ jobs:
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |
+          podman version
           time podman pull docker.io/erikvl87/languagetool:5.8
           time podman run -d -p 8081:8010 --name languagetool  erikvl87/languagetool:5.8
       - name: Install LanguageTool
