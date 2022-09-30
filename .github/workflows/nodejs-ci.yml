@@ -81,12 +81,33 @@ jobs:
       - name: Install Podman
         id: install-podman
         run: brew install podman
+      - name: Set XDG_RUNTIME_DIR
+        id: set-xdg_runtime_dir
+        run: |
+          echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
+      # - name: Enable Linger for Podman
+      #   id: enable-linger
+      #   run: |
+      #     loginctl enable-linger $(whoami)
+      #     sleep 1
+      - name: Start Podman Listening Service
+        id: start-podman-listening-service
+        run: |
+          mkdir -p ${XDG_RUNTIME_DIR}/podman/
+          podman system service --time=0 unix://${XDG_RUNTIME_DIR}/podman/podman.sock &
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
       - name: Start Podman Machine
         id: start-podman-machine
         run: podman machine start
+      - name: Pre-warm Podman Service
+        id: pull-languagetool-image
+        run: |
+          podman version
+          time podman pull docker.io/erikvl87/languagetool:5.8
+          time podman run -d -p 8081:8010 --name languagetool  erikvl87/languagetool:5.8
       - name: Install LanguageTool
         id: install-languagetool
         run: brew install languagetool
