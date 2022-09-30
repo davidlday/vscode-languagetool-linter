@@ -21,8 +21,6 @@ jobs:
         id: install-podman
         # https://podman.io/getting-started/installation
         run: |
-          sudo apt-get purge podman buildah
-          sudo apt-get autoremove
           sudo mkdir -p /etc/apt/keyrings
           curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key \
             | gpg --dearmor \
@@ -32,7 +30,7 @@ jobs:
               https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" \
             | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
           sudo apt-get update
-          sudo apt-get -y install podman jq
+          sudo apt-get -y upgrade podman jq
       - name: Set XDG_RUNTIME_DIR
         id: set-xdg_runtime_dir
         run: |
