@@ -126,13 +126,13 @@ jobs:
         run:
           Invoke-WebRequest
           https://github.com/containers/podman/releases/download/v4.2.1/podman-v4.2.1.msi
-          -o ~/podman-v4.2.1.msi
+          -o "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi"
       - name: Install Podman
         id: install-podman
         run: |
           pwd
           dir
-          msiexec /i ~/podman-v4.2.1.msi /quiet
+          msiexec /i "D:\a\vscode-languagetool-linter\podman-v4.2.1.msi" /quiet
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
