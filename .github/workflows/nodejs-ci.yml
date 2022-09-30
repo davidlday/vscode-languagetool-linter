@@ -94,7 +94,7 @@ jobs:
       - name: Start Podman Listening Service
         id: start-podman-listening-service
         run: |
-          mkdir -p ${XDG_RUNTIME_DIR}/podman/
+          # mkdir -p ${XDG_RUNTIME_DIR}/podman/
           podman system service --time=0 unix://${XDG_RUNTIME_DIR}/podman/podman.sock &
       - name: Initialize Podman Machine
         id: initialize-podman-machine
