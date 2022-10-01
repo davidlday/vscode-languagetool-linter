@@ -458,20 +458,49 @@ export class PodmanService
   }
 
   private isContainerHealthy(): boolean {
-    try {
-      const health = this.getContainerHealth();
-      if (health === Constants.PODMAN_CONTAINER_HEALTH.HEALTHY) {
-        return true;
-      } else {
-        return false;
+    if (this.isPodmanMachineRunning() && this.containerExists()) {
+      try {
+        const result = execa.sync("podman", [
+          "healthcheck",
+          "run",
+          this.containerName,
+        ]);
+        if (result.exitCode === 0) {
+          return true;
+        } else if (result.exitCode === 1) {
+          const health = this.getContainerHealth();
+          if (health === Constants.PODMAN_CONTAINER_HEALTH.HEALTHY) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        } else {
+          throw new Error("unknown error testing if container is healthy");
+        }
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error("unknown error testing if container is healthy");
-      }
+    } else {
+      return false;
     }
+    // try {
+    //   const health = this.getContainerHealth();
+    //   if (health === Constants.PODMAN_CONTAINER_HEALTH.HEALTHY) {
+    //     return true;
+    //   } else {
+    //     return false;
+    //   }
+    // } catch (error) {
+    //   if (error instanceof Error) {
+    //     throw error;
+    //   } else {
+    //     throw new Error("unknown error testing if container is healthy");
+    //   }
+    // }
   }
 
   private renameContainer(newName: string): void {
