@@ -88,13 +88,13 @@ jobs:
         id: start-podman-machine
         run: |
           sudo /usr/local/Cellar/podman/4.2.1/bin/podman-mac-helper install
-          podman machine start
+          podman machine start --log-level info
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |
           podman version
-          time podman pull docker.io/erikvl87/languagetool:5.8
-          time podman run -d -p 127.0.0.1:8081:8010 --name languagetool  erikvl87/languagetool:5.8
+          podman pull docker.io/erikvl87/languagetool:5.8
+          podman run -d -p 127.0.0.1:8081:8010 --name languagetool  erikvl87/languagetool:5.8
       - name: Install LanguageTool
         id: install-languagetool
         run: brew install languagetool
