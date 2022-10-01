@@ -144,7 +144,9 @@ jobs:
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: |
+          wsl -l -v
           sc config LxssManager start=auto
+          sc start LxssManager
           podman machine init
       - name: Start Podman Machine
         id: start-podman-machine
