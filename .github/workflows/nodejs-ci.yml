@@ -121,6 +121,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
+      - uses: Vampire/setup-wsl@v1
       - name: Append scoop shims to path
         run: |
           echo "~\scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -145,8 +146,6 @@ jobs:
         id: initialize-podman-machine
         run: |
           wsl -l -v
-          sc config LxssManager start=auto
-          sc start LxssManager
           podman machine init
       - name: Start Podman Machine
         id: start-podman-machine
