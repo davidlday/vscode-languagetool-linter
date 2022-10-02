@@ -3,7 +3,7 @@ name: Node.js CI - Push
 on: push
 
 jobs:
-  call-build-ubuntu:
+  call-workflow-build-ubuntu:
     uses: ./.github/worklows/build-ubuntu.yaml
     name: Build on Ubuntu
     # runs-on: ubuntu-22.04
