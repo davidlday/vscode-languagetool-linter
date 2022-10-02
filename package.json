@@ -212,6 +212,11 @@
           "default": "127.0.0.1",
           "description": "IP address to use for the podman container. Defaults to '127.0.0.1'."
         },
+        "languageToolLinter.podman.command": {
+          "type": "string",
+          "default": "podman",
+          "description": "Path to podman command, including the command itself, in case it's not in your path. Defaults to 'podman'."
+        },
         "languageTooLinter.podman.hardStop": {
           "type": "boolean",
           "default": true,
@@ -240,7 +245,9 @@
         "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
-          "description": "DEPRECATED. Path to languagetool-server.jar on your local machine."
+          "description": "Path to languagetool-server.jar on your local machine.",
+          "markdownDeprecationMessage": "**Deprecated**: Please use `#languageToolLinter.managed.classPath#` instead.",
+          "deprecationMessage": "Deprecated: Please use languageToolLinter.managed.classPath instead."
         },
         "languageToolLinter.managed.portMinimum": {
           "type": "number",
