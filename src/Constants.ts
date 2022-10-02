@@ -60,8 +60,14 @@ export const CONFIGURATION_PLAIN_TEXT_ENABLED =
 export const CONFIGURATION_PLAIN_TEXT_IDS =
   CONFIGURATION_PLAIN_TEXT + ".plainText.languageIds";
 
+// PublicService Configuration Items
+export const CONFIGURATION_PUBLIC = CONFIGURATION_ROOT + ".public";
+export const CONFIGURATION_PUBLIC_URL = CONFIGURATION_PUBLIC + ".url";
+export const CONFIGURATION_PUBLIC_USERNAME = CONFIGURATION_PUBLIC + ".username";
+export const CONFIGURATION_PUBLIC_APIKEY = CONFIGURATION_PUBLIC + ".apiKey";
+
 // PodmanService Configuration Items
-const CONFIGURATION_PODMAN = CONFIGURATION_ROOT + ".podman";
+export const CONFIGURATION_PODMAN = CONFIGURATION_ROOT + ".podman";
 export const CONFIGURATION_PODMAN_IMAGE_NAME =
   CONFIGURATION_PODMAN + ".imageName";
 export const CONFIGURATION_PODMAN_CONTAINER_NAME =
@@ -82,12 +88,8 @@ export const PODMAN_CONTAINER_STATUS = {
   UNKNOWN: "unknown",
 };
 
-// PublicService Configuration Items
-// Placeholder for username / apiKey
-export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
-
 // ManagedService Configuration Items
-const CONFIGURATION_MANAGED = CONFIGURATION_ROOT + ".managed";
+export const CONFIGURATION_MANAGED = CONFIGURATION_ROOT + ".managed";
 export const CONFIGURATION_MANAGED_JAR_FILE =
   CONFIGURATION_MANAGED + ".jarFile";
 export const CONFIGURATION_MANAGED_CLASS_PATH =
@@ -99,7 +101,7 @@ export const CONFIGURATION_MANAGED_PORT_MAXIMUM =
 export const SERVICE_MANAGED_IP = "127.0.0.1";
 
 // ExternalService Configuration Items
-const CONFIGURATION_EXTERNAL = CONFIGURATION_ROOT + ".external";
+export const CONFIGURATION_EXTERNAL = CONFIGURATION_ROOT + ".external";
 export const CONFIGURATION_EXTERNAL_URL = CONFIGURATION_EXTERNAL + ".url";
 
 // LanguageTool Configuration Items
@@ -110,17 +112,16 @@ export const CONFIGURATION_LT_DISABLED_CATEGORIES =
   CONFIGURATION_ROOT + ".disabledCategories";
 
 // LanguageTool Services
-export const SERVICE_TYPE_EXTERNAL = "external";
-export const SERVICE_TYPE_MANAGED = "managed";
-export const SERVICE_TYPE_PODMAN = "podman";
-export const SERVICE_TYPE_PUBLIC = "public";
-export const SERVICE_TYPES: string[] = [
-  SERVICE_TYPE_EXTERNAL,
-  SERVICE_TYPE_MANAGED,
-  SERVICE_TYPE_PODMAN,
-  SERVICE_TYPE_PUBLIC,
-];
-export const SERVICE_TYPE_DEFAULT = SERVICE_TYPE_EXTERNAL;
+// export const SERVICE_TYPE_EXTERNAL = "external";
+// export const SERVICE_TYPE_MANAGED = "managed";
+// export const SERVICE_TYPE_PODMAN = "podman";
+// export const SERVICE_TYPE_PUBLIC = "public";
+export const SERVICE_TYPES = {
+  EXTERNAL: "external",
+  MANAGED: "managed",
+  PODMAN: "podman",
+  PUBLIC: "public",
+};
 
 // Service states
 export const SERVICE_STATES = {
