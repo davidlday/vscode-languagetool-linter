@@ -21,6 +21,13 @@ import { WorkspaceConfiguration } from "vscode";
 export class PublicService extends AbstractService {
   constructor(workspaceConfig: WorkspaceConfiguration) {
     super(workspaceConfig);
-    this._ltUrl = Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
+    this._serviceConfigurationRoot = Constants.CONFIGURATION_PUBLIC;
+    this._ltUrl =
+      workspaceConfig.get(Constants.CONFIGURATION_PUBLIC_URL) +
+      Constants.SERVICE_CHECK_PATH;
+    this._username = workspaceConfig.get(
+      Constants.CONFIGURATION_PUBLIC_USERNAME,
+    );
+    this._apiKey = workspaceConfig.get(Constants.CONFIGURATION_PUBLIC_APIKEY);
   }
 }
