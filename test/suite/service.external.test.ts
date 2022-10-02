@@ -27,6 +27,7 @@ suite("ExternalService Test Suite", function () {
   });
 
   this.afterAll(function (done) {
+    this.timeout(100000);
     podmanservice.stop().then((result) => {
       if (result) {
         done();
