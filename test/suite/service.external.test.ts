@@ -71,6 +71,7 @@ suite("ExternalService Test Suite", function () {
   });
 
   test("ExternalService should respond to ping.", function () {
+    this.timeout(10000);
     return externalservice
       .ping()
       .then((result) => {
