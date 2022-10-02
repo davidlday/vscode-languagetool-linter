@@ -217,6 +217,21 @@
           "default": true,
           "description": "Stop the container when not using the Podman-based LanguageTool Service. Set to 'false' to keep the container running for use outside VS Code. Defaults to 'true'."
         },
+        "languageToolLinter.public.url": {
+          "type": "string",
+          "default": "https://languagetool.org/api",
+          "markdownDescription": "URL of LanguageTool hosted service. Defaults to `https://languagetool.org/api`."
+        },
+        "languageToolLinter.public.username": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Set to get Premium API access: Your username/email as used to log in at [languagetool.org](https://languagetool.org)."
+        },
+        "languageToolLinter.public.apiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Set to get Premium API access: [your API key](https://languagetool.org/editor/settings/api)"
+        },
         "languageToolLinter.managed.classPath": {
           "type": "string",
           "default": "",
@@ -439,16 +454,6 @@
           "type": "string",
           "default": "",
           "description": "Comma-separated list of preferred language variants. The language detector used with language=auto can detect e.g. English, but it cannot decide whether British English or American English is used. Thus this parameter can be used to specify the preferred variants like en-GB and de-AT. Only available with language=auto."
-        },
-        "languageToolLinter.languageTool.username": {
-          "type": "string",
-          "default": "",
-          "description": "Set to get Premium API access: Your username/email as used to log in at languagetool.org."
-        },
-        "languageToolLinter.languageTool.apiKey": {
-          "type": "string",
-          "default": "",
-          "markdownDescription": "Set to get Premium API access: [your API key](https://languagetool.org/editor/settings/api)"
         },
         "languageToolLinter.languageTool.disabledRules": {
           "type": "string",
