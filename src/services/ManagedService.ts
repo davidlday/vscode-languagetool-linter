@@ -15,16 +15,19 @@
  */
 
 import execa, { ExecaChildProcess } from "execa";
-import { WorkspaceConfiguration } from "vscode";
-import { AbstractService } from "./AbstractService";
-import * as Constants from "../Constants";
+import * as glob from "glob";
+import * as path from "path";
 import * as portfinder from "portfinder";
+import { window, WorkspaceConfiguration } from "vscode";
+import * as Constants from "../Constants";
+import { AbstractService } from "./AbstractService";
 
 export class ManagedService extends AbstractService {
   private process: ExecaChildProcess | undefined;
 
   constructor(workspaceConfig: WorkspaceConfiguration) {
     super(workspaceConfig);
+    this._serviceConfigurationRoot = Constants.CONFIGURATION_MANAGED;
   }
 
   public restart(): Promise<void> {
@@ -43,9 +46,7 @@ export class ManagedService extends AbstractService {
 
   public start(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      const classpath: string = this._workspaceConfig.get(
-        Constants.CONFIGURATION_MANAGED_CLASS_PATH,
-      ) as string;
+      const classpath: string = this.getClassPath();
       const minimumPort: number = this._workspaceConfig.get(
         Constants.CONFIGURATION_MANAGED_PORT_MINIMUM,
       ) as number;
@@ -102,5 +103,32 @@ export class ManagedService extends AbstractService {
         reject(new Error("No process to stop."));
       }
     });
+  }
+
+  private getClassPath(): string {
+    const jarFile = this._workspaceConfig.get(
+      Constants.CONFIGURATION_MANAGED_JAR_FILE,
+    ) as string;
+    const classPath = this._workspaceConfig.get(
+      Constants.CONFIGURATION_MANAGED_CLASS_PATH,
+    ) as string;
+    const classPathFiles: string[] = [];
+    // DEPRECATED
+    if (jarFile !== "") {
+      window.showWarningMessage(
+        '"LanguageTool Linter > Managed: Jar File" is deprecated. \
+        Please use "LanguageTool > Managed: Class Path" instead.',
+      );
+      classPathFiles.push(jarFile);
+    }
+    if (classPath !== "") {
+      classPath.split(path.delimiter).forEach((globPattern: string) => {
+        glob.sync(globPattern).forEach((match: string) => {
+          classPathFiles.push(match);
+        });
+      });
+    }
+    const classPathString: string = classPathFiles.join(path.delimiter);
+    return classPathString;
   }
 }

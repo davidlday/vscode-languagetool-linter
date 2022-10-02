@@ -15,9 +15,6 @@
  */
 
 import execa from "execa";
-import * as glob from "glob";
-import * as path from "path";
-import * as portfinder from "portfinder";
 import {
   commands,
   ConfigurationChangeEvent,
@@ -41,8 +38,6 @@ import { PublicService } from "./services/PublicService";
 export class ConfigurationManager implements Disposable {
   // Private Members
   private config: WorkspaceConfiguration;
-  private serviceUrl: string | undefined;
-  private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
   private serviceParameters: Map<string, string> = new Map();
   private service: AbstractService;
@@ -50,75 +45,29 @@ export class ConfigurationManager implements Disposable {
   // Constructor
   constructor() {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
-    this.serviceUrl = this.findServiceUrl(this.getServiceType());
-    this.startManagedService();
+    // this.serviceUrl = this.findServiceUrl(this.getServiceType());
+    // this.startManagedService();
     this.serviceParameters = this.buildServiceParameters();
-    const type = this.getServiceType();
-    switch (type) {
-      case Constants.SERVICE_TYPE_MANAGED:
-        this.service = new ManagedService(this.config);
-        break;
-      case Constants.SERVICE_TYPE_EXTERNAL:
-        this.service = new ExternalService(this.config);
-        break;
-      case Constants.SERVICE_TYPE_PODMAN:
-        this.service = new PodmanService(this.config);
-        break;
-      default:
-        this.service = new PublicService(this.config);
-    }
+    this.service = this.instantiateService();
   }
 
   // Public instance methods
   public dispose(): void {
     this.service.dispose();
-    this.stopManagedService();
   }
 
   public reloadConfiguration(event: ConfigurationChangeEvent): void {
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
-    this.serviceUrl = this.findServiceUrl(this.getServiceType());
+    // this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.serviceParameters = this.buildServiceParameters();
     // Changed service type
     if (
       event.affectsConfiguration(Constants.CONFIGURATION_ROOT + ".serviceType")
     ) {
       this.service.dispose();
-      const type = this.getServiceType();
-      switch (type) {
-        case Constants.SERVICE_TYPE_MANAGED:
-          this.service = new ManagedService(this.config);
-          break;
-        case Constants.SERVICE_TYPE_EXTERNAL:
-          this.service = new ExternalService(this.config);
-          break;
-        case Constants.SERVICE_TYPE_PODMAN:
-          this.service = new PodmanService(this.config);
-          break;
-        default:
-          this.service = new PublicService(this.config);
-      }
+      this.service = this.instantiateService();
     } else {
       this.service.reloadConfiguration(event, this.config);
-    }
-
-    // Changed class path for managed service
-    if (
-      this.getServiceType() === Constants.SERVICE_TYPE_MANAGED &&
-      (event.affectsConfiguration(
-        Constants.CONFIGURATION_ROOT + "managed.classPath",
-      ) ||
-        event.affectsConfiguration(
-          Constants.CONFIGURATION_ROOT + "managed.jarFile",
-        ) ||
-        event.affectsConfiguration(
-          Constants.CONFIGURATION_ROOT + "managed.portMinimum",
-        ) ||
-        event.affectsConfiguration(
-          Constants.CONFIGURATION_ROOT + "managed.portMaximum",
-        ))
-    ) {
-      this.startManagedService();
     }
     // Only allow preferred variants when language === auto
     if (
@@ -229,13 +178,37 @@ export class ConfigurationManager implements Disposable {
     return selectors;
   }
 
-  public getServiceType(): string {
-    return this.get("serviceType") as string;
+  // public getServiceType(): string {
+  //   return this.get("serviceType") as string;
+  // }
+
+  public getService(): AbstractService {
+    return this.service;
   }
 
-  public getServiceParameters(): Map<string, string> {
-    return this.serviceParameters;
+  private instantiateService(): AbstractService {
+    const type = this.get("serviceType") as string;
+    switch (type) {
+      case Constants.SERVICE_TYPES.MANAGED:
+        return new ManagedService(this.config);
+        break;
+      case Constants.SERVICE_TYPES.EXTERNAL:
+        return new ExternalService(this.config);
+        break;
+      case Constants.SERVICE_TYPES.PODMAN:
+        return new PodmanService(this.config);
+        break;
+      case Constants.SERVICE_TYPES.PUBLIC:
+        return new PublicService(this.config);
+        break;
+      default:
+        throw new Error("Unkown service type: " + type);
+    }
   }
+
+  // public getServiceParameters(): Map<string, string> {
+  //   return this.serviceParameters;
+  // }
 
   public getRuleUrl(ruleId: string): Uri {
     const lang = this.getLanguage();
@@ -254,10 +227,6 @@ export class ConfigurationManager implements Disposable {
     } else {
       return lang;
     }
-  }
-
-  public getUrl(): string | undefined {
-    return this.serviceUrl;
   }
 
   public isHideDiagnosticsOnChange(): boolean {
@@ -296,39 +265,39 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
-  public getClassPath(): string {
-    const jarFile: string = this.get("managed.jarFile") as string;
-    const classPath: string = this.get("managed.classPath") as string;
-    const classPathFiles: string[] = [];
-    // DEPRECATED
-    if (jarFile !== "") {
-      window.showWarningMessage(
-        '"LanguageTool Linter > Managed: Jar File" is deprecated. \
-        Please use "LanguageTool > Managed: Class Path" instead.',
-      );
-      classPathFiles.push(jarFile);
-    }
-    if (classPath !== "") {
-      classPath.split(path.delimiter).forEach((globPattern: string) => {
-        glob.sync(globPattern).forEach((match: string) => {
-          classPathFiles.push(match);
-        });
-      });
-    }
-    const classPathString: string = classPathFiles.join(path.delimiter);
-    return classPathString;
-  }
+  // public getClassPath(): string {
+  //   const jarFile: string = this.get("managed.jarFile") as string;
+  //   const classPath: string = this.get("managed.classPath") as string;
+  //   const classPathFiles: string[] = [];
+  //   // DEPRECATED
+  //   if (jarFile !== "") {
+  //     window.showWarningMessage(
+  //       '"LanguageTool Linter > Managed: Jar File" is deprecated. \
+  //       Please use "LanguageTool > Managed: Class Path" instead.',
+  //     );
+  //     classPathFiles.push(jarFile);
+  //   }
+  //   if (classPath !== "") {
+  //     classPath.split(path.delimiter).forEach((globPattern: string) => {
+  //       glob.sync(globPattern).forEach((match: string) => {
+  //         classPathFiles.push(match);
+  //       });
+  //     });
+  //   }
+  //   const classPathString: string = classPathFiles.join(path.delimiter);
+  //   return classPathString;
+  // }
 
-  // Stop the managed service
-  public stopManagedService(): void {
-    if (this.process) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "Closing managed service server.",
-      );
-      this.process.cancel();
-      this.process = undefined;
-    }
-  }
+  // // Stop the managed service
+  // public stopManagedService(): void {
+  //   if (this.process) {
+  //     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //       "Closing managed service server.",
+  //     );
+  //     this.process.cancel();
+  //     this.process = undefined;
+  //   }
+  // }
 
   // Manage Ignored Words Lists
   public isIgnoredWord(word: string): boolean {
@@ -398,31 +367,31 @@ export class ConfigurationManager implements Disposable {
 
   // Private instance methods
 
-  private findServiceUrl(serviceType: string): string | undefined {
-    switch (serviceType) {
-      case Constants.SERVICE_TYPE_EXTERNAL: {
-        return this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
-      }
-      case Constants.SERVICE_TYPE_MANAGED: {
-        const port = this.getManagedServicePort();
-        if (port) {
-          return (
-            "http://localhost:" +
-            this.getManagedServicePort() +
-            Constants.SERVICE_CHECK_PATH
-          );
-        } else {
-          return undefined;
-        }
-      }
-      case Constants.SERVICE_TYPE_PUBLIC: {
-        return Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
-      }
-      default: {
-        return undefined;
-      }
-    }
-  }
+  // private findServiceUrl(serviceType: string): string | undefined {
+  //   switch (serviceType) {
+  //     case Constants.SERVICE_TYPE_EXTERNAL: {
+  //       return this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
+  //     }
+  //     case Constants.SERVICE_TYPE_MANAGED: {
+  //       const port = this.getManagedServicePort();
+  //       if (port) {
+  //         return (
+  //           "http://localhost:" +
+  //           this.getManagedServicePort() +
+  //           Constants.SERVICE_CHECK_PATH
+  //         );
+  //       } else {
+  //         return undefined;
+  //       }
+  //     }
+  //     case Constants.SERVICE_TYPE_PUBLIC: {
+  //       return Constants.SERVICE_PUBLIC_URL + Constants.SERVICE_CHECK_PATH;
+  //     }
+  //     default: {
+  //       return undefined;
+  //     }
+  //   }
+  // }
 
   private buildServiceParameters(): Map<string, string> {
     const config: WorkspaceConfiguration = this.config;
@@ -463,93 +432,93 @@ export class ConfigurationManager implements Disposable {
     return parameters;
   }
 
-  private setManagedServicePort(port: number): void {
-    this.managedPort = port;
-  }
+  // private setManagedServicePort(port: number): void {
+  //   this.managedPort = port;
+  // }
 
-  private getManagedServicePort(): number | undefined {
-    return this.managedPort;
-  }
+  // private getManagedServicePort(): number | undefined {
+  //   return this.managedPort;
+  // }
 
-  private getExternalUrl(): string | undefined {
-    return this.get("external.url");
-  }
+  // private getExternalUrl(): string | undefined {
+  //   return this.get("external.url");
+  // }
 
   private get(key: string): string | undefined {
     return this.config.get(key);
   }
 
-  private getMinimumPort(): number {
-    return this.config.get("managed.portMinimum") as number;
-  }
+  // private getMinimumPort(): number {
+  //   return this.config.get("managed.portMinimum") as number;
+  // }
 
-  private getMaximumPort(): number {
-    return this.config.get("managed.portMaximum") as number;
-  }
+  // private getMaximumPort(): number {
+  //   return this.config.get("managed.portMaximum") as number;
+  // }
 
-  private startManagedService(): void {
-    if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
-      const classpath: string = this.getClassPath();
-      const minimumPort: number = this.getMinimumPort();
-      const maximumPort: number = this.getMaximumPort();
-      this.stopManagedService();
-      if (minimumPort > maximumPort) {
-        window.showWarningMessage(
-          "LanguageTool Linter - The minimum port is greater than the maximum port. \
-          Cancelling start of managed service. Please adjust your settings and try again.",
-        );
-      } else {
-        portfinder.getPort(
-          { host: "127.0.0.1", port: minimumPort, stopPort: maximumPort },
-          (error: Error, port: number) => {
-            if (error) {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                "Error getting open port: " + error.message,
-              );
-              Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-            } else {
-              this.setManagedServicePort(port);
-              const args: string[] = [
-                "-cp",
-                classpath,
-                "org.languagetool.server.HTTPServer",
-                "--port",
-                port.toString(),
-              ];
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                "Starting managed service.",
-              );
-              (this.process = execa("java", args)).catch(
-                (err: execa.ExecaError) => {
-                  if (err.isCanceled) {
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Managed service process stopped.",
-                    );
-                  } else if (err.failed) {
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Managed service command failed: " + err.command,
-                    );
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Error Message: " + err.message,
-                    );
-                    Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-                  }
-                },
-              );
-              this.process.stderr.addListener("data", (data) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-                Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-              });
-              this.process.stdout.addListener("data", (data) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-              });
-              this.serviceUrl = this.findServiceUrl(this.getServiceType());
-            }
-          },
-        );
-      }
-    }
-  }
+  // private startManagedService(): void {
+  //   if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
+  //     const classpath: string = this.getClassPath();
+  //     const minimumPort: number = this.getMinimumPort();
+  //     const maximumPort: number = this.getMaximumPort();
+  //     this.stopManagedService();
+  //     if (minimumPort > maximumPort) {
+  //       window.showWarningMessage(
+  //         "LanguageTool Linter - The minimum port is greater than the maximum port. \
+  //         Cancelling start of managed service. Please adjust your settings and try again.",
+  //       );
+  //     } else {
+  //       portfinder.getPort(
+  //         { host: "127.0.0.1", port: minimumPort, stopPort: maximumPort },
+  //         (error: Error, port: number) => {
+  //           if (error) {
+  //             Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //               "Error getting open port: " + error.message,
+  //             );
+  //             Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+  //           } else {
+  //             this.setManagedServicePort(port);
+  //             const args: string[] = [
+  //               "-cp",
+  //               classpath,
+  //               "org.languagetool.server.HTTPServer",
+  //               "--port",
+  //               port.toString(),
+  //             ];
+  //             Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //               "Starting managed service.",
+  //             );
+  //             (this.process = execa("java", args)).catch(
+  //               (err: execa.ExecaError) => {
+  //                 if (err.isCanceled) {
+  //                   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //                     "Managed service process stopped.",
+  //                   );
+  //                 } else if (err.failed) {
+  //                   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //                     "Managed service command failed: " + err.command,
+  //                   );
+  //                   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+  //                     "Error Message: " + err.message,
+  //                   );
+  //                   Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+  //                 }
+  //               },
+  //             );
+  //             this.process.stderr.addListener("data", (data) => {
+  //               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+  //               Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+  //             });
+  //             this.process.stdout.addListener("data", (data) => {
+  //               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+  //             });
+  //             this.serviceUrl = this.service.getURL();
+  //           }
+  //         },
+  //       );
+  //     }
+  //   }
+  // }
 
   // Save words to settings
   private saveIgnoredWords(
