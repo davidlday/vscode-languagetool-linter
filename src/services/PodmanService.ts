@@ -134,6 +134,7 @@ export class PodmanService
   private port: number;
   private ip: string;
   private hardStop: boolean;
+  private command: string;
 
   // ILanguageToolService methods
   constructor(workspaceConfig: WorkspaceConfiguration) {
@@ -153,6 +154,9 @@ export class PodmanService
     this.hardStop = this._workspaceConfig.get(
       Constants.CONFIGURATION_PODMAN_HARDSTOP,
     ) as boolean;
+    this.command = this._workspaceConfig.get(
+      Constants.CONFIGURATION_PODMAN_COMMAND,
+    ) as string;
   }
 
   public start(): Promise<boolean> {
@@ -192,7 +196,7 @@ export class PodmanService
         }, 120000);
         // Wow, this is a long timeout, but it's necessary for the container to start up
       } else if (isContainerAvailable) {
-        const result = execa.sync("podman", ["start", this.containerName]);
+        const result = execa.sync(this.command, ["start", this.containerName]);
         if (result.exitCode === 0) {
           this._ltUrl = this.getServiceURL();
           this._state = Constants.SERVICE_STATES.READY;
@@ -202,7 +206,7 @@ export class PodmanService
           reject(new Error(result.stderr));
         }
       } else if (isImageAvailable || isPodmanMachineRunning) {
-        const result = execa.sync("podman", [
+        const result = execa.sync(this.command, [
           "run",
           "-d",
           "-p",
@@ -239,7 +243,7 @@ export class PodmanService
     this._state = Constants.SERVICE_STATES.STOPPING;
     return new Promise((resolve, reject) => {
       if (this.isContainerRunning() && this.hardStop) {
-        const result = execa.sync("podman", ["stop", this.containerName]);
+        const result = execa.sync(this.command, ["stop", this.containerName]);
         if (result.exitCode === 0) {
           this._state = Constants.SERVICE_STATES.STOPPED;
           resolve(true);
@@ -295,7 +299,7 @@ export class PodmanService
       return true;
     } else {
       try {
-        const result = execa.sync("podman", [
+        const result = execa.sync(this.command, [
           "machine",
           "info",
           "--format",
@@ -323,7 +327,7 @@ export class PodmanService
 
   private isImageAvailable(): boolean {
     try {
-      const result = execa.sync("podman", [
+      const result = execa.sync(this.command, [
         "images",
         "--format",
         "json",
@@ -352,7 +356,7 @@ export class PodmanService
   // Container methods
   private inspectContainer(): ContainerInfo[] {
     try {
-      const result = execa.sync("podman", [
+      const result = execa.sync(this.command, [
         "inspect",
         this.containerName,
         "--format",
@@ -374,7 +378,7 @@ export class PodmanService
 
   private containerExists(): boolean {
     try {
-      const result = execa.sync("podman", [
+      const result = execa.sync(this.command, [
         "ps",
         "-a",
         "--format",
@@ -460,7 +464,7 @@ export class PodmanService
   private isContainerHealthy(): boolean {
     if (this.isPodmanMachineRunning() && this.containerExists()) {
       try {
-        const result = execa.sync("podman", [
+        const result = execa.sync(this.command, [
           "healthcheck",
           "run",
           this.containerName,
@@ -505,7 +509,7 @@ export class PodmanService
 
   private renameContainer(newName: string): void {
     try {
-      const result = execa.sync("podman", [
+      const result = execa.sync(this.command, [
         "rename",
         this.containerName,
         newName,
