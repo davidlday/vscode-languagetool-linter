@@ -4,7 +4,7 @@ on: push
 
 jobs:
   call-build-ubuntu:
-    uses: ./.github/worklows/builds/ubuntu.yaml
+    uses: ./.github/worklows/build-ubuntu.yaml
     name: Build on Ubuntu
     # runs-on: ubuntu-22.04
     # env:
