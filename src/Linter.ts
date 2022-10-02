@@ -16,7 +16,6 @@
 
 import * as RehypeBuilder from "annotatedtext-rehype";
 import * as RemarkBuilder from "annotatedtext-remark";
-import * as Fetch from "node-fetch";
 import {
   CancellationToken,
   CodeAction,
@@ -135,6 +134,7 @@ export class Linter implements CodeActionProvider {
       this.timeoutMap.set(uriString, timeout);
     }
   }
+
   // Force request a lint for a document as plain text regardless of language id
   public requestLintAsPlainText(
     document: TextDocument,
@@ -236,9 +236,21 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     annotatedText: string,
   ): void {
-    const ltPostDataDict: Record<string, string> = this.getPostDataTemplate();
-    ltPostDataDict.data = annotatedText;
-    this.callLanguageTool(document, ltPostDataDict);
+    const service = this.configManager.getService();
+    if (service && service.getState() === Constants.SERVICE_STATES.READY) {
+      service
+        .invokeLanguageTool(annotatedText)
+        .then((languageTooleResponse) => {
+          this.suggest(document, languageTooleResponse);
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(error.message);
+          }
+        });
+    } else {
+      throw new Error("Service is not ready");
+    }
   }
 
   // Apply smart formatting to annotated text.
@@ -299,56 +311,6 @@ export class Linter implements CodeActionProvider {
       interpretation += "** ";
     }
     return interpretation;
-  }
-
-  // Set ltPostDataTemplate from Configuration
-  private getPostDataTemplate(): Record<string, string> {
-    const ltPostDataTemplate: Record<string, string> = {};
-    this.configManager.getServiceParameters().forEach((value, key) => {
-      ltPostDataTemplate[key] = value;
-    });
-    return ltPostDataTemplate;
-  }
-
-  // Call to LanguageTool Service
-  private callLanguageTool(
-    document: TextDocument,
-    ltPostDataDict: Record<string, string>,
-  ): void {
-    const url = this.configManager.getUrl();
-    if (url) {
-      const formBody = Object.keys(ltPostDataDict)
-        .map(
-          (key: string) =>
-            encodeURIComponent(key) +
-            "=" +
-            encodeURIComponent(ltPostDataDict[key]),
-        )
-        .join("&");
-
-      const options: Fetch.RequestInit = {
-        body: formBody,
-        headers: {
-          "Accepts": "application/json",
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-        },
-        method: "POST",
-      };
-      Fetch.default(url, options)
-        .then((res) => res.json())
-        .then((json) => this.suggest(document, json))
-        .catch((err) => {
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            "Error connecting to " + url,
-          );
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(err);
-        });
-    } else {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "No LanguageTool URL provided. Please check your settings and try again.",
-      );
-      Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-    }
   }
 
   // Convert LanguageTool Suggestions into QuickFix CodeActions
