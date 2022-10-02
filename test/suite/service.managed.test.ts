@@ -1,23 +1,36 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { SERVICE_STATES } from "../../src/Constants";
+import {
+  CONFIGURATION_MANAGED_CLASS_PATH,
+  SERVICE_STATES,
+} from "../../src/Constants";
 import { ManagedService } from "../../src/services/ManagedService";
 
 suite("ManagedService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
     vscode.workspace.getConfiguration();
+  this.timeout(10000);
 
   // ManagedService Tests
   let managedservice: ManagedService;
 
-  test("ManagedService should instantiate", function () {
-    // If testing environment variables are defined, inject them into the config
-    if (process.env.LANGUAGETOOL_MANAGED_CLASSPATH) {
-      config.update(
-        "languageToolLinter.managed.classPath",
-        process.env.LANGUAGETOOL_MANAGED_CLASSPATH,
-      );
+  // Set up config from environment variables
+  this.beforeAll(() => {
+    if (process.env.LTLINTER_MANAGED_CLASSPATH) {
+      config
+        .update(
+          CONFIGURATION_MANAGED_CLASS_PATH,
+          process.env.LTLINTER_MANAGED_CLASSPATH,
+        )
+        .then(() => {
+          assert.ok(config);
+        });
+    } else {
+      assert.fail("LTLINTER_MANAGED_CLASSPATH not defined");
     }
+  });
+
+  test("ManagedService should instantiate", function () {
     managedservice = new ManagedService(config);
     assert.ok(managedservice);
   });
@@ -28,11 +41,12 @@ suite("ManagedService Test Suite", function () {
       .then((result) => {
         assert.ok(!result);
       })
-      .catch((err) => {
-        assert.notStrictEqual(
-          err,
-          new Error("LanguageTool URL is not defined."),
-        );
+      .catch((error) => {
+        if (error instanceof Error) {
+          assert.fail(error.message);
+        } else {
+          assert.fail("Unknown error");
+        }
       });
   });
 
