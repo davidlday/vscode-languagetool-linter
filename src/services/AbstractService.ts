@@ -29,6 +29,9 @@ export abstract class AbstractService
   protected _state = Constants.SERVICE_STATES.STOPPED;
   protected _workspaceConfig: WorkspaceConfiguration;
   protected _ltUrl: string | undefined;
+  protected _serviceConfigurationRoot: string = Constants.CONFIGURATION_ROOT;
+  protected _username: string | undefined;
+  protected _apiKey: string | undefined;
 
   constructor(workspaceConfig: WorkspaceConfiguration) {
     this._workspaceConfig = workspaceConfig;
@@ -46,7 +49,7 @@ export abstract class AbstractService
     event: ConfigurationChangeEvent,
     workspaceConfig: WorkspaceConfiguration,
   ): void {
-    if (event.affectsConfiguration(Constants.CONFIGURATION_ROOT)) {
+    if (event.affectsConfiguration(this._serviceConfigurationRoot)) {
       this.stop();
       while (this._state !== Constants.SERVICE_STATES.STOPPED) {
         // wait for stop to complete
@@ -74,6 +77,11 @@ export abstract class AbstractService
             parameters[serviceParameter] = value;
           }
         });
+        if (this._username && this._apiKey) {
+          // TODO: Give feedback if one is set but not the other
+          parameters["username"] = this._username;
+          parameters["apiKey"] = this._apiKey;
+        }
         // Make sure disabled rules and disabled categories do not contain spaces
         if (
           this._workspaceConfig.has(Constants.CONFIGURATION_LT_DISABLED_RULES)
