@@ -232,11 +232,13 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {
-    let firstDelay = Constants.EXTENSION_TIMEOUT_MS;
-    if (configMan.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
-      // Add a second to give the service time to start up.
-      firstDelay += 1000;
-    }
+    // let firstDelay = Constants.EXTENSION_TIMEOUT_MS;
+    // if (configMan.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
+    //   // Add a second to give the service time to start up.
+    //   firstDelay += 1000;
+    // }
+    // Add a second on activation
+    const firstDelay = Constants.EXTENSION_TIMEOUT_MS + 1000;
     linter.requestLint(vscode.window.activeTextEditor.document, firstDelay);
   }
 }
