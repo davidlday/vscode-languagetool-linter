@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { SERVICE_STATES } from "../../src/Constants";
+import * as Constants from "../../src/Constants";
 import { PodmanService } from "../../src/services/PodmanService";
 
 suite("PodmanService Test Suite", function () {
@@ -8,15 +8,46 @@ suite("PodmanService Test Suite", function () {
     vscode.workspace.getConfiguration();
 
   // PodmanService Tests
-  let podmanservice: PodmanService;
+  let service: PodmanService;
+
+  this.beforeAll(function (done) {
+    const imageName = process.env.LTLINTER_PODMAN_IMAGE_NAME
+      ? process.env.LTLINTER_PODMAN_IMAGE_NAME
+      : config.get(Constants.CONFIGURATION_PODMAN_IMAGE_NAME);
+    const containerName = process.env.LTLINTER_PODMAN_CONTAINER_NAME
+      ? process.env.LTLINTER_PODMAN_CONTAINER_NAME
+      : config.get(Constants.CONFIGURATION_PODMAN_CONTAINER_NAME);
+    const ip = process.env.LTLINTER_PODMAN_IP
+      ? process.env.LTLINTER_PODMAN_IP
+      : config.get(Constants.CONFIGURATION_PODMAN_IP);
+    const port = process.env.LTLINTER_PODMAN_PORT
+      ? process.env.LTLINTER_PODMAN_PORT
+      : config.get(Constants.CONFIGURATION_PODMAN_PORT);
+
+    config
+      .update(Constants.CONFIGURATION_PODMAN_IMAGE_NAME, imageName)
+      .then(() => {
+        config
+          .update(Constants.CONFIGURATION_PODMAN_CONTAINER_NAME, containerName)
+          .then(() => {
+            config.update(Constants.CONFIGURATION_PODMAN_IP, ip).then(() => {
+              config
+                .update(Constants.CONFIGURATION_PODMAN_PORT, port)
+                .then(() => {
+                  done();
+                });
+            });
+          });
+      });
+  });
 
   test("PodmanService should instantiate", function () {
-    podmanservice = new PodmanService(config);
-    assert.ok(podmanservice);
+    service = new PodmanService(config);
+    assert.ok(service);
   });
 
   test("PodmanService should NOT be pingable", function () {
-    return podmanservice
+    return service
       .ping()
       .then((result) => {
         assert.ok(!result);
@@ -31,10 +62,10 @@ suite("PodmanService Test Suite", function () {
 
   test("PodmanService should start", function () {
     this.timeout(20000);
-    return podmanservice
+    return service
       .start()
       .then(() => {
-        assert.strictEqual(podmanservice.getState(), SERVICE_STATES.READY);
+        assert.strictEqual(service.getState(), Constants.SERVICE_STATES.READY);
       })
       .catch((err) => {
         assert.fail(err);
@@ -42,7 +73,7 @@ suite("PodmanService Test Suite", function () {
   });
 
   test("PodmanService should respond to ping.", function () {
-    return podmanservice
+    return service
       .ping()
       .then((result) => {
         assert.ok(result);
@@ -54,10 +85,13 @@ suite("PodmanService Test Suite", function () {
 
   test("PodmanService should stop", function () {
     this.timeout(12000);
-    return podmanservice
+    return service
       .stop()
       .then(() => {
-        assert.strictEqual(podmanservice.getState(), SERVICE_STATES.STOPPED);
+        assert.strictEqual(
+          service.getState(),
+          Constants.SERVICE_STATES.STOPPED,
+        );
       })
       .catch((err) => {
         assert.fail(err);
@@ -65,7 +99,7 @@ suite("PodmanService Test Suite", function () {
   });
 
   test("PodmanService should NOT respond to ping", function () {
-    return podmanservice
+    return service
       .ping()
       .then((result) => {
         assert.strictEqual(result, false);

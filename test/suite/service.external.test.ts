@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { SERVICE_STATES } from "../../src/Constants";
+import * as Constants from "../../src/Constants";
 import { ExternalService } from "../../src/services/ExternalService";
 import { PodmanService } from "../../src/services/PodmanService";
 
@@ -8,27 +8,52 @@ suite("ExternalService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
     vscode.workspace.getConfiguration();
   // Use the PodmanService as our external service provider
-  const podmanservice: PodmanService = new PodmanService(config);
+  // const podmanservice: PodmanService = new PodmanService(config);
+
+  let service: PodmanService;
 
   this.beforeAll(function (done) {
-    this.timeout(100000);
-    podmanservice
-      .start()
-      .then((result) => {
-        if (result) {
-          done();
-        } else {
-          done(new Error("Could not start PodmanService"));
-        }
+    config
+      .update(
+        Constants.CONFIGURATION_PODMAN_PORT,
+        process.env.LTLINTER_EXTERNAL_PORT,
+      )
+      .then(() => {
+        return config.update(
+          Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+          "external-test",
+        );
       })
-      .catch((err) => {
-        assert.fail(err);
+      .then(() => {
+        return config.update(
+          Constants.CONFIGURATION_EXTERNAL_URL,
+          `http://localhost:${process.env.LTLINTER_EXTERNAL_PORT}`,
+        );
+      })
+      .then(async () => {
+        service = new PodmanService(config);
+        this.timeout(100000);
+        return service
+          .start()
+          .then((result) => {
+            if (result) {
+              done();
+            } else {
+              done(new Error("Could not start PodmanService"));
+            }
+          })
+          .catch((err) => {
+            assert.fail(err);
+          });
+      })
+      .then(() => {
+        done();
       });
   });
 
   this.afterAll(function (done) {
     this.timeout(100000);
-    podmanservice.stop().then((result) => {
+    service.stop().then((result) => {
       if (result) {
         done();
       } else {
@@ -64,7 +89,10 @@ suite("ExternalService Test Suite", function () {
     return externalservice
       .start()
       .then(() => {
-        assert.strictEqual(externalservice.getState(), SERVICE_STATES.READY);
+        assert.strictEqual(
+          externalservice.getState(),
+          Constants.SERVICE_STATES.READY,
+        );
       })
       .catch((err) => {
         assert.fail(err);
@@ -88,7 +116,10 @@ suite("ExternalService Test Suite", function () {
     return externalservice
       .stop()
       .then(() => {
-        assert.strictEqual(externalservice.getState(), SERVICE_STATES.STOPPED);
+        assert.strictEqual(
+          externalservice.getState(),
+          Constants.SERVICE_STATES.STOPPED,
+        );
       })
       .catch((err) => {
         assert.fail(err);
