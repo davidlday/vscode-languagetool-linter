@@ -1,6 +1,6 @@
 import * as path from "path";
 // tslint:disable-next-line: no-implicit-dependencies
-import { runTests } from "vscode-test";
+import { runTests } from "@vscode/test-electron";
 
 async function main() {
   try {
