@@ -30,7 +30,7 @@ suite("ExternalService Test Suite", function () {
           `http://localhost:${process.env.LTLINTER_EXTERNAL_PORT}`,
         );
       })
-      .then(async () => {
+      .then(() => {
         service = new PodmanService(config);
         this.timeout(100000);
         return service
