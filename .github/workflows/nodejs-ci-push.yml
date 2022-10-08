@@ -18,7 +18,8 @@ jobs:
           node-version: lts/*
       - name: Start Xvfb
         id: start-xvfb
-        run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        run: |
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 +extension GLX +render -noreset >> $HOME/xsession.log 2>&1 &
       - name: Install Podman (4.x)
         id: install-podman
         # https://podman.io/getting-started/installation
