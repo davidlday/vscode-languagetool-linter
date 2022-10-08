@@ -12,18 +12,19 @@ suite("ManagedService Test Suite", function () {
   this.timeout(10000);
 
   // ManagedService Tests
-  let managedservice: ManagedService;
+  let managedservice: ManagedService = new ManagedService(config);
 
   // Set up config from environment variables
-  this.beforeAll(() => {
+  this.beforeAll(async (done) => {
     if (process.env.LTLINTER_MANAGED_CLASSPATH) {
-      config
+      await config
         .update(
           CONFIGURATION_MANAGED_CLASS_PATH,
           process.env.LTLINTER_MANAGED_CLASSPATH,
         )
         .then(() => {
           assert.ok(config);
+          done();
         });
     } else {
       assert.fail("LTLINTER_MANAGED_CLASSPATH not defined");
@@ -35,19 +36,18 @@ suite("ManagedService Test Suite", function () {
     assert.ok(managedservice);
   });
 
-  test("ManagedService should NOT be pingable", function () {
-    return managedservice
-      .ping()
-      .then((result) => {
-        assert.ok(!result);
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          assert.fail(error.message);
-        } else {
-          assert.fail("Unknown error");
-        }
-      });
+  test("ManagedService should NOT be pingable", async (done) => {
+    try {
+      const result = await managedservice.ping();
+      assert.ok(!result);
+      done();
+    } catch (error) {
+      if (error instanceof Error) {
+        assert.fail(error.message);
+      } else {
+        assert.fail("Unknown error");
+      }
+    }
   });
 
   test("ManagedService should start", function () {

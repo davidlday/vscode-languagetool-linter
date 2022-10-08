@@ -1,5 +1,5 @@
+import * as fs from "fs";
 import * as path from "path";
-// tslint:disable-next-line: no-implicit-dependencies
 import { runTests } from "@vscode/test-electron";
 
 async function main() {
@@ -20,6 +20,31 @@ async function main() {
       extensionTestsPath,
       launchArgs: [testWorkspace],
     });
+
+    const servicesTestsPath = path.resolve(__dirname, "./services/index");
+
+    if (process.env.LTLINTER_TEST_SERVICES) {
+      if (process.env.LTLINTER_MANAGED_CLASSPATH) {
+        const settings = JSON.parse(
+          fs.readFileSync(
+            path.resolve(testWorkspace, ".vscode/settings.json"),
+            "utf8",
+          ),
+        );
+        settings.languageToolLinter.managed.classPath =
+          process.env.LTLINTER_MANAGED_CLASSPATH;
+        fs.writeFileSync(
+          path.resolve(testWorkspace, ".vscode/settings.json"),
+          JSON.stringify(settings),
+          "utf8",
+        );
+      }
+      await runTests({
+        extensionDevelopmentPath,
+        extensionTestsPath: servicesTestsPath,
+        launchArgs: [testWorkspace],
+      });
+    }
   } catch (err) {
     // tslint:disable-next-line: no-console
     console.error("Failed to run tests");

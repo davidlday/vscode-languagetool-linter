@@ -1,4 +1,6 @@
 {
+  "languageToolLinter.hideRuleIds": false,
+  "languageToolLinter.languageTool.disabledRules": "DASH_RULE,PROFANITY",
   "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
     "backticks",
     "languagetool-linter",
@@ -6,13 +8,13 @@
     "misspeeled",
     "yaml"
   ],
-  "languageToolLinter.languageTool.disabledRules": "DASH_RULE,PROFANITY",
-  "languageToolLinter.lintOnOpen": true,
   "languageToolLinter.lintOnChange": true,
+  "languageToolLinter.lintOnOpen": true,
+  "languageToolLinter.plainText.languageIds": ["plaintext", "asciidoc"],
+  "languageToolLinter.external.url": "http://localhost:8081",
   "languageToolLinter.managed.classPath": "/usr/local/opt/languagetool/libexec/languagetool-server.jar",
-  "languageToolLinter.hideRuleIds": false,
-  "languageToolLinter.plainText.languageIds": [
-    "plaintext",
-    "asciidoc"
-  ]
+  "languageToolLinter.podman.containerName": "languagetool-test",
+  "languageToolLinter.podman.imageName": "docker.io/erikvl87/languagetool:5.8",
+  "languageToolLinter.podman.ip": "127.0.0.1",
+  "languageToolLinter.podman.port": "8081"
 }

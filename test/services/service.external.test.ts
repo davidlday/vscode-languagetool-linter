@@ -10,50 +10,71 @@ suite("ExternalService Test Suite", function () {
   // Use the PodmanService as our external service provider
   // const podmanservice: PodmanService = new PodmanService(config);
 
-  let service: PodmanService;
+  const podmanservice: PodmanService = new PodmanService(config);
 
   this.beforeAll(function (done) {
-    config
-      .update(
-        Constants.CONFIGURATION_PODMAN_PORT,
-        process.env.LTLINTER_EXTERNAL_PORT,
-      )
-      .then(() => {
-        return config.update(
-          Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-          "external-test",
-        );
-      })
-      .then(() => {
-        return config.update(
-          Constants.CONFIGURATION_EXTERNAL_URL,
-          `http://localhost:${process.env.LTLINTER_EXTERNAL_PORT}`,
-        );
-      })
-      .then(() => {
-        service = new PodmanService(config);
-        this.timeout(100000);
-        return service
-          .start()
-          .then((result) => {
-            if (result) {
-              done();
-            } else {
-              done(new Error("Could not start PodmanService"));
-            }
-          })
-          .catch((err) => {
-            assert.fail(err);
-          });
-      })
+    this.timeout(100000);
+    podmanservice
+      .start()
       .then(() => {
         done();
+      })
+      .catch((err) => {
+        done(err);
       });
   });
+  // const imageName = process.env.LTLINTER_EXTERNAL_PORT
+  //   ? process.env.LTLINTER_PODMAN_IMAGE_NAME
+  //   : config.get(Constants.CONFIGURATION_PODMAN_IMAGE_NAME);
+  // const ip = process.env.LTLINTER_PODMAN_IP
+  //   ? process.env.LTLINTER_PODMAN_IP
+  //   : config.get(Constants.CONFIGURATION_PODMAN_IP);
+  // const port = process.env.LTLINTER_PODMAN_PORT
+  //   ? process.env.LTLINTER_PODMAN_PORT
+  //   : config.get(Constants.CONFIGURATION_PODMAN_PORT);
+  // const externalUrl = process.env.LTLINTER_EXTERNAL_PORT
+  //   ? `http://localhost:${process.env.LTLINTER_EXTERNAL_PORT}`
+  //   : config.get(Constants.CONFIGURATION_EXTERNAL_URL);
+
+  // config
+  //   .update(Constants.CONFIGURATION_PODMAN_IMAGE_NAME, imageName)
+  //   .then(() => {
+  //     config
+  //       .update(
+  //         Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+  //         "external-test",
+  //       )
+  //       .then(() => {
+  //         config.update(Constants.CONFIGURATION_PODMAN_IP, ip).then(() => {
+  //           config
+  //             .update(Constants.CONFIGURATION_PODMAN_PORT, port)
+  //             .then(() => {
+  //               config
+  //                 .update(Constants.CONFIGURATION_EXTERNAL_URL, externalUrl)
+  //                 .then(() => {
+  //                   const service = new PodmanService(config);
+  //                   service
+  //                     .start()
+  //                     .then((result) => {
+  //                       assert.ok(result);
+  //                       done();
+  //                     })
+  //                     .catch((err) => {
+  //                       if (err instanceof Error) {
+  //                         assert.fail(err);
+  //                       } else {
+  //                         assert.fail("Unknown error");
+  //                       }
+  //                     });
+  //                 });
+  //             });
+  //         });
+  //       });
+  //   });
 
   this.afterAll(function (done) {
     this.timeout(100000);
-    service.stop().then((result) => {
+    podmanservice.stop().then((result) => {
       if (result) {
         done();
       } else {
@@ -74,7 +95,7 @@ suite("ExternalService Test Suite", function () {
     return externalservice
       .ping()
       .then((result) => {
-        assert.ok(!result);
+        assert.ok(result);
       })
       .catch((err) => {
         assert.notStrictEqual(
@@ -85,7 +106,7 @@ suite("ExternalService Test Suite", function () {
   });
 
   test("ExternalService should start", function () {
-    this.timeout(10000);
+    this.timeout(20000);
     return externalservice
       .start()
       .then(() => {
@@ -100,7 +121,6 @@ suite("ExternalService Test Suite", function () {
   });
 
   test("ExternalService should respond to ping.", function () {
-    this.timeout(10000);
     return externalservice
       .ping()
       .then((result) => {
