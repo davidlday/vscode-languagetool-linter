@@ -4,4 +4,4 @@ on: push
 
 jobs:
   call-workflow-build-ubuntu:
-    uses: "./.github/worklows/build-ubuntu.yaml"
+    uses: ./.github/worklows/build-ubuntu.yml

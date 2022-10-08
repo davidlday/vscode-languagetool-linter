@@ -3,6 +3,8 @@ name: Node.js CI
 on: pull_request
 
 jobs:
+  call-workflow-build-ubuntu:
+    uses: ./.github/worklows/build-ubuntu.yml
   # ubuntu-build:
   #   runs-on: ubuntu-22.04
   #   name: Build on Ubuntu
