@@ -58,9 +58,10 @@ jobs:
       - name: Install LanguageTool
         id: install-languagetool
         run: |
-          curl --silent --location https://languagetool.org/download/LanguageTool-5.8.zip --output ~/LanguageTool-5.8.zip
-          unzip ~/LanguageTool-5.8.zip -d ~/
-        # Unzips to /home/runner/LanguageTool-5.8
+          curl --silent --location https://languagetool.org/download/LanguageTool-5.8.zip --output $HOME/LanguageTool-5.8.zip
+          unzip $HOME/LanguageTool-5.8.zip -d $HOME/
+          echo "LTLINTER_MANAGED_CLASSPATH=$HOME/LanguageTool-5.8/languagetool-server.jar" >> $GITHUB_ENV
+          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
