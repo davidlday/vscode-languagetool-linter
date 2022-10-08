@@ -3,5 +3,70 @@ name: Node.js CI - Push
 on: push
 
 jobs:
-  call-workflow-build-ubuntu:
-    uses: ./.github/worklows/build-ubuntu.yml
+  # call-workflow-build-ubuntu:
+  #   uses: ./.github/worklows/build-ubuntu.yml
+  ubuntu-build:
+    runs-on: ubuntu-22.04
+    name: Build on Ubuntu
+    env:
+      DISPLAY: ":99.0"
+      CI: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+      - name: Start Xvfb
+        id: start-xvfb
+        run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      - name: Install Podman (4.x)
+        id: install-podman
+        # https://podman.io/getting-started/installation
+        run: |
+          sudo apt-get purge podman buildah
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key \
+            | gpg --dearmor \
+            | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg]\
+              https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" \
+            | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
+          sudo apt-get update
+          sudo apt-get -y install podman jq
+      - name: Set XDG_RUNTIME_DIR
+        id: set-xdg_runtime_dir
+        run: |
+          echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
+      - name: Enable Linger for Podman
+        id: enable-linger
+        run: |
+          loginctl enable-linger $(whoami)
+          sleep 1
+      - name: Start Podman Listening Service
+        id: start-podman-listening-service
+        run: |
+          mkdir -p ${XDG_RUNTIME_DIR}/podman/
+          podman system service --time=0 unix://${XDG_RUNTIME_DIR}/podman/podman.sock &
+      - name: Pre-warm Podman Service
+        id: pull-languagetool-image
+        run: |
+          podman version
+          time podman pull docker.io/erikvl87/languagetool:5.8
+          time podman run -d -p 8081:8010 --name languagetool  erikvl87/languagetool:5.8
+      - name: Install LanguageTool
+        id: install-languagetool
+        run: |
+          curl --silent --location https://languagetool.org/download/LanguageTool-5.8.zip --output $HOME/LanguageTool-5.8.zip
+          unzip $HOME/LanguageTool-5.8.zip -d $HOME/
+          echo "LTLINTER_MANAGED_CLASSPATH=$HOME/LanguageTool-5.8/languagetool-server.jar" >> $GITHUB_ENV
+          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+      - run: npm install -g typescript vsce json
+      - run: npm ci
+      - run: npm run vscode:prepublish
+      - run: npm run test-compile
+      - name: Test
+        run: npm test
+      - name: ESLint
+        run: npm run lint
