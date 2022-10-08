@@ -18,7 +18,7 @@ async function main() {
     await runTests({
       extensionDevelopmentPath,
       extensionTestsPath,
-      launchArgs: [testWorkspace],
+      launchArgs: [testWorkspace, "--disable-gpu"],
     });
 
     const servicesTestsPath = path.resolve(__dirname, "./services/index");
@@ -42,7 +42,7 @@ async function main() {
       await runTests({
         extensionDevelopmentPath,
         extensionTestsPath: servicesTestsPath,
-        launchArgs: [testWorkspace],
+        launchArgs: [testWorkspace, "--disable-gpu"],
       });
     }
   } catch (err) {
