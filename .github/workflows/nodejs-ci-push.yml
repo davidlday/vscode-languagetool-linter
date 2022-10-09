@@ -68,6 +68,8 @@ jobs:
       - run: npm run vscode:prepublish
       - run: npm run test-compile
       - name: Test
-        run: npm test
+        run: |
+          npm test
+          cat $HOME/xsession.log
       - name: ESLint
         run: npm run lint
