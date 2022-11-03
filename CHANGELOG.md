@@ -11,6 +11,9 @@ and this project adheres to
 
 Changes not yet released.
 
+- Allow spell-check rules to be ignored by line. This Works for HTML and
+  markdown, where inline comments are allowed (e.g. pandoc)
+
 ## [0.19.0] - 2021-11-23
 
 ## Changed

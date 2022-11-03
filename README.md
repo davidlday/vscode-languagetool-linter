@@ -22,6 +22,7 @@ extension.
   - Make sure 'Editor: Format On Type' is enabled or this feature won't work.
     You can enable it at the document format level as well in your
     `settings.json`.
+- Allow specific rules to be ignored for markdown (pandoc) and HTML
 
 ## Setup
 
@@ -100,6 +101,35 @@ particular attention to:
 3. _LanguageTool: Preferred Variants_: If you set this, then _LanguageTool:
    Language_ must be set to `auto`. If it isn't, the service will throw an
    error.
+
+## Ignore rules inline
+
+You have the chance to ignore specific rules inline to not bloat up your
+ignore list for single words:
+
+    <!-- @IGNORE:UPPERCASE_SENTENCE_START@ -->
+    soll heißen, dass die Nachricht von mir ist, die Koordinaten hat
+    ein kleiner Computer, den Sigrún mir zur Verfügung gestellt hat aus
+    dem irdischen
+    ‚World Geodetic System 1984‘ <!-- @IGNORE:GERMAN_SPELLER_RULE(Geodetic)@ -->
+
+This example will ignore the missing capital letter at the beginning (soll → Soll)
+and an unknown word ('Geodetic')
+
+The optional match word is useful if the same rule is applied to several words
+in the sentence.
+
+The rules can be applied to the current line (e.g. at the end) or at the line
+before.
+
+Syntax:
+
+    @LT-IGNORE:<rulename>(<text-match>)@
+
+The and the `text-match` is optional.
+
+_Note_: Even in pandoc you have to handle the comment in html output. This can
+be done by using a filter.
 
 ## Credits
 
