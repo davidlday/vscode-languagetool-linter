@@ -17,8 +17,8 @@ async function main() {
     // Download VS Code, unzip it and run the integration test
     await runTests({
       extensionDevelopmentPath,
-      extensionTestsPath,
-      launchArgs: [testWorkspace, "--disable-gpu"],
+      extensionTestsPath: extensionTestsPath,
+      launchArgs: [testWorkspace, "--disable-gpu", "--disable-extensions"],
     });
 
     const servicesTestsPath = path.resolve(__dirname, "./services/index");
@@ -42,7 +42,7 @@ async function main() {
       await runTests({
         extensionDevelopmentPath,
         extensionTestsPath: servicesTestsPath,
-        launchArgs: [testWorkspace, "--disable-gpu"],
+        launchArgs: [testWorkspace, "--disable-gpu", "--disable-extensions"],
       });
     }
   } catch (err) {
