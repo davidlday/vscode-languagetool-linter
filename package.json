@@ -2,9 +2,9 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "engines": {
-    "vscode": "^1.43.0"
+    "vscode": "^1.57.0"
   },
   "categories": [
     "Linters"
@@ -535,9 +535,9 @@
     "@types/vscode": "^1.43.0",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
-    "@typescript-eslint/parser": "^5.38.1",
     "@vscode/test-electron": "^2.1.5",
-    "eslint": "^8.24.0",
+    "@typescript-eslint/parser": "^5.42.0",
+    "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jsdoc": "^39.3.6",

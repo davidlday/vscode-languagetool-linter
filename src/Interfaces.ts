@@ -91,3 +91,13 @@ export interface ILanguageToolService {
   getState(): string;
   getURL(): string | undefined;
 }
+
+// Interface to keep an ignore-statements
+export interface IIgnoreItem {
+  // source line
+  line: number;
+  // matching linter rule
+  ruleId: string;
+  // optional matching text
+  text?: string;
+}
