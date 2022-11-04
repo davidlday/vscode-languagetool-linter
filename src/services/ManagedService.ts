@@ -46,6 +46,7 @@ export class ManagedService extends AbstractService {
 
   public start(): Promise<boolean> {
     return new Promise((resolve, reject) => {
+      this._state = Constants.SERVICE_STATES.STARTING;
       const classpath: string = this.getClassPath();
       const minimumPort: number = this._workspaceConfig.get(
         Constants.CONFIGURATION_MANAGED_PORT_MINIMUM,
@@ -53,9 +54,7 @@ export class ManagedService extends AbstractService {
       const maximumPort: number = this._workspaceConfig.get(
         Constants.CONFIGURATION_MANAGED_PORT_MAXIMUM,
       ) as number;
-      const ip: string = this._workspaceConfig.get(
-        Constants.SERVICE_MANAGED_IP,
-      ) as string;
+      const ip: string = Constants.SERVICE_MANAGED_IP;
       if (minimumPort > maximumPort) {
         reject(new Error("Minimum port must be less than maximum port"));
       }
@@ -73,18 +72,41 @@ export class ManagedService extends AbstractService {
             "--port",
             port.toString(),
           ];
-          execa("java", args)
-            .addListener("stdout", (stdout) => {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stdout);
-              if (stdout.includes("Server started")) {
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            "Starting managed service.",
+          );
+          (this.process = execa("java", args))
+            .then(async () => {
+              while ((await this.ping()) === false) {
+                // wait for service to start
+              }
+              if (this.process) {
+                this.process.stderr.addListener("data", (data) => {
+                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                  Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+                });
+                this.process.stdout.addListener("data", (data) => {
+                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+                });
+                this._state = Constants.SERVICE_STATES.READY;
                 resolve(true);
               }
             })
-            .addListener("stderr", (stderr) => {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(stderr);
-            })
-            .catch((error) => {
-              reject(error);
+            .catch((err: execa.ExecaError) => {
+              if (err.isCanceled) {
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                  "Managed service process stopped.",
+                );
+              } else if (err.failed) {
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                  "Managed service command failed: " + err.command,
+                );
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                  "Error Message: " + err.message,
+                );
+                Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+              }
+              reject(err.message);
             });
         })
         .catch((error) => {
@@ -94,14 +116,14 @@ export class ManagedService extends AbstractService {
   }
 
   public stop(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      this._state = Constants.SERVICE_STATES.STOPPING;
       if (this.process) {
         this.process.cancel();
         this.process = undefined;
-        resolve(true);
-      } else {
-        reject(new Error("No process to stop."));
       }
+      this._state = Constants.SERVICE_STATES.STOPPED;
+      resolve(true);
     });
   }
 
