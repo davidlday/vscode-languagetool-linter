@@ -5,6 +5,8 @@ import {
   SERVICE_STATES,
 } from "../../src/Constants";
 import { ManagedService } from "../../src/services/ManagedService";
+import * as Constants from "../../src/Constants";
+import { AbstractService } from "../../src/services/AbstractService";
 
 suite("ManagedService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
@@ -12,12 +14,12 @@ suite("ManagedService Test Suite", function () {
   this.timeout(10000);
 
   // ManagedService Tests
-  let managedservice: ManagedService = new ManagedService(config);
+  let service: ManagedService;
 
   // Set up config from environment variables
-  this.beforeAll(async (done) => {
+  this.beforeAll(function (done) {
     if (process.env.LTLINTER_MANAGED_CLASSPATH) {
-      await config
+      config
         .update(
           CONFIGURATION_MANAGED_CLASS_PATH,
           process.env.LTLINTER_MANAGED_CLASSPATH,
@@ -31,31 +33,31 @@ suite("ManagedService Test Suite", function () {
     }
   });
 
-  test("ManagedService should instantiate", function () {
-    managedservice = new ManagedService(config);
-    assert.ok(managedservice);
+  test("PodmanService should instantiate", function () {
+    service = new ManagedService(config);
+    assert.ok(service);
   });
 
-  test("ManagedService should NOT be pingable", async (done) => {
-    try {
-      const result = await managedservice.ping();
-      assert.ok(!result);
-      done();
-    } catch (error) {
-      if (error instanceof Error) {
-        assert.fail(error.message);
-      } else {
-        assert.fail("Unknown error");
-      }
-    }
+  test("ManagedService should NOT be pingable", function () {
+    return service
+      .ping()
+      .then((result) => {
+        assert.ok(!result);
+      })
+      .catch((err) => {
+        assert.notStrictEqual(
+          err,
+          new Error("LanguageTool URL is not defined."),
+        );
+      });
   });
 
   test("ManagedService should start", function () {
-    this.timeout(20000);
-    return managedservice
+    this.timeout(50000);
+    return service
       .start()
       .then(() => {
-        assert.strictEqual(managedservice.getState(), SERVICE_STATES.READY);
+        assert.strictEqual(service.getState(), SERVICE_STATES.READY);
       })
       .catch((err) => {
         assert.fail(err);
@@ -63,7 +65,7 @@ suite("ManagedService Test Suite", function () {
   });
 
   test("ManagedService should respond to ping.", function () {
-    return managedservice
+    return service
       .ping()
       .then((result) => {
         assert.ok(result);
@@ -75,10 +77,10 @@ suite("ManagedService Test Suite", function () {
 
   test("ManagedService should stop", function () {
     this.timeout(12000);
-    return managedservice
+    return service
       .stop()
       .then(() => {
-        assert.strictEqual(managedservice.getState(), SERVICE_STATES.STOPPED);
+        assert.strictEqual(service.getState(), SERVICE_STATES.STOPPED);
       })
       .catch((err) => {
         assert.fail(err);
@@ -86,7 +88,7 @@ suite("ManagedService Test Suite", function () {
   });
 
   test("ManagedService should NOT respond to ping", function () {
-    return managedservice
+    return service
       .ping()
       .then((result) => {
         assert.strictEqual(result, false);
