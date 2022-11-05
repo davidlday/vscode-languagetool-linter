@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
 import { runTests } from "@vscode/test-electron";
 
 async function main() {
@@ -10,18 +11,27 @@ async function main() {
 
     // The path to test runner
     // Passed to --extensionTestsPath
-    const extensionTestsPath = path.resolve(__dirname, "./suite/index");
+    const extensionTestsPath = path.resolve(__dirname, "./suite");
 
-    const testWorkspace = path.resolve(__dirname, "../test-fixtures/workspace");
+    const testWorkspace = path.resolve(
+      __dirname,
+      "../../test-fixtures/workspace",
+    );
 
     // Download VS Code, unzip it and run the integration test
     await runTests({
       extensionDevelopmentPath,
-      extensionTestsPath: extensionTestsPath,
-      launchArgs: [testWorkspace, "--disable-gpu", "--disable-extensions"],
+      extensionTestsPath,
+      launchArgs: [
+        testWorkspace,
+        "--disable-gpu",
+        "--disable-extensions",
+        "--user-data-dir",
+        `${os.tmpdir()}`,
+      ],
     });
 
-    const servicesTestsPath = path.resolve(__dirname, "./services/index");
+    const servicesTestsPath = path.resolve(__dirname, "./services");
 
     if (process.env.LTLINTER_TEST_SERVICES) {
       if (process.env.LTLINTER_MANAGED_CLASSPATH) {
@@ -42,15 +52,19 @@ async function main() {
       await runTests({
         extensionDevelopmentPath,
         extensionTestsPath: servicesTestsPath,
-        launchArgs: [testWorkspace, "--disable-gpu", "--disable-extensions"],
+        launchArgs: [
+          testWorkspace,
+          "--disable-gpu",
+          "--disable-extensions",
+          "--user-data-dir",
+          `${os.tmpdir()}`,
+        ],
       });
     }
   } catch (err) {
-    // tslint:disable-next-line: no-console
     console.error("Failed to run tests");
     process.exit(1);
   }
 }
 
-// tslint:disable-next-line: no-floating-promises
 main();

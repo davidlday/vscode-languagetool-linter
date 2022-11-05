@@ -5,8 +5,6 @@ import {
   SERVICE_STATES,
 } from "../../src/Constants";
 import { ManagedService } from "../../src/services/ManagedService";
-import * as Constants from "../../src/Constants";
-import { AbstractService } from "../../src/services/AbstractService";
 
 suite("ManagedService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =

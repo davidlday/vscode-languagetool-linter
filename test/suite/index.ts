@@ -18,7 +18,15 @@ export function run(): Promise<void> {
       }
 
       // Add files to the test suite
-      files.forEach((f) => mocha.addFile(path.resolve(testsRoot, f)));
+      files.forEach((f) => {
+        if (f.indexOf("service") === -1) {
+          mocha.addFile(path.resolve(testsRoot, f));
+        } else {
+          if (process.env.LTLINTER_TEST_SERVICES) {
+            mocha.addFile(path.resolve(testsRoot, f));
+          }
+        }
+      });
 
       try {
         // Run the mocha test
