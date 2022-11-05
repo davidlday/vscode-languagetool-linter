@@ -87,6 +87,12 @@ jobs:
       - run: npm run vscode:prepublish
       - run: npm run test-compile
       - name: Test
-        run: npm test
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew services start podman
+          podman ps -a
+          /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
+          ps -ef|grep languagetool
+          npm test
       - name: ESLint
         run: npm run lint
