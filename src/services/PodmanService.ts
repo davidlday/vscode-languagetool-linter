@@ -258,22 +258,22 @@ export class PodmanService
     });
   }
 
-  public reloadConfiguration(
-    event: ConfigurationChangeEvent,
-    workspaceConfig: WorkspaceConfiguration,
-  ): void {
-    this._workspaceConfig = workspaceConfig;
-    if (
-      event.affectsConfiguration(Constants.CONFIGURATION_PODMAN_CONTAINER_NAME)
-    ) {
-      this.containerName = this._workspaceConfig.get(
-        Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
-      ) as string;
-      if (this.containerName) {
-        this.renameContainer(this.containerName);
-      }
-    }
-  }
+  // public reloadConfiguration(
+  //   event: ConfigurationChangeEvent,
+  //   workspaceConfig: WorkspaceConfiguration,
+  // ): Promise<boolean> {
+  //   this._workspaceConfig = workspaceConfig;
+  //   if (
+  //     event.affectsConfiguration(Constants.CONFIGURATION_PODMAN_CONTAINER_NAME)
+  //   ) {
+  //     this.containerName = this._workspaceConfig.get(
+  //       Constants.CONFIGURATION_PODMAN_CONTAINER_NAME,
+  //     ) as string;
+  //     if (this.containerName) {
+  //       this.renameContainer(this.containerName);
+  //     }
+  //   }
+  // }
 
   // Private methods
   private getServiceURL(): string {
