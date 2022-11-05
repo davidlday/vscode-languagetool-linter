@@ -64,6 +64,7 @@ jobs:
       - name: Install LanguageTool
         id: install-languagetool
         run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install languagetool
           echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
