@@ -37,11 +37,22 @@ jobs:
         run: |
           loginctl enable-linger $(whoami)
           sleep 1
-      - name: Install Podman and Languagetool
+      - name: Set XDG_RUNTIME_DIR
+        id: set-xdg_runtime_dir
+        run: |
+          echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
+      - name: Install Homebrew, Podman, and Languagetool
         id: install-brew-podman
         run: |
           sudo apt-get purge podman buildah
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          echo "HOMEBREW_PREFIX=$HOMEBREW_PREFIX" >> $GITHUB_ENV
+          echo "HOMEBREW_CELLAR=$HOMEBREW_CELLAR" >> $GITHUB_ENV
+          echo "HOMEBREW_REPOSITORY=$HOMEBREW_REPOSITORY" >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV
+          echo "MANPATH=$MANPATH" >> $GITHUB_ENV
+          echo "INFOPATH=$INFOPATH" >> $GITHUB_ENV
           brew install podman languagetool
           brew services restart podman
           podman version
@@ -60,11 +71,6 @@ jobs:
       #       | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
       #     sudo apt-get update
       #     sudo apt-get -y install podman jq
-      - name: Set XDG_RUNTIME_DIR
-        id: set-xdg_runtime_dir
-        run: |
-          echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
-          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
       # - name: Start Podman Listening Service
       #   id: start-podman-listening-service
       #   run: |
@@ -97,6 +103,5 @@ jobs:
           podman ps -a
           /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
           ps -ef|grep languagetool
-          npm test
       - name: ESLint
         run: npm run lint
