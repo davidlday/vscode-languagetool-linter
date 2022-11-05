@@ -1,7 +1,11 @@
-import * as assert from "assert";
+import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
 import * as vscode from "vscode";
-import * as Constants from "../../src/Constants";
 import { ExternalService } from "../../src/services/ExternalService";
+
+chai.use(chaiAsPromised);
+chai.should();
+const assert = chai.assert;
 
 suite("ExternalService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
@@ -16,65 +20,24 @@ suite("ExternalService Test Suite", function () {
   });
 
   test("ExternalService should NOT be pingable", function () {
-    return service
-      .ping()
-      .then((result) => {
-        assert.strictEqual(result, false);
-      })
-      .catch((err) => {
-        assert.notStrictEqual(
-          err,
-          new Error("LanguageTool URL is not defined."),
-        );
-      });
+    return service.ping().should.eventually.be.false;
   });
 
   test("ExternalService should start", function () {
     this.timeout(20000);
-    return service
-      .start()
-      .then(() => {
-        assert.strictEqual(service.getState(), Constants.SERVICE_STATES.READY);
-      })
-      .catch((err) => {
-        assert.fail(err);
-      });
+    return service.start().should.eventually.be.true;
   });
 
   test("ExternalService should respond to ping.", function () {
-    return service
-      .ping()
-      .then((result) => {
-        assert.ok(result);
-      })
-      .catch((err) => {
-        assert.fail(err);
-      });
+    return service.ping().should.eventually.be.true;
   });
 
   test("ExternalService should stop", function () {
     this.timeout(12000);
-    return service
-      .stop()
-      .then(() => {
-        assert.strictEqual(
-          service.getState(),
-          Constants.SERVICE_STATES.STOPPED,
-        );
-      })
-      .catch((err) => {
-        assert.fail(err);
-      });
+    return service.stop().should.eventually.be.true;
   });
 
   test("ExternalService should NOT respond to ping", function () {
-    return service
-      .ping()
-      .then((result) => {
-        assert.strictEqual(result, false);
-      })
-      .catch((err) => {
-        assert.ok(err);
-      });
+    return service.ping().should.eventually.be.false;
   });
 });

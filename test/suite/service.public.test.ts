@@ -1,77 +1,43 @@
-import * as assert from "assert";
+import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
 import * as vscode from "vscode";
-import { SERVICE_STATES } from "../../src/Constants";
 import { PublicService } from "../../src/services/PublicService";
+
+chai.use(chaiAsPromised);
+chai.should();
+const assert = chai.assert;
 
 suite("PublicService Test Suite", function () {
   const config: vscode.WorkspaceConfiguration =
     vscode.workspace.getConfiguration();
 
   // PublicService Tests
-  let publicservice: PublicService;
+  let service: PublicService;
 
   test("PublicService should instantiate", function () {
-    publicservice = new PublicService(config);
-    assert.ok(publicservice);
+    service = new PublicService(config);
+    assert.ok(service);
   });
 
   test("PublicService should NOT be pingable", function () {
-    return publicservice
-      .ping()
-      .then((result) => {
-        assert.strictEqual(result, false);
-      })
-      .catch((err) => {
-        assert.notStrictEqual(
-          err,
-          new Error("LanguageTool URL is not defined."),
-        );
-      });
+    return service.ping().should.eventually.be.false;
   });
 
   test("PublicService should start", function () {
     this.timeout(10000);
-    return publicservice
-      .start()
-      .then(() => {
-        assert.strictEqual(publicservice.getState(), SERVICE_STATES.READY);
-      })
-      .catch((err) => {
-        assert.fail(err);
-      });
+    return service.start().should.eventually.be.true;
   });
 
   test("PublicService should respond to ping.", function () {
-    return publicservice
-      .ping()
-      .then((result) => {
-        assert.ok(result);
-      })
-      .catch((err) => {
-        assert.fail(err);
-      });
+    return service.ping().should.eventually.be.true;
   });
 
   test("PublicService should stop", function () {
     this.timeout(12000);
-    return publicservice
-      .stop()
-      .then(() => {
-        assert.strictEqual(publicservice.getState(), SERVICE_STATES.STOPPED);
-      })
-      .catch((err) => {
-        assert.fail(err);
-      });
+    return service.stop().should.eventually.be.true;
   });
 
   test("PublicService should NOT respond to ping", function () {
-    return publicservice
-      .ping()
-      .then((result) => {
-        assert.strictEqual(result, false);
-      })
-      .catch((err) => {
-        assert.ok(err);
-      });
+    return service.ping().should.eventually.be.false;
   });
 });
