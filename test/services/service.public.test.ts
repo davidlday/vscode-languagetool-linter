@@ -19,7 +19,7 @@ suite("PublicService Test Suite", function () {
     return publicservice
       .ping()
       .then((result) => {
-        assert.ok(!result);
+        assert.strictEqual(result, false);
       })
       .catch((err) => {
         assert.notStrictEqual(

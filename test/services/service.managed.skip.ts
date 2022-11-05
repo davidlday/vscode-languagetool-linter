@@ -28,12 +28,11 @@ suite("ManagedService Test Suite", function () {
           assert.ok(config);
           done();
         });
-    } else {
-      assert.fail("LTLINTER_MANAGED_CLASSPATH not defined");
     }
   });
 
-  test("PodmanService should instantiate", function () {
+  test("ManagedService should instantiate", function () {
+    this.timeout(30000);
     service = new ManagedService(config);
     assert.ok(service);
   });
@@ -65,6 +64,9 @@ suite("ManagedService Test Suite", function () {
   });
 
   test("ManagedService should respond to ping.", function () {
+    while (service.getState() === SERVICE_STATES.STARTING) {
+      // Wait for service to be ready
+    }
     return service
       .ping()
       .then((result) => {

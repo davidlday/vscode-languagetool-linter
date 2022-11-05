@@ -11,7 +11,7 @@
   "languageToolLinter.lintOnChange": true,
   "languageToolLinter.lintOnOpen": true,
   "languageToolLinter.plainText.languageIds": ["plaintext", "asciidoc"],
-  "languageToolLinter.external.url": "https://languagetool.org/api",
+  "languageToolLinter.external.url": "http://localhost:8085",
   "languageToolLinter.managed.classPath": "/usr/local/opt/languagetool/libexec/languagetool-server.jar",
   "languageToolLinter.podman.containerName": "languagetool-test",
   "languageToolLinter.podman.imageName": "docker.io/erikvl87/languagetool:5.8",

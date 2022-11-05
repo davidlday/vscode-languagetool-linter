@@ -19,7 +19,7 @@ suite("ExternalService Test Suite", function () {
     return service
       .ping()
       .then((result) => {
-        assert.ok(result);
+        assert.strictEqual(result, false);
       })
       .catch((err) => {
         assert.notStrictEqual(

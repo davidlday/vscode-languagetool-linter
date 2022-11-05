@@ -30,20 +30,6 @@ export class ManagedService extends AbstractService {
     this._serviceConfigurationRoot = Constants.CONFIGURATION_MANAGED;
   }
 
-  public restart(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.stop()
-        .then(() => {
-          this.start().then(() => {
-            resolve();
-          });
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  }
-
   public start(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this._state = Constants.SERVICE_STATES.STARTING;
@@ -75,24 +61,8 @@ export class ManagedService extends AbstractService {
           Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
             "Starting managed service.",
           );
-          (this.process = execa("java", args))
-            .then(async () => {
-              while ((await this.ping()) === false) {
-                // wait for service to start
-              }
-              if (this.process) {
-                this.process.stderr.addListener("data", (data) => {
-                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-                  Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-                });
-                this.process.stdout.addListener("data", (data) => {
-                  Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
-                });
-                this._state = Constants.SERVICE_STATES.READY;
-                resolve(true);
-              }
-            })
-            .catch((err: execa.ExecaError) => {
+          (this.process = execa("java", args)).catch(
+            (err: execa.ExecaError) => {
               if (err.isCanceled) {
                 Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
                   "Managed service process stopped.",
@@ -106,11 +76,45 @@ export class ManagedService extends AbstractService {
                 );
                 Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
               }
-              reject(err.message);
-            });
+            },
+          );
+          this.process.stderr.addListener("data", (data) => {
+            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+            Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+          });
+          this.process.stdout.addListener("data", (data) => {
+            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+          });
+          // this.process = execa(`java ${args.join(" ")}`, {});
+          // this.process.on("spawn", () => {
+          //   this._state = Constants.SERVICE_STATES.READY;
+          // });
+          // this.process.on("error", () => {
+          //   this._state = Constants.SERVICE_STATES.ERROR;
+          // });
+          // this.process.stdout.on("data", (data: string) => {
+          //   if (data.includes("Server started")) {
+          //     this._state = Constants.SERVICE_STATES.READY;
+          //   }
+          //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+          // });
+          // this.process.stderr.on("data", (data: string) => {
+          //   Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+          //   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+          //   this._state = Constants.SERVICE_STATES.ERROR;
+          // });
+          // while (!this.forcedPing()) {
+          //   // wait for server to start
+          // }
+          this._state = Constants.SERVICE_STATES.READY;
+          resolve(true);
         })
         .catch((error) => {
-          reject(error);
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            "Error getting open port: " + error.message,
+          );
+          Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+          reject(error.message);
         });
     });
   }

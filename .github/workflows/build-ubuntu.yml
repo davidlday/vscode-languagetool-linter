@@ -68,6 +68,8 @@ jobs:
           unzip $HOME/LanguageTool-5.8.zip -d $HOME/
           echo "LTLINTER_MANAGED_CLASSPATH=$HOME/LanguageTool-5.8/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+          # Start LT on port 8085
+          java -cp $HOME/LanguageTool-5.8/languagetool-server.jar org.languagetool.server.HTTPServer --port 8085
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish

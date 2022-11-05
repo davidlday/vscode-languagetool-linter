@@ -208,5 +208,21 @@ export abstract class AbstractService
       }
     });
   }
+
+  protected forcedPing(): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
+        .then((response: ILanguageToolResponse) => {
+          if (response) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(() => {
+          resolve(false);
+        });
+    });
+  }
   // end of class
 }
