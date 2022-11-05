@@ -2,6 +2,10 @@ name: Node.js CI - Push
 
 on: push
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # call-workflow-build-ubuntu:
   #   uses: ./.github/worklows/build-ubuntu.yml
@@ -69,7 +73,7 @@ jobs:
           echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
           # Start LT on port 8085
-          java -cp /home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar org.languagetool.server.HTTPServer --port 8085
+          /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
