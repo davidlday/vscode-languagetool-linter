@@ -84,6 +84,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
+          cache: "npm"
       - name: Install Podman
         id: install-podman
         run: brew install podman
