@@ -85,9 +85,16 @@ jobs:
         with:
           node-version: lts/*
           cache: "npm"
+      - name: Cache Homebrew
+        id: cache-homebrew
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: ${{ runner.os }}-homebrew
       - name: Install Podman
         id: install-podman
-        run: brew install podman
+        run: |
+          brew install podman
       - name: Initialize Podman Machine
         id: initialize-podman-machine
         run: podman machine init
