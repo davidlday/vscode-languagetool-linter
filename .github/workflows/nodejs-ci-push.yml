@@ -32,9 +32,15 @@ jobs:
         id: start-xvfb
         run: |
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 +extension GLX +render -noreset >> $HOME/xsession.log 2>&1 &
+      - name: Enable Linger for Podman
+        id: enable-linger
+        run: |
+          loginctl enable-linger $(whoami)
+          sleep 1
       - name: Install Podman and Languagetool
         id: install-brew-podman
         run: |
+          sudo apt-get purge podman buildah
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install podman languagetool
           brew services restart podman
@@ -59,11 +65,6 @@ jobs:
         run: |
           echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
           echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
-      # - name: Enable Linger for Podman
-      #   id: enable-linger
-      #   run: |
-      #     loginctl enable-linger $(whoami)
-      #     sleep 1
       # - name: Start Podman Listening Service
       #   id: start-podman-listening-service
       #   run: |
@@ -75,13 +76,16 @@ jobs:
           podman version
           podman pull docker.io/erikvl87/languagetool:5.8
           podman run -d -p 8082:8010 --name languagetool-test  erikvl87/languagetool:5.8
+          podman ps -a
       - name: Install LanguageTool
         id: install-languagetool
         run: |
           echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
           # Start LT on port 8085
-          /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
+          /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > ~/ltserver.log 2>&1 &
+          sleep 2
+          cat ~/ltserver.log
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
