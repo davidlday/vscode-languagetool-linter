@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 
+import { resolve } from "dns";
 import * as Fetch from "node-fetch";
 import {
   ConfigurationChangeEvent,
@@ -45,21 +46,15 @@ export abstract class AbstractService
     return this._state;
   }
 
-  public reloadConfiguration(
+  public async reloadConfiguration(
     event: ConfigurationChangeEvent,
     workspaceConfig: WorkspaceConfiguration,
-  ): void {
+  ): Promise<boolean> {
     if (event.affectsConfiguration(this._serviceConfigurationRoot)) {
-      this.stop();
-      while (this._state !== Constants.SERVICE_STATES.STOPPED) {
-        // wait for stop to complete
-      }
+      await this.stop();
       this._workspaceConfig = workspaceConfig;
-      this.start();
-      while (this._state !== Constants.SERVICE_STATES.READY) {
-        // wait for start to complete
-      }
     }
+    return this.start();
   }
 
   public invokeLanguageTool(
