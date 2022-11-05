@@ -2,11 +2,60 @@ name: Node.js CI
 
 on: pull_request
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-#   cancel-in-progress: true
-
 jobs:
+  macos-build:
+    runs-on: macos-latest
+    name: Build on MacOS
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          cache: "npm"
+      - name: Cache Homebrew
+        id: cache-homebrew
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: ${{ runner.os }}-homebrew
+      - name: Install Podman
+        id: install-podman
+        run: |
+          brew install podman
+      - name: Initialize Podman Machine
+        id: initialize-podman-machine
+        run: podman machine init
+      - name: Start Podman Machine
+        id: start-podman-machine
+        run: |
+          sudo /usr/local/Cellar/podman/4.2.1/bin/podman-mac-helper install
+          podman machine start
+      - name: Pre-warm Podman Service
+        id: pull-languagetool-image
+        run: |
+          podman pull docker.io/erikvl87/languagetool:5.8
+          podman run -d -p 127.0.0.1:8081:8010 --name languagetool  erikvl87/languagetool:5.8
+      - name: Install LanguageTool
+        id: install-languagetool
+        run: |
+          brew install languagetool
+          echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
+          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+          # Start on 8085 for external tests
+          /usr/local/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
+      - run: npm install -g typescript vsce json
+      - run: npm ci
+      - run: npm run vscode:prepublish
+      - run: npm run test-compile
+      - name: Run Test
+        run: |
+          podman ps -a
+          npm test
+      - name: ESLint
+        run: npm run lint
+
   # call-workflow-build-ubuntu:
   #   uses: ./.github/worklows/build-ubuntu.yml
   # ubuntu-build:
@@ -73,59 +122,6 @@ jobs:
   #       run: npm test
   #     - name: ESLint
   #       run: npm run lint
-
-  macos-build:
-    runs-on: macos-latest
-    name: Build on MacOS
-    env:
-      CI: true
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          cache: "npm"
-      - name: Cache Homebrew
-        id: cache-homebrew
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/Caches/Homebrew
-          key: ${{ runner.os }}-homebrew
-      - name: Install Podman
-        id: install-podman
-        run: |
-          brew install podman
-      - name: Initialize Podman Machine
-        id: initialize-podman-machine
-        run: podman machine init
-      - name: Start Podman Machine
-        id: start-podman-machine
-        run: |
-          sudo /usr/local/Cellar/podman/4.2.1/bin/podman-mac-helper install
-          podman machine start
-      - name: Pre-warm Podman Service
-        id: pull-languagetool-image
-        run: |
-          podman pull docker.io/erikvl87/languagetool:5.8
-          podman run -d -p 127.0.0.1:8081:8010 --name languagetool  erikvl87/languagetool:5.8
-      - name: Install LanguageTool
-        id: install-languagetool
-        run: |
-          brew install languagetool
-          echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
-          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
-          # Start on 8085 for external tests
-          /usr/local/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
-      - run: npm install -g typescript vsce json
-      - run: npm ci
-      - run: npm run vscode:prepublish
-      - run: npm run test-compile
-      - name: Run Test
-        run: |
-          podman ps -a
-          npm test
-      - name: ESLint
-        run: npm run lint
 
   # windows-build:
   #   runs-on: windows-latest
