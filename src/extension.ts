@@ -24,10 +24,13 @@ import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
 import { FormattingProviderEllipses } from "./providers/FormattingProviderEllipses";
 import { FormattingProviderQuotes } from "./providers/FormattingProviderQuotes";
 
+let configMan: ConfigurationManager;
+let linter: Linter;
+
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
-  const configMan: ConfigurationManager = new ConfigurationManager();
-  const linter: Linter = new Linter(configMan);
+  configMan = new ConfigurationManager();
+  linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
     '"': new FormattingProviderQuotes(configMan),
     "'": new FormattingProviderQuotes(configMan),
@@ -111,7 +114,6 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // Register Code Actions Provider for supported languages
-  // Constants.DOCUMENT_SELECTORS.forEach((selector: vscode.DocumentSelector) => {
   configMan
     .getDocumentSelectors()
     .forEach((selector: vscode.DocumentSelector) => {
@@ -243,5 +245,6 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-export function deactivate(): void {}
+export function deactivate(): void {
+  configMan.dispose();
+}

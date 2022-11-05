@@ -12,22 +12,15 @@ suite("Extension Test Suite", () => {
     assert.ok(vscode.extensions.getExtension("davidlday.languagetool-linter"));
   });
 
-  test("Extension should activate", (done) => {
+  test("Extension should activate", async () => {
     const ext: vscode.Extension<unknown> | undefined =
       vscode.extensions.getExtension("davidlday.languagetool-linter");
-    if (ext) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      ext.activate().then((api: unknown) => {
-        assert.ok(true);
-      });
-    } else {
-      assert.ok(false);
-    }
-    done();
+    await ext?.activate();
+    assert.ok(ext?.isActive);
   });
 
-  test("Extension should register all commands", () => {
-    return vscode.commands.getCommands(true).then((commands) => {
+  test("Extension should register all commands", async () => {
+    return await vscode.commands.getCommands(true).then((commands) => {
       const EXPECTED_COMMANDS: string[] = [
         "languagetoolLinter.checkDocument",
         "languagetoolLinter.checkDocumentAsPlainText",
