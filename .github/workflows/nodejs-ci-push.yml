@@ -81,7 +81,7 @@ jobs:
         run: |
           podman version
           podman pull docker.io/erikvl87/languagetool:5.8
-          podman run -d -p 8082:8010 --name languagetool-test  erikvl87/languagetool:5.8
+          podman run -d -p 8082:8010 --name languagetool-test erikvl87/languagetool:5.8
           podman ps -a
       - name: Install LanguageTool
         id: install-languagetool
@@ -91,18 +91,15 @@ jobs:
           # Start LT on port 8085
           /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > ~/ltserver.log 2>&1 &
           sleep 2
-          cat ~/ltserver.log
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
       - run: npm run test-compile
       - name: Test
         run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew services start podman
-          podman ps -a
-          /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
           ps -ef|grep languagetool
+          cat ~/ltserver.log
+          podman ps -a
           npm test
       - name: ESLint
         run: npm run lint
