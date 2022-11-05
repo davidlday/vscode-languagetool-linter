@@ -103,5 +103,6 @@ jobs:
           podman ps -a
           /home/linuxbrew/.linuxbrew/opt/languagetool/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
           ps -ef|grep languagetool
+          npm test
       - name: ESLint
         run: npm run lint
