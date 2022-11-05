@@ -106,6 +106,8 @@ jobs:
           brew install languagetool
           echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+          # Start on 8085 for external tests
+          /usr/local/bin/languagetool-server --port 8085 --allow-origin
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
