@@ -77,3 +77,6 @@ out
 
 # Webpack Directory
 dist/
+
+# direnv
+.envrc
