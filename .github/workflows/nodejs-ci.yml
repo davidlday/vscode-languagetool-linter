@@ -2,9 +2,9 @@ name: Node.js CI
 
 on: pull_request
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   # call-workflow-build-ubuntu:
@@ -107,7 +107,7 @@ jobs:
           echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
           # Start on 8085 for external tests
-          /usr/local/bin/languagetool-server --port 8085 --allow-origin
+          /usr/local/bin/languagetool-server --port 8085 --allow-origin > /dev/null 2>&1 &
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
