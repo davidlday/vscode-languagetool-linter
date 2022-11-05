@@ -32,14 +32,11 @@ jobs:
         id: start-xvfb
         run: |
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 +extension GLX +render -noreset >> $HOME/xsession.log 2>&1 &
-      - name: Setup Homebrew
-        id: setup-homebrew
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      - name: Install Podman
+      - name: Install Podman and Languagetool
         id: install-brew-podman
         run: |
-          brew install podman
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install podman languagetool
           brew services restart podman
           podman version
       # - name: Install Podman (4.x)
@@ -81,8 +78,6 @@ jobs:
       - name: Install LanguageTool
         id: install-languagetool
         run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install languagetool
           echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
           # Start LT on port 8085
