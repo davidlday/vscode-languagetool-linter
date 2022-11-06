@@ -34,6 +34,7 @@ jobs:
           brew services restart podman
           podman machine start
           podman version
+          brew services list
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |
@@ -47,7 +48,9 @@ jobs:
         run: |
           echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+          brew services start languagetool
           sleep 5
+          brew services list
           curl -L http://localhost:8081/
       - run: npm install -g typescript vsce json
       - run: npm ci

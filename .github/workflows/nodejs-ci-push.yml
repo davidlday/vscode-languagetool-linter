@@ -72,6 +72,7 @@ jobs:
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
           brew services start languagetool
           sleep 5
+          brew services list
           curl -L http://localhost:8081/
       - run: npm install -g typescript vsce json
       - run: npm ci
