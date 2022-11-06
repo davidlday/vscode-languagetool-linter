@@ -51,9 +51,6 @@ jobs:
           sudo apt-get purge podman buildah
           brew install podman languagetool
           sudo brew services restart podman
-          sudo brew services restart languagetool
-          sleep 10
-          cat /home/linuxbrew/.linuxbrew/var/log/languagetool/languagetool-server.log
       - name: Start LanguageTool
         id: install-languagetool
         run: |
@@ -67,17 +64,19 @@ jobs:
           podman version
           podman pull docker.io/erikvl87/languagetool:5.8
           podman run -d -p 8082:8010 --name languagetool-test erikvl87/languagetool:5.9
-          podman ps -a
-          sleep 5
-          curl -L http://localhost:8082/
+          podman run -d -p 8081:8010 --name languagetool-external erikvl87/languagetool:5.9
+          state=$(podman inspect languagetool-test|jq -r '.[0].State.Status')
+          while [ $state != "running" ]; do
+            echo "State: $state"
+            sleep 5
+            state=$(podman inspect languagetool-test|jq -r '.[0].State.Status')
+          done;
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
       - run: npm run test-compile
       - name: Test
         run: |
-          brew services list
-          podman ps -a
           npm test
       - name: ESLint
         run: npm run lint

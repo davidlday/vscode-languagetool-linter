@@ -38,31 +38,29 @@ jobs:
           podman machine start
           podman version
           brew services list
-      - name: Pre-warm Podman Service
-        id: pull-languagetool-image
+      - name: Start LT Podman Services
+        id: start-lt-podman-service
         run: |
           podman pull docker.io/erikvl87/languagetool:5.8
+          podman run -d -p 127.0.0.1:8081:8010 --name languagetool-external erikvl87/languagetool:5.9
           podman run -d -p 127.0.0.1:8082:8010 --name languagetool-test erikvl87/languagetool:5.9
-          sleep 30
-          podman healthcheck run languagetool-test
-          podman ps -a
-          curl -L http://localhost:8082/
-      - name: Start LanguageTool
-        id: start-languagetool
+          state=$(podman inspect languagetool-test|jq -r '.[0].State.Status')
+          while [ $state != "running" ]; do
+            echo "State: $state"
+            sleep 5
+            state=$(podman inspect languagetool-test|jq -r '.[0].State.Status')
+          done;
+      - name: Set Test Environment Variables
+        id: set-test-environment-variables
         run: |
           echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
-          brew services start languagetool
-          sleep 5
-          brew services list
-          curl -L http://localhost:8081/
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
       - run: npm run test-compile
       - name: Run Test
         run: |
-          brew services list
           podman ps -a
           npm test
       - name: ESLint
