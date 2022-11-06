@@ -31,8 +31,9 @@ jobs:
         id: start-podman-machine
         run: |
           sudo /usr/local/opt/podman/bin/podman-mac-helper install
-          brew services start podman
+          brew services restart podman
           podman machine start
+          podman version
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |
