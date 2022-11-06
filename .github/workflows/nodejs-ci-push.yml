@@ -63,13 +63,16 @@ jobs:
           podman pull docker.io/erikvl87/languagetool:5.8
           podman run -d -p 8082:8010 --name languagetool-test erikvl87/languagetool:5.9
           podman ps -a
+          sleep 5
+          curl -L http://localhost:8082/
       - name: Start LanguageTool
         id: install-languagetool
         run: |
           echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
-          brew services run languagetool
+          brew services start languagetool
           sleep 5
+          curl -L http://localhost:8081/
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
