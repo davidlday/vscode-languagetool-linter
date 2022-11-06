@@ -49,8 +49,8 @@ jobs:
         id: install-brew-podman
         run: |
           sudo apt-get purge podman buildah
-          brew install podman languagetool
-          sudo brew services restart podman
+          brew install podman languagetool jq
+          brew services restart podman
       - name: Start LanguageTool
         id: install-languagetool
         run: |
