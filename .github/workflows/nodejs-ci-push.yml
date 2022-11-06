@@ -45,14 +45,14 @@ jobs:
         run: |
           echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
           echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
-      - name: Install Homebrew, Podman, and Languagetool
+      - name: Install Podman, and Languagetool
         id: install-brew-podman
         run: |
           sudo apt-get purge podman buildah
           brew install podman languagetool
           brew services restart podman
           brew services restart languagetool
-          cat /home/runner/.config/systemd/user/homebrew.languagetool.service
+          cat /home/linuxbrew/.linuxbrew/var/log/languagetool/languagetool-server.log
       - name: Start LanguageTool
         id: install-languagetool
         run: |
