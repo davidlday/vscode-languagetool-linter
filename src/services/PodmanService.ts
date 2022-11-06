@@ -15,11 +15,7 @@
  */
 
 import execa from "execa";
-import {
-  ConfigurationChangeEvent,
-  Disposable,
-  WorkspaceConfiguration,
-} from "vscode";
+import { Disposable, WorkspaceConfiguration } from "vscode";
 import * as Constants from "../Constants";
 import { ILanguageToolService } from "../Interfaces";
 import { AbstractService } from "./AbstractService";
