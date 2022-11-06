@@ -50,11 +50,9 @@ jobs:
         run: |
           sudo apt-get purge podman buildah
           brew install podman languagetool
-          brew services restart podman
-          brew services restart languagetool
-          sleep 5
-          cat /home/linuxbrew/.linuxbrew/var/log/languagetool/languagetool-server.log
-          sleep 5
+          sudo brew services restart podman
+          sudo brew services restart languagetool
+          sleep 10
           cat /home/linuxbrew/.linuxbrew/var/log/languagetool/languagetool-server.log
       - name: Start LanguageTool
         id: install-languagetool
