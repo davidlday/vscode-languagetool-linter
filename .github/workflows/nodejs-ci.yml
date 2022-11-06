@@ -36,8 +36,6 @@ jobs:
           sudo /usr/local/opt/podman/bin/podman-mac-helper install
           brew services restart podman
           podman machine start
-          podman version
-          brew services list
       - name: Start LT Podman Services
         id: start-lt-podman-service
         run: |
