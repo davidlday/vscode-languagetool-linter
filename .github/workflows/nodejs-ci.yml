@@ -43,8 +43,9 @@ jobs:
         run: |
           podman pull docker.io/erikvl87/languagetool:5.8
           podman run -d -p 127.0.0.1:8082:8010 --name languagetool-test erikvl87/languagetool:5.9
+          sleep 10
+          podman healthcheck run languagetool-test
           podman ps -a
-          sleep 5
           curl -L http://localhost:8082/
       - name: Start LanguageTool
         id: start-languagetool
