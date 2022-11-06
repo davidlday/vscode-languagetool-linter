@@ -51,8 +51,7 @@ jobs:
       - run: npm run test-compile
       - name: Run Test
         run: |
-          ps -ef|grep languagetool
-          cat ~/ltserver.log
+          brew services list
           podman ps -a
           npm test
       - name: ESLint
