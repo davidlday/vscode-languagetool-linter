@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: lts/*
           cache: "npm"
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
       - name: Cache Homebrew
         id: cache-homebrew
         uses: actions/cache@v3
@@ -46,13 +49,6 @@ jobs:
         id: install-brew-podman
         run: |
           sudo apt-get purge podman buildah
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          echo "HOMEBREW_PREFIX=$HOMEBREW_PREFIX" >> $GITHUB_ENV
-          echo "HOMEBREW_CELLAR=$HOMEBREW_CELLAR" >> $GITHUB_ENV
-          echo "HOMEBREW_REPOSITORY=$HOMEBREW_REPOSITORY" >> $GITHUB_ENV
-          echo "PATH=$PATH" >> $GITHUB_ENV
-          echo "MANPATH=$MANPATH" >> $GITHUB_ENV
-          echo "INFOPATH=$INFOPATH" >> $GITHUB_ENV
           brew install podman languagetool
           brew services restart podman
           podman version
