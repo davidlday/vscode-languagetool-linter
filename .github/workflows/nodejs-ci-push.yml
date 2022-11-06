@@ -52,14 +52,15 @@ jobs:
           brew install podman languagetool
           brew services restart podman
           brew services restart languagetool
+          sleep 5
+          cat /home/linuxbrew/.linuxbrew/var/log/languagetool/languagetool-server.log
+          sleep 5
           cat /home/linuxbrew/.linuxbrew/var/log/languagetool/languagetool-server.log
       - name: Start LanguageTool
         id: install-languagetool
         run: |
           echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
-          brew services start languagetool
-          sleep 5
           brew services list
           curl -L http://localhost:8081/
       - name: Pre-warm Podman Service
