@@ -51,16 +51,8 @@ jobs:
           sudo apt-get purge podman buildah
           brew install podman languagetool
           brew services restart podman
-          podman version
-      - name: Pre-warm Podman Service
-        id: pull-languagetool-image
-        run: |
-          podman version
-          podman pull docker.io/erikvl87/languagetool:5.8
-          podman run -d -p 8082:8010 --name languagetool-test erikvl87/languagetool:5.9
-          podman ps -a
-          sleep 5
-          curl -L http://localhost:8082/
+          brew services restart languagetool
+          cat /home/runner/.config/systemd/user/homebrew.languagetool.service
       - name: Start LanguageTool
         id: install-languagetool
         run: |
@@ -70,6 +62,15 @@ jobs:
           sleep 5
           brew services list
           curl -L http://localhost:8081/
+      - name: Pre-warm Podman Service
+        id: pull-languagetool-image
+        run: |
+          podman version
+          podman pull docker.io/erikvl87/languagetool:5.8
+          podman run -d -p 8082:8010 --name languagetool-test erikvl87/languagetool:5.9
+          podman ps -a
+          sleep 5
+          curl -L http://localhost:8082/
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
