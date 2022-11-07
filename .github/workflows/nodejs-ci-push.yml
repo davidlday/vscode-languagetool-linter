@@ -69,7 +69,7 @@ jobs:
           while [ $state != "healthy" ]; do
             echo "State: $state"
             sleep 1
-            state=$(podman inspect languagetool-test|jq -r '.[0].State.Healht.Status')
+            state=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
           done;
       - run: npm install -g typescript vsce json
       - run: npm ci
