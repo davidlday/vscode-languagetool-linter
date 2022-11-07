@@ -31,7 +31,7 @@ Changes not yet released.
   items:
 
   - `languageToolLinter.podman.imageName`: Image to use for the podman
-    container. Defaults to 'docker.io/erikvl87/languagetool:5.8'.
+    container. Defaults to 'docker.io/erikvl87/languagetool:5.9'.
   - `languageToolLinter.podman.containerName`: Name of the podman container to
     use. If container is not running, it will be started. Defaults to
     'languagtool'.
@@ -46,7 +46,6 @@ Changes not yet released.
 
 - Allow spell-check rules to be ignored by line. This Works for HTML and
   markdown, where inline comments are allowed (e.g. pandoc)
-
 
 ## [0.19.0] - 2021-11-23
 
