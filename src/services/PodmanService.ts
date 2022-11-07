@@ -176,30 +176,33 @@ export class PodmanService
         this._state = Constants.SERVICE_STATES.READY;
         resolve(true);
       } else if (isContainerRunning) {
-        setTimeout(() => {
-          if (this.isContainerHealthy()) {
-            this._state = Constants.SERVICE_STATES.READY;
-            this._ltUrl = this.getServiceURL();
-            resolve(true);
-          } else {
-            this._state = Constants.SERVICE_STATES.ERROR;
-            reject(
-              new Error(
-                `Container ${this.containerName} is running but not healthy`,
-              ),
-            );
-          }
-        }, 120000);
-        // Wow, this is a long timeout, but it's necessary for the container to start up
-      } else if (isContainerAvailable) {
-        const result = execa.sync(this.command, ["start", this.containerName]);
-        if (result.exitCode === 0) {
+        let health = this.getContainerHealth();
+        while (health == "starting") {
+          execa.sync("sleep", ["1"]);
+          health = this.getContainerHealth();
+        }
+        if (health == "healthy") {
           this._ltUrl = this.getServiceURL();
           this._state = Constants.SERVICE_STATES.READY;
           resolve(true);
         } else {
           this._state = Constants.SERVICE_STATES.ERROR;
-          reject(new Error(result.stderr));
+          reject(new Error("Container is unhealthy"));
+        }
+      } else if (isContainerAvailable) {
+        const result = execa.sync(this.command, ["start", this.containerName]);
+        let health = this.getContainerHealth();
+        while (health == "starting") {
+          execa.sync("sleep", ["1"]);
+          health = this.getContainerHealth();
+        }
+        if (health == "healthy") {
+          this._ltUrl = this.getServiceURL();
+          this._state = Constants.SERVICE_STATES.READY;
+          resolve(true);
+        } else {
+          this._state = Constants.SERVICE_STATES.ERROR;
+          reject(new Error("Container is unhealthy"));
         }
       } else if (isImageAvailable || isPodmanMachineRunning) {
         const result = execa.sync(this.command, [
@@ -214,14 +217,24 @@ export class PodmanService
         if (result.exitCode === 0) {
           while (!this.isContainerHealthy()) {
             if (!this.isContainerRunning()) {
-              this._state = Constants.SERVICE_STATES.STOPPED;
+              this._state = Constants.SERVICE_STATES.ERROR;
               reject(new Error("Container is not running"));
+            } else {
+              let health = this.getContainerHealth();
+              while (health == "starting") {
+                execa.sync("sleep", ["1"]);
+                health = this.getContainerHealth();
+              }
+              if (health == "healthy") {
+                this._ltUrl = this.getServiceURL();
+                this._state = Constants.SERVICE_STATES.READY;
+                resolve(true);
+              } else {
+                this._state = Constants.SERVICE_STATES.ERROR;
+                reject(new Error("Container is not healthy"));
+              }
             }
-            // wait for container to be healthy
-            // TODO: add UI to show progress
           }
-          this._ltUrl = this.getServiceURL();
-          resolve(true);
         } else {
           this._state = Constants.SERVICE_STATES.ERROR;
           reject(new Error(result.stderr));
@@ -460,20 +473,9 @@ export class PodmanService
   private isContainerHealthy(): boolean {
     if (this.isPodmanMachineRunning() && this.containerExists()) {
       try {
-        const result = execa.sync(this.command, [
-          "healthcheck",
-          "run",
-          this.containerName,
-        ]);
-        if (result.exitCode === 0) {
+        const containerInfo: ContainerInfo[] = this.inspectContainer();
+        if (containerInfo[0].State.Health.Status === "healthy") {
           return true;
-        } else if (result.exitCode === 1) {
-          const health = this.getContainerHealth();
-          if (health === Constants.PODMAN_CONTAINER_HEALTH.HEALTHY) {
-            return true;
-          } else {
-            return false;
-          }
         } else {
           return false;
         }
