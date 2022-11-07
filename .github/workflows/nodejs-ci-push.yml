@@ -51,12 +51,13 @@ jobs:
           sudo apt-get purge podman buildah
           brew install podman languagetool jq
           brew services restart podman
-      - name: Start LanguageTool
-        id: install-languagetool
+      - name: Set Test Environment Variables
+        id: set-test-environment-variables
         run: |
           echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
           echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
-          brew services list
+          LTLINTER_IMAGE=$(cat ./package.json | jq -r '.contributes.configuration.properties."languageToolLinter.podman.imageName".default')
+          echo "LTLINTER_IMAGE=$LTLINTER_IMAGE" >> $GITHUB_ENV
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |

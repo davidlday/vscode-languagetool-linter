@@ -192,8 +192,8 @@
         },
         "languageToolLinter.podman.imageName": {
           "type": "string",
-          "default": "docker.io/erikvl87/languagetool:5.8",
-          "description": "Image to use for the podman container. Defaults to 'docker.io/erikvl87/languagetool:5.8'."
+          "default": "docker.io/erikvl87/languagetool:5.9",
+          "description": "Image to use for the podman container. Defaults to 'docker.io/erikvl87/languagetool:5.9'."
         },
         "languageToolLinter.podman.containerName": {
           "type": "string",
