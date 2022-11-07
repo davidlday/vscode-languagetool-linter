@@ -26,11 +26,13 @@ jobs:
         with:
           path: /home/runner/.cache/Homebrew
           key: ${{ runner.os }}-homebrew
-      # - name: Install Stuff
-      #   id: install-stuff
-      #   run: |
-      #     sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-      #     sudo /etc/init.d/dbus start &> /dev/null
+      - name: Set Test Environment Variables
+        id: set-test-environment-variables
+        run: |
+          echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
+          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+          LTLINTER_IMAGE=$(cat ./package.json | jq -r '.contributes.configuration.properties."languageToolLinter.podman.imageName".default')
+          echo "LTLINTER_IMAGE=$LTLINTER_IMAGE" >> $GITHUB_ENV
       - name: Start Xvfb
         id: start-xvfb
         run: |
@@ -51,20 +53,13 @@ jobs:
           sudo apt-get purge podman buildah
           brew install podman languagetool jq
           brew services restart podman
-      - name: Set Test Environment Variables
-        id: set-test-environment-variables
-        run: |
-          echo "LTLINTER_MANAGED_CLASSPATH=/home/linuxbrew/.linuxbrew/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
-          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
-          LTLINTER_IMAGE=$(cat ./package.json | jq -r '.contributes.configuration.properties."languageToolLinter.podman.imageName".default')
-          echo "LTLINTER_IMAGE=$LTLINTER_IMAGE" >> $GITHUB_ENV
       - name: Pre-warm Podman Service
         id: pull-languagetool-image
         run: |
           podman version
-          podman pull docker.io/erikvl87/languagetool:5.9
-          podman run -d -p 8082:8010 --name languagetool-test erikvl87/languagetool:5.9
-          podman run -d -p 8081:8010 --name languagetool-external erikvl87/languagetool:5.9
+          podman pull $LTLINTER_IMAGE
+          podman run -d -p 8082:8010 --name $LTLINTER_IMAGE
+          podman run -d -p 8081:8010 --name $LTLINTER_IMAGE
           state=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
           echo "State: $state"
           while [ $state != "healthy" ]; do
@@ -72,12 +67,12 @@ jobs:
             sleep 1
             state=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
           done;
-      - run: npm install -g typescript vsce json
-      - run: npm ci
-      - run: npm run vscode:prepublish
-      - run: npm run test-compile
-      - name: Test
+      - name: Run Tests
         run: |
+          npm run clean
+          npm install -g typescript vsce json
+          npm ci
+          npm run vscode:prepublish
           npm test
       - name: ESLint
         run: npm run lint

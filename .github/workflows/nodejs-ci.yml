@@ -23,6 +23,13 @@ jobs:
         with:
           path: ~/Library/Caches/Homebrew
           key: ${{ runner.os }}-homebrew
+      - name: Set Test Environment Variables
+        id: set-test-environment-variables
+        run: |
+          echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
+          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+          LTLINTER_IMAGE=$(cat ./package.json | jq -r '.contributes.configuration.properties."languageToolLinter.podman.imageName".default')
+          echo "LTLINTER_IMAGE=$LTLINTER_IMAGE" >> $GITHUB_ENV
       - name: Install Podman and Languagetool
         id: install-brew
         run: |
@@ -40,9 +47,9 @@ jobs:
         id: start-lt-podman-service
         run: |
           podman version
-          podman pull docker.io/erikvl87/languagetool:5.9
-          podman run -d -p 8082:8010 --name languagetool-test erikvl87/languagetool:5.9
-          podman run -d -p 8081:8010 --name languagetool-external erikvl87/languagetool:5.9
+          podman pull $LTLINTER_IMAGE
+          podman run -d -p 8082:8010 --name languagetool-test $LTLINTER_IMAGE
+          podman run -d -p 8081:8010 --name languagetool-external $LTLINTER_IMAGE
           state=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
           echo "State: $state"
           while [ $state != "healthy" ]; do
@@ -50,20 +57,12 @@ jobs:
             sleep 1
             state=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
           done;
-      - name: Set Test Environment Variables
-        id: set-test-environment-variables
+      - name: Run Tests
         run: |
-          echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
-          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
-          LTLINTER_IMAGE=$(cat ./package.json | jq -r '.contributes.configuration.properties."languageToolLinter.podman.imageName".default')
-          echo "LTLINTER_IMAGE=$LTLINTER_IMAGE" >> $GITHUB_ENV
-      - run: npm install -g typescript vsce json
-      - run: npm ci
-      - run: npm run vscode:prepublish
-      - run: npm run test-compile
-      - name: Run Test
-        run: |
-          podman ps -a
+          npm run clean
+          npm install -g typescript vsce json
+          npm ci
+          npm run vscode:prepublish
           npm test
       - name: ESLint
         run: npm run lint
