@@ -191,18 +191,23 @@ export class PodmanService
         }
       } else if (isContainerAvailable) {
         const result = execa.sync(this.command, ["start", this.containerName]);
-        let health = this.getContainerHealth();
-        while (health == "starting") {
-          execa.sync("sleep", ["1"]);
-          health = this.getContainerHealth();
-        }
-        if (health == "healthy") {
-          this._ltUrl = this.getServiceURL();
-          this._state = Constants.SERVICE_STATES.READY;
-          resolve(true);
+        if (result.exitCode == 0) {
+          let health = this.getContainerHealth();
+          while (health == "starting") {
+            execa.sync("sleep", ["1"]);
+            health = this.getContainerHealth();
+          }
+          if (health == "healthy") {
+            this._ltUrl = this.getServiceURL();
+            this._state = Constants.SERVICE_STATES.READY;
+            resolve(true);
+          } else {
+            this._state = Constants.SERVICE_STATES.ERROR;
+            reject(new Error("Container is unhealthy"));
+          }
         } else {
           this._state = Constants.SERVICE_STATES.ERROR;
-          reject(new Error("Container is unhealthy"));
+          reject(new Error("Failed to start container"));
         }
       } else if (isImageAvailable || isPodmanMachineRunning) {
         const result = execa.sync(this.command, [
