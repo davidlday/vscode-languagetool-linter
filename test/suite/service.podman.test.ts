@@ -29,6 +29,7 @@ suite("PodmanService Test Suite", function () {
   });
 
   test("PodmanService should respond to ping.", function () {
+    this.timeout(20000);
     return service.ping().should.eventually.be.true;
   });
 
