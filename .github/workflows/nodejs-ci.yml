@@ -48,8 +48,8 @@ jobs:
         run: |
           podman version
           podman pull $LTLINTER_IMAGE
-          podman run -d -p 8082:8010 --name languagetool-test $LTLINTER_IMAGE
-          podman run -d -p 8081:8010 --name languagetool-external $LTLINTER_IMAGE
+          podman run -d -p 127.0.0.1:8082:8010 --name languagetool-test $LTLINTER_IMAGE
+          podman run -d -p 127.0.0.1:8081:8010 --name languagetool-external $LTLINTER_IMAGE
           teststate=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
           echo "State: $teststate"
           while [ "$teststate" != "healthy" ]; do

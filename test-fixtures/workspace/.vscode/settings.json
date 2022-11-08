@@ -11,7 +11,7 @@
   "languageToolLinter.lintOnChange": true,
   "languageToolLinter.lintOnOpen": true,
   "languageToolLinter.plainText.languageIds": ["plaintext", "asciidoc"],
-  "languageToolLinter.external.url": "http://localhost:8081",
+  "languageToolLinter.external.url": "http://127.0.0.1:8081",
   "languageToolLinter.managed.classPath": "/usr/local/opt/languagetool/libexec/languagetool-server.jar",
   "languageToolLinter.podman.containerName": "languagetool-test",
   "languageToolLinter.podman.ip": "127.0.0.1",
