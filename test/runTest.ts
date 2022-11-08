@@ -31,36 +31,36 @@ async function main() {
       ],
     });
 
-    const servicesTestsPath = path.resolve(__dirname, "./services");
+    // const servicesTestsPath = path.resolve(__dirname, "./services");
 
-    if (process.env.LTLINTER_TEST_SERVICES) {
-      if (process.env.LTLINTER_MANAGED_CLASSPATH) {
-        const settings = JSON.parse(
-          fs.readFileSync(
-            path.resolve(testWorkspace, ".vscode/settings.json"),
-            "utf8",
-          ),
-        );
-        settings.languageToolLinter.managed.classPath =
-          process.env.LTLINTER_MANAGED_CLASSPATH;
-        fs.writeFileSync(
-          path.resolve(testWorkspace, ".vscode/settings.json"),
-          JSON.stringify(settings),
-          "utf8",
-        );
-      }
-      await runTests({
-        extensionDevelopmentPath,
-        extensionTestsPath: servicesTestsPath,
-        launchArgs: [
-          testWorkspace,
-          "--disable-gpu",
-          "--disable-extensions",
-          "--user-data-dir",
-          `${os.tmpdir()}`,
-        ],
-      });
-    }
+    // if (process.env.LTLINTER_TEST_SERVICES) {
+    //   if (process.env.LTLINTER_MANAGED_CLASSPATH) {
+    //     const settings = JSON.parse(
+    //       fs.readFileSync(
+    //         path.resolve(testWorkspace, ".vscode/settings.json"),
+    //         "utf8",
+    //       ),
+    //     );
+    //     settings.languageToolLinter.managed.classPath =
+    //       process.env.LTLINTER_MANAGED_CLASSPATH;
+    //     fs.writeFileSync(
+    //       path.resolve(testWorkspace, ".vscode/settings.json"),
+    //       JSON.stringify(settings),
+    //       "utf8",
+    //     );
+    //   }
+    //   await runTests({
+    //     extensionDevelopmentPath,
+    //     extensionTestsPath: servicesTestsPath,
+    //     launchArgs: [
+    //       testWorkspace,
+    //       "--disable-gpu",
+    //       "--disable-extensions",
+    //       "--user-data-dir",
+    //       `${os.tmpdir()}`,
+    //     ],
+    //   });
+    // }
   } catch (err) {
     console.error("Failed to run tests");
     process.exit(1);
