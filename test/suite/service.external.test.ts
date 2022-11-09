@@ -29,6 +29,7 @@ suite("ExternalService Test Suite", function () {
   });
 
   test("ExternalService should respond to ping.", function () {
+    this.timeout(20000);
     return service.ping().should.eventually.be.true;
   });
 
