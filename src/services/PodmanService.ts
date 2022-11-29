@@ -235,6 +235,11 @@ export class PodmanService
                 execa.sync("sleep", ["1"]);
                 health = this.getContainerHealth();
               }
+              // container will go from starting to unhealthy
+              while (health == "unhealthy") {
+                execa.sync("sleep", ["1"]);
+                health = this.getContainerHealth();
+              }
               if (health == "healthy") {
                 this._ltUrl = this.getServiceURL();
                 this._state = Constants.SERVICE_STATES.READY;
