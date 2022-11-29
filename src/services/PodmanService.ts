@@ -121,6 +121,7 @@ interface Image {
   Created: string;
   CreatedAt: string;
 }
+
 export class PodmanService
   extends AbstractService
   implements Disposable, ILanguageToolService
@@ -177,11 +178,13 @@ export class PodmanService
         resolve(true);
       } else if (isContainerRunning) {
         let health = this.getContainerHealth();
-        while (health == "starting") {
+        let status = this.getContainerStatus();
+        while (status == "running" && health != "healthy") {
           execa.sync("sleep", ["1"]);
           health = this.getContainerHealth();
+          status = this.getContainerStatus();
         }
-        if (health == "healthy") {
+        if (status == "running" && health == "healthy") {
           this._ltUrl = this.getServiceURL();
           this._state = Constants.SERVICE_STATES.READY;
           resolve(true);
@@ -193,11 +196,13 @@ export class PodmanService
         const result = execa.sync(this.command, ["start", this.containerName]);
         if (result.exitCode == 0) {
           let health = this.getContainerHealth();
-          while (health == "starting") {
+          let status = this.getContainerStatus();
+          while (status == "running" && health != "healthy") {
             execa.sync("sleep", ["1"]);
             health = this.getContainerHealth();
+            status = this.getContainerStatus();
           }
-          if (health == "healthy") {
+          if (status == "running" && health == "healthy") {
             this._ltUrl = this.getServiceURL();
             this._state = Constants.SERVICE_STATES.READY;
             resolve(true);
@@ -236,7 +241,7 @@ export class PodmanService
                 resolve(true);
               } else {
                 this._state = Constants.SERVICE_STATES.ERROR;
-                reject(new Error("Container is not healthy"));
+                reject(new Error("Container is unhealthy"));
               }
             }
           }
