@@ -14,7 +14,6 @@
  *   limitations under the License.
  */
 
-import { resolve } from "dns";
 import * as Fetch from "node-fetch";
 import {
   ConfigurationChangeEvent,
