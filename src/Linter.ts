@@ -240,19 +240,48 @@ export class Linter implements CodeActionProvider {
     annotatedText: string,
   ): void {
     const service = this.configManager.getService();
-    if (service && service.getState() === Constants.SERVICE_STATES.READY) {
-      service
-        .invokeLanguageTool(annotatedText)
-        .then((languageTooleResponse) => {
-          this.suggest(document, languageTooleResponse);
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(error.message);
-          }
-        });
+    if (service) {
+      const state = service.getState();
+      switch (state) {
+        case Constants.SERVICE_STATES.READY:
+          service
+            .invokeLanguageTool(annotatedText)
+            .then((languageToolResponse) => {
+              this.suggest(document, languageToolResponse);
+            })
+            .catch((error) => {
+              if (error instanceof Error) {
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+                  Date.now() + " [error]: " + error.message,
+                );
+              }
+            });
+          break;
+        case Constants.SERVICE_STATES.STARTING:
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            Date.now() +
+              " [warn]: LanguageTool service is starting. Linting cancelled.",
+          );
+          break;
+        case Constants.SERVICE_STATES.STOPPED:
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            Date.now() +
+              " [warn]: LanguageTool service is stopped. Linting cancelled.",
+          );
+          break;
+        case Constants.SERVICE_STATES.ERROR:
+          throw new Error(
+            `LanguageTool service is in error state. Linting cancelled.`,
+          );
+        default:
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            Date.now() +
+              " [warn]: LanguageTool service is not ready. Linting cancelled.",
+          );
+          break;
+      }
     } else {
-      throw new Error("Service is not ready");
+      throw new Error("Service is not defined!");
     }
   }
 
@@ -327,7 +356,8 @@ export class Linter implements CodeActionProvider {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
       const ignored: IIgnoreItem[] = this.getIgnoreList(document, start);
-      const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
+      const diagnosticSeverity: DiagnosticSeverity =
+        this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.message;
       const diagnostic: LTDiagnostic = new LTDiagnostic(
@@ -356,7 +386,13 @@ export class Linter implements CodeActionProvider {
         this.configManager.showIgnoredWordHints()
       ) {
         diagnostic.severity = DiagnosticSeverity.Hint;
-      } else if (this.checkIfIgnored(ignored, match.rule.id, document.getText(diagnostic.range))) {
+      } else if (
+        this.checkIfIgnored(
+          ignored,
+          match.rule.id,
+          document.getText(diagnostic.range),
+        )
+      ) {
         diagnostic.severity = DiagnosticSeverity.Hint;
       }
     });
@@ -516,11 +552,14 @@ export class Linter implements CodeActionProvider {
    * @param document The document to scan for
    * @param start
    */
-  private getIgnoreList(document: TextDocument, start: Position): IIgnoreItem[] {
+  private getIgnoreList(
+    document: TextDocument,
+    start: Position,
+  ): IIgnoreItem[] {
     const line = start.line;
     const res = Array<IIgnoreItem>();
     this.ignoreList.forEach((item) => {
-      if (item.line == line || item.line == line -1) {
+      if (item.line == line || item.line == line - 1) {
         // all items of current or prev line
         res.push(item);
       }
@@ -536,19 +575,25 @@ export class Linter implements CodeActionProvider {
    */
   private buildIgnoreList(document: TextDocument): IIgnoreItem[] {
     const fullText = document.getText();
-    const matches = [...fullText.matchAll(new RegExp('@(LT-)?IGNORE:(?<id>[_A-Z0-9]+)(\\((?<word>[^)]+)\\))?@', "gm"))];
+    const matches = [
+      ...fullText.matchAll(
+        new RegExp(
+          "@(LT-)?IGNORE:(?<id>[_A-Z0-9]+)(\\((?<word>[^)]+)\\))?@",
+          "gm",
+        ),
+      ),
+    ];
     if (matches.length == 0) return [];
     const res = Array<IIgnoreItem>();
     matches.forEach((match: RegExpMatchArray) => {
       if (!match.groups) return;
       const item: IIgnoreItem = {
         line: document.positionAt(match.index as number).line,
-        ruleId: match.groups ? match.groups['id'] : '',
-        text: match.groups ? match.groups['word'] : undefined,
-      }
+        ruleId: match.groups ? match.groups["id"] : "",
+        text: match.groups ? match.groups["word"] : undefined,
+      };
       res.push(item);
     });
     return res;
   }
 }
-
