@@ -15,6 +15,7 @@
  */
 
 import execa from "execa";
+import fetch from "node-fetch";
 import * as glob from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
@@ -100,9 +101,6 @@ export class ManagedService extends AbstractService {
               Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
             });
             this.process?.stdout.addListener("data", (data) => {
-              if (data.toString().includes("Server started")) {
-                this._state = Constants.SERVICE_STATES.READY;
-              }
               Constants.EXTENSION_OUTPUT_CHANNEL.append(
                 Date.now() + " [stdout]: ",
               );
@@ -113,6 +111,23 @@ export class ManagedService extends AbstractService {
         },
       );
     });
+  }
+
+  public getState(): string {
+    if (Constants.SERVICE_STATES.STARTING === this._state) {
+      const url = this.getURL();
+      if (
+        this.process &&
+        this.process.exitCode === null &&
+        !this.process.killed &&
+        this.process.pid &&
+        url
+      ) {
+        execa.sync("sleep", ["5"]);
+        this._state = Constants.SERVICE_STATES.READY;
+      }
+    }
+    return this._state;
   }
 
   public ping(): Promise<boolean> {
