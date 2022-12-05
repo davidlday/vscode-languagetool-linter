@@ -3,6 +3,9 @@ import chaiAsPromised from "chai-as-promised";
 import * as vscode from "vscode";
 import { CONFIGURATION_MANAGED_CLASS_PATH } from "../../src/Constants";
 import { ManagedService } from "../../src/services/ManagedService";
+import * as Constants from "../../src/Constants";
+import execa from "execa";
+import { exec } from "child_process";
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -42,6 +45,11 @@ suite("ManagedService Test Suite", function () {
   });
 
   test("ManagedService should respond to ping.", function () {
+    let state = service.getState();
+    while (state !== Constants.SERVICE_STATES.READY) {
+      execa("sleep", ["1"]);
+      state = service.getState();
+    }
     return service.ping().catch((err) => {
       console.log(err);
     }).should.eventually.be.true;
