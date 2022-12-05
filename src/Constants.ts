@@ -113,10 +113,6 @@ export const CONFIGURATION_LT_DISABLED_CATEGORIES =
   CONFIGURATION_ROOT + ".disabledCategories";
 
 // LanguageTool Services
-// export const SERVICE_TYPE_EXTERNAL = "external";
-// export const SERVICE_TYPE_MANAGED = "managed";
-// export const SERVICE_TYPE_PODMAN = "podman";
-// export const SERVICE_TYPE_PUBLIC = "public";
 export const SERVICE_TYPES = {
   EXTERNAL: "external",
   MANAGED: "managed",
