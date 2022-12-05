@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 
+import { rejects } from "assert";
 import * as Fetch from "node-fetch";
 import {
   ConfigurationChangeEvent,
@@ -61,7 +62,7 @@ export abstract class AbstractService
   ): Promise<ILanguageToolResponse> {
     return new Promise((resolve, reject) => {
       const url = this.getURL();
-      if (this._state === Constants.SERVICE_STATES.READY && url) {
+      if (url) {
         const parameters: Record<string, string> = {};
         parameters["data"] = annotatedText;
         Constants.SERVICE_PARAMETERS.forEach((serviceParameter) => {
@@ -131,6 +132,9 @@ export abstract class AbstractService
           .catch((err) => {
             reject(err);
           });
+      } else if (url === undefined) {
+        this._state = Constants.SERVICE_STATES.ERROR;
+        reject(new Error("LanguageTool URL is not defined"));
       } else if (this._state !== Constants.SERVICE_STATES.READY) {
         switch (this._state) {
           case Constants.SERVICE_STATES.STOPPED:
@@ -150,9 +154,6 @@ export abstract class AbstractService
             reject(new Error("LanguageTool called on unknown service state."));
             break;
         }
-      } else if (url === undefined) {
-        this._state = Constants.SERVICE_STATES.ERROR;
-        reject(new Error("LanguageTool URL is not defined"));
       } else {
         this._state = Constants.SERVICE_STATES.ERROR;
         reject(new Error("Unknown error"));
@@ -185,7 +186,7 @@ export abstract class AbstractService
       // If we know the service isn't "running" then we won't ping it
       // This is to provide a consistent response to the user and consistent
       // behaviour across different implementations of the service
-      if (this._state === Constants.SERVICE_STATES.READY) {
+      if (Constants.SERVICE_STATES.READY === this.getState()) {
         this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
           .then((response: ILanguageToolResponse) => {
             if (response) {
@@ -203,20 +204,21 @@ export abstract class AbstractService
     });
   }
 
-  protected forcedPing(): Promise<boolean> {
-    return new Promise((resolve) => {
-      this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
-        .then((response: ILanguageToolResponse) => {
-          if (response) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        })
-        .catch(() => {
-          resolve(false);
-        });
-    });
-  }
+  // protected forcedPing(): Promise<boolean> {
+  //   return new Promise((resolve, reject) => {
+  //     this.invokeLanguageTool('{"annotation":[{"text": "Ping"}]}')
+  //       .then((response: ILanguageToolResponse) => {
+  //         if (response) {
+  //           resolve(true);
+  //         } else {
+  //           resolve(false);
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         reject(err);
+  //         resolve(false);
+  //       });
+  //   });
+  // }
   // end of class
 }
