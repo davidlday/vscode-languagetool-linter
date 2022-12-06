@@ -2,6 +2,10 @@ name: Node.js CI - Push
 
 on: push
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # call-workflow-build-ubuntu:
   #   uses: ./.github/worklows/build-ubuntu.yml
@@ -13,7 +17,7 @@ jobs:
       CI: true
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@3.5.1
         with:
           node-version: lts/*
           cache: "npm"

@@ -8,18 +8,19 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.5.1
         with:
-          node-version: 14
+          node-version: lts/*
       - run: npm ci
       - name: Publish to Open VSX Registry
-        uses: HaaLeo/publish-vscode-extension@v0
+        uses: HaaLeo/publish-vscode-extension@v1
         id: publishToOpenVSX
         with:
           pat: ${{ secrets.OPENVSX_PERSONAL_ACCESS_TOKEN }}
       - name: Publish to Visual Studio Marketplace
-        uses: HaaLeo/publish-vscode-extension@v0
+        uses: HaaLeo/publish-vscode-extension@v1
         with:
           pat: ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
           registryUrl: https://marketplace.visualstudio.com
@@ -30,7 +31,7 @@ jobs:
 #   publish:
 #     runs-on: ubuntu-latest
 #     steps:
-#     - uses: actions/checkout@v2
+#     - uses: actions/checkout@v3
 #     - uses: actions/setup-node@v1
 #       with:
 #         node-version: 14
