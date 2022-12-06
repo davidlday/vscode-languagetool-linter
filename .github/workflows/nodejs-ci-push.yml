@@ -14,7 +14,7 @@ jobs:
       DISPLAY: ":99.0"
       CI: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node.js
         uses: actions/setup-node@v3.5.1
         with:
