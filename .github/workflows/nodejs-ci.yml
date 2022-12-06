@@ -2,6 +2,10 @@ name: Node.js CI
 
 on: pull_request
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ubuntu-build:
     runs-on: ubuntu-latest
@@ -10,10 +14,11 @@ jobs:
       DISPLAY: ":99.0"
       CI: true
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.5.1
         with:
-          node-version: 14
+          node-version: lts/*
       - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         name: Start Xvfb
       - run: npm install -g typescript vsce json
@@ -31,10 +36,11 @@ jobs:
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.5.1
         with:
-          node-version: 14
+          node-version: lts/*
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish
@@ -54,10 +60,11 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.5.1
         with:
-          node-version: 14
+          node-version: lts/*
       - run: npm install -g typescript vsce json
       - run: npm ci
       - run: npm run vscode:prepublish

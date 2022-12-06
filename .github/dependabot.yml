@@ -1,63 +1,78 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: "/"
-  schedule:
-    interval: monthly
-    timezone: America/New_York
-  open-pull-requests-limit: 10
-  reviewers:
-  - davidlday
-  ignore:
-  - dependency-name: "@types/node"
-    versions:
-    - ">= 11.a"
-    - "< 12"
-  - dependency-name: "@types/node"
-    versions:
-    - ">= 12.a"
-    - "< 13"
-  - dependency-name: "@types/node"
-    versions:
-    - ">= 13.1.a"
-    - "< 13.2"
-  - dependency-name: "@types/node"
-    versions:
-    - ">= 13.7.a"
-    - "< 13.8"
-  - dependency-name: "@types/node"
-    versions:
-    - ">= 13.a"
-    - "< 14"
-  - dependency-name: "@types/node"
-    versions:
-    - ">= 14.0.a"
-    - "< 14.1"
-  - dependency-name: "@types/vscode"
-    versions:
-    - ">= 1.40.a"
-    - "< 1.41"
-  - dependency-name: "@types/vscode"
-    versions:
-    - ">= 1.41.a"
-    - "< 1.42"
-  - dependency-name: "@types/vscode"
-    versions:
-    - ">= 1.42.a"
-    - "< 1.43"
-  - dependency-name: "@types/vscode"
-    versions:
-    - ">= 1.43.a"
-    - "< 1.44"
-  - dependency-name: "@types/vscode"
-    versions:
-    - ">= 1.44.a"
-    - "< 1.45"
-  - dependency-name: "@types/vscode"
-    versions:
-    - ">= 1.45.a"
-    - "< 1.46"
-  - dependency-name: "@types/vscode"
-    versions:
-    - ">= 1.46.a"
-    - "< 1.47"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: monthly
+      time: "17:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore"
+      include: scope
+    reviewers:
+      - davidlday
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: monthly
+      timezone: America/New_York
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore"
+      include: scope
+    reviewers:
+      - davidlday
+    ignore:
+      - dependency-name: "@types/node"
+        versions:
+          - ">= 11.a"
+          - "< 12"
+      - dependency-name: "@types/node"
+        versions:
+          - ">= 12.a"
+          - "< 13"
+      - dependency-name: "@types/node"
+        versions:
+          - ">= 13.1.a"
+          - "< 13.2"
+      - dependency-name: "@types/node"
+        versions:
+          - ">= 13.7.a"
+          - "< 13.8"
+      - dependency-name: "@types/node"
+        versions:
+          - ">= 13.a"
+          - "< 14"
+      - dependency-name: "@types/node"
+        versions:
+          - ">= 14.0.a"
+          - "< 14.1"
+      - dependency-name: "@types/vscode"
+        versions:
+          - ">= 1.40.a"
+          - "< 1.41"
+      - dependency-name: "@types/vscode"
+        versions:
+          - ">= 1.41.a"
+          - "< 1.42"
+      - dependency-name: "@types/vscode"
+        versions:
+          - ">= 1.42.a"
+          - "< 1.43"
+      - dependency-name: "@types/vscode"
+        versions:
+          - ">= 1.43.a"
+          - "< 1.44"
+      - dependency-name: "@types/vscode"
+        versions:
+          - ">= 1.44.a"
+          - "< 1.45"
+      - dependency-name: "@types/vscode"
+        versions:
+          - ">= 1.45.a"
+          - "< 1.46"
+      - dependency-name: "@types/vscode"
+        versions:
+          - ">= 1.46.a"
+          - "< 1.47"
