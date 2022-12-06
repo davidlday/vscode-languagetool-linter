@@ -23,5 +23,5 @@ jobs:
         uses: "Legal-and-General/dependabot-batcher@v1.0.2"
         with:
           token: ${{ secrets.DEPENDABOT_BATCH_TOKEN }}
-          baseBranchName: "main"
+          baseBranchName: "master"
           batchPullTitle: "chore(deps): dependabot batch updates"
