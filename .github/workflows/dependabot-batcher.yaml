@@ -1,0 +1,27 @@
+name: "Dependabot Batcher: Scheduled"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 0,3"
+
+jobs:
+  # Batches Dependabot PRs into one by merging them into a combined branch, then raising a new PR
+  dependabot-batcher:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repo"
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.DEPENDABOT_BATCH_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v3.5.1
+        with:
+          node-version: lts/*
+
+      - name: "Combine Dependabot PRs"
+        uses: "Legal-and-General/dependabot-batcher@v1.0.2"
+        with:
+          token: ${{ secrets.DEPENDABOT_BATCH_TOKEN }}
+          baseBranchName: "main"
+          batchPullTitle: "chore(deps): dependabot batch updates"
