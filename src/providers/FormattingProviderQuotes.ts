@@ -15,10 +15,11 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "./ConfigurationManager";
+import { ConfigurationManager } from "../ConfigurationManager";
 
 export class FormattingProviderQuotes
-  implements vscode.OnTypeFormattingEditProvider {
+  implements vscode.OnTypeFormattingEditProvider
+{
   public static readonly startDoubleQuote: string = "“";
   public static readonly endDoubleQuote: string = "”";
   public static readonly startSingleQuote: string = "‘";

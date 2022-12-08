@@ -11,16 +11,49 @@ and this project adheres to
 
 Changes not yet released.
 
+### Added
+
+- LanguageTool `username` and `apiKey` are now supported for premium access.
+  ([438](https://github.com/davidlday/vscode-languagetool-linter/issues/438))
+  Adds the following configuration items:
+
+  - `languageToolLinter.languageTool.username`: Set to get Premium API access:
+    Your username/email as used to log in at languagetool.org.
+  - `languageToolLinter.languageTool.apiKey`: Set to get Premium API access:
+    [your API key](https://languagetool.org/editor/settings/api)
+
+- Added a `podman`-based service implementation, which may eventually take place
+  of the managed service. The service will start the named container if it
+  exists and isn't running, or will create and start it if it doesn't exist. It
+  expects a [podman](https://podman.io) machine to be running already, and will
+  fail to start if one hasn't been created by the user. Select `podman` as the
+  `languageToolLinter.serviceType` to enable. Adds the following configuration
+  items:
+
+  - `languageToolLinter.podman.imageName`: Image to use for the podman
+    container. Defaults to 'docker.io/erikvl87/languagetool:5.9'.
+  - `languageToolLinter.podman.containerName`: Name of the podman container to
+    use. If container is not running, it will be started. Defaults to
+    'languagtool'.
+  - `languageToolLinter.podman.port`: Port to use for the podman container.
+    Leave blank to use a random port number. Defaults to 8081.
+  - `languageToolLinter.podman.ip`: IP address to use for the podman container.
+    Defaults to '127.0.0.1'.
+  - `languageTooLinter.podman.hardStop`: Stop the container when not using the
+    Podman-based LanguageTool Service. Defaults to 'false'.
+
+- Tests for various service implementations.
+
 - Allow spell-check rules to be ignored by line. This Works for HTML and
   markdown, where inline comments are allowed (e.g. pandoc)
 
 ## [0.19.0] - 2021-11-23
 
-## Changed
+### Changed
 
 - replaced license-webpack-plugin with webpack-license-plugin
 
-## Maintenance
+### Maintenance
 
 - dependency updates
 

@@ -7,25 +7,84 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # call-workflow-build-ubuntu:
+  #   uses: ./.github/worklows/build-ubuntu.yml
   ubuntu-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Build on Ubuntu
     env:
       DISPLAY: ":99.0"
       CI: true
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3.5.1
+      - uses: actions/setup-node@v3.5.1
         with:
           node-version: lts/*
-      - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        name: Start Xvfb
-      - run: npm install -g typescript vsce json
-      - run: npm ci
-      - run: npm run vscode:prepublish
-      - run: npm run test-compile
-      - run: npm test
-        name: Test
-      - run: npm run lint
-        name: ESLint
+          cache: "npm"
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      - name: Cache Homebrew
+        id: cache-homebrew
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.cache/Homebrew
+          key: ${{ runner.os }}-homebrew
+      - name: Set Test Environment Variables
+        id: set-test-environment-variables
+        run: |
+          echo "LTLINTER_MANAGED_CLASSPATH=/usr/local/opt/languagetool/libexec/languagetool-server.jar" >> $GITHUB_ENV
+          echo "LTLINTER_TEST_SERVICES=true" >> $GITHUB_ENV
+          LTLINTER_IMAGE=$(cat ./package.json | jq -r '.contributes.configuration.properties."languageToolLinter.podman.imageName".default')
+          echo "LTLINTER_IMAGE=$LTLINTER_IMAGE" >> $GITHUB_ENV
+      - name: Start Xvfb
+        id: start-xvfb
+        run: |
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 +extension GLX +render -noreset >> $HOME/xsession.log 2>&1 &
+      - name: Enable Linger for Podman
+        id: enable-linger
+        run: |
+          loginctl enable-linger $(whoami)
+          sleep 1
+      - name: Set XDG_RUNTIME_DIR
+        id: set-xdg_runtime_dir
+        run: |
+          echo "XDG_RUNTIME_DIR=/run/user/$UID" >> $GITHUB_ENV
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus" >> $GITHUB_ENV
+      - name: Install Podman, and Languagetool
+        id: install-brew-podman
+        run: |
+          sudo apt-get purge podman buildah
+          brew install podman languagetool jq
+          brew services restart podman
+      - name: Start LT Podman Services
+        id: start-lt-podman-service
+        run: |
+          podman version
+          podman pull $LTLINTER_IMAGE
+          podman run -d -p 127.0.0.1:8082:8010 --name languagetool-test $LTLINTER_IMAGE
+          podman run -d -p 127.0.0.1:8081:8010 --name languagetool-external $LTLINTER_IMAGE
+          teststate=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
+          echo "State: $teststate"
+          while [ "$teststate" != "healthy" ]; do
+            echo "State: $teststate"
+            sleep 1
+            teststate=$(podman inspect languagetool-test|jq -r '.[0].State.Health.Status')
+          done;
+          extstate=$(podman inspect languagetool-external|jq -r '.[0].State.Health.Status')
+          echo "State: $extstate"
+          while [ "$extstate" != "healthy" ]; do
+            echo "State: $extstate"
+            sleep 1
+            extstate=$(podman inspect languagetool-external|jq -r '.[0].State.Health.Status')
+          done;
+      - name: Run Tests
+        run: |
+          podman ps -a
+          npm run clean
+          npm install -g typescript vsce json
+          npm ci
+          npm run vscode:prepublish
+          npm test
+      - name: ESLint
+        run: npm run lint

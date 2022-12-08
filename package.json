@@ -171,15 +171,17 @@
         "languageToolLinter.serviceType": {
           "type": "string",
           "default": "external",
-          "description": "What kind of LanguageTool service to use: external (default), public, or managed.",
+          "description": "What kind of LanguageTool service to use: external (default), public, podman, or managed. NOTE: The managed option is deprecated. Please use the podman option to run locally instead.",
           "enum": [
             "external",
             "managed",
+            "podman",
             "public"
           ],
           "enumDescriptions": [
             "Provide a URL to an external LanguageTool service. Defaults to 'http://localhost:8081'. Specify the URL in 'External: Url'.",
             "Let LanguageTool Linter manage a local service. Specify the classpath or LanguageTool jar file in 'Managed: Class Path'.",
+            "EXPERIMENTAL: Run a local LanguageTool service in a podman container.",
             "Use the public LanguageTool API Service at https://languagetool.org/api."
           ]
         },
@@ -187,6 +189,53 @@
           "type": "string",
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
+        },
+        "languageToolLinter.podman.imageName": {
+          "type": "string",
+          "default": "docker.io/erikvl87/languagetool:5.9",
+          "description": "Image to use for the podman container. Defaults to 'docker.io/erikvl87/languagetool:5.9'."
+        },
+        "languageToolLinter.podman.containerName": {
+          "type": "string",
+          "default": "languagetool",
+          "description": "Name of the podman container to use. If container is not running, it will be started. Defaults to 'languagtool'."
+        },
+        "languageToolLinter.podman.port": {
+          "type": "number",
+          "minimum": 1024,
+          "maximum": 65535,
+          "default": 8081,
+          "description": "Port to use for the podman container. Leave blank to use a random port number. Defaults to 8081."
+        },
+        "languageToolLinter.podman.ip": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "IP address to use for the podman container. Defaults to '127.0.0.1'."
+        },
+        "languageToolLinter.podman.command": {
+          "type": "string",
+          "default": "podman",
+          "description": "Path to podman command, including the command itself, in case it's not in your path. Defaults to 'podman'."
+        },
+        "languageTooLinter.podman.hardStop": {
+          "type": "boolean",
+          "default": true,
+          "description": "Stop the container when not using the Podman-based LanguageTool Service. Set to 'false' to keep the container running for use outside VS Code. Defaults to 'true'."
+        },
+        "languageToolLinter.public.url": {
+          "type": "string",
+          "default": "https://languagetool.org/api",
+          "markdownDescription": "URL of LanguageTool hosted service. Defaults to `https://languagetool.org/api`."
+        },
+        "languageToolLinter.public.username": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Set to get Premium API access: Your username/email as used to log in at [languagetool.org](https://languagetool.org)."
+        },
+        "languageToolLinter.public.apiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Set to get Premium API access: [your API key](https://languagetool.org/editor/settings/api)"
         },
         "languageToolLinter.managed.classPath": {
           "type": "string",
@@ -196,7 +245,9 @@
         "languageToolLinter.managed.jarFile": {
           "type": "string",
           "default": "",
-          "description": "DEPRECATED. Path to languagetool-server.jar on your local machine."
+          "description": "Path to languagetool-server.jar on your local machine.",
+          "markdownDeprecationMessage": "**Deprecated**: Please use `#languageToolLinter.managed.classPath#` instead.",
+          "deprecationMessage": "Deprecated: Please use languageToolLinter.managed.classPath instead."
         },
         "languageToolLinter.managed.portMinimum": {
           "type": "number",
@@ -477,12 +528,17 @@
     "lint": "eslint ./src/"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/chai-as-promised": "^7.1.5",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^10.17.28",
     "@types/node-fetch": "^2.6.1",
     "@types/vscode": "^1.43.0",
     "@types/webpack": "^5.28.0",
+    "@vscode/test-electron": "^2.1.5",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
     "@typescript-eslint/eslint-plugin": "^5.45.1",
     "@typescript-eslint/parser": "^5.45.1",
     "eslint": "^8.29.0",
@@ -501,7 +557,7 @@
   "dependencies": {
     "annotatedtext-rehype": "^0.6.0",
     "annotatedtext-remark": "^0.8.0",
-    "execa": "^5.0.0",
+    "execa": "^5.1.1",
     "glob": "^8.0.3",
     "node-fetch": "^2.6.7",
     "portfinder": "^1.0.32"

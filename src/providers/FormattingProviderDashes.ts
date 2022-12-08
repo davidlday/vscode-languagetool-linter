@@ -15,10 +15,11 @@
  */
 
 import * as vscode from "vscode";
-import { ConfigurationManager } from "./ConfigurationManager";
+import { ConfigurationManager } from "../ConfigurationManager";
 
 export class FormattingProviderDashes
-  implements vscode.OnTypeFormattingEditProvider {
+  implements vscode.OnTypeFormattingEditProvider
+{
   public static readonly emDash: string = "—";
   public static readonly enDash: string = "–";
   public static readonly hyphen: string = "-";

@@ -19,15 +19,18 @@ import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
 import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "./Linter";
-import { FormattingProviderDashes } from "./FormattingProviderDashes";
+import { FormattingProviderDashes } from "./providers/FormattingProviderDashes";
 import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
-import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
-import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
+import { FormattingProviderEllipses } from "./providers/FormattingProviderEllipses";
+import { FormattingProviderQuotes } from "./providers/FormattingProviderQuotes";
+
+let configMan: ConfigurationManager;
+let linter: Linter;
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
-  const configMan: ConfigurationManager = new ConfigurationManager();
-  const linter: Linter = new Linter(configMan);
+  configMan = new ConfigurationManager();
+  linter = new Linter(configMan);
   const onTypeDispatcher = new OnTypeFormattingDispatcher({
     '"': new FormattingProviderQuotes(configMan),
     "'": new FormattingProviderQuotes(configMan),
@@ -46,7 +49,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidChangeconfiguration event
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration("languageToolLinter")) {
+      if (event.affectsConfiguration(Constants.CONFIGURATION_ROOT)) {
         configMan.reloadConfiguration(event);
       }
     }),
@@ -111,7 +114,6 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // Register Code Actions Provider for supported languages
-  // Constants.DOCUMENT_SELECTORS.forEach((selector: vscode.DocumentSelector) => {
   configMan
     .getDocumentSelectors()
     .forEach((selector: vscode.DocumentSelector) => {
@@ -232,14 +234,17 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Lint Active Text Editor on Activate
   if (vscode.window.activeTextEditor) {
-    let firstDelay = Constants.EXTENSION_TIMEOUT_MS;
-    if (configMan.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
-      // Add a second to give the service time to start up.
-      firstDelay += 1000;
-    }
+    // let firstDelay = Constants.EXTENSION_TIMEOUT_MS;
+    // if (configMan.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
+    //   // Add a second to give the service time to start up.
+    //   firstDelay += 1000;
+    // }
+    // Add a second on activation
+    const firstDelay = Constants.EXTENSION_TIMEOUT_MS + 1000;
     linter.requestLint(vscode.window.activeTextEditor.document, firstDelay);
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-export function deactivate(): void {}
+export function deactivate(): void {
+  configMan.dispose();
+}

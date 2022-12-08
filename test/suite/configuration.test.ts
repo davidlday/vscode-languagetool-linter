@@ -8,9 +8,8 @@ suite("ConfigurationManager Test Suite", () => {
     assert.ok(vscode.workspace.getConfiguration(Constants.CONFIGURATION_ROOT));
   });
 
-  test("ConfigurationManager should return the default service URL", () => {
-    const EXPECTED_DEFAULT_URL = "http://localhost:8081/v2/check";
+  test("ConfigurationManager should instantiate", () => {
     const config: ConfigurationManager = new ConfigurationManager();
-    assert.equal(EXPECTED_DEFAULT_URL, config.getUrl());
+    assert.ok(config);
   });
 });

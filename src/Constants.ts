@@ -18,9 +18,8 @@ import { OutputChannel, window } from "vscode";
 
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
-export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel(
-  "LanguageTool Linter",
-);
+export const EXTENSION_OUTPUT_CHANNEL: OutputChannel =
+  window.createOutputChannel("LanguageTool Linter");
 export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
@@ -42,30 +41,96 @@ export const SCHEME_UNTITLED = "untitled";
 // Configuration Strings
 export const CONFIGURATION_ROOT = "languageToolLinter";
 export const CONFIGURATION_GLOBAL_IGNORED_WORDS =
-  "languageTool.ignoredWordsGlobal";
+  CONFIGURATION_ROOT + ".ignoredWordsGlobal";
 export const CONFIGURATION_WORKSPACE_IGNORED_WORDS =
-  "languageTool.ignoredWordsInWorkspace";
-export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
+  CONFIGURATION_ROOT + ".ignoredWordsInWorkspace";
+export const CONFIGURATION_IGNORED_WORD_HINT =
+  CONFIGURATION_ROOT + ".ignoredWordHint";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_HTML,
   LANGUAGE_ID_MARKDOWN,
   LANGUAGE_ID_MDX,
 ];
-export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
-export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
 export const CONFIGURATION_LANGUAGE = "language";
 
+// Plain Text Language ID Options
+const CONFIGURATION_PLAIN_TEXT = CONFIGURATION_ROOT + ".plainText";
+export const CONFIGURATION_PLAIN_TEXT_ENABLED =
+  CONFIGURATION_PLAIN_TEXT + ".plainText.enabled";
+export const CONFIGURATION_PLAIN_TEXT_IDS =
+  CONFIGURATION_PLAIN_TEXT + ".plainText.languageIds";
+
+// PublicService Configuration Items
+export const CONFIGURATION_PUBLIC = CONFIGURATION_ROOT + ".public";
+export const CONFIGURATION_PUBLIC_URL = CONFIGURATION_PUBLIC + ".url";
+export const CONFIGURATION_PUBLIC_USERNAME = CONFIGURATION_PUBLIC + ".username";
+export const CONFIGURATION_PUBLIC_APIKEY = CONFIGURATION_PUBLIC + ".apiKey";
+
+// PodmanService Configuration Items
+export const CONFIGURATION_PODMAN = CONFIGURATION_ROOT + ".podman";
+export const CONFIGURATION_PODMAN_IMAGE_NAME =
+  CONFIGURATION_PODMAN + ".imageName";
+export const CONFIGURATION_PODMAN_CONTAINER_NAME =
+  CONFIGURATION_PODMAN + ".containerName";
+export const CONFIGURATION_PODMAN_IP = CONFIGURATION_PODMAN + ".ip";
+export const CONFIGURATION_PODMAN_PORT = CONFIGURATION_PODMAN + ".port";
+export const CONFIGURATION_PODMAN_HARDSTOP = CONFIGURATION_PODMAN + ".hardStop";
+export const CONFIGURATION_PODMAN_COMMAND = CONFIGURATION_PODMAN + ".command";
+export const PODMAN_CONTAINER_HEALTH = {
+  HEALTHY: "healthy",
+  STARTING: "starting",
+  UNHEALTHY: "unhealthy",
+  UNKNOWN: "unknown",
+};
+export const PODMAN_CONTAINER_STATUS = {
+  RUNNING: "running",
+  STOPPED: "stopped",
+  EXITED: "exited",
+  UNKNOWN: "unknown",
+};
+
+// ManagedService Configuration Items
+export const CONFIGURATION_MANAGED = CONFIGURATION_ROOT + ".managed";
+export const CONFIGURATION_MANAGED_JAR_FILE =
+  CONFIGURATION_MANAGED + ".jarFile";
+export const CONFIGURATION_MANAGED_CLASS_PATH =
+  CONFIGURATION_MANAGED + ".classPath";
+export const CONFIGURATION_MANAGED_PORT_MINIMUM =
+  CONFIGURATION_MANAGED + ".portMinimum";
+export const CONFIGURATION_MANAGED_PORT_MAXIMUM =
+  CONFIGURATION_MANAGED + ".portMaximum";
+export const SERVICE_MANAGED_IP = "127.0.0.1";
+
+// ExternalService Configuration Items
+export const CONFIGURATION_EXTERNAL = CONFIGURATION_ROOT + ".external";
+export const CONFIGURATION_EXTERNAL_URL = CONFIGURATION_EXTERNAL + ".url";
+
+// LanguageTool Configuration Items
+export const CONFIGURATION_LT = CONFIGURATION_ROOT + ".languageTool";
+export const CONFIGURATION_LT_DISABLED_RULES =
+  CONFIGURATION_ROOT + ".disabledRules";
+export const CONFIGURATION_LT_DISABLED_CATEGORIES =
+  CONFIGURATION_ROOT + ".disabledCategories";
+
 // LanguageTool Services
-export const SERVICE_PUBLIC_URL = "https://languagetool.org/api";
-export const SERVICE_CHECK_PATH = "/v2/check";
-export const SERVICE_TYPE_EXTERNAL = "external";
-export const SERVICE_TYPE_MANAGED = "managed";
-export const SERVICE_TYPE_PUBLIC = "public";
-export const SERVICE_TYPES: string[] = [
-  SERVICE_TYPE_EXTERNAL,
-  SERVICE_TYPE_MANAGED,
-  SERVICE_TYPE_PUBLIC,
-];
+export const SERVICE_TYPES = {
+  EXTERNAL: "external",
+  MANAGED: "managed",
+  PODMAN: "podman",
+  PUBLIC: "public",
+};
+
+// Service states
+export const SERVICE_STATES = {
+  IDLE: "idle",
+  STARTING: "starting",
+  READY: "ready",
+  STOPPING: "stopping",
+  STOPPED: "stopped",
+  ERROR: "error",
+};
+
+// Service Parameters
 export const SERVICE_PARAMETERS: string[] = [
   "language",
   "motherTongue",
@@ -73,6 +138,7 @@ export const SERVICE_PARAMETERS: string[] = [
   "disabledCategories",
   "disabledRules",
 ];
+export const SERVICE_CHECK_PATH = "/v2/check";
 export const SERVICE_RULE_BASE_URI =
   "https://community.languagetool.org/rule/show/";
 export const SERVICE_RULE_URL_LANG_DEFAULT = "en";

@@ -1,38 +1,39 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "markdownlint.config": {
-      "MD013": false,
-      "MD024": false
-    },
-    "files.exclude": {
-        "out": false // set this to true to hide the "out" folder with the compiled JS files
-    },
-    "search.exclude": {
-        "out": true // set this to false to include "out" folder in search results
-    },
-    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-    "typescript.tsc.autoDetect": "off",
-    "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
-        "annotatedtext",
-        "annotatedtext-remark",
-        "api",
-        "codacy",
-        "de-at",
-        "de-de",
-        "globbing",
-        "http-proxy-agent",
-        "languagetool-linter",
-        "linter",
-        "localhost",
-        "lt<sub>e</sub>x",
-        "npmjs",
-        "pacman",
-        "plaintext",
-        "socio-economic",
-        "tslint",
-        "voss",
-        "webpack",
-        "yaml"
-    ],
-    "languageToolLinter.languageTool.disabledRules": "DASH_RULE"
+  "markdownlint.config": {
+    "MD013": false,
+    "MD024": false
+  },
+  "files.exclude": {
+    "out": false // set this to true to hide the "out" folder with the compiled JS files
+  },
+  "search.exclude": {
+    "out": true // set this to false to include "out" folder in search results
+  },
+  // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+  "typescript.tsc.autoDetect": "off",
+  "languageToolLinter.languageTool.ignoredWordsInWorkspace": [
+    "annotatedtext",
+    "annotatedtext-remark",
+    "api",
+    "codacy",
+    "de-at",
+    "de-de",
+    "globbing",
+    "http-proxy-agent",
+    "languagetool-linter",
+    "linter",
+    "localhost",
+    "lt<sub>e</sub>x",
+    "npmjs",
+    "pacman",
+    "plaintext",
+    "socio-economic",
+    "tslint",
+    "voss",
+    "webpack",
+    "yaml"
+  ],
+  "languageToolLinter.languageTool.disabledRules": "DASH_RULE",
+  "languageToolLinter.external.url": "http://localhost:8010"
 }

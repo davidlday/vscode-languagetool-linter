@@ -14,6 +14,8 @@
  *   limitations under the License.
  */
 
+import { ConfigurationChangeEvent, WorkspaceConfiguration } from "vscode";
+
 // Interface - LanguageTool Response
 export interface ILanguageToolResponse {
   software: {
@@ -40,7 +42,7 @@ export interface ILanguageToolResponse {
   matches: ILanguageToolMatch[];
 }
 
-// Interface - LangaugeTool Match
+// Interface - LanguageTool Match
 export interface ILanguageToolMatch {
   message: string;
   shortMessage: string;
@@ -73,6 +75,21 @@ export interface ILanguageToolMatch {
 export interface ILanguageToolReplacement {
   value: string;
   shortDescription: string;
+}
+
+// Interface - LanguageTool Service
+export interface ILanguageToolService {
+  start(): Promise<boolean>;
+  stop(): Promise<boolean>;
+  ping(): Promise<boolean>;
+  dispose(): Promise<boolean>;
+  reloadConfiguration(
+    event: ConfigurationChangeEvent,
+    workspaceConfig: WorkspaceConfiguration,
+  ): void;
+  invokeLanguageTool(annotatedText: string): Promise<ILanguageToolResponse>;
+  getState(): string;
+  getURL(): string | undefined;
 }
 
 // Interface to keep an ignore-statements

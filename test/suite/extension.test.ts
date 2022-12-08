@@ -12,25 +12,15 @@ suite("Extension Test Suite", () => {
     assert.ok(vscode.extensions.getExtension("davidlday.languagetool-linter"));
   });
 
-  test("Extension should activate", function () {
-    this.timeout(60000);
-    const ext:
-      | vscode.Extension<unknown>
-      | undefined = vscode.extensions.getExtension(
-      "davidlday.languagetool-linter",
-    );
-    if (ext) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      ext.activate().then((api: unknown) => {
-        assert.ok(true);
-      });
-    } else {
-      assert.ok(false);
-    }
+  test("Extension should activate", async () => {
+    const ext: vscode.Extension<unknown> | undefined =
+      vscode.extensions.getExtension("davidlday.languagetool-linter");
+    await ext?.activate();
+    assert.ok(ext?.isActive);
   });
 
-  test("Extension should register all commands", () => {
-    return vscode.commands.getCommands(true).then((commands) => {
+  test("Extension should register all commands", async () => {
+    return await vscode.commands.getCommands(true).then((commands) => {
       const EXPECTED_COMMANDS: string[] = [
         "languagetoolLinter.checkDocument",
         "languagetoolLinter.checkDocumentAsPlainText",
@@ -47,7 +37,7 @@ suite("Extension Test Suite", () => {
           value.startsWith("languagetoolLinter.")
         );
       });
-      assert.equal(
+      assert.strictEqual(
         FOUND_COMMANDS.length,
         EXPECTED_COMMANDS.length,
         "Either not all commands are registered or new commands have not been added to this test.",
