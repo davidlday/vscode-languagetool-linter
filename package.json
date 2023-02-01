@@ -477,7 +477,7 @@
     "lint": "eslint ./src/"
   },
   "devDependencies": {
-    "@types/glob": "^8.0.0",
+    "@types/glob": "^8.0.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^10.17.28",
     "@types/node-fetch": "^2.6.1",
@@ -502,7 +502,7 @@
     "annotatedtext-rehype": "^0.6.0",
     "annotatedtext-remark": "^0.8.0",
     "execa": "^5.0.0",
-    "glob": "^8.0.3",
+    "glob": "^8.1.0",
     "node-fetch": "^2.6.7",
     "portfinder": "^1.0.32"
   }
