@@ -503,7 +503,7 @@
     "annotatedtext-remark": "^0.8.0",
     "execa": "^5.0.0",
     "glob": "^8.0.3",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^2.6.8",
     "portfinder": "^1.0.32"
   }
 }
