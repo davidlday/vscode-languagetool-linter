@@ -487,7 +487,7 @@
     "@typescript-eslint/parser": "^5.47.1",
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsdoc": "^39.6.4",
     "mocha": "^10.2.0",
     "ts-loader": "^9.4.2",
