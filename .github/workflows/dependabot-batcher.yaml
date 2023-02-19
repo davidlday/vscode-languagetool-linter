@@ -15,12 +15,12 @@ jobs:
           token: ${{ secrets.DEPENDABOT_BATCH_TOKEN }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3.5.1
+        uses: actions/setup-node@v3.6.0
         with:
           node-version: lts/*
 
       - name: "Combine Dependabot PRs"
-        uses: "Legal-and-General/dependabot-batcher@v1.0.2"
+        uses: "Legal-and-General/dependabot-batcher@v1.0.3"
         with:
           token: ${{ secrets.DEPENDABOT_BATCH_TOKEN }}
           baseBranchName: "master"
