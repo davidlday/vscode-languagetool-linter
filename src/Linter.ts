@@ -40,6 +40,7 @@ import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
 import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
 import {
+  IIgnoreItem,
   ILanguageToolMatch,
   ILanguageToolReplacement,
   ILanguageToolResponse,
@@ -69,6 +70,7 @@ export class Linter implements CodeActionProvider {
 
   private readonly configManager: ConfigurationManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
+  private ignoreList: IIgnoreItem[] = [];
 
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
@@ -208,6 +210,7 @@ export class Linter implements CodeActionProvider {
   public lintDocument(document: TextDocument): void {
     if (this.configManager.isSupportedDocument(document)) {
       if (document.languageId === Constants.LANGUAGE_ID_MARKDOWN) {
+        this.ignoreList = this.buildIgnoreList(document);
         const annotatedMarkdown: string = JSON.stringify(
           this.buildAnnotatedMarkdown(document.getText()),
         );
@@ -361,6 +364,7 @@ export class Linter implements CodeActionProvider {
     matches.forEach((match: ILanguageToolMatch) => {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
+      const ignored: IIgnoreItem[] = this.getIgnoreList(document, start);
       const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.message;
@@ -390,9 +394,31 @@ export class Linter implements CodeActionProvider {
         this.configManager.showIgnoredWordHints()
       ) {
         diagnostic.severity = DiagnosticSeverity.Hint;
+      } else if (this.checkIfIgnored(ignored, match.rule.id, document.getText(diagnostic.range))) {
+        diagnostic.severity = DiagnosticSeverity.Hint;
       }
     });
     this.diagnosticCollection.set(document.uri, diagnostics);
+  }
+
+  /**
+   * Check if this particular rule is ignored for this line
+   *
+   * @param ignored List of ignored element at this line
+   * @param id The rule of the spelling problem for this match
+   * @param line The line number
+   * @param text The text of the match
+   */
+  checkIfIgnored(ignored: IIgnoreItem[], id: string, text: string): boolean {
+    if (ignored == null || ignored.length == 0) return false;
+    let matchFound = false;
+    ignored.forEach((item) => {
+      if (matchFound) return;
+      if (item.ruleId == id && (!item.text || item.text == text)) {
+        matchFound = true;
+      }
+    });
+    return matchFound;
   }
 
   // Get CodeActions for Spelling Rules
@@ -522,4 +548,45 @@ export class Linter implements CodeActionProvider {
     });
     return actions;
   }
+
+  /**
+   * Get list of ignored elements for this position (current or previous line)
+   * @param document The document to scan for
+   * @param start
+   */
+  private getIgnoreList(document: TextDocument, start: Position): IIgnoreItem[] {
+    const line = start.line;
+    const res = Array<IIgnoreItem>();
+    this.ignoreList.forEach((item) => {
+      if (item.line == line || item.line == line -1) {
+        // all items of current or prev line
+        res.push(item);
+      }
+    });
+    return res;
+  }
+
+  /**
+   * Build up a list of ignore items for the whole file to be linted
+   *
+   * @param document The TextDocument to analyze
+   * @returns a list of IIgnoreItems for each found ignore element
+   */
+  private buildIgnoreList(document: TextDocument): IIgnoreItem[] {
+    const fullText = document.getText();
+    const matches = [...fullText.matchAll(new RegExp('@(LT-)?IGNORE:(?<id>[_A-Z0-9]+)(\\((?<word>[^)]+)\\))?@', "gm"))];
+    if (matches.length == 0) return [];
+    const res = Array<IIgnoreItem>();
+    matches.forEach((match: RegExpMatchArray) => {
+      if (!match.groups) return;
+      const item: IIgnoreItem = {
+        line: document.positionAt(match.index as number).line,
+        ruleId: match.groups ? match.groups['id'] : '',
+        text: match.groups ? match.groups['word'] : undefined,
+      }
+      res.push(item);
+    });
+    return res;
+  }
 }
+
