@@ -502,7 +502,7 @@
     "annotatedtext-rehype": "^0.6.0",
     "annotatedtext-remark": "^0.8.0",
     "execa": "^5.0.0",
-    "glob": "^8.1.0",
+    "glob": "^9.3.1",
     "node-fetch": "^2.6.9",
     "portfinder": "^1.0.32"
   }
