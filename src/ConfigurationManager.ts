@@ -18,6 +18,7 @@ import execa from "execa";
 import * as glob from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
+import { URL } from "url";
 import {
   commands,
   ConfigurationChangeEvent,
@@ -357,7 +358,16 @@ export class ConfigurationManager implements Disposable {
   private findServiceUrl(serviceType: string): string | undefined {
     switch (serviceType) {
       case Constants.SERVICE_TYPE_EXTERNAL: {
-        return this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
+        const url = new URL(
+          this.getExternalUrl() + Constants.SERVICE_CHECK_PATH,
+        );
+        const username = this.get("external.username");
+        const apiKey = this.get("external.apiKey");
+        if (username && apiKey) {
+          url.searchParams.set("username", username);
+          url.searchParams.set("apiKey", apiKey);
+        }
+        return url.toString();
       }
       case Constants.SERVICE_TYPE_MANAGED: {
         const port = this.getManagedServicePort();
