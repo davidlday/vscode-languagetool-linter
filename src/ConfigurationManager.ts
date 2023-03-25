@@ -358,16 +358,7 @@ export class ConfigurationManager implements Disposable {
   private findServiceUrl(serviceType: string): string | undefined {
     switch (serviceType) {
       case Constants.SERVICE_TYPE_EXTERNAL: {
-        const url = new URL(
-          this.getExternalUrl() + Constants.SERVICE_CHECK_PATH,
-        );
-        const username = this.get("external.username");
-        const apiKey = this.get("external.apiKey");
-        if (username && apiKey) {
-          url.searchParams.set("username", username);
-          url.searchParams.set("apiKey", apiKey);
-        }
-        return url.toString();
+        return this.getExternalUrl() + Constants.SERVICE_CHECK_PATH;
       }
       case Constants.SERVICE_TYPE_MANAGED: {
         const port = this.getManagedServicePort();
@@ -401,6 +392,16 @@ export class ConfigurationManager implements Disposable {
         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": " + value);
       }
     });
+    // Only add user name and API key to options if set and we are using the
+    // external API
+    if (this.getServiceType() === Constants.SERVICE_TYPE_EXTERNAL) {
+      const username = this.get("external.username");
+      const apiKey = this.get("external.apiKey");
+      if (username && apiKey) {
+        parameters.set("username", username);
+        parameters.set("apiKey", apiKey);
+      }  
+    }
     // Make sure disabled rules and disabled categories do not contain spaces
     const CONFIG_DISABLED_RULES = "languageTool.disabledRules";
     const CONFIG_DISABLED_CATEGORIES = "languageTool.disabledCategories";
