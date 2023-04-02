@@ -1,6 +1,6 @@
 # LanguageTool Linter for Visual Studio Code
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/davidlday/vscode-languagetool-linter/Node.js%20CI)](https://github.com/davidlday/vscode-languagetool-linter/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/davidlday/vscode-languagetool-linter/nodejs-ci.yml)](https://github.com/davidlday/vscode-languagetool-linter/actions)
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 [![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 
@@ -104,8 +104,8 @@ particular attention to:
 
 ## Ignore rules inline
 
-You have the chance to ignore specific rules inline to not bloat up your
-ignore list for single words:
+You have the chance to ignore specific rules inline to not bloat up your ignore
+list for single words:
 
     <!-- @IGNORE:UPPERCASE_SENTENCE_START@ -->
     soll heißen, dass die Nachricht von mir ist, die Koordinaten hat
@@ -113,8 +113,8 @@ ignore list for single words:
     dem irdischen
     ‚World Geodetic System 1984‘ <!-- @IGNORE:GERMAN_SPELLER_RULE(Geodetic)@ -->
 
-This example will ignore the missing capital letter at the beginning (soll → Soll)
-and an unknown word ('Geodetic')
+This example will ignore the missing capital letter at the beginning (soll →
+Soll) and an unknown word ('Geodetic')
 
 The optional match word is useful if the same rule is applied to several words
 in the sentence.
