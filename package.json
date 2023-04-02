@@ -493,7 +493,7 @@
     "@types/node-fetch": "^2.6.2",
     "@types/vscode": "^1.43.0",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.56.0",
     "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
