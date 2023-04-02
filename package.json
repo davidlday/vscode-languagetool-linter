@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.21.0",
+  "version": "0.20.0",
   "engines": {
     "vscode": "^1.57.0"
   },
