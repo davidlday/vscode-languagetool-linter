@@ -188,6 +188,16 @@
           "default": "http://localhost:8081",
           "description": "URL of your LanguageTool server. Defaults to localhost on port 8081."
         },
+        "languageToolLinter.external.username": {
+          "type": "string",
+          "default": "",
+          "description": "Set to get Premium API access if you use the languagetool.org api instance: your username/email as used to log in at languagetool.org."
+        },
+        "languageToolLinter.external.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Set to get Premium API access if you use the languagetool.org api instance: your API key."
+        },
         "languageToolLinter.managed.classPath": {
           "type": "string",
           "default": "",

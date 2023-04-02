@@ -18,6 +18,7 @@ import execa from "execa";
 import * as glob from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
+import { URL } from "url";
 import {
   commands,
   ConfigurationChangeEvent,
@@ -391,6 +392,16 @@ export class ConfigurationManager implements Disposable {
         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": " + value);
       }
     });
+    // Only add user name and API key to options if set and we are using the
+    // external API
+    if (this.getServiceType() === Constants.SERVICE_TYPE_EXTERNAL) {
+      const username = this.get("external.username");
+      const apiKey = this.get("external.apiKey");
+      if (username && apiKey) {
+        parameters.set("username", username);
+        parameters.set("apiKey", apiKey);
+      }  
+    }
     // Make sure disabled rules and disabled categories do not contain spaces
     const CONFIG_DISABLED_RULES = "languageTool.disabledRules";
     const CONFIG_DISABLED_CATEGORIES = "languageTool.disabledCategories";
