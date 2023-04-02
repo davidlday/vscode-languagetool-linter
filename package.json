@@ -494,14 +494,14 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5",
     "vscode-test": "^1.6.1",
-    "webpack": "^5.76.0",
+    "webpack": "^5.77.0",
     "webpack-cli": "^5.0.1",
     "webpack-license-plugin": "^4.2.1"
   },
   "dependencies": {
     "annotatedtext-rehype": "^0.6.0",
     "annotatedtext-remark": "^0.8.0",
-    "execa": "^7.0.0",
+    "execa": "^5.1.1",
     "glob": "^8.1.0",
     "node-fetch": "^2.6.9",
     "portfinder": "^1.0.32"
