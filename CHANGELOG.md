@@ -16,14 +16,11 @@ Changes not yet released.
 - Premium Support by Adding Settings for username and apiKey (#438) - thank you
   (@thomaskrause)[https://github.com/thomaskrause],
   (@johangirod)[https://github.com/johangirod]!
-
-## [0.19.0] - 2021-11-23
-
-### Added
-
 - Allow spell-check rules to be ignored by line. This Works for HTML and
   markdown, where inline comments are allowed (e.g. pandoc) - thank you
   (@steven-r)[https://github.com/steven-r]!
+
+## [0.19.0] - 2021-11-23
 
 ## Changed
 
