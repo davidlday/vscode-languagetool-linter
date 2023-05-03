@@ -505,7 +505,7 @@
     "typescript": "^5.0.4",
     "vscode-test": "^1.6.1",
     "webpack": "^5.77.0",
-    "webpack-cli": "^5.0.1",
+    "webpack-cli": "^5.0.2",
     "webpack-license-plugin": "^4.2.1"
   },
   "dependencies": {
