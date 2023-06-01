@@ -490,7 +490,7 @@
     "@types/glob": "^8.0.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^10.17.28",
-    "@types/node-fetch": "^2.6.2",
+    "@types/node-fetch": "^2.6.4",
     "@types/vscode": "^1.43.0",
     "@types/webpack": "^5.28.1",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
@@ -513,7 +513,7 @@
     "annotatedtext-remark": "^0.8.0",
     "execa": "^5.0.0",
     "glob": "^8.1.0",
-    "node-fetch": "^2.6.9",
+    "node-fetch": "^2.6.11",
     "portfinder": "^1.0.32"
   }
 }
