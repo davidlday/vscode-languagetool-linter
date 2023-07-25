@@ -14,7 +14,6 @@
  *   limitations under the License.
  */
 
-import { rejects } from "assert";
 import * as Fetch from "node-fetch";
 import {
   ConfigurationChangeEvent,
