@@ -138,6 +138,11 @@
             "error"
           ]
         },
+        "languageToolLinter.diagnosticSeverityAuto": {
+          "type": "boolean",
+          "default": false,
+          "description": "Spelling mistakes will be set as Error, while punctuation, grammar and typography mistakes as Warning. Anything else as the configured Diagnostic Severity level (recommended to be set as Information when using this option)."
+        },
         "languageToolLinter.enabled": {
           "type": "boolean",
           "default": true,
