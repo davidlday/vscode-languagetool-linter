@@ -505,7 +505,7 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.0.3",
     "webpack": "^5.77.0",
-    "webpack-cli": "^5.0.1",
+    "webpack-cli": "^5.1.4",
     "webpack-license-plugin": "^4.2.1"
   },
   "dependencies": {
