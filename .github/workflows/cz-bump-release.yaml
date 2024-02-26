@@ -3,7 +3,7 @@ name: Bump Version and Create Release
 on:
   push:
     branches:
-      - main
+      - master
 
 concurrency:
   group: tag-and-release-${{ github.ref }}
