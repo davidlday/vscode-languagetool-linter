@@ -73,3 +73,21 @@ jobs:
         name: Test
       - run: npm run lint
         name: ESLint
+
+  cz-dry-run:
+    needs:
+      - ubuntu-build
+      - macos-build
+      - windows-build
+    name: "Dry run Commitizen bump"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create bump and changelog
+        uses: commitizen-tools/commitizen-action@0.20.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          check_consistency: true
+          dry_run: true
