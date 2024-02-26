@@ -39,7 +39,7 @@ The defaults assume the following:
 1. You do not want to use the
    [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api)
 2. You're running
-   [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) on your
+   [LanguageTool HTTP Server](https://dev.languagetool.org/http-server) on your
    machine using the default port of 8081.
 
    - You can run a local LanguageTool server using the
