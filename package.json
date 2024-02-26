@@ -495,6 +495,7 @@
     "@types/webpack": "^5.28.1",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
+    "@vscode/test-electron": "^2.3.9",
     "eslint": "^8.37.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
@@ -503,7 +504,6 @@
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.3",
-    "vscode-test": "^1.6.1",
     "webpack": "^5.77.0",
     "webpack-cli": "^5.0.1",
     "webpack-license-plugin": "^4.2.1"
