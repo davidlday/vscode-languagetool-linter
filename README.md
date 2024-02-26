@@ -1,6 +1,6 @@
 # LanguageTool Linter for Visual Studio Code
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/davidlday/vscode-languagetool-linter/nodejs-ci.yml)](https://github.com/davidlday/vscode-languagetool-linter/actions)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/davidlday/vscode-languagetool-linter/nodejs-ci.yml)](https://github.com/davidlday/vscode-languagetool-linter/actions/workflows/nodejs-ci.yml)
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 [![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 
