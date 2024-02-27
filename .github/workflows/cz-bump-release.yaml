@@ -27,7 +27,7 @@ jobs:
         with:
           commit: true
           push: true
-          github_token: ${{ secrets.VERSION_BUMP_TAG_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           changelog_increment_filename: "release-body.md"
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
