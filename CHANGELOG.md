@@ -1,3 +1,10 @@
+## v0.20.1 (2024-02-29)
+
+### Fix
+
+- add concurrency for publish
+- **deps**: bump node-fetch and @types/node-fetch (#596)
+
 ## v0.20.0 (2023-04-02)
 
 - Premium Support by Adding Settings for username and apiKey (#438) - thank you
