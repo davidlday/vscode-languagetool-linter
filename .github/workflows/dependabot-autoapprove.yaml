@@ -21,7 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   davidlday:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'davidlday' }}
+    if: ${{ github.event.pull_request.user.login == 'davidlday'}}
     steps:
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"
