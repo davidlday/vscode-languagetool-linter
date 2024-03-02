@@ -253,6 +253,14 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
+  public getDiagnosticSeverityAuto(): boolean {
+    const severityAuto = this.config.get("diagnosticSeverityAuto");
+    if (severityAuto === true) {
+      return true
+    }
+    return false
+  }
+
   public getClassPath(): string {
     const jarFile: string = this.get("managed.jarFile") as string;
     const classPath: string = this.get("managed.classPath") as string;
@@ -400,7 +408,7 @@ export class ConfigurationManager implements Disposable {
       if (username && apiKey) {
         parameters.set("username", username);
         parameters.set("apiKey", apiKey);
-      }  
+      }
     }
     // Make sure disabled rules and disabled categories do not contain spaces
     const CONFIG_DISABLED_RULES = "languageTool.disabledRules";

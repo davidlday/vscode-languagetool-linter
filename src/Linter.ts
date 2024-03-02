@@ -64,6 +64,14 @@ export class Linter implements CodeActionProvider {
     );
   }
 
+  public static isWarningCategory(categoryId: string): boolean {
+    return (
+      categoryId.indexOf("GRAMMAR") !== -1 ||
+      categoryId.indexOf("PUNCTUATION") !== -1 ||
+      categoryId.indexOf("TYPOGRAPHY") !== -1
+    );
+  }
+
   public diagnosticCollection: DiagnosticCollection;
   public remarkBuilderOptions: RemarkBuilder.IOptions = RemarkBuilder.defaults;
   public rehypeBuilderOptions: RehypeBuilder.IOptions = RehypeBuilder.defaults;
@@ -366,6 +374,7 @@ export class Linter implements CodeActionProvider {
       const end: Position = document.positionAt(match.offset + match.length);
       const ignored: IIgnoreItem[] = this.getIgnoreList(document, start);
       const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
+      const diagnosticSeverityAuto: boolean = this.configManager.getDiagnosticSeverityAuto();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.message;
       const diagnostic: LTDiagnostic = new LTDiagnostic(
@@ -388,6 +397,13 @@ export class Linter implements CodeActionProvider {
         };
       }
       diagnostics.push(diagnostic);
+      if (diagnosticSeverityAuto) {
+        if (Linter.isSpellingRule(match.rule.id)) {
+          diagnostic.severity = DiagnosticSeverity.Error
+        } else if (Linter.isWarningCategory(match.rule.category.id)) {
+          diagnostic.severity = DiagnosticSeverity.Warning
+        }
+      }
       if (
         Linter.isSpellingRule(match.rule.id) &&
         this.configManager.isIgnoredWord(document.getText(diagnostic.range)) &&
