@@ -1,3 +1,10 @@
+## v0.20.2 (2024-03-02)
+
+### Fix
+
+- **deps**: bump node-fetch and @types/node-fetch (#667)
+- **deps**: bump node-fetch and @types/node-fetch
+
 ## v0.20.1 (2024-02-29)
 
 ### Fix
