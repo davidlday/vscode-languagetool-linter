@@ -1,3 +1,9 @@
+## v0.21.0 (2024-03-02)
+
+### Feat
+
+- add option to set severity levels automatically based on Rule and Categoy (#651)
+
 ## v0.20.2 (2024-03-02)
 
 ### Fix
