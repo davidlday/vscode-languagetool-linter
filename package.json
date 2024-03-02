@@ -506,7 +506,7 @@
     "typescript": "^5.3.3",
     "webpack": "^5.77.0",
     "webpack-cli": "^5.1.4",
-    "webpack-license-plugin": "^4.2.1"
+    "webpack-license-plugin": "^4.4.2"
   },
   "dependencies": {
     "annotatedtext-rehype": "^0.6.0",
