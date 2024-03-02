@@ -498,7 +498,7 @@
     "@vscode/test-electron": "^2.3.9",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsdoc": "^48.2.0",
     "mocha": "^10.3.0",
     "ts-loader": "^9.5.1",
