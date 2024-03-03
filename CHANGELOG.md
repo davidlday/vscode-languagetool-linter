@@ -1,3 +1,9 @@
+## v0.21.1 (2024-03-03)
+
+### Fix
+
+- test stderr and stdout for null
+
 ## v0.21.0 (2024-03-02)
 
 ### Feat
