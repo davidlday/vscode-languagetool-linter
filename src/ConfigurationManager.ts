@@ -15,10 +15,9 @@
  */
 
 import execa from "execa";
-import * as glob from "glob";
+import { glob } from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
-import { URL } from "url";
 import {
   commands,
   ConfigurationChangeEvent,
