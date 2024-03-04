@@ -1,3 +1,10 @@
+## v0.21.3 (2024-03-04)
+
+### Fix
+
+- **deps**: bump glob from 8.1.0 to 10.3.10 (#637)
+- correct import of glob
+
 ## v0.21.2 (2024-03-03)
 
 ### Fix
