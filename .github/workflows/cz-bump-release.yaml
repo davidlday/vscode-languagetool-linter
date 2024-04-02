@@ -30,7 +30,7 @@ jobs:
           github_token: ${{ secrets.VERSION_BUMP_TAG_TOKEN }}
           changelog_increment_filename: "release-body.md"
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body_path: "release-body.md"
           tag_name: v${{ steps.cz.outputs.version }}
