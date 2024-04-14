@@ -28,7 +28,7 @@ extension.
 
 The defaults are probably not going to work for you, but they are there to make
 sure using
-[LanguageTool's Public API](http://wiki.languagetool.org/public-http-api) is
+[LanguageTool's Public API](https://dev.languagetool.org/public-http-api) is
 done by choice. See
 [this issue](https://github.com/wysiib/linter-languagetool/issues/33) on the
 [Atom LanguageTool Linter](https://atom.io/packages/linter-languagetool) for an
@@ -37,7 +37,7 @@ explanation why.
 The defaults assume the following:
 
 1. You do not want to use the
-   [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api)
+   [LanguageTool's Public API](https://dev.languagetool.org/public-http-api)
 2. You're running
    [LanguageTool HTTP Server](https://dev.languagetool.org/http-server) on your
    machine using the default port of 8081.
@@ -49,7 +49,7 @@ The defaults assume the following:
      for more information.
 
 3. You do not want to have this extension manage your local
-   [LanguageTool HTTP Server](http://wiki.languagetool.org/http-server) service.
+   [LanguageTool HTTP Server](https://dev.languagetool.org/http-server) service.
 
 If this doesn't work for you, here are your options.
 
@@ -80,7 +80,7 @@ Works well if you're only using LanguageTool in Visual Studio Code.
 ### Option 3: Public API Service
 
 Make sure you read and understand
-[LanguageTool's Public API](http://wiki.languagetool.org/public-http-api) before
+[LanguageTool's Public API](https://dev.languagetool.org/public-http-api) before
 doing this.
 
 1. Set “LanguageTool Linter: Service Type” to `public`.
@@ -93,7 +93,7 @@ Most configuration items should be safe, but there are three you should pay
 particular attention to:
 
 1. _Public Api_: This will use
-   [LanguageTool's Public API](http://wiki.languagetool.org/public-http-api)
+   [LanguageTool's Public API](https://dev.languagetool.org/public-http-api)
    service. If you violate their conditions, they'll block your IP address.
 2. _Lint on Change_: This will make a call to the LanguageTool API on every
    change. If you mix this with the _Public Api_, you're more likely to violate
