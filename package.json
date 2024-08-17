@@ -494,7 +494,7 @@
   "devDependencies": {
     "@types/glob": "^8.0.1",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^20.12.8",
+    "@types/node": "^22.4.0",
     "@types/node-fetch": "^2.6.11",
     "@types/vscode": "^1.57.0",
     "@types/webpack": "^5.28.5",
