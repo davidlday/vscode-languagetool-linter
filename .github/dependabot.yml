@@ -24,3 +24,13 @@ updates:
       include: scope
     reviewers:
       - davidlday
+    groups:
+      dev-typescript-eslint:
+        dependency-type: "development"
+        patterns:
+          - "@typescript-eslint/*"
+      dev-mocha:
+        dependency-type: "development"
+        patterns:
+          - "mocha"
+          - "@types/mocha"
