@@ -2,7 +2,7 @@
   "name": "languagetool-linter",
   "displayName": "LanguageTool Linter",
   "description": "LanguageTool integration for VS Code.",
-  "version": "0.21.4",
+  "version": "0.21.5",
   "engines": {
     "vscode": "^1.57.0"
   },
@@ -121,12 +121,12 @@
         "languageToolLinter.smartFormat.onType": {
           "type": "boolean",
           "default": false,
-          "description": "Run smart format as you type for quotes (“”‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
+          "description": "Run smart format as you type for quotes (\u201c\u201d\u2018\u2019), em-dashes and en-dashes, and ellipses (\u2026). Ensure 'Editor: Format On Type' is enabled."
         },
         "languageToolLinter.smartFormat.onSave": {
           "type": "boolean",
           "default": false,
-          "description": "Run smart format when you save for quotes (“”‘’), em-dashes and en-dashes, and ellipses (…)."
+          "description": "Run smart format when you save for quotes (\u201c\u201d\u2018\u2019), em-dashes and en-dashes, and ellipses (\u2026)."
         },
         "languageToolLinter.diagnosticSeverity": {
           "type": "string",
@@ -310,7 +310,7 @@
             "Portuguese",
             "Portuguese (Angola preAO)",
             "Portuguese (Brazil)",
-            "Portuguese (Moçambique preAO)",
+            "Portuguese (Mo\u00e7ambique preAO)",
             "Portuguese (Portugal)",
             "Romanian",
             "Russian",
@@ -407,7 +407,7 @@
             "Portuguese",
             "Portuguese (Angola preAO)",
             "Portuguese (Brazil)",
-            "Portuguese (Moçambique preAO)",
+            "Portuguese (Mo\u00e7ambique preAO)",
             "Portuguese (Portugal)",
             "Romanian",
             "Russian",
