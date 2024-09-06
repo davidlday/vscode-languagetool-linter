@@ -224,6 +224,10 @@ export class ConfigurationManager implements Disposable {
     return this.config.get("hideRuleIds") as boolean;
   }
 
+  public isLinterEnabled(): boolean {
+    return this.config.get("enabled") as boolean;
+  }
+
   public isLintOnChange(): boolean {
     return this.config.get("lintOnChange") as boolean;
   }

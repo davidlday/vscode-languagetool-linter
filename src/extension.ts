@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidOpenTextDocument event - request lint
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
-      if (configMan.isLintOnOpen()) {
+      if (configMan.isLintOnOpen() && configMan.isLinterEnabled()) {
         linter.requestLint(document);
       }
     }),
