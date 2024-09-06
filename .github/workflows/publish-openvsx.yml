@@ -6,7 +6,7 @@ on:
       - "v*"
 
 concurrency:
-  group: vsce-publish-${{ github.ref }}
+  group: publish-openvsx-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -24,13 +24,6 @@ jobs:
         id: publishToOpenVSX
         with:
           pat: ${{ secrets.OPENVSX_PERSONAL_ACCESS_TOKEN }}
-      - name: Publish to Visual Studio Marketplace
-        uses: HaaLeo/publish-vscode-extension@v1
-        with:
-          pat: ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
-          registryUrl: https://marketplace.visualstudio.com
-          extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
-          packagePath: ""
 #  Original job
 # jobs:
 #   publish:
