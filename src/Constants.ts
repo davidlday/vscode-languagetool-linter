@@ -72,6 +72,7 @@ export const SERVICE_PARAMETERS: string[] = [
   "preferredVariants",
   "disabledCategories",
   "disabledRules",
+  "level"
 ];
 export const SERVICE_RULE_BASE_URI =
   "https://community.languagetool.org/rule/show/";

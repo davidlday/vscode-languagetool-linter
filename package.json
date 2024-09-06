@@ -436,6 +436,21 @@
           "default": "",
           "description": "IDs of categories to be disabled, comma-separated, no spaces. These IDs are passed directly to the LanguageTool service and will not be returned with diagnostics."
         },
+        "languageToolLinter.languageTool.level": {
+          "type": "string",
+          "default": "",
+          "description": "If set to picky, additional rules will be activated, i.e. rules that you might only find useful when checking formal text.",
+          "enum": [
+            "",
+            "default",
+            "picky"
+          ],
+          "enumDescriptions": [
+            "",
+            "Standard Mode",
+            "Picky Mode"
+          ]
+        },
         "languageToolLinter.languageTool.ignoredWordsGlobal": {
           "type": "array",
           "items": {
