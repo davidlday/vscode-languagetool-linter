@@ -14,5 +14,6 @@
   "languageToolLinter.plainText.languageIds": [
     "plaintext",
     "asciidoc"
-  ]
+  ],
+  "languageToolLinter.languageTool.level": "picky"
 }
