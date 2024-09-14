@@ -47,10 +47,13 @@ suite("Extension Test Suite", () => {
           value.startsWith("languagetoolLinter.")
         );
       });
+      const MISSING_COMMANDS = EXPECTED_COMMANDS.filter(
+        item => FOUND_COMMANDS.indexOf(item) < 0
+      );
       assert.equal(
         FOUND_COMMANDS.length,
         EXPECTED_COMMANDS.length,
-        "Either not all commands are registered or new commands have not been added to this test.",
+        `The following commands were not found: ${MISSING_COMMANDS}`,
       );
     });
   });

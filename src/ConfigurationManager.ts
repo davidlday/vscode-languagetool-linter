@@ -397,6 +397,8 @@ export class ConfigurationManager implements Disposable {
       if (value) {
         parameters.set(ltKey, value);
         Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": " + value);
+      } else {
+        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": --");
       }
     });
     // Only add user name and API key to options if set and we are using the

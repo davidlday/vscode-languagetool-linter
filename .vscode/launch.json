@@ -10,6 +10,7 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
+      "cwd":"${workspaceFolder}",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "preLaunchTask": "npm: webpack"
@@ -24,6 +25,7 @@
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
       ],
       "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
+      "cwd":"${workspaceFolder}",
       "preLaunchTask": "npm: test-compile",
       "postDebugTask": "npm: main-dist"
     }
