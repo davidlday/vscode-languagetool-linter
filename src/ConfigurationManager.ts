@@ -573,4 +573,61 @@ export class ConfigurationManager implements Disposable {
       Constants.CONFIGURATION_WORKSPACE_IGNORED_WORDS,
     );
   }
+
+  public disableRule(
+    rule: string,
+    configurationTarget: ConfigurationTarget,
+  ): void {
+    const disabledRules: string | undefined = this.config.get<string>(
+      Constants.CONFIGURATION_DISABLED_RULES,
+    );
+    let rulesString: string = rule;
+    if (disabledRules) {
+      const rules: Set<string> = new Set<string>(disabledRules.split(","));
+      if (!rules.has(rule)) {
+        rules.add(rule);
+      }
+      rulesString = Array.from(rules)
+        .map((rule) => rule.toUpperCase())
+        .sort()
+        .join(",");
+      this.config.update(
+        Constants.CONFIGURATION_DISABLED_RULES,
+        rulesString,
+        configurationTarget,
+      );
+    }
+    this.config.update(
+      Constants.CONFIGURATION_DISABLED_RULES,
+      rulesString,
+      configurationTarget,
+    );
+  }
+
+  private disableCategory(
+    category: string,
+    configurationTarget: ConfigurationTarget,
+  ): void {
+    const disabledCategories: string | undefined = this.config.get<string>(
+      Constants.CONFIGURATION_DISABLED_CATEGORIES,
+    );
+    let categoriesString: string = category;
+    if (disabledCategories) {
+      const categories: Set<string> = new Set<string>(
+        disabledCategories.split(","),
+      );
+      if (!categories.has(category)) {
+        categories.add(category);
+      }
+      categoriesString = Array.from(categories)
+        .map((rule) => rule.toUpperCase())
+        .sort()
+        .join(",");
+    }
+    this.config.update(
+      Constants.CONFIGURATION_DISABLED_CATEGORIES,
+      categoriesString,
+      configurationTarget,
+    );
+  }
 }

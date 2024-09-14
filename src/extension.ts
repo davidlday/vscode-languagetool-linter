@@ -138,6 +138,16 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
   );
 
+  // Register "Disable Rule" TextEditorCommand
+  const disableRule = vscode.commands.registerTextEditorCommand(
+    "languagetoolLinter.disableRule",
+    (editor, _edit, ...args) => {
+      configMan.disableRule(args.shift(), args.shift());
+      linter.requestLint(editor.document, 0);
+    },
+  );
+  context.subscriptions.push(disableRule);
+
   // Register "Ignore Word Globally" TextEditorCommand
   const ignoreWordGlobally = vscode.commands.registerTextEditorCommand(
     "languagetoolLinter.ignoreWordGlobally",
