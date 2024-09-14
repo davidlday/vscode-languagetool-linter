@@ -14,11 +14,8 @@ suite("Extension Test Suite", () => {
 
   test("Extension should activate", function () {
     this.timeout(60000);
-    const ext:
-      | vscode.Extension<unknown>
-      | undefined = vscode.extensions.getExtension(
-      "davidlday.languagetool-linter",
-    );
+    const ext: vscode.Extension<unknown> | undefined =
+      vscode.extensions.getExtension("davidlday.languagetool-linter");
     if (ext) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ext.activate().then((api: unknown) => {
@@ -40,6 +37,8 @@ suite("Extension Test Suite", () => {
         "languagetoolLinter.ignoreWordInWorkspace",
         "languagetoolLinter.removeGloballyIgnoredWord",
         "languagetoolLinter.removeWorkspaceIgnoredWord",
+        "languagetoolLinter.disableRule",
+        "languagetoolLinter.disableCategory",
       ];
       const FOUND_COMMANDS = commands.filter((value) => {
         return (
@@ -48,7 +47,7 @@ suite("Extension Test Suite", () => {
         );
       });
       const MISSING_COMMANDS = EXPECTED_COMMANDS.filter(
-        item => FOUND_COMMANDS.indexOf(item) < 0
+        (item) => FOUND_COMMANDS.indexOf(item) < 0,
       );
       assert.equal(
         FOUND_COMMANDS.length,

@@ -604,7 +604,7 @@ export class ConfigurationManager implements Disposable {
     );
   }
 
-  private disableCategory(
+  public disableCategory(
     category: string,
     configurationTarget: ConfigurationTarget,
   ): void {

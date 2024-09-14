@@ -148,6 +148,16 @@ export function activate(context: vscode.ExtensionContext): void {
   );
   context.subscriptions.push(disableRule);
 
+  // Register "Disable Category" TextEditorCommand
+  const disableCategory = vscode.commands.registerTextEditorCommand(
+    "languagetoolLinter.disableCategory",
+    (editor, _edit, ...args) => {
+      configMan.disableCategory(args.shift(), args.shift());
+      linter.requestLint(editor.document, 0);
+    },
+  );
+  context.subscriptions.push(disableCategory);
+
   // Register "Ignore Word Globally" TextEditorCommand
   const ignoreWordGlobally = vscode.commands.registerTextEditorCommand(
     "languagetoolLinter.ignoreWordGlobally",
