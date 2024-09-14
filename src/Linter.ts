@@ -547,6 +547,13 @@ export class Linter implements CodeActionProvider {
       ).forEach((action: CodeAction) => {
         actions.push(action);
       });
+      if (match.rule) {
+        this.getDisableActions(document, diagnostic).forEach(
+          (action: CodeAction) => {
+            actions.push(action);
+          },
+        );
+      }
     }
     return actions;
   }
@@ -617,13 +624,13 @@ export class Linter implements CodeActionProvider {
       }
       if (rule.category) {
         const usrDisableCategoryTitle: string =
-          "Disable '" + rule.category + "' Globally";
+          "Disable '" + rule.category.name + "' Globally";
         const usrDisableCategoryAction: CodeAction = new CodeAction(
           usrDisableCategoryTitle,
           CodeActionKind.QuickFix,
         );
         usrDisableCategoryAction.command = {
-          arguments: [rule.id, ConfigurationTarget.Global],
+          arguments: [rule.category.id, ConfigurationTarget.Global],
           command: "languagetoolLinter.disableCategory",
           title: usrDisableCategoryTitle,
         };
@@ -633,7 +640,7 @@ export class Linter implements CodeActionProvider {
 
         if (workspace !== undefined) {
           const wsDisableCategoryTitle: string =
-            "Disable '" + rule.category + "' in Workspace";
+            "Disable '" + rule.category.name + "' in Workspace";
           const wsDisableCategoryAction: CodeAction = new CodeAction(
             wsDisableCategoryTitle,
             CodeActionKind.QuickFix,
