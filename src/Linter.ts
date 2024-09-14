@@ -615,6 +615,39 @@ export class Linter implements CodeActionProvider {
           actions.push(wsDisableRuleAction);
         }
       }
+      if (rule.category) {
+        const usrDisableCategoryTitle: string =
+          "Disable '" + rule.category + "' Globally";
+        const usrDisableCategoryAction: CodeAction = new CodeAction(
+          usrDisableCategoryTitle,
+          CodeActionKind.QuickFix,
+        );
+        usrDisableCategoryAction.command = {
+          arguments: [rule.id, ConfigurationTarget.Global],
+          command: "languagetoolLinter.disableCategory",
+          title: usrDisableCategoryTitle,
+        };
+        usrDisableCategoryAction.diagnostics = [];
+        usrDisableCategoryAction.diagnostics.push(diagnostic);
+        actions.push(usrDisableCategoryAction);
+
+        if (workspace !== undefined) {
+          const wsDisableCategoryTitle: string =
+            "Disable '" + rule.category + "' in Workspace";
+          const wsDisableCategoryAction: CodeAction = new CodeAction(
+            wsDisableCategoryTitle,
+            CodeActionKind.QuickFix,
+          );
+          wsDisableCategoryAction.command = {
+            arguments: [rule.id, ConfigurationTarget.Workspace],
+            command: "languagetoolLinter.disableCategory",
+            title: wsDisableCategoryTitle,
+          };
+          wsDisableCategoryAction.diagnostics = [];
+          wsDisableCategoryAction.diagnostics.push(diagnostic);
+          actions.push(wsDisableCategoryAction);
+        }
+      }
     }
 
     return actions;
