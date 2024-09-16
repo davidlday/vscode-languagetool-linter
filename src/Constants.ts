@@ -18,9 +18,8 @@ import { OutputChannel, window } from "vscode";
 
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
-export const EXTENSION_OUTPUT_CHANNEL: OutputChannel = window.createOutputChannel(
-  "LanguageTool Linter",
-);
+export const EXTENSION_OUTPUT_CHANNEL: OutputChannel =
+  window.createOutputChannel("LanguageTool Linter");
 export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
@@ -46,6 +45,9 @@ export const CONFIGURATION_GLOBAL_IGNORED_WORDS =
 export const CONFIGURATION_WORKSPACE_IGNORED_WORDS =
   "languageTool.ignoredWordsInWorkspace";
 export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
+export const CONFIGURATION_DISABLED_RULES = "languageTool.disabledRules";
+export const CONFIGURATION_DISABLED_CATEGORIES =
+  "languageTool.disabledCategories";
 export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
   LANGUAGE_ID_HTML,
   LANGUAGE_ID_MARKDOWN,
@@ -72,7 +74,7 @@ export const SERVICE_PARAMETERS: string[] = [
   "preferredVariants",
   "disabledCategories",
   "disabledRules",
-  "level"
+  "level",
 ];
 export const SERVICE_RULE_BASE_URI =
   "https://community.languagetool.org/rule/show/";

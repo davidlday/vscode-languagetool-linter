@@ -23,6 +23,7 @@ import {
   CodeActionContext,
   CodeActionKind,
   CodeActionProvider,
+  ConfigurationTarget,
   Diagnostic,
   DiagnosticCollection,
   DiagnosticSeverity,
@@ -104,9 +105,9 @@ export class Linter implements CodeActionProvider {
           diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE,
       )
       .forEach((diagnostic) => {
-        const match:
-          | ILanguageToolMatch
-          | undefined = (diagnostic as LTDiagnostic).match;
+        const match: ILanguageToolMatch | undefined = (
+          diagnostic as LTDiagnostic
+        ).match;
         if (match && Linter.isSpellingRule(match.rule.id)) {
           const spellingActions: CodeAction[] = this.getSpellingRuleActions(
             document,
@@ -373,8 +374,10 @@ export class Linter implements CodeActionProvider {
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
       const ignored: IIgnoreItem[] = this.getIgnoreList(document, start);
-      const diagnosticSeverity: DiagnosticSeverity = this.configManager.getDiagnosticSeverity();
-      const diagnosticSeverityAuto: boolean = this.configManager.getDiagnosticSeverityAuto();
+      const diagnosticSeverity: DiagnosticSeverity =
+        this.configManager.getDiagnosticSeverity();
+      const diagnosticSeverityAuto: boolean =
+        this.configManager.getDiagnosticSeverityAuto();
       const diagnosticRange: Range = new Range(start, end);
       const diagnosticMessage: string = match.message;
       const diagnostic: LTDiagnostic = new LTDiagnostic(
@@ -399,9 +402,9 @@ export class Linter implements CodeActionProvider {
       diagnostics.push(diagnostic);
       if (diagnosticSeverityAuto) {
         if (Linter.isSpellingRule(match.rule.id)) {
-          diagnostic.severity = DiagnosticSeverity.Error
+          diagnostic.severity = DiagnosticSeverity.Error;
         } else if (Linter.isWarningCategory(match.rule.category.id)) {
-          diagnostic.severity = DiagnosticSeverity.Warning
+          diagnostic.severity = DiagnosticSeverity.Warning;
         }
       }
       if (
@@ -410,7 +413,13 @@ export class Linter implements CodeActionProvider {
         this.configManager.showIgnoredWordHints()
       ) {
         diagnostic.severity = DiagnosticSeverity.Hint;
-      } else if (this.checkIfIgnored(ignored, match.rule.id, document.getText(diagnostic.range))) {
+      } else if (
+        this.checkIfIgnored(
+          ignored,
+          match.rule.id,
+          document.getText(diagnostic.range),
+        )
+      ) {
         diagnostic.severity = DiagnosticSeverity.Hint;
       }
     });
@@ -538,6 +547,13 @@ export class Linter implements CodeActionProvider {
       ).forEach((action: CodeAction) => {
         actions.push(action);
       });
+      if (match.rule) {
+        this.getDisableActions(document, diagnostic).forEach(
+          (action: CodeAction) => {
+            actions.push(action);
+          },
+        );
+      }
     }
     return actions;
   }
@@ -565,16 +581,98 @@ export class Linter implements CodeActionProvider {
     return actions;
   }
 
+  // Get all disable CodeActions based on Rules and Categories
+  private getDisableActions(
+    document: TextDocument,
+    diagnostic: LTDiagnostic,
+  ): CodeAction[] {
+    const actions: CodeAction[] = [];
+    const rule: ILanguageToolMatch["rule"] | undefined = diagnostic.match?.rule;
+    if (rule) {
+      if (rule.id) {
+        const usrDisableRuleTitle: string =
+          "Disable '" + rule.description + "' (" + rule.id + ") Globally";
+        const usrDisableRuleAction: CodeAction = new CodeAction(
+          usrDisableRuleTitle,
+          CodeActionKind.QuickFix,
+        );
+        usrDisableRuleAction.command = {
+          arguments: [rule.id, ConfigurationTarget.Global],
+          command: "languagetoolLinter.disableRule",
+          title: usrDisableRuleTitle,
+        };
+        usrDisableRuleAction.diagnostics = [];
+        usrDisableRuleAction.diagnostics.push(diagnostic);
+        actions.push(usrDisableRuleAction);
+
+        if (workspace !== undefined) {
+          const wsDisableRuleTitle: string =
+            "Disable '" + rule.description + "' (" + rule.id + ") in Workspace";
+          const wsDisableRuleAction: CodeAction = new CodeAction(
+            wsDisableRuleTitle,
+            CodeActionKind.QuickFix,
+          );
+          wsDisableRuleAction.command = {
+            arguments: [rule.id, ConfigurationTarget.Workspace],
+            command: "languagetoolLinter.disableRule",
+            title: wsDisableRuleTitle,
+          };
+          wsDisableRuleAction.diagnostics = [];
+          wsDisableRuleAction.diagnostics.push(diagnostic);
+          actions.push(wsDisableRuleAction);
+        }
+      }
+      if (rule.category) {
+        const usrDisableCategoryTitle: string =
+          "Disable '" + rule.category.name + "' Globally";
+        const usrDisableCategoryAction: CodeAction = new CodeAction(
+          usrDisableCategoryTitle,
+          CodeActionKind.QuickFix,
+        );
+        usrDisableCategoryAction.command = {
+          arguments: [rule.category.id, ConfigurationTarget.Global],
+          command: "languagetoolLinter.disableCategory",
+          title: usrDisableCategoryTitle,
+        };
+        usrDisableCategoryAction.diagnostics = [];
+        usrDisableCategoryAction.diagnostics.push(diagnostic);
+        actions.push(usrDisableCategoryAction);
+
+        if (workspace !== undefined) {
+          const wsDisableCategoryTitle: string =
+            "Disable '" + rule.category.name + "' in Workspace";
+          const wsDisableCategoryAction: CodeAction = new CodeAction(
+            wsDisableCategoryTitle,
+            CodeActionKind.QuickFix,
+          );
+          wsDisableCategoryAction.command = {
+            arguments: [rule.id, ConfigurationTarget.Workspace],
+            command: "languagetoolLinter.disableCategory",
+            title: wsDisableCategoryTitle,
+          };
+          wsDisableCategoryAction.diagnostics = [];
+          wsDisableCategoryAction.diagnostics.push(diagnostic);
+          actions.push(wsDisableCategoryAction);
+        }
+      }
+    }
+
+    return actions;
+  }
+
   /**
    * Get list of ignored elements for this position (current or previous line)
    * @param document The document to scan for
    * @param start
    */
-  private getIgnoreList(document: TextDocument, start: Position): IIgnoreItem[] {
+  private getIgnoreList(
+    document: TextDocument,
+    start: Position,
+  ): IIgnoreItem[] {
     const line = start.line;
     const res = Array<IIgnoreItem>();
     this.ignoreList.forEach((item) => {
-      if (item.line == line || item.line == line -1) {
+      if (item.line == line || item.line == line - 1) {
         // all items of current or prev line
         res.push(item);
       }
@@ -590,19 +688,25 @@ export class Linter implements CodeActionProvider {
    */
   private buildIgnoreList(document: TextDocument): IIgnoreItem[] {
     const fullText = document.getText();
-    const matches = [...fullText.matchAll(new RegExp('@(LT-)?IGNORE:(?<id>[_A-Z0-9]+)(\\((?<word>[^)]+)\\))?@', "gm"))];
+    const matches = [
+      ...fullText.matchAll(
+        new RegExp(
+          "@(LT-)?IGNORE:(?<id>[_A-Z0-9]+)(\\((?<word>[^)]+)\\))?@",
+          "gm",
+        ),
+      ),
+    ];
     if (matches.length == 0) return [];
     const res = Array<IIgnoreItem>();
     matches.forEach((match: RegExpMatchArray) => {
       if (!match.groups) return;
       const item: IIgnoreItem = {
         line: document.positionAt(match.index as number).line,
-        ruleId: match.groups ? match.groups['id'] : '',
-        text: match.groups ? match.groups['word'] : undefined,
-      }
+        ruleId: match.groups ? match.groups["id"] : "",
+        text: match.groups ? match.groups["word"] : undefined,
+      };
       res.push(item);
     });
     return res;
   }
 }
-
