@@ -581,7 +581,7 @@ export class Linter implements CodeActionProvider {
     return actions;
   }
 
-  // Get all edit CodeActions based on Replacements
+  // Get all disable CodeActions based on Rules and Categories
   private getDisableActions(
     document: TextDocument,
     diagnostic: LTDiagnostic,
