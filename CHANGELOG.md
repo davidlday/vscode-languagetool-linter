@@ -1,3 +1,9 @@
+## v0.23.0 (2024-09-16)
+
+### Feat
+
+- add disable rule and category context commands (#762)
+
 ## v0.22.0 (2024-09-14)
 
 ### Feat
