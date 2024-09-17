@@ -17,54 +17,53 @@ import * as vscode from "vscode";
 import { ConfigurationManager } from "./ConfigurationManager";
 
 export default class StatusBarManager {
-  private _statusBarItem: vscode.StatusBarItem;
+  private statusBarItem: vscode.StatusBarItem;
   private readonly configManager: ConfigurationManager;
 
-  public constructor(
-    context: vscode.ExtensionContext,
-    configManager: ConfigurationManager,
-  ) {
-    this._statusBarItem = vscode.window.createStatusBarItem(
+  public constructor(configManager: ConfigurationManager) {
+    this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
     );
     this.configManager = configManager;
     this.setTooltip();
-    context.subscriptions.push(this._statusBarItem);
-    this._statusBarItem.show();
+    this.setIdle();
+    this.statusBarItem.show();
   }
 
   public setChecking(): void {
-    if (this._statusBarItem) {
-      this._statusBarItem.tooltip = "Checking.";
-      this._statusBarItem.text = `$(gear~spinning)`;
+    if (this.statusBarItem) {
+      // this.statusBarItem.tooltip = "Checking.";
+      this.statusBarItem.text = `$(gear~spinning)`;
     }
   }
 
   public setIdle(): void {
-    if (this._statusBarItem) {
-      this._statusBarItem.tooltip = "Idle.";
-      this._statusBarItem.text = `$(book)`;
+    if (this.statusBarItem) {
+      // this.statusBarItem.tooltip = "Idle.";
+      this.statusBarItem.text = `$(book)`;
     }
   }
 
   private setTooltip(): void {
-    const lintOnOpen = this.configManager.isLintOnOpen();
-    const lintOnSave = this.configManager.isLintOnChange();
-    const lintOnChange = this.configManager.isLintOnChange();
+    const lintOnOpen: boolean = this.configManager.isLintOnOpen();
+    const lintOnSave: boolean = this.configManager.isLintOnChange();
+    const lintOnChange: boolean = this.configManager.isLintOnChange();
     let tip = "LanguageTool Linter:";
     if (!lintOnOpen && !lintOnChange && !lintOnSave) {
+      tip += "  * Lint on Demand";
+    } else {
       if (lintOnOpen) {
         tip += "\n  * Lint on Open";
       }
       if (lintOnChange) {
         tip += "\n  * Lint on Change";
       }
-      if (lintOnOpen) {
-        tip += "\n  * Lint on Open";
+      if (lintOnSave) {
+        tip += "\n  * Lint on Save";
       }
-    } else {
-      tip += "\n * Lint on Demand";
     }
-    this._statusBarItem.tooltip = tip;
+    this.statusBarItem.tooltip = tip;
   }
+
+  public dispose(): void {}
 }
