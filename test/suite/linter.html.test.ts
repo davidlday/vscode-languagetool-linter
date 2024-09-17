@@ -6,8 +6,8 @@ import { IAnnotatedtext } from "annotatedtext";
 import { Linter } from "../../src/Linter";
 
 suite("Linter HTML Test Suite", () => {
-  const config: ConfigurationManager = new ConfigurationManager();
-  const linter: Linter = new Linter(config);
+  const configManager: ConfigurationManager = new ConfigurationManager();
+  const linter: Linter = new Linter(configManager);
   const testWorkspace: string = path.resolve(
     __dirname,
     "../../../test-fixtures/workspace",
