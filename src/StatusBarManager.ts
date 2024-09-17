@@ -15,55 +15,60 @@
  */
 import * as vscode from "vscode";
 import { ConfigurationManager } from "./ConfigurationManager";
+import { ILanguageToolResponse } from "./Interfaces";
 
-export default class StatusBarManager {
+export class StatusBarManager implements vscode.Disposable {
   private statusBarItem: vscode.StatusBarItem;
   private readonly configManager: ConfigurationManager;
+  private ltSoftware: ILanguageToolResponse["software"];
 
-  public constructor(configManager: ConfigurationManager) {
+  public constructor(
+    configManager: ConfigurationManager,
+    ltSoftware: ILanguageToolResponse["software"],
+  ) {
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
     );
     this.configManager = configManager;
-    this.setTooltip();
+    this.ltSoftware = ltSoftware;
+    this.setToolTip();
     this.setIdle();
     this.statusBarItem.show();
   }
 
   public setChecking(): void {
     if (this.statusBarItem) {
-      // this.statusBarItem.tooltip = "Checking.";
-      this.statusBarItem.text = `$(gear~spinning)`;
+      this.statusBarItem.text = `$(loading~spin) LT`;
     }
   }
 
   public setIdle(): void {
     if (this.statusBarItem) {
-      // this.statusBarItem.tooltip = "Idle.";
-      this.statusBarItem.text = `$(book)`;
+      this.statusBarItem.text = `$(book) LT`;
     }
   }
 
-  private setTooltip(): void {
-    const lintOnOpen: boolean = this.configManager.isLintOnOpen();
-    const lintOnSave: boolean = this.configManager.isLintOnChange();
-    const lintOnChange: boolean = this.configManager.isLintOnChange();
-    let tip = "LanguageTool Linter:";
-    if (!lintOnOpen && !lintOnChange && !lintOnSave) {
-      tip += "  * Lint on Demand";
-    } else {
-      if (lintOnOpen) {
-        tip += "\n  * Lint on Open";
-      }
-      if (lintOnChange) {
-        tip += "\n  * Lint on Change";
-      }
-      if (lintOnSave) {
-        tip += "\n  * Lint on Save";
-      }
+  public setLtSoftware(ltSoftware: ILanguageToolResponse["software"]): void {
+    this.ltSoftware = ltSoftware;
+  }
+
+  private setToolTip(): void {
+    const tip: vscode.MarkdownString = new vscode.MarkdownString(
+      `LT Version: ${this.ltSoftware.version}\nLinting On:\n  * Demand`,
+    );
+    if (this.configManager.isLintOnOpen()) {
+      tip.appendMarkdown("\n  * Open");
+    }
+    if (this.configManager.isLintOnChange()) {
+      tip.appendMarkdown("\n  * Change");
+    }
+    if (this.configManager.isLintOnSave()) {
+      tip.appendMarkdown("\n  * Save");
     }
     this.statusBarItem.tooltip = tip;
   }
 
-  public dispose(): void {}
+  public dispose(): void {
+    this.statusBarItem.dispose();
+  }
 }

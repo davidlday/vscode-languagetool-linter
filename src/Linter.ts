@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 
+import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 import * as RehypeBuilder from "annotatedtext-rehype";
 import * as RemarkBuilder from "annotatedtext-remark";
 import * as Fetch from "node-fetch";
@@ -35,8 +36,8 @@ import {
   workspace,
   WorkspaceEdit,
 } from "vscode";
-import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
+import * as Constants from "./Constants";
 import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
 import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
@@ -46,7 +47,7 @@ import {
   ILanguageToolReplacement,
   ILanguageToolResponse,
 } from "./Interfaces";
-import { IAnnotatedtext, IAnnotation } from "annotatedtext";
+import { StatusBarManager } from "./StatusBarManager";
 
 class LTDiagnostic extends Diagnostic {
   match?: ILanguageToolMatch;
@@ -78,16 +79,65 @@ export class Linter implements CodeActionProvider {
   public rehypeBuilderOptions: RehypeBuilder.IOptions = RehypeBuilder.defaults;
 
   private readonly configManager: ConfigurationManager;
+  private readonly statusBarManager: StatusBarManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
   private ignoreList: IIgnoreItem[] = [];
+  private ltSoftware: ILanguageToolResponse["software"];
 
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
+    this.ltSoftware = this.getLtSoftware();
+    this.statusBarManager = new StatusBarManager(
+      configManager,
+      this.ltSoftware,
+    );
     this.timeoutMap = new Map<string, NodeJS.Timeout>();
     this.diagnosticCollection = languages.createDiagnosticCollection(
       Constants.EXTENSION_DISPLAY_NAME,
     );
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
+  }
+
+  public getLtSoftware(): ILanguageToolResponse["software"] {
+    const url = this.configManager.getUrl();
+    const ltPostDataDict: Record<string, string> = this.getPostDataTemplate();
+    ltPostDataDict.text = "Get software info.";
+    if (url) {
+      const formBody = Object.keys(ltPostDataDict)
+        .map(
+          (key: string) =>
+            encodeURIComponent(key) +
+            "=" +
+            encodeURIComponent(ltPostDataDict[key]),
+        )
+        .join("&");
+
+      const options: Fetch.RequestInit = {
+        body: formBody,
+        headers: {
+          "Accepts": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        },
+        method: "POST",
+      };
+      Fetch.default(url, options)
+        .then((res) => res.json())
+        .then((json: ILanguageToolResponse) => {
+          this.statusBarManager.setLtSoftware(json.software);
+        })
+        .catch((err) => {
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+            "Error connecting to " + url,
+          );
+          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(err);
+        });
+    } else {
+      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+        "No LanguageTool URL provided. Please check your settings and try again.",
+      );
+      Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+    }
+    throw new Error("Method not implemented.");
   }
 
   // Provide CodeActions for the given Document and Range
@@ -169,6 +219,7 @@ export class Linter implements CodeActionProvider {
         ) as NodeJS.Timeout;
         clearTimeout(timeout);
         this.timeoutMap.delete(uriString);
+        this.statusBarManager.setIdle();
       }
     }
   }
@@ -248,9 +299,11 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     annotatedText: string,
   ): void {
+    this.statusBarManager.setChecking();
     const ltPostDataDict: Record<string, string> = this.getPostDataTemplate();
     ltPostDataDict.data = annotatedText;
     this.callLanguageTool(document, ltPostDataDict);
+    this.statusBarManager.setIdle();
   }
 
   // Apply smart formatting to annotated text.
@@ -348,7 +401,10 @@ export class Linter implements CodeActionProvider {
       };
       Fetch.default(url, options)
         .then((res) => res.json())
-        .then((json) => this.suggest(document, json))
+        .then((json: ILanguageToolResponse) => {
+          this.statusBarManager.setLtSoftware(json.software);
+          this.suggest(document, json);
+        })
         .catch((err) => {
           Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
             "Error connecting to " + url,
@@ -368,6 +424,7 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     response: ILanguageToolResponse,
   ): void {
+    this.statusBarManager.setLtSoftware(response.software);
     const matches = response.matches;
     const diagnostics: LTDiagnostic[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
