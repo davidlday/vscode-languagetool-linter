@@ -14,20 +14,21 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import { ConfigurationManager } from "./ConfigurationManager";
 
 export default class StatusBarManager {
   private _statusBarItem: vscode.StatusBarItem;
-  private _statusStarting: string = "starting";
-  private _statusChecking: string = "checking";
-  private _statusIdle: string = "idle";
-  private _statusStopping: string = "stopping";
+  private readonly configManager: ConfigurationManager;
 
-  public constructor(context: vscode.ExtensionContext) {
+  public constructor(
+    context: vscode.ExtensionContext,
+    configManager: ConfigurationManager,
+  ) {
     this._statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
     );
-    this._statusBarItem.tooltip = "LanguageTool Linter";
-    this._statusBarItem.text = `$(gear~spin) ${this._statusIdle}.`;
+    this.configManager = configManager;
+    this.setTooltip();
     context.subscriptions.push(this._statusBarItem);
     this._statusBarItem.show();
   }
@@ -37,5 +38,33 @@ export default class StatusBarManager {
       this._statusBarItem.tooltip = "Checking.";
       this._statusBarItem.text = `$(gear~spinning)`;
     }
+  }
+
+  public setIdle(): void {
+    if (this._statusBarItem) {
+      this._statusBarItem.tooltip = "Idle.";
+      this._statusBarItem.text = `$(book)`;
+    }
+  }
+
+  private setTooltip(): void {
+    const lintOnOpen = this.configManager.isLintOnOpen();
+    const lintOnSave = this.configManager.isLintOnChange();
+    const lintOnChange = this.configManager.isLintOnChange();
+    let tip = "LanguageTool Linter:";
+    if (!lintOnOpen && !lintOnChange && !lintOnSave) {
+      if (lintOnOpen) {
+        tip += "\n  * Lint on Open";
+      }
+      if (lintOnChange) {
+        tip += "\n  * Lint on Change";
+      }
+      if (lintOnOpen) {
+        tip += "\n  * Lint on Open";
+      }
+    } else {
+      tip += "\n * Lint on Demand";
+    }
+    this._statusBarItem.tooltip = tip;
   }
 }
