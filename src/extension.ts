@@ -23,6 +23,7 @@ import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
 import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
 import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
+import StatusBarManager from "./StatusBarIconManager";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
@@ -35,6 +36,7 @@ export function activate(context: vscode.ExtensionContext): void {
     ".": new FormattingProviderEllipses(configMan),
   });
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
+  const statusBarManager = new StatusBarManager(context);
 
   context.subscriptions.push(configMan);
 
