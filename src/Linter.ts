@@ -90,7 +90,7 @@ export class Linter implements CodeActionProvider {
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
   }
 
-  // Provide CodeActions for thw given Document and Range
+  // Provide CodeActions for the given Document and Range
   public provideCodeActions(
     document: TextDocument,
     _range: Range,
