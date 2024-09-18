@@ -82,62 +82,15 @@ export class Linter implements CodeActionProvider {
   private readonly statusBarManager: StatusBarManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
   private ignoreList: IIgnoreItem[] = [];
-  private ltSoftware: ILanguageToolResponse["software"];
 
   constructor(configManager: ConfigurationManager) {
     this.configManager = configManager;
-    this.ltSoftware = this.getLtSoftware();
-    this.statusBarManager = new StatusBarManager(
-      configManager,
-      this.ltSoftware,
-    );
     this.timeoutMap = new Map<string, NodeJS.Timeout>();
     this.diagnosticCollection = languages.createDiagnosticCollection(
       Constants.EXTENSION_DISPLAY_NAME,
     );
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
-  }
-
-  public getLtSoftware(): ILanguageToolResponse["software"] {
-    const url = this.configManager.getUrl();
-    const ltPostDataDict: Record<string, string> = this.getPostDataTemplate();
-    ltPostDataDict.text = "Get software info.";
-    if (url) {
-      const formBody = Object.keys(ltPostDataDict)
-        .map(
-          (key: string) =>
-            encodeURIComponent(key) +
-            "=" +
-            encodeURIComponent(ltPostDataDict[key]),
-        )
-        .join("&");
-
-      const options: Fetch.RequestInit = {
-        body: formBody,
-        headers: {
-          "Accepts": "application/json",
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-        },
-        method: "POST",
-      };
-      Fetch.default(url, options)
-        .then((res) => res.json())
-        .then((json: ILanguageToolResponse) => {
-          this.statusBarManager.setLtSoftware(json.software);
-        })
-        .catch((err) => {
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-            "Error connecting to " + url,
-          );
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(err);
-        });
-    } else {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "No LanguageTool URL provided. Please check your settings and try again.",
-      );
-      Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-    }
-    throw new Error("Method not implemented.");
+    this.statusBarManager = new StatusBarManager(configManager);
   }
 
   // Provide CodeActions for the given Document and Range

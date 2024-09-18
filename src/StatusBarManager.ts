@@ -20,19 +20,16 @@ import { ILanguageToolResponse } from "./Interfaces";
 export class StatusBarManager implements vscode.Disposable {
   private statusBarItem: vscode.StatusBarItem;
   private readonly configManager: ConfigurationManager;
-  private ltSoftware: ILanguageToolResponse["software"];
+  private ltSoftware: ILanguageToolResponse["software"] | undefined;
 
-  public constructor(
-    configManager: ConfigurationManager,
-    ltSoftware: ILanguageToolResponse["software"],
-  ) {
+  public constructor(configManager: ConfigurationManager) {
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
     );
     this.configManager = configManager;
-    this.ltSoftware = ltSoftware;
-    this.setToolTip();
+    this.refreshToolTip();
     this.setIdle();
+    this.statusBarItem.command = "languagetoolLinter.checkDocument";
     this.statusBarItem.show();
   }
 
@@ -50,11 +47,12 @@ export class StatusBarManager implements vscode.Disposable {
 
   public setLtSoftware(ltSoftware: ILanguageToolResponse["software"]): void {
     this.ltSoftware = ltSoftware;
+    this.refreshToolTip();
   }
 
-  private setToolTip(): void {
+  private refreshToolTip(): void {
     const tip: vscode.MarkdownString = new vscode.MarkdownString(
-      `LT Version: ${this.ltSoftware.version}\nLinting On:\n  * Demand`,
+      "### Linting On:\n  * Demand",
     );
     if (this.configManager.isLintOnOpen()) {
       tip.appendMarkdown("\n  * Open");
@@ -65,6 +63,14 @@ export class StatusBarManager implements vscode.Disposable {
     if (this.configManager.isLintOnSave()) {
       tip.appendMarkdown("\n  * Save");
     }
+    if (this.ltSoftware?.version) {
+      tip.appendMarkdown(
+        `\n\n### LT Info: \n * Version: ${this.ltSoftware.version}\n * API Version: ${this.ltSoftware.apiVersion}\n`,
+      );
+    } else {
+      tip.appendMarkdown("\n\nVersion will be detected on first lint.");
+    }
+    tip.appendMarkdown("\n_Click to check._");
     this.statusBarItem.tooltip = tip;
   }
 
