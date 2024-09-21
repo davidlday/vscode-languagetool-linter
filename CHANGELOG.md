@@ -1,3 +1,15 @@
+## v0.24.0 (2024-09-21)
+
+### Feat
+
+- add toggle suspend linting (#768)
+- add status bar item (#766)
+
+### Fix
+
+- remove legacy "enabled" configuration item (#767)
+- bump vscode to v1.90.0
+
 ## v0.23.0 (2024-09-16)
 
 ### Feat
