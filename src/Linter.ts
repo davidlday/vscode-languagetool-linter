@@ -165,6 +165,13 @@ export class Linter implements CodeActionProvider {
     }
   }
 
+  // Suspend Linting
+  public toggleSuspendLinting(): boolean {
+    const suspended: boolean = this.configManager.toggleSuspendLinting();
+    this.statusBarManager.refreshToolTip();
+    return suspended;
+  }
+
   // Request a lint for a document
   public requestLint(
     document: TextDocument,

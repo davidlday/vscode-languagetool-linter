@@ -40,6 +40,7 @@ export class ConfigurationManager implements Disposable {
   private managedPort: number | undefined;
   private process: execa.ExecaChildProcess | undefined;
   private serviceParameters: Map<string, string> = new Map();
+  private lintingSuspended: boolean = false;
 
   // Constructor
   constructor() {
@@ -112,6 +113,17 @@ export class ConfigurationManager implements Disposable {
           }
         });
     }
+  }
+
+  // Suspend linting temporarily
+  public toggleSuspendLinting(): boolean {
+    this.lintingSuspended = !this.lintingSuspended;
+    return this.lintingSuspended;
+  }
+
+  // Is linting suspended?
+  public isLintingSuspended(): boolean {
+    return this.lintingSuspended;
   }
 
   // Smart Format on Type
@@ -203,6 +215,7 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
+  // Get a list of current enabled language Ids
   public getLanguageIds(): string[] {
     const languageIds: string[] = Constants.SUPPORTED_LANGUAGE_IDS;
     if (this.isPlainTextEnabled()) {
@@ -228,15 +241,21 @@ export class ConfigurationManager implements Disposable {
   }
 
   public isLintOnChange(): boolean {
-    return this.config.get("lintOnChange") as boolean;
+    return (
+      !this.isLintingSuspended() && (this.config.get("lintOnChange") as boolean)
+    );
   }
 
   public isLintOnOpen(): boolean {
-    return this.config.get("lintOnOpen") as boolean;
+    return (
+      !this.isLintingSuspended() && (this.config.get("lintOnOpen") as boolean)
+    );
   }
 
   public isLintOnSave(): boolean {
-    return this.config.get("lintOnSave") as boolean;
+    return (
+      !this.isLintingSuspended() && (this.config.get("lintOnSave") as boolean)
+    );
   }
 
   public getDiagnosticSeverity(): DiagnosticSeverity {
