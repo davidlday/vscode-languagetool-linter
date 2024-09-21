@@ -140,11 +140,6 @@
           "default": false,
           "description": "Spelling mistakes will be set as Error, while punctuation, grammar and typography mistakes as Warning. Anything else as the configured Diagnostic Severity level (recommended to be set as Information when using this option)."
         },
-        "languageToolLinter.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Allow to enable languageTool on specific workspaces"
-        },
         "languageToolLinter.hideDiagnosticsOnChange": {
           "type": "boolean",
           "default": false,
