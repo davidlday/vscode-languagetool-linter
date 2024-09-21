@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 
+import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 import * as RehypeBuilder from "annotatedtext-rehype";
 import * as RemarkBuilder from "annotatedtext-remark";
 import * as Fetch from "node-fetch";
@@ -31,12 +32,13 @@ import {
   Position,
   Range,
   TextDocument,
+  TextEditor,
   Uri,
   workspace,
   WorkspaceEdit,
 } from "vscode";
-import * as Constants from "./Constants";
 import { ConfigurationManager } from "./ConfigurationManager";
+import * as Constants from "./Constants";
 import { FormattingProviderDashes } from "./FormattingProviderDashes";
 import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
 import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
@@ -46,7 +48,7 @@ import {
   ILanguageToolReplacement,
   ILanguageToolResponse,
 } from "./Interfaces";
-import { IAnnotatedtext, IAnnotation } from "annotatedtext";
+import { StatusBarManager } from "./StatusBarManager";
 
 class LTDiagnostic extends Diagnostic {
   match?: ILanguageToolMatch;
@@ -78,6 +80,7 @@ export class Linter implements CodeActionProvider {
   public rehypeBuilderOptions: RehypeBuilder.IOptions = RehypeBuilder.defaults;
 
   private readonly configManager: ConfigurationManager;
+  private readonly statusBarManager: StatusBarManager;
   private timeoutMap: Map<string, NodeJS.Timeout>;
   private ignoreList: IIgnoreItem[] = [];
 
@@ -88,9 +91,10 @@ export class Linter implements CodeActionProvider {
       Constants.EXTENSION_DISPLAY_NAME,
     );
     this.remarkBuilderOptions.interpretmarkup = this.customMarkdownInterpreter;
+    this.statusBarManager = new StatusBarManager(configManager);
   }
 
-  // Provide CodeActions for thw given Document and Range
+  // Provide CodeActions for the given Document and Range
   public provideCodeActions(
     document: TextDocument,
     _range: Range,
@@ -132,6 +136,35 @@ export class Linter implements CodeActionProvider {
     this.diagnosticCollection.delete(uri);
   }
 
+  // Editor Changed
+  public editorChanged(editor: TextEditor | undefined, lint: boolean): void {
+    if (editor) {
+      this.documentChanged(editor.document, lint);
+    } else {
+      this.statusBarManager.hide();
+    }
+  }
+
+  // Document Changed
+  public documentChanged(
+    document: TextDocument | undefined,
+    lint: boolean,
+  ): void {
+    if (document) {
+      if (this.configManager.isSupportedDocument(document)) {
+        this.statusBarManager.show();
+        if (lint) {
+          if (this.configManager.isHideDiagnosticsOnChange()) {
+            this.clearDiagnostics(document.uri);
+          }
+          this.requestLint(document);
+        }
+      } else {
+        this.statusBarManager.hide();
+      }
+    }
+  }
+
   // Request a lint for a document
   public requestLint(
     document: TextDocument,
@@ -169,6 +202,7 @@ export class Linter implements CodeActionProvider {
         ) as NodeJS.Timeout;
         clearTimeout(timeout);
         this.timeoutMap.delete(uriString);
+        this.statusBarManager.setIdle();
       }
     }
   }
@@ -248,9 +282,11 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     annotatedText: string,
   ): void {
+    this.statusBarManager.setChecking();
     const ltPostDataDict: Record<string, string> = this.getPostDataTemplate();
     ltPostDataDict.data = annotatedText;
     this.callLanguageTool(document, ltPostDataDict);
+    this.statusBarManager.setIdle();
   }
 
   // Apply smart formatting to annotated text.
@@ -348,7 +384,10 @@ export class Linter implements CodeActionProvider {
       };
       Fetch.default(url, options)
         .then((res) => res.json())
-        .then((json) => this.suggest(document, json))
+        .then((json: ILanguageToolResponse) => {
+          this.statusBarManager.setLtSoftware(json.software);
+          this.suggest(document, json);
+        })
         .catch((err) => {
           Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
             "Error connecting to " + url,
@@ -368,6 +407,7 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     response: ILanguageToolResponse,
   ): void {
+    this.statusBarManager.setLtSoftware(response.software);
     const matches = response.matches;
     const diagnostics: LTDiagnostic[] = [];
     matches.forEach((match: ILanguageToolMatch) => {

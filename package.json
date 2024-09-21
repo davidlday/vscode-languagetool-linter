@@ -41,10 +41,7 @@
     "onLanguage:plaintext",
     "onLanguage:markdown",
     "onLanguage:mdx",
-    "onLanguage:html",
-    "onCommand:languagetoolLinter.checkDocument",
-    "onCommand:languagetoolLinter.checkDocumentAsPlainText",
-    "onCommand:languagetoolLinter.smartFormatDocument"
+    "onLanguage:html"
   ],
   "main": "./dist/extension.js",
   "contributes": {
