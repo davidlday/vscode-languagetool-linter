@@ -37,7 +37,6 @@ export function activate(context: vscode.ExtensionContext): void {
   const onTypeTriggers = onTypeDispatcher.getTriggerCharacters();
 
   context.subscriptions.push(configMan);
-  // context.subscriptions.push(statusBarManager);
 
   context.subscriptions.push(Constants.EXTENSION_OUTPUT_CHANNEL);
   Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
