@@ -55,30 +55,28 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidOpenTextDocument event - request lint
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
-      if (configMan.isLintOnOpen()) {
-        linter.requestLint(document);
-      }
+      linter.documentChanged(document, configMan.isLintOnOpen());
     }),
   );
 
   // Register onDidChangeTextDocument event - request lint with default timeout
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      if (configMan.isLintOnChange()) {
-        if (configMan.isHideDiagnosticsOnChange()) {
-          linter.clearDiagnostics(event.document.uri);
-        }
-        linter.requestLint(event.document);
-      }
+      linter.documentChanged(event.document, configMan.isLintOnChange());
     }),
   );
 
   // Register onDidChangeActiveTextEditor event - request lint
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor !== undefined && configMan.isLintOnChange()) {
-        linter.requestLint(editor.document);
-      }
+      linter.documentChanged(editor?.document, configMan.isLintOnChange());
+    }),
+  );
+
+  // Register onDidSaveTextDocument event - request immediate lint
+  context.subscriptions.push(
+    vscode.workspace.onDidSaveTextDocument((document) => {
+      linter.documentChanged(document, configMan.isLintOnSave());
     }),
   );
 
@@ -87,15 +85,6 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onWillSaveTextDocument((_event) => {
       if (configMan.isSmartFormatOnSave()) {
         vscode.commands.executeCommand(Constants.COMMAND_SMART_FORMAT);
-      }
-    }),
-  );
-
-  // Register onDidSaveTextDocument event - request immediate lint
-  context.subscriptions.push(
-    vscode.workspace.onDidSaveTextDocument((document) => {
-      if (configMan.isLintOnSave()) {
-        linter.requestLint(document);
       }
     }),
   );

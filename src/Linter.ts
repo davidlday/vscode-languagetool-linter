@@ -135,6 +135,25 @@ export class Linter implements CodeActionProvider {
     this.diagnosticCollection.delete(uri);
   }
 
+  public documentChanged(
+    document: TextDocument | undefined,
+    lint: boolean,
+  ): void {
+    if (document) {
+      if (this.configManager.isSupportedDocument(document)) {
+        this.statusBarManager.show();
+        if (lint) {
+          if (this.configManager.isHideDiagnosticsOnChange()) {
+            this.clearDiagnostics(document.uri);
+          }
+          this.requestLint(document);
+        }
+      } else {
+        this.statusBarManager.hide();
+      }
+    }
+  }
+
   // Request a lint for a document
   public requestLint(
     document: TextDocument,
