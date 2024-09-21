@@ -32,6 +32,7 @@ import {
   Position,
   Range,
   TextDocument,
+  TextEditor,
   Uri,
   workspace,
   WorkspaceEdit,
@@ -135,6 +136,16 @@ export class Linter implements CodeActionProvider {
     this.diagnosticCollection.delete(uri);
   }
 
+  // Editor Changed
+  public editorChanged(editor: TextEditor | undefined, lint: boolean): void {
+    if (editor) {
+      this.documentChanged(editor.document, lint);
+    } else {
+      this.statusBarManager.hide();
+    }
+  }
+
+  // Document Changed
   public documentChanged(
     document: TextDocument | undefined,
     lint: boolean,
