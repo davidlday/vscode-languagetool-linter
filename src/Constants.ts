@@ -92,6 +92,7 @@ export const COMMAND_REMOVE_WS_IGNORED_WORD =
   "languagetoolLinter.removeWorkspaceIgnoredWord";
 export const COMMAND_DISABLE_RULE = "languagetoolLinter.disableRule";
 export const COMMAND_DISABLE_CATEGORY = "languagetoolLinter.disableCategory";
+export const COMMAND_TOGGLE_LINTING = "languagetoolLinter.toggleSuspendLinting";
 export const COMMAND_STRINGS = [
   COMMAND_CHECK_DOCUMENT,
   COMMAND_CHECK_DOCUMENT_AS_PLAINTEXT,
@@ -103,4 +104,5 @@ export const COMMAND_STRINGS = [
   COMMAND_REMOVE_WS_IGNORED_WORD,
   COMMAND_DISABLE_RULE,
   COMMAND_DISABLE_CATEGORY,
+  COMMAND_TOGGLE_LINTING,
 ];
