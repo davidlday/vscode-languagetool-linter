@@ -80,3 +80,32 @@ export const SERVICE_RULE_BASE_URI =
   "https://community.languagetool.org/rule/show/";
 export const SERVICE_RULE_URL_LANG_DEFAULT = "en";
 export const SERVICE_RULE_URL_GENERIC_LABEL = "details";
+
+// Extension Commands
+export const COMMAND_CHECK = "languagetoolLinter.checkDocument";
+export const COMMAND_CHECK_AS_PLAIN =
+  "languagetoolLinter.checkDocumentAsPlainText";
+export const COMMAND_CLEAR_DAIGS =
+  "languagetoolLinter.clearDocumentDiagnostics";
+export const COMMAND_SMART_FORMAT = "languagetoolLinter.smartFormatDocument";
+export const COMMAND_IGNORE_USR_WORD = "languagetoolLinter.ignoreWordGlobally";
+export const COMMAND_IGNORE_WS_WORD =
+  "languagetoolLinter.ignoreWordInWorkspace";
+export const COMMAND_REMOVE_USR_IGNORED_WORD =
+  "languagetoolLinter.removeGloballyIgnoredWord";
+export const COMMAND_REMOVE_WS_IGNORED_WORD =
+  "languagetoolLinter.removeWorkspaceIgnoredWord";
+export const COMMAND_DISABLE_RULE = "languagetoolLinter.disableRule";
+export const COMMAND_DISABLE_CATEGORY = "languagetoolLinter.disableCategory";
+export const COMMAND_STRINGS = [
+  COMMAND_CHECK,
+  COMMAND_CHECK_AS_PLAIN,
+  COMMAND_CLEAR_DAIGS,
+  COMMAND_SMART_FORMAT,
+  COMMAND_IGNORE_USR_WORD,
+  COMMAND_IGNORE_WS_WORD,
+  COMMAND_REMOVE_USR_IGNORED_WORD,
+  COMMAND_REMOVE_WS_IGNORED_WORD,
+  COMMAND_DISABLE_RULE,
+  COMMAND_DISABLE_CATEGORY,
+];
