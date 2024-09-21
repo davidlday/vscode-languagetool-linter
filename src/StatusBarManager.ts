@@ -30,6 +30,14 @@ export class StatusBarManager implements vscode.Disposable {
     this.refreshToolTip();
     this.setIdle();
     this.statusBarItem.command = "languagetoolLinter.checkDocument";
+    this.show();
+  }
+
+  public hide(): void {
+    this.statusBarItem.hide();
+  }
+
+  public show(): void {
     this.statusBarItem.show();
   }
 
