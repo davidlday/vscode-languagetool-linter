@@ -14,15 +14,15 @@
  *   limitations under the License.
  */
 
-import * as vscode from "vscode";
-import * as Constants from "./Constants";
-import { ConfigurationManager } from "./ConfigurationManager";
 import { IAnnotatedtext } from "annotatedtext";
-import { Linter } from "./Linter";
+import * as vscode from "vscode";
+import { ConfigurationManager } from "./ConfigurationManager";
+import * as Constants from "./Constants";
 import { FormattingProviderDashes } from "./FormattingProviderDashes";
-import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
 import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
 import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
+import { Linter } from "./Linter";
+import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
@@ -124,6 +124,15 @@ export function activate(context: vscode.ExtensionContext): void {
       linter.clearDiagnostics(document.uri);
     }),
   );
+
+  // Register "Toggle Linting" Command
+  const toggleLinting = vscode.commands.registerCommand(
+    Constants.COMMAND_TOGGLE_LINTING,
+    () => {
+      linter.toggleSuspendLinting();
+    },
+  );
+  context.subscriptions.push(toggleLinting);
 
   // Register "Disable Rule" TextEditorCommand
   const disableRule = vscode.commands.registerTextEditorCommand(

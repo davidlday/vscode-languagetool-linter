@@ -58,10 +58,13 @@ export class StatusBarManager implements vscode.Disposable {
     this.refreshToolTip();
   }
 
-  private refreshToolTip(): void {
+  public refreshToolTip(): void {
     const tip: vscode.MarkdownString = new vscode.MarkdownString(
       "### Linting On:\n  * Demand",
     );
+    if (this.configManager.isLintingSuspended()) {
+      tip.appendMarkdown(" _(temporary)_");
+    }
     if (this.configManager.isLintOnOpen()) {
       tip.appendMarkdown("\n  * Open");
     }
@@ -73,10 +76,13 @@ export class StatusBarManager implements vscode.Disposable {
     }
     if (this.ltSoftware?.version) {
       tip.appendMarkdown(
-        `\n\n### LT Info: \n * Version: ${this.ltSoftware.version}\n * API Version: ${this.ltSoftware.apiVersion}\n`,
+        `\n\n### LT Info: \n * Version: ${this.ltSoftware.version}`,
       );
+      tip.appendMarkdown(`\n * API Version: ${this.ltSoftware.apiVersion}\n`);
+      const premium = this.ltSoftware.premium ? "Enabled" : "Not Enabled";
+      tip.appendMarkdown(`\n * Premium: ${premium}\n`);
     } else {
-      tip.appendMarkdown("\n\nVersion will be detected on first lint.");
+      tip.appendMarkdown("\n\nLT Info will be detected on first lint.");
     }
     tip.appendMarkdown("\n_Click to check._");
     this.statusBarItem.tooltip = tip;
