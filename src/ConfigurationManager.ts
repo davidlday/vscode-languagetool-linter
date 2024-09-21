@@ -136,9 +136,7 @@ export class ConfigurationManager implements Disposable {
       ) {
         return true;
       } else {
-        return Constants.CONFIGURATION_DOCUMENT_LANGUAGE_IDS.includes(
-          document.languageId,
-        );
+        return Constants.SUPPORTED_LANGUAGE_IDS.includes(document.languageId);
       }
     }
     return false;
