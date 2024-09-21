@@ -79,9 +79,8 @@ export class StatusBarManager implements vscode.Disposable {
         `\n\n### LT Info: \n * Version: ${this.ltSoftware.version}`,
       );
       tip.appendMarkdown(`\n * API Version: ${this.ltSoftware.apiVersion}\n`);
-      if (this.ltSoftware.premium) {
-        tip.appendMarkdown(`\n * Premium: Enabled\n`);
-      }
+      const premium = this.ltSoftware.premium ? "Enabled" : "Not Enabled";
+      tip.appendMarkdown(`\n * Premium: ${premium}\n`);
     } else {
       tip.appendMarkdown("\n\nLT Info will be detected on first lint.");
     }
