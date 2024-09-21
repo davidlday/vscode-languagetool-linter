@@ -48,11 +48,6 @@ export const CONFIGURATION_IGNORED_WORD_HINT = "languageTool.ignoredWordHint";
 export const CONFIGURATION_DISABLED_RULES = "languageTool.disabledRules";
 export const CONFIGURATION_DISABLED_CATEGORIES =
   "languageTool.disabledCategories";
-// export const CONFIGURATION_DOCUMENT_LANGUAGE_IDS: string[] = [
-//   LANGUAGE_ID_HTML,
-//   LANGUAGE_ID_MARKDOWN,
-//   LANGUAGE_ID_MDX,
-// ];
 export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
 export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
 export const CONFIGURATION_LANGUAGE = "language";
