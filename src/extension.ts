@@ -87,9 +87,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.workspace.onWillSaveTextDocument((_event) => {
       if (configMan.isSmartFormatOnSave()) {
-        vscode.commands.executeCommand(
-          "languagetoolLinter.smartFormatDocument",
-        );
+        vscode.commands.executeCommand(Constants.COMMAND_SMART_FORMAT);
       }
     }),
   );
