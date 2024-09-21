@@ -130,14 +130,7 @@ export class ConfigurationManager implements Disposable {
       document.uri.scheme === Constants.SCHEME_FILE ||
       document.uri.scheme === Constants.SCHEME_UNTITLED
     ) {
-      if (
-        this.isPlainTextId(document.languageId) &&
-        this.isPlainTextEnabled()
-      ) {
-        return true;
-      } else {
-        return Constants.SUPPORTED_LANGUAGE_IDS.includes(document.languageId);
-      }
+      return this.getLanguageIds().includes(document.languageId);
     }
     return false;
   }
@@ -208,6 +201,18 @@ export class ConfigurationManager implements Disposable {
     } else {
       return lang;
     }
+  }
+
+  public getLanguageIds(): string[] {
+    const languageIds: string[] = Constants.SUPPORTED_LANGUAGE_IDS;
+    if (this.isPlainTextEnabled()) {
+      const plainTextLanguageIds: string[] =
+        this.config.get(Constants.CONFIGURATION_PLAIN_TEXT_IDS) || [];
+      plainTextLanguageIds.forEach((id) => {
+        languageIds.push(id);
+      });
+    }
+    return languageIds;
   }
 
   public getUrl(): string | undefined {
