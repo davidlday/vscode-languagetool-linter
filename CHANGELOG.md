@@ -1,3 +1,9 @@
+## v0.24.1 (2024-09-22)
+
+### Fix
+
+- show status bar item on lint (#769)
+
 ## v0.24.0 (2024-09-21)
 
 ### Feat
