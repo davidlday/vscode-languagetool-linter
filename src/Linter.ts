@@ -273,6 +273,7 @@ export class Linter implements CodeActionProvider {
       } else {
         this.lintDocumentAsPlainText(document);
       }
+      this.statusBarManager.show();
     }
   }
 
