@@ -69,7 +69,12 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register onDidChangeActiveTextEditor event - request lint
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      linter.editorChanged(editor, configMan.isLintOnChange());
+      if (editor !== undefined) {
+        linter.editorChanged(
+          vscode.window.activeTextEditor,
+          configMan.isLintOnChange(),
+        );
+      }
     }),
   );
 
