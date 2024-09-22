@@ -138,10 +138,11 @@ export class Linter implements CodeActionProvider {
 
   // Editor Changed
   public editorChanged(editor: TextEditor | undefined, lint: boolean): void {
-    if (editor) {
-      this.documentChanged(editor.document, lint);
-    } else {
+    if (!editor) {
       this.statusBarManager.hide();
+      return;
+    } else {
+      this.documentChanged(editor.document, lint);
     }
   }
 
@@ -150,7 +151,10 @@ export class Linter implements CodeActionProvider {
     document: TextDocument | undefined,
     lint: boolean,
   ): void {
-    if (document) {
+    if (!document) {
+      this.statusBarManager.hide();
+      return;
+    } else {
       if (this.configManager.isSupportedDocument(document)) {
         this.statusBarManager.show();
         if (lint) {
@@ -159,8 +163,6 @@ export class Linter implements CodeActionProvider {
           }
           this.requestLint(document);
         }
-      } else {
-        this.statusBarManager.hide();
       }
     }
   }
