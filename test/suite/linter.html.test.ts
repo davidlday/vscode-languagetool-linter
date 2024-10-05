@@ -1,9 +1,9 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
-import { ConfigurationManager } from "../../src/ConfigurationManager";
+import { ConfigurationManager } from "../../src/ConfigurationManager.js";
 import { IAnnotatedtext } from "annotatedtext";
-import { Linter } from "../../src/Linter";
+import { Linter } from "../../src/Linter.js";
 
 suite("Linter HTML Test Suite", () => {
   const configManager: ConfigurationManager = new ConfigurationManager();

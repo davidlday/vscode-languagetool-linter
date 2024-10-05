@@ -16,13 +16,13 @@
 
 import { IAnnotatedtext } from "annotatedtext";
 import * as vscode from "vscode";
-import { ConfigurationManager } from "./ConfigurationManager";
-import * as Constants from "./Constants";
-import { FormattingProviderDashes } from "./FormattingProviderDashes";
-import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
-import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
-import { Linter } from "./Linter";
-import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher";
+import { ConfigurationManager } from "./ConfigurationManager.js";
+import * as Constants from "./Constants.js";
+import { FormattingProviderDashes } from "./FormattingProviderDashes.js";
+import { FormattingProviderEllipses } from "./FormattingProviderEllipses.js";
+import { FormattingProviderQuotes } from "./FormattingProviderQuotes.js";
+import { Linter } from "./Linter.js";
+import { OnTypeFormattingDispatcher } from "./OnTypeFormattingDispatcher.js";
 
 // Wonder Twin Powers, Activate!
 export function activate(context: vscode.ExtensionContext): void {
