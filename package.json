@@ -6,6 +6,7 @@
   "engines": {
     "vscode": "^1.90.0"
   },
+  "type": "module",
   "categories": [
     "Linters"
   ],
@@ -123,12 +124,12 @@
         "languageToolLinter.smartFormat.onType": {
           "type": "boolean",
           "default": false,
-          "description": "Run smart format as you type for quotes (\u201c\u201d\u2018\u2019), em-dashes and en-dashes, and ellipses (\u2026). Ensure 'Editor: Format On Type' is enabled."
+          "description": "Run smart format as you type for quotes (“”‘’), em-dashes and en-dashes, and ellipses (…). Ensure 'Editor: Format On Type' is enabled."
         },
         "languageToolLinter.smartFormat.onSave": {
           "type": "boolean",
           "default": false,
-          "description": "Run smart format when you save for quotes (\u201c\u201d\u2018\u2019), em-dashes and en-dashes, and ellipses (\u2026)."
+          "description": "Run smart format when you save for quotes (“”‘’), em-dashes and en-dashes, and ellipses (…)."
         },
         "languageToolLinter.diagnosticSeverity": {
           "type": "string",
@@ -307,7 +308,7 @@
             "Portuguese",
             "Portuguese (Angola preAO)",
             "Portuguese (Brazil)",
-            "Portuguese (Mo\u00e7ambique preAO)",
+            "Portuguese (Moçambique preAO)",
             "Portuguese (Portugal)",
             "Romanian",
             "Russian",
@@ -404,7 +405,7 @@
             "Portuguese",
             "Portuguese (Angola preAO)",
             "Portuguese (Brazil)",
-            "Portuguese (Mo\u00e7ambique preAO)",
+            "Portuguese (Moçambique preAO)",
             "Portuguese (Portugal)",
             "Romanian",
             "Russian",
@@ -490,12 +491,14 @@
     }
   },
   "scripts": {
+    "package": "npm run check-types && node esbuild.js --production",
     "clean": "rm -rf out/* dist/*",
-    "vscode:prepublish": "webpack --mode production",
-    "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
-    "compile": "webpack --mode none",
-    "watch": "webpack --mode development --watch --info-verbosity verbose",
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && node esbuild.js",
+    "check-types": "tsc --noEmit",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "test-compile": "npm run main-out && tsc -p ./",
     "main-out": "json -I -f package.json -e 'this.main=\"./out/src/extension.js\"'",
     "main-dist": "json -I -f package.json -e 'this.main=\"./dist/extension.js\"'",
@@ -516,6 +519,7 @@
     "@typescript-eslint/parser": "^8.8.0",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.24.0",
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsdoc": "^50.3.1",
@@ -524,10 +528,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.4.0",
-    "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-license-plugin": "^4.5.0"
+    "typescript-eslint": "^8.4.0"
   },
   "dependencies": {
     "annotatedtext-rehype": "^0.6.0",
