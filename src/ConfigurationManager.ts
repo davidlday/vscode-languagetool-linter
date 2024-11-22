@@ -98,12 +98,15 @@ export class ConfigurationManager implements Disposable {
         );
       }
     }
-    // List of plaintext ids changed - need to reload
-    if (event.affectsConfiguration("languageToolLinter.plainText")) {
+    // List of plaintext ids or disabled language ids changed - need to reload
+    if (
+      event.affectsConfiguration("languageToolLinter.plainText") ||
+      event.affectsConfiguration("languageToolLinter.disabledLanguageIds")
+    ) {
       const action = "Reload";
       window
         .showInformationMessage(
-          "The settings for linting plaintext documents have changed. \
+          "The settings for linting documents have changed. \
           Please reload the window for the configuration to take effect.",
           action,
         )
@@ -163,7 +166,12 @@ export class ConfigurationManager implements Disposable {
 
   public getDocumentSelectors(): DocumentSelector[] {
     const selectors: DocumentSelector[] = [];
-    const languageIds = Constants.SUPPORTED_LANGUAGE_IDS;
+    const supportedLanguageIds = Constants.SUPPORTED_LANGUAGE_IDS;
+    const disabledLanguageIds: string[] =
+      this.config.get(Constants.CONFIGURATION_DISABLED_IDS) || [];
+    const languageIds = supportedLanguageIds.filter(
+      (languageId) => !disabledLanguageIds.includes(languageId),
+    );
 
     if (this.isPlainTextEnabled()) {
       const plaintextLanguageIds: string[] =
