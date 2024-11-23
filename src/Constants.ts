@@ -50,6 +50,7 @@ export const CONFIGURATION_DISABLED_CATEGORIES =
   "languageTool.disabledCategories";
 export const CONFIGURATION_PLAIN_TEXT_ENABLED = "plainText.enabled";
 export const CONFIGURATION_PLAIN_TEXT_IDS = "plainText.languageIds";
+export const CONFIGURATION_DISABLED_IDS = "disabledLanguageIds";
 export const CONFIGURATION_LANGUAGE = "language";
 
 // LanguageTool Services

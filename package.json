@@ -485,6 +485,13 @@
             "plaintext"
           ],
           "markdownDescription": "A list of [Language IDs](https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers) to treat as plain text."
+        },
+        "languageToolLinter.disabledLanguageIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "A list of [Language IDs](https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers) not to lint."
         }
       }
     }
