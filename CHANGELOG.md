@@ -1,3 +1,9 @@
+## v0.25.0 (2024-11-23)
+
+### Feat
+
+- add feature to disable languages (#806)
+
 ## v0.24.2 (2024-09-22)
 
 ### Fix
