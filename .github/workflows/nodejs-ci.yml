@@ -83,7 +83,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Create bump and changelog
-        uses: commitizen-tools/commitizen-action@0.21.0
+        uses: commitizen-tools/commitizen-action@0.22.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           check_consistency: true
