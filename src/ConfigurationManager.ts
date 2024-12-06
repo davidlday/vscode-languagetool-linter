@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-import execa from "execa";
+import { ExecaError, execaNode, Subprocess } from "execa";
 import { glob } from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
@@ -31,14 +31,14 @@ import {
   workspace,
   WorkspaceConfiguration,
 } from "vscode";
-import * as Constants from "./Constants";
+import * as Constants from "./Constants.js";
 
 export class ConfigurationManager implements Disposable {
   // Private Members
   private config: WorkspaceConfiguration;
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
-  private process: execa.ExecaChildProcess | undefined;
+  private process: Subprocess | undefined;
   private serviceParameters: Map<string, string> = new Map();
   private lintingSuspended: boolean = false;
 
@@ -319,7 +319,7 @@ export class ConfigurationManager implements Disposable {
       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
         "Closing managed service server.",
       );
-      this.process.cancel();
+      this.process.kill();
       this.process = undefined;
     }
   }
@@ -525,8 +525,8 @@ export class ConfigurationManager implements Disposable {
               Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
                 "Starting managed service.",
               );
-              (this.process = execa("java", args)).catch(
-                (err: execa.ExecaError) => {
+              (this.process = execaNode("java", args)).catch(
+                (err: ExecaError) => {
                   if (err.isCanceled) {
                     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
                       "Managed service process stopped.",
