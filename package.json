@@ -515,7 +515,7 @@
     "@types/eslint__js": "^8.42.3",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.3",
     "@types/node-fetch": "^2.6.11",
     "@types/vscode": "^1.90.0",
     "@types/webpack": "^5.28.5",
