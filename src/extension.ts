@@ -230,7 +230,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const smartFormatCommand = vscode.commands.registerTextEditorCommand(
     Constants.COMMAND_SMART_FORMAT,
     (editor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
-      if (configMan.isSupportedDocument(editor.document)) {
+      if (configMan.isLanguageSupportedAndEnabled(editor.document)) {
         // Revert to regex here for cleaner code.
         const text: string = editor.document.getText();
         const lastOffset: number = text.length;

@@ -155,7 +155,7 @@ export class Linter implements CodeActionProvider {
       this.statusBarManager.hide();
       return;
     } else {
-      if (this.configManager.isSupportedDocument(document)) {
+      if (this.configManager.isLanguageSupportedAndEnabled(document)) {
         this.statusBarManager.show();
         if (lint) {
           if (this.configManager.isHideDiagnosticsOnChange()) {
@@ -179,7 +179,7 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     timeoutDuration: number = Constants.EXTENSION_TIMEOUT_MS,
   ): void {
-    if (this.configManager.isSupportedDocument(document)) {
+    if (this.configManager.isLanguageSupportedAndEnabled(document)) {
       this.cancelLint(document);
       const uriString = document.uri.toString();
       const timeout = setTimeout(() => {
@@ -260,7 +260,7 @@ export class Linter implements CodeActionProvider {
 
   // Perform Lint on Document
   public lintDocument(document: TextDocument): void {
-    if (this.configManager.isSupportedDocument(document)) {
+    if (this.configManager.isLanguageSupportedAndEnabled(document)) {
       if (document.languageId === Constants.LANGUAGE_ID_MARKDOWN) {
         this.ignoreList = this.buildIgnoreList(document);
         const annotatedMarkdown: string = JSON.stringify(

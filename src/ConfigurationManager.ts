@@ -139,8 +139,8 @@ export class ConfigurationManager implements Disposable {
     return this.config.get("smartFormat.onSave") as boolean;
   }
 
-  // Is Language ID Supported?
-  public isSupportedDocument(document: TextDocument): boolean {
+  // Is language ID supported and enabled?
+  public isLanguageSupportedAndEnabled(document: TextDocument): boolean {
     if (
       document.uri.scheme === Constants.SCHEME_FILE ||
       document.uri.scheme === Constants.SCHEME_UNTITLED
@@ -166,20 +166,7 @@ export class ConfigurationManager implements Disposable {
 
   public getDocumentSelectors(): DocumentSelector[] {
     const selectors: DocumentSelector[] = [];
-    const supportedLanguageIds = Constants.SUPPORTED_LANGUAGE_IDS;
-    const disabledLanguageIds: string[] =
-      this.config.get(Constants.CONFIGURATION_DISABLED_IDS) || [];
-    const languageIds = supportedLanguageIds.filter(
-      (languageId) => !disabledLanguageIds.includes(languageId),
-    );
-
-    if (this.isPlainTextEnabled()) {
-      const plaintextLanguageIds: string[] =
-        this.config.get(Constants.CONFIGURATION_PLAIN_TEXT_IDS) || [];
-      plaintextLanguageIds.forEach((languageId) => {
-        languageIds.push(languageId);
-      });
-    }
+    const languageIds = this.getLanguageIds();
 
     languageIds.forEach((languageId) => {
       const fileSelector: DocumentSelector = {
@@ -223,9 +210,14 @@ export class ConfigurationManager implements Disposable {
     }
   }
 
-  // Get a list of current enabled language Ids
+  // Get a list of language Ids that are supported and enabled
   public getLanguageIds(): string[] {
-    const languageIds: string[] = Constants.SUPPORTED_LANGUAGE_IDS;
+    const supportedLanguageIds = Constants.SUPPORTED_LANGUAGE_IDS;
+    const disabledLanguageIds: string[] =
+      this.config.get(Constants.CONFIGURATION_DISABLED_IDS) || [];
+    const languageIds = supportedLanguageIds.filter(
+      (languageId) => !disabledLanguageIds.includes(languageId),
+    );
     if (this.isPlainTextEnabled()) {
       const plainTextLanguageIds: string[] =
         this.config.get(Constants.CONFIGURATION_PLAIN_TEXT_IDS) || [];
