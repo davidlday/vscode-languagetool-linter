@@ -1,3 +1,9 @@
+## v0.25.1 (2025-01-20)
+
+### Fix
+
+- bug where language ID ignore list was ignored on subsequent saves
+
 ## v0.25.0 (2024-11-23)
 
 ### Feat
