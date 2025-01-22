@@ -2,7 +2,7 @@ import * as assert from "assert";
 // tslint:disable-next-line: no-implicit-dependencies
 import { before } from "mocha";
 import * as vscode from "vscode";
-import * as Constants from "../../src/Constants";
+import * as Constants from "../../src/Constants.js";
 
 suite("Extension Test Suite", () => {
   before(() => {
