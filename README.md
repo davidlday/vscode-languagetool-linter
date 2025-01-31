@@ -71,7 +71,7 @@ Works well if you're only using LanguageTool in Visual Studio Code.
 
 1. [Install LanguageTool](https://github.com/davidlday/vscode-languagetool-linter/wiki#installing-languagetool)
    locally.
-1. Set “LanguageTool Linter > Managed: Class Path” to the location of the
+1. Set “LanguageTool Linter > Managed: Jar File” to the location of the
    `languagetool-server.jar` file. The install doc has hints.
 1. Set “LanguageTool Linter: Service Type” to `managed`.
 
