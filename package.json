@@ -511,8 +511,8 @@
     "lint": "eslint ./src/"
   },
   "devDependencies": {
-    "@eslint/js": "^9.11.1",
-    "@types/eslint__js": "^8.42.3",
+    "@eslint/js": "^9.23.0",
+    "@types/eslint__js": "^9.14.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.13.0",
