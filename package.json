@@ -523,7 +523,7 @@
     "@typescript-eslint/parser": "^8.29.0",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.2.1",
-    "eslint": "^9.19.0",
+    "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-jsdoc": "^50.6.3",
     "json": "^11.0.0",
