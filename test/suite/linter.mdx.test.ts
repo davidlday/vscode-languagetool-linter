@@ -1,8 +1,8 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
-import { ConfigurationManager } from "../../src/ConfigurationManager";
-import { Linter } from "../../src/Linter";
+import { ConfigurationManager } from "../../src/ConfigurationManager.js";
+import { Linter } from "../../src/Linter.js";
 
 suite("Linter MDX Test Suite", () => {
   const configManager: ConfigurationManager = new ConfigurationManager();

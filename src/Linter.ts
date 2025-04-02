@@ -37,18 +37,18 @@ import {
   workspace,
   WorkspaceEdit,
 } from "vscode";
-import { ConfigurationManager } from "./ConfigurationManager";
-import * as Constants from "./Constants";
-import { FormattingProviderDashes } from "./FormattingProviderDashes";
-import { FormattingProviderEllipses } from "./FormattingProviderEllipses";
-import { FormattingProviderQuotes } from "./FormattingProviderQuotes";
+import { ConfigurationManager } from "./ConfigurationManager.js";
+import * as Constants from "./Constants.js";
+import { FormattingProviderDashes } from "./FormattingProviderDashes.js";
+import { FormattingProviderEllipses } from "./FormattingProviderEllipses.js";
+import { FormattingProviderQuotes } from "./FormattingProviderQuotes.js";
 import {
   IIgnoreItem,
   ILanguageToolMatch,
   ILanguageToolReplacement,
   ILanguageToolResponse,
-} from "./Interfaces";
-import { StatusBarManager } from "./StatusBarManager";
+} from "./Interfaces.js";
+import { StatusBarManager } from "./StatusBarManager.js";
 
 class LTDiagnostic extends Diagnostic {
   match?: ILanguageToolMatch;

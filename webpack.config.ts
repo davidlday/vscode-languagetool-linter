@@ -8,6 +8,7 @@ import LicensePlugin from "webpack-license-plugin";
 // tslint:disable-next-line: jsdoc-format
 /**@type {import("webpack").Configuration}*/
 const config = {
+  target: "webworker",
   devtool: "source-map",
   entry: "./src/extension.ts",
   externals: {
@@ -39,9 +40,10 @@ const config = {
   },
   plugins: [new LicensePlugin({ outputFilename: "meta/licenses.json" })],
   resolve: {
+    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
+    mainFields: ["browser", "module", "main"], // look for `browser` entry point in imported node modules
     extensions: [".ts", ".js"],
   },
-  target: "node",
 };
 
 module.exports = config;
