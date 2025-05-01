@@ -542,6 +542,6 @@
     "execa": "^5.0.0",
     "glob": "^11.0.0",
     "node-fetch": "^2.7.0",
-    "portfinder": "^1.0.32"
+    "portfinder": "^1.0.37"
   }
 }
