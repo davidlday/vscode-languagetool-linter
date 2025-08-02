@@ -1,3 +1,11 @@
+## v0.25.2 (2025-08-02)
+
+### Fix
+
+- **deps**: bump glob from 11.0.0 to 11.0.3 (#893)
+- **deps**: bump portfinder from 1.0.32 to 1.0.37 (#877)
+- **deps**: bump form-data from 4.0.0 to 4.0.4 (#894)
+
 ## v0.25.1 (2025-01-20)
 
 ### Fix
