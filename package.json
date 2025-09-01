@@ -524,7 +524,7 @@
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.6.0",
     "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^50.6.3",
     "json": "^11.0.0",
     "mocha": "^11.7.1",
