@@ -4,7 +4,7 @@
   "description": "LanguageTool integration for VS Code.",
   "version": "0.25.1",
   "engines": {
-    "vscode": "^1.102.0"
+    "vscode": "^1.105.0"
   },
   "categories": [
     "Linters"
@@ -516,7 +516,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.13.0",
     "@types/node-fetch": "^2.6.11",
-    "@types/vscode": "^1.102.0",
+    "@types/vscode": "^1.105.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
