@@ -1,3 +1,10 @@
+## v0.25.4 (2025-12-02)
+
+### Fix
+
+- **deps**: bump glob from 11.1.0 to 13.0.0 (#928)
+- **deps**: bump portfinder from 1.0.37 to 1.0.38 (#927)
+
 ## v0.25.3 (2025-11-18)
 
 ### Fix
