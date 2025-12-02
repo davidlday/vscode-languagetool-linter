@@ -524,7 +524,7 @@
     "@vscode/vsce": "^3.6.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jsdoc": "^61.1.12",
+    "eslint-plugin-jsdoc": "^61.4.1",
     "json": "^11.0.0",
     "mocha": "^11.7.1",
     "ts-loader": "^9.5.2",
