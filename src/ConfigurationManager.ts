@@ -14,7 +14,8 @@
  *   limitations under the License.
  */
 
-import execa from "execa";
+import { execa, ExecaError } from "execa";
+import type { ResultPromise } from "execa";
 import { glob } from "glob";
 import * as path from "path";
 import * as portfinder from "portfinder";
@@ -38,7 +39,7 @@ export class ConfigurationManager implements Disposable {
   private config: WorkspaceConfiguration;
   private serviceUrl: string | undefined;
   private managedPort: number | undefined;
-  private process: execa.ExecaChildProcess | undefined;
+  private process: ResultPromise | undefined;
   private serviceParameters: Map<string, string> = new Map();
   private lintingSuspended: boolean = false;
 
@@ -311,7 +312,7 @@ export class ConfigurationManager implements Disposable {
       Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
         "Closing managed service server.",
       );
-      this.process.cancel();
+      this.process.kill();
       this.process = undefined;
     }
   }
@@ -518,8 +519,8 @@ export class ConfigurationManager implements Disposable {
                 "Starting managed service.",
               );
               (this.process = execa("java", args)).catch(
-                (err: execa.ExecaError) => {
-                  if (err.isCanceled) {
+                (err: ExecaError) => {
+                  if (err.isTerminated) {
                     Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
                       "Managed service process stopped.",
                     );
@@ -534,12 +535,12 @@ export class ConfigurationManager implements Disposable {
                   }
                 },
               );
-              this.process.stderr?.addListener("data", (data) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+              this.process.stderr?.addListener("data", (data: Buffer | string) => {
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data.toString());
                 Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
               });
-              this.process.stdout?.addListener("data", (data) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data);
+              this.process.stdout?.addListener("data", (data: Buffer | string) => {
+                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data.toString());
               });
               this.serviceUrl = this.findServiceUrl(this.getServiceType());
             }
