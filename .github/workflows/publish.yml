@@ -1,4 +1,4 @@
-name: VSCE Publish
+name: Publish Extension to Marketplaces
 
 on:
   push:
@@ -38,18 +38,3 @@ jobs:
         with:
           pat: ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
           registryUrl: https://marketplace.visualstudio.com
-#  Original job
-# jobs:
-#   publish:
-#     runs-on: ubuntu-latest
-#     steps:
-#     - uses: actions/checkout@v6
-#     - uses: actions/setup-node@v1
-#       with:
-#         node-version: 14
-#     - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-#       name: Start Xvfb
-#     - run: npm install -g typescript vsce
-#     - run: npm ci
-#     - run: vsce package
-#     - run: vsce publish --pat ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}

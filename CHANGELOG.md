@@ -1,10 +1,3 @@
-## v0.25.6 (2026-04-11)
-
-### Fix
-
-- **deps**: bump lodash from 4.17.21 to 4.18.1 (#966)
-- **deps**: bump picomatch (#963)
-
 ## v0.25.5 (2025-12-06)
 
 ### Fix
