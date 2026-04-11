@@ -4,7 +4,7 @@
   "description": "LanguageTool integration for VS Code.",
   "version": "0.25.6",
   "engines": {
-    "vscode": "^1.105.0"
+    "vscode": "^1.108.1"
   },
   "categories": [
     "Linters"
