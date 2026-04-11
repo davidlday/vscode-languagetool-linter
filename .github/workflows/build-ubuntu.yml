@@ -1,0 +1,25 @@
+name: Build on Ubuntu
+
+on: workflow_call
+
+jobs:
+  ubuntu-build:
+    runs-on: ubuntu-latest
+    env:
+      DISPLAY: ":99.0"
+      CI: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        name: Start Xvfb
+      - run: npm ci
+      - run: npm run vscode:prepublish
+      - run: npm run test-compile
+      - run: npm test
+        name: Test
+      - run: npm run lint
+        name: ESLint
