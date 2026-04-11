@@ -17,7 +17,6 @@
 import { IAnnotatedtext, IAnnotation } from "annotatedtext";
 import * as RehypeBuilder from "annotatedtext-rehype";
 import * as RemarkBuilder from "annotatedtext-remark";
-import * as Fetch from "node-fetch";
 import {
   CancellationToken,
   CodeAction,
@@ -102,8 +101,12 @@ export class Linter implements CodeActionProvider {
     document: TextDocument,
     _range: Range,
     context: CodeActionContext,
-    _token: CancellationToken,
+    token: CancellationToken,
   ): CodeAction[] {
+    if (token.isCancellationRequested) {
+      return [];
+    }
+
     const diagnostics = context.diagnostics || [];
     const actions: CodeAction[] = [];
     diagnostics
@@ -112,6 +115,10 @@ export class Linter implements CodeActionProvider {
           diagnostic.source === Constants.EXTENSION_DIAGNOSTIC_SOURCE,
       )
       .forEach((diagnostic) => {
+        if (token.isCancellationRequested) {
+          return;
+        }
+
         const match: ILanguageToolMatch | undefined = (
           diagnostic as LTDiagnostic
         ).match;
@@ -312,8 +319,9 @@ export class Linter implements CodeActionProvider {
     this.statusBarManager.setChecking();
     const ltPostDataDict: Record<string, string> = this.getPostDataTemplate();
     ltPostDataDict.data = annotatedText;
-    this.callLanguageTool(document, ltPostDataDict);
-    this.statusBarManager.setIdle();
+    void this.callLanguageTool(document, ltPostDataDict).finally(() => {
+      this.statusBarManager.setIdle();
+    });
   }
 
   // Apply smart formatting to annotated text.
@@ -389,44 +397,76 @@ export class Linter implements CodeActionProvider {
   private callLanguageTool(
     document: TextDocument,
     ltPostDataDict: Record<string, string>,
-  ): void {
+  ): Promise<void> {
     const url = this.configManager.getUrl();
-    if (url) {
-      const formBody = Object.keys(ltPostDataDict)
-        .map(
-          (key: string) =>
-            encodeURIComponent(key) +
-            "=" +
-            encodeURIComponent(ltPostDataDict[key]),
-        )
-        .join("&");
-
-      const options: Fetch.RequestInit = {
-        body: formBody,
-        headers: {
-          "Accepts": "application/json",
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-        },
-        method: "POST",
-      };
-      Fetch.default(url, options)
-        .then((res) => res.json())
-        .then((json: ILanguageToolResponse) => {
-          this.statusBarManager.setLtSoftware(json.software);
-          this.suggest(document, json);
-        })
-        .catch((err) => {
-          this.outputChannel?.appendLine(
-            "Error connecting to " + url,
-          );
-          this.outputChannel?.appendLine(String(err));
-        });
-    } else {
+    if (!url) {
       this.outputChannel?.appendLine(
         "No LanguageTool URL provided. Please check your settings and try again.",
       );
       this.outputChannel?.show(true);
+      return Promise.resolve();
     }
+
+    const formBody = Object.keys(ltPostDataDict)
+      .map(
+        (key: string) =>
+          encodeURIComponent(key) +
+          "=" +
+          encodeURIComponent(ltPostDataDict[key]),
+      )
+      .join("&");
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, Constants.SERVICE_REQUEST_TIMEOUT_MS);
+
+    const options = {
+      body: formBody,
+      headers: {
+        "Accepts": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+      },
+      method: "POST",
+      signal: controller.signal,
+    };
+
+    return fetch(url, options)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(
+            `LanguageTool request failed: ${res.status} ${res.statusText}`,
+          );
+        }
+        return res.json() as Promise<ILanguageToolResponse>;
+      })
+      .then((json: ILanguageToolResponse) => {
+        this.statusBarManager.setLtSoftware(json.software);
+        this.suggest(document, json);
+      })
+      .catch((err: unknown) => {
+        const isAbortError = err instanceof Error && err.name === "AbortError";
+        const msg = isAbortError
+          ? `LanguageTool request timed out after ${Constants.SERVICE_REQUEST_TIMEOUT_MS}ms`
+          : String(err);
+        this.outputChannel?.appendLine("Error connecting to " + url);
+        this.outputChannel?.appendLine(msg);
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+      });
+  }
+
+  private isValidMatchRange(
+    document: TextDocument,
+    match: ILanguageToolMatch,
+  ): boolean {
+    if (match.offset < 0 || match.length < 0) {
+      return false;
+    }
+
+    const maxLength = document.getText().length;
+    return match.offset <= maxLength && match.offset + match.length <= maxLength;
   }
 
   // Convert LanguageTool Suggestions into QuickFix CodeActions
@@ -438,6 +478,13 @@ export class Linter implements CodeActionProvider {
     const matches = response.matches;
     const diagnostics: LTDiagnostic[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
+      if (!this.isValidMatchRange(document, match)) {
+        this.outputChannel?.appendLine(
+          `Skipping invalid LanguageTool match range offset=${match.offset} length=${match.length}`,
+        );
+        return;
+      }
+
       const start: Position = document.positionAt(match.offset);
       const end: Position = document.positionAt(match.offset + match.length);
       const ignored: IIgnoreItem[] = this.getIgnoreList(document, start);
@@ -570,7 +617,7 @@ export class Linter implements CodeActionProvider {
       usrIgnoreAction.diagnostics = [];
       usrIgnoreAction.diagnostics.push(diagnostic);
       actions.push(usrIgnoreAction);
-      if (workspace !== undefined) {
+      if (workspace.workspaceFolders?.length) {
         const wsIgnoreActionTitle: string =
           "Ignore '" + word + "' in Workspace";
         const wsIgnoreAction: CodeAction = new CodeAction(
@@ -672,7 +719,7 @@ export class Linter implements CodeActionProvider {
         usrDisableRuleAction.diagnostics.push(diagnostic);
         actions.push(usrDisableRuleAction);
 
-        if (workspace !== undefined) {
+        if (workspace.workspaceFolders?.length) {
           const wsDisableRuleTitle: string =
             "Disable '" + rule.description + "' (" + rule.id + ") in Workspace";
           const wsDisableRuleAction: CodeAction = new CodeAction(
@@ -705,7 +752,7 @@ export class Linter implements CodeActionProvider {
         usrDisableCategoryAction.diagnostics.push(diagnostic);
         actions.push(usrDisableCategoryAction);
 
-        if (workspace !== undefined) {
+        if (workspace.workspaceFolders?.length) {
           const wsDisableCategoryTitle: string =
             "Disable '" + rule.category.name + "' in Workspace";
           const wsDisableCategoryAction: CodeAction = new CodeAction(

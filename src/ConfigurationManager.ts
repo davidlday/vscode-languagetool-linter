@@ -26,6 +26,7 @@ import {
   DiagnosticSeverity,
   Disposable,
   DocumentSelector,
+  OutputChannel,
   TextDocument,
   Uri,
   window,
@@ -42,9 +43,11 @@ export class ConfigurationManager implements Disposable {
   private process: ResultPromise | undefined;
   private serviceParameters: Map<string, string> = new Map();
   private lintingSuspended: boolean = false;
+  private readonly outputChannel?: OutputChannel;
 
   // Constructor
-  constructor() {
+  constructor(outputChannel?: OutputChannel) {
+    this.outputChannel = outputChannel;
     this.config = workspace.getConfiguration(Constants.CONFIGURATION_ROOT);
     this.serviceUrl = this.findServiceUrl(this.getServiceType());
     this.startManagedService();
@@ -309,9 +312,7 @@ export class ConfigurationManager implements Disposable {
   // Stop the managed service
   public stopManagedService(): void {
     if (this.process) {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-        "Closing managed service server.",
-      );
+      this.outputChannel?.appendLine("Closing managed service server.");
       this.process.kill();
       this.process = undefined;
     }
@@ -419,9 +420,9 @@ export class ConfigurationManager implements Disposable {
       const value: string | undefined = config.get(configKey);
       if (value) {
         parameters.set(ltKey, value);
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": " + value);
+        this.outputChannel?.appendLine(ltKey + ": " + value);
       } else {
-        Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(ltKey + ": --");
+        this.outputChannel?.appendLine(ltKey + ": --");
       }
     });
     // Only add user name and API key to options if set and we are using the
@@ -488,6 +489,14 @@ export class ConfigurationManager implements Disposable {
 
   private startManagedService(): void {
     if (this.getServiceType() === Constants.SERVICE_TYPE_MANAGED) {
+      if (!workspace.isTrusted) {
+        window.showWarningMessage(
+          "LanguageTool managed service is disabled in untrusted workspaces.",
+        );
+        this.stopManagedService();
+        return;
+      }
+
       const classpath: string = this.getClassPath();
       const minimumPort: number = this.getMinimumPort();
       const maximumPort: number = this.getMaximumPort();
@@ -502,10 +511,10 @@ export class ConfigurationManager implements Disposable {
           { host: "127.0.0.1", port: minimumPort, stopPort: maximumPort },
           (error: Error, port: number) => {
             if (error) {
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+              this.outputChannel?.appendLine(
                 "Error getting open port: " + error.message,
               );
-              Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+              this.outputChannel?.show(true);
             } else {
               this.setManagedServicePort(port);
               const args: string[] = [
@@ -515,33 +524,35 @@ export class ConfigurationManager implements Disposable {
                 "--port",
                 port.toString(),
               ];
-              Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                "Starting managed service.",
-              );
-              (this.process = execa("java", args)).catch(
-                (err: ExecaError) => {
-                  if (err.isTerminated) {
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Managed service process stopped.",
-                    );
-                  } else if (err.failed) {
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Managed service command failed: " + err.command,
-                    );
-                    Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
-                      "Error Message: " + err.message,
-                    );
-                    Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-                  }
+              this.outputChannel?.appendLine("Starting managed service.");
+              (this.process = execa("java", args)).catch((err: ExecaError) => {
+                if (err.isTerminated) {
+                  this.outputChannel?.appendLine(
+                    "Managed service process stopped.",
+                  );
+                } else if (err.failed) {
+                  this.outputChannel?.appendLine(
+                    "Managed service command failed: " + err.command,
+                  );
+                  this.outputChannel?.appendLine(
+                    "Error Message: " + err.message,
+                  );
+                  this.outputChannel?.show(true);
+                }
+              });
+              this.process.stderr?.addListener(
+                "data",
+                (data: Buffer | string) => {
+                  this.outputChannel?.appendLine(data.toString());
+                  this.outputChannel?.show(true);
                 },
               );
-              this.process.stderr?.addListener("data", (data: Buffer | string) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data.toString());
-                Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
-              });
-              this.process.stdout?.addListener("data", (data: Buffer | string) => {
-                Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(data.toString());
-              });
+              this.process.stdout?.addListener(
+                "data",
+                (data: Buffer | string) => {
+                  this.outputChannel?.appendLine(data.toString());
+                },
+              );
               this.serviceUrl = this.findServiceUrl(this.getServiceType());
             }
           },

@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext): void {
   outputChannel = vscode.window.createOutputChannel("LanguageTool Linter");
   context.subscriptions.push(outputChannel);
 
-  configManager = new ConfigurationManager();
+  configManager = new ConfigurationManager(outputChannel);
   linter = new Linter(configManager, outputChannel);
 
   const onTypeDispatcher = new OnTypeFormattingDispatcher({

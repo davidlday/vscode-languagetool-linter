@@ -514,7 +514,6 @@
     "@types/eslint__js": "^8.42.3",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.6.0",
-    "@types/node-fetch": "^2.6.11",
     "@types/vscode": "^1.100.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
@@ -538,7 +537,6 @@
     "annotatedtext-remark": "^0.8.0",
     "execa": "^9.6.1",
     "glob": "^13.0.0",
-    "node-fetch": "^2.7.0",
     "portfinder": "^1.0.38"
   }
 }

@@ -15,6 +15,7 @@ jobs:
         uses: actions/setup-node@v6.3.0
         with:
           node-version: lts/*
+          cache: npm
       - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         name: Start Xvfb
       - run: npm ci
