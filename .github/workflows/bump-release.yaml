@@ -10,7 +10,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  ubuntu-build:
+    uses: ./.github/workflows/build-ubuntu.yml
+
+  macos-build:
+    uses: ./.github/workflows/build-macos.yml
+
+  windows-build:
+    uses: ./.github/workflows/build-windows.yml
+
   bump-and-release:
+    needs:
+      - ubuntu-build
+      - macos-build
+      - windows-build
     # if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: ubuntu-latest
     name: "Bump version and create changelog with commitizen"
