@@ -1,0 +1,27 @@
+name: Build on Windows
+
+on: workflow_call
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+    name: Build on Windows
+    env:
+      CI: true
+    steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.3.0
+        with:
+          node-version: lts/*
+      - run: npm ci
+      - run: npm run vscode:prepublish
+      - run: npm run test-compile
+      - run: npm test
+        name: Test
+      - run: npm run lint
+        name: ESLint
