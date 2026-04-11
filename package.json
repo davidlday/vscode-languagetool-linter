@@ -4,7 +4,8 @@
   "description": "LanguageTool integration for VS Code.",
   "version": "0.25.6",
   "engines": {
-    "vscode": "^1.108.1"
+    "vscode": "^1.100.0",
+    "node": "^18.0.0"
   },
   "categories": [
     "Linters"
@@ -498,16 +499,14 @@
   },
   "scripts": {
     "clean": "rm -rf out/* dist/*",
-    "vscode:prepublish": "webpack --mode production",
+    "vscode:prepublish": "npm run compile",
+    "compile": "webpack --mode production",
     "webpack": "webpack --mode development",
     "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
-    "compile": "webpack --mode none",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
-    "test-compile": "npm run main-out && tsc -p ./",
-    "main-out": "json -I -f package.json -e 'this.main=\"./out/src/extension.js\"'",
-    "main-dist": "json -I -f package.json -e 'this.main=\"./dist/extension.js\"'",
+    "test-compile": "tsc -p ./",
     "pretest": "npm run test-compile",
-    "test": "node ./out/test/runTest.js && npm run main-dist",
+    "test": "node ./out/test/runTest.js",
     "lint": "eslint ./src/"
   },
   "devDependencies": {
@@ -516,7 +515,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.6.0",
     "@types/node-fetch": "^2.6.11",
-    "@types/vscode": "^1.108.1",
+    "@types/vscode": "^1.100.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
@@ -525,11 +524,10 @@
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.9.0",
-    "json": "^11.0.0",
     "mocha": "^11.7.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.2",
+    "typescript": "^5.7.0",
     "typescript-eslint": "^8.58.1",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1",

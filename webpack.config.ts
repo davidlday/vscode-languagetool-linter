@@ -6,10 +6,10 @@
 import * as path from "path";
 import LicensePlugin from "webpack-license-plugin";
 
-// tslint:disable-next-line: jsdoc-format
 /**@type {import("webpack").Configuration}*/
 const config = {
-  devtool: "source-map",
+  mode: process.env.NODE_ENV === "production" ? "production" : "development",
+  devtool: process.env.NODE_ENV === "production" ? "source-map" : "source-map",
   entry: "./src/extension.ts",
   externals: {
     vscode: "commonjs vscode",

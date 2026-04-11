@@ -29,6 +29,7 @@ import {
   DiagnosticCollection,
   DiagnosticSeverity,
   languages,
+  OutputChannel,
   Position,
   Range,
   TextDocument,
@@ -81,11 +82,13 @@ export class Linter implements CodeActionProvider {
 
   private readonly configManager: ConfigurationManager;
   private readonly statusBarManager: StatusBarManager;
+  private readonly outputChannel: OutputChannel | undefined;
   private timeoutMap: Map<string, NodeJS.Timeout>;
   private ignoreList: IIgnoreItem[] = [];
 
-  constructor(configManager: ConfigurationManager) {
+  constructor(configManager: ConfigurationManager, outputChannel?: OutputChannel) {
     this.configManager = configManager;
+    this.outputChannel = outputChannel;
     this.timeoutMap = new Map<string, NodeJS.Timeout>();
     this.diagnosticCollection = languages.createDiagnosticCollection(
       Constants.EXTENSION_DISPLAY_NAME,
@@ -214,6 +217,20 @@ export class Linter implements CodeActionProvider {
         this.statusBarManager.setIdle();
       }
     }
+  }
+
+  // Clear all pending lint timeouts - called during deactivation
+  public clearAllPendingTimeouts(): void {
+    this.timeoutMap.forEach((timeout: NodeJS.Timeout) => {
+      clearTimeout(timeout);
+    });
+    this.timeoutMap.clear();
+    this.statusBarManager.setIdle();
+  }
+
+  // Clear all diagnostics - called during deactivation
+  public clearAllDiagnostics(): void {
+    this.diagnosticCollection.clear();
   }
 
   // Build annotatedtext from Markdown
@@ -399,16 +416,16 @@ export class Linter implements CodeActionProvider {
           this.suggest(document, json);
         })
         .catch((err) => {
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+          this.outputChannel?.appendLine(
             "Error connecting to " + url,
           );
-          Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(err);
+          this.outputChannel?.appendLine(String(err));
         });
     } else {
-      Constants.EXTENSION_OUTPUT_CHANNEL.appendLine(
+      this.outputChannel?.appendLine(
         "No LanguageTool URL provided. Please check your settings and try again.",
       );
-      Constants.EXTENSION_OUTPUT_CHANNEL.show(true);
+      this.outputChannel?.show(true);
     }
   }
 
