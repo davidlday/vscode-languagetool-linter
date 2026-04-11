@@ -1,8 +1,6 @@
 # LanguageTool Linter for Visual Studio Code
 
 [![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/davidlday/vscode-languagetool-linter/nodejs-ci.yml)](https://github.com/davidlday/vscode-languagetool-linter/actions/workflows/nodejs-ci.yml)
-[![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
-[![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/davidlday.languagetool-linter?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter)
 
 Grammar, Style and Spell Checking in VS Code via
 [LanguageTool](https://languagetool.org). Support Markdown, MDX, HTML, and plain
@@ -41,7 +39,6 @@ The defaults assume the following:
 2. You're running
    [LanguageTool HTTP Server](https://dev.languagetool.org/http-server) on your
    machine using the default port of 8081.
-
    - You can run a local LanguageTool server using the
      [unofficial Docker image](https://github.com/silvio/docker-languagetool)
      with `docker run --rm -p 8081:8010 silviof/docker-languagetool`. See
