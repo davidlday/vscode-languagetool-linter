@@ -2,7 +2,7 @@ name: Bump Version and Create Release
 
 on:
   schedule:
-    - cron: "0 17 * * 5" # Every Friday at noon EST (17:00 UTC)
+    - cron: "0 17 * * 5" # Every Friday at 17:00 UTC (noon EST / 1pm EDT)
   workflow_dispatch:
 
 concurrency:
