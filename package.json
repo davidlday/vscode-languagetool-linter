@@ -508,7 +508,26 @@
     "main-dist": "json -I -f package.json -e 'this.main=\"./dist/extension.js\"'",
     "pretest": "npm run test-compile",
     "test": "node ./out/test/runTest.js && npm run main-dist",
+    "coverage:instrument": "nyc instrument --in-place out/src/",
+    "coverage:report": "nyc report",
+    "coverage:check": "nyc check-coverage",
+    "test:coverage": "npm run test-compile && npm run coverage:instrument && node ./out/test/runTest.js && npm run main-dist && npm run coverage:report && npm run coverage:check",
     "lint": "eslint ./src/"
+  },
+  "nyc": {
+    "include": [
+      "out/src/**/*.js"
+    ],
+    "reporter": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "all": true,
+    "branches": 60,
+    "lines": 60,
+    "functions": 60,
+    "statements": 60
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",
@@ -527,6 +546,7 @@
     "eslint-plugin-jsdoc": "^62.9.0",
     "json": "^11.0.0",
     "mocha": "^11.7.5",
+    "nyc": "^15.1.0",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2",
