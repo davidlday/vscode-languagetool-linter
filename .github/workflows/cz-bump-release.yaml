@@ -1,9 +1,9 @@
 name: Bump Version and Create Release
 
 on:
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: "0 17 * * 5" # Every Friday at 17:00 UTC (noon EST / 1pm EDT)
+  workflow_dispatch:
 
 concurrency:
   group: tag-and-release-${{ github.ref }}
@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   bump-and-release:
-    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    # if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: ubuntu-latest
     name: "Bump version and create changelog with commitizen"
     steps:
