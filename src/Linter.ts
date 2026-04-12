@@ -461,16 +461,16 @@ export class Linter implements CodeActionProvider {
   }
 
   private isValidMatchRange(
-    document: TextDocument,
     match: ILanguageToolMatch,
+    documentLength: number,
   ): boolean {
     if (match.offset < 0 || match.length < 0) {
       return false;
     }
 
-    const maxLength = document.getText().length;
     return (
-      match.offset <= maxLength && match.offset + match.length <= maxLength
+      match.offset <= documentLength &&
+      match.offset + match.length <= documentLength
     );
   }
 
@@ -481,9 +481,10 @@ export class Linter implements CodeActionProvider {
   ): void {
     this.statusBarManager.setLtSoftware(response.software);
     const matches = response.matches;
+    const documentLength = document.getText().length;
     const diagnostics: LTDiagnostic[] = [];
     matches.forEach((match: ILanguageToolMatch) => {
-      if (!this.isValidMatchRange(document, match)) {
+      if (!this.isValidMatchRange(match, documentLength)) {
         this.outputChannel?.appendLine(
           `Skipping invalid LanguageTool match range offset=${match.offset} length=${match.length}`,
         );
