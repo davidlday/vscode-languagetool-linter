@@ -85,7 +85,10 @@ export class Linter implements CodeActionProvider {
   private timeoutMap: Map<string, NodeJS.Timeout>;
   private ignoreList: IIgnoreItem[] = [];
 
-  constructor(configManager: ConfigurationManager, outputChannel?: OutputChannel) {
+  constructor(
+    configManager: ConfigurationManager,
+    outputChannel?: OutputChannel,
+  ) {
     this.configManager = configManager;
     this.outputChannel = outputChannel;
     this.timeoutMap = new Map<string, NodeJS.Timeout>();
@@ -424,7 +427,7 @@ export class Linter implements CodeActionProvider {
     const options = {
       body: formBody,
       headers: {
-        "Accepts": "application/json",
+        "Accept": "application/json",
         "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
       },
       method: "POST",
@@ -466,7 +469,9 @@ export class Linter implements CodeActionProvider {
     }
 
     const maxLength = document.getText().length;
-    return match.offset <= maxLength && match.offset + match.length <= maxLength;
+    return (
+      match.offset <= maxLength && match.offset + match.length <= maxLength
+    );
   }
 
   // Convert LanguageTool Suggestions into QuickFix CodeActions
