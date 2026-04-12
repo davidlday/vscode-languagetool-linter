@@ -9,7 +9,7 @@ import LicensePlugin from "webpack-license-plugin";
 /**@type {import("webpack").Configuration}*/
 const config = {
   mode: process.env.NODE_ENV === "production" ? "production" : "development",
-  devtool: process.env.NODE_ENV === "production" ? "source-map" : "source-map",
+  devtool: "source-map",
   entry: "./src/extension.ts",
   externals: {
     vscode: "commonjs vscode",
