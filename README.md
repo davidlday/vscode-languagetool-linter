@@ -128,6 +128,90 @@ The and the `text-match` is optional.
 _Note_: Even in pandoc you have to handle the comment in html output. This can
 be done by using a filter.
 
+## Development
+
+This extension uses TypeScript, webpack, and VS Code extension integration
+tests.
+
+### Local setup
+
+1. Install dependencies:
+
+    ```sh
+    npm ci
+    ```
+
+1. Build extension and test outputs:
+
+    ```sh
+    npm run vscode:prepublish
+    npm run test-compile
+    ```
+
+### Validation commands
+
+- Run lint:
+
+   ```sh
+   npm run lint
+   ```
+
+- Run test suite:
+
+   ```sh
+   npm test
+   ```
+
+- Run tests with coverage:
+
+   ```sh
+   npm run test:coverage
+   ```
+
+Coverage reports are written to `coverage/` and include `lcov` output for CI
+and local inspection.
+
+### Architecture notes
+
+- `src/extension.ts` wires activation and deactivation, command registration,
+   and provider registration.
+- `src/Linter.ts` contains request flow, diagnostics generation, quick-fix code
+   actions, and smart formatting entry points.
+- `src/ConfigurationManager.ts` owns extension configuration, LanguageTool
+   service URL resolution, and optional managed-service lifecycle.
+- `src/OnTypeFormattingDispatcher.ts` routes on-type formatting events to the
+   quote, ellipsis, and dash formatting providers.
+
+### Test strategy
+
+- Integration tests run in the VS Code extension host from `test/suite/*.test.ts`.
+- Fixture-based parsing behavior is validated with inputs under
+   `test-fixtures/workspace/`.
+- Focused unit-style tests exercise rule/category helpers, range safety, and
+   on-type formatting dispatcher logic.
+
+When adding behavior, prefer:
+
+1. Updating or adding a fixture test for document parsing behavior.
+1. Adding a focused test for helper logic or edge/error paths.
+1. Running `npm run test:coverage` to monitor changes in source coverage.
+
+### CI workflows
+
+- `nodejs-ci.yml` orchestrates platform builds and commitizen dry-run checks.
+- `build-ubuntu.yml`, `build-macos.yml`, and `build-windows.yml` run lint and
+   tests on each platform.
+- `codeql-analysis.yml` performs scheduled and pull-request security analysis.
+- `publish.yml` publishes tagged releases to Open VSX and VS Marketplace.
+
+Local parity command set before opening a PR:
+
+```sh
+npm run lint
+npm test
+npm run test:coverage
+```
+
 ## Credits
 
 The following projects provided excellent guidance on creating this project.

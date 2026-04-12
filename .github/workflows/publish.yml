@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-node@v6.3.0
         with:
           node-version: lts/*
+          cache: npm
       - run: npm ci
       - name: Publish to Open VSX Registry
         uses: HaaLeo/publish-vscode-extension@v2
@@ -32,6 +33,7 @@ jobs:
         uses: actions/setup-node@v6.3.0
         with:
           node-version: lts/*
+          cache: npm
       - run: npm ci
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v2
