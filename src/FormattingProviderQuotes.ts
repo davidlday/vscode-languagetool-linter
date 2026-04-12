@@ -81,7 +81,6 @@ export class FormattingProviderQuotes
               ),
             ];
           }
-          break;
         case FormattingProviderQuotes.singleQuote:
           if (
             [
