@@ -505,7 +505,7 @@
     "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
     "test-compile": "tsc -p ./",
-    "pretest": "npm run test-compile",
+    "pretest": "npm run test-compile && npm run compile",
     "test": "node ./out/test/runTest.js",
     "test:coverage": "c8 --include=out/src/**/*.js --exclude=out/test/** --reporter=text-summary --reporter=lcov npm test",
     "lint": "eslint ./src/"
