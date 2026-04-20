@@ -14,12 +14,9 @@
  *   limitations under the License.
  */
 
-import { OutputChannel, window } from "vscode";
-
 // General Extension
 export const EXTENSION_TIMEOUT_MS = 500;
-export const EXTENSION_OUTPUT_CHANNEL: OutputChannel =
-  window.createOutputChannel("LanguageTool Linter");
+export const SERVICE_REQUEST_TIMEOUT_MS = 10000;
 export const EXTENSION_DISPLAY_NAME = "languagetool-linter";
 export const EXTENSION_DIAGNOSTIC_SOURCE = "LanguageTool";
 
