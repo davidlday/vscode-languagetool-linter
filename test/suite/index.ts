@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { glob } from "glob";
 import Mocha from "mocha";
 import * as path from "path";
@@ -20,6 +21,19 @@ export function run(): Promise<void> {
     try {
       // Run the mocha test
       mocha.run((failures) => {
+        // Write Istanbul coverage data if available (for nyc reporting)
+        const coverageData = (global as any).__coverage__;
+        if (coverageData) {
+          const nycOutputDir = path.resolve(__dirname, "../../../.nyc_output");
+          if (!fs.existsSync(nycOutputDir)) {
+            fs.mkdirSync(nycOutputDir, { recursive: true });
+          }
+          fs.writeFileSync(
+            path.resolve(nycOutputDir, "coverage.json"),
+            JSON.stringify(coverageData)
+          );
+        }
+
         if (failures > 0) {
           e(new Error(`${failures} tests failed.`));
         } else {
