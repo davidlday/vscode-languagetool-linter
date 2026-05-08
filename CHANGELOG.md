@@ -1,3 +1,10 @@
+## v0.25.8 (2026-05-08)
+
+### Fix
+
+- **deps**: bump glob from 13.0.0 to 13.0.6 (#982)
+- **deps**: bump uuid and @azure/identity (#986)
+
 ## v0.25.7 (2026-04-17)
 
 ### Fix
