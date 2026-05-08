@@ -516,7 +516,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.6.0",
     "@types/node-fetch": "^2.6.11",
-    "@types/vscode": "^1.108.1",
+    "@types/vscode": "^1.118.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.59.1",
     "@typescript-eslint/parser": "^8.59.1",
