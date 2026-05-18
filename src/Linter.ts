@@ -48,6 +48,7 @@ import {
   ILanguageToolReplacement,
   ILanguageToolResponse,
 } from "./Interfaces";
+import { buildAnnotatedTypst } from "./parsers/TypstParser";
 import { StatusBarManager } from "./StatusBarManager";
 
 class LTDiagnostic extends Diagnostic {
@@ -251,6 +252,9 @@ export class Linter implements CodeActionProvider {
       case Constants.LANGUAGE_ID_HTML:
         annotatedtext = this.buildAnnotatedHTML(document.getText());
         break;
+      case Constants.LANGUAGE_ID_TYPST:
+        annotatedtext = buildAnnotatedTypst(document.getText());
+        break;
       default:
         annotatedtext = this.buildAnnotatedPlaintext(document.getText());
         break;
@@ -270,6 +274,11 @@ export class Linter implements CodeActionProvider {
       } else if (document.languageId === Constants.LANGUAGE_ID_HTML) {
         const annotatedHTML: string = JSON.stringify(
           this.buildAnnotatedHTML(document.getText()),
+        );
+        this.lintAnnotatedText(document, annotatedHTML);
+      } else if (document.languageId === Constants.LANGUAGE_ID_TYPST) {
+        const annotatedHTML: string = JSON.stringify(
+          buildAnnotatedTypst(document.getText()),
         );
         this.lintAnnotatedText(document, annotatedHTML);
       } else {
