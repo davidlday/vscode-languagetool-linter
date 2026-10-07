@@ -19,7 +19,8 @@
     "mdx",
     "proofread",
     "spell",
-    "spelling"
+    "spelling",
+    "typst"
   ],
   "icon": "images/LanguageTool-Icon.png",
   "galleryBanner": {
@@ -41,7 +42,8 @@
     "onLanguage:plaintext",
     "onLanguage:markdown",
     "onLanguage:mdx",
-    "onLanguage:html"
+    "onLanguage:html",
+    "onLanguage:typst"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -76,31 +78,31 @@
       "commandPalette": [
         {
           "command": "languagetoolLinter.checkDocument",
-          "when": "editorLangId == markdown || editorLangId == html"
+          "when": "editorLangId == markdown || editorLangId == html || editorLangId == typst"
         },
         {
           "command": "languagetoolLinter.checkDocumentAsPlainText",
-          "when": "editorLangId != markdown && editorLangId != html"
+          "when": "editorLangId != markdown && editorLangId != html && editorLangId != typst"
         },
         {
           "command": "languagetoolLinter.clearDocumentDiagnostics"
         },
         {
           "command": "languagetoolLinter.smartFormatDocument",
-          "when": "editorLangId == markdown || editorLangId == html"
+          "when": "editorLangId == markdown || editorLangId == html || editorLangId == typst"
         }
       ],
       "editor/context": [
         {
           "command": "languagetoolLinter.checkDocument",
           "title": "LanguageTool: Check Document",
-          "when": "editorLangId == markdown || editorLangId == html",
+          "when": "editorLangId == markdown || editorLangId == html || editorLangId == typst",
           "group": "LanguageTool"
         },
         {
           "command": "languagetoolLinter.checkDocumentAsPlainText",
           "title": "LanguageTool: Force Check as Plain Text Document",
-          "when": "editorLangId != markdown && editorLangId != html",
+          "when": "editorLangId != markdown && editorLangId != html && editorLangId != typst",
           "group": "LanguageTool"
         },
         {
@@ -111,7 +113,7 @@
         {
           "command": "languagetoolLinter.smartFormatDocument",
           "title": "LanguageTool: Smart Format Document",
-          "when": "editorLangId == markdown || editorLangId == html",
+          "when": "editorLangId == markdown || editorLangId == html || editorLangId == typst",
           "group": "LanguageTool"
         }
       ]
